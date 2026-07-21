@@ -4,9 +4,9 @@ function Navbar() {
   return (
     <nav className="navbar">
 
-      <div className="logo">
-        CareerBridge
-      </div>
+     <div className="logo">
+    🎓 CareerBridge
+</div>
 
       <ul className="nav-links">
 
