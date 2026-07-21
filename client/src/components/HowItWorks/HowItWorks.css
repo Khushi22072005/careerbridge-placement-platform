@@ -1,0 +1,65 @@
+.how-it-works{
+
+padding:90px 80px;
+
+background:white;
+
+text-align:center;
+
+}
+
+.steps{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:30px;
+
+margin-top:60px;
+
+}
+
+.step-card{
+
+padding:30px;
+
+border-radius:15px;
+
+background:#F8FAFC;
+
+transition:.3s;
+
+box-shadow:0 4px 15px rgba(0,0,0,.05);
+
+}
+
+.step-card:hover{
+
+transform:translateY(-10px);
+
+}
+
+.step-card span{
+
+font-size:40px;
+
+font-weight:700;
+
+color:#2563EB;
+
+}
+
+.step-card h3{
+
+margin:20px 0;
+
+}
+
+.step-card p{
+
+color:#64748B;
+
+line-height:1.8;
+
+}
