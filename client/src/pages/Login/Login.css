@@ -1,0 +1,225 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+.login-page{
+
+    width:100%;
+    min-height:100vh;
+
+    display:flex;
+
+    background:linear-gradient(
+        135deg,
+        #6C63FF,
+        #4F46E5,
+        #2563EB
+    );
+
+}
+
+.login-left{
+
+    width:50%;
+
+    color:white;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:70px;
+
+}
+
+.login-left h1{
+
+    font-size:45px;
+
+    margin-bottom:20px;
+
+}
+
+.login-left h2{
+
+    font-size:35px;
+
+    margin-bottom:20px;
+
+}
+
+.login-left p{
+
+    font-size:18px;
+
+    text-align:center;
+
+    line-height:30px;
+
+    margin-bottom:40px;
+
+}
+
+.login-left img{
+
+    width:280px;
+
+}
+
+.login-right{
+
+    width:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.login-card{
+
+    width:430px;
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:45px;
+
+    box-shadow:0 20px 40px rgba(0,0,0,.2);
+
+}
+
+.login-card h2{
+
+    font-size:35px;
+
+    color:#1E293B;
+
+    margin-bottom:10px;
+
+}
+
+.login-card p{
+
+    color:gray;
+
+    margin-bottom:25px;
+
+}
+
+.login-card input{
+
+    width:100%;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+    margin-bottom:20px;
+
+    font-size:16px;
+
+}
+
+.options{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:25px;
+
+    font-size:14px;
+
+}
+
+.options a{
+
+    color:#4F46E5;
+
+}
+
+.login-btn{
+
+    width:100%;
+
+    padding:15px;
+
+    background:#4F46E5;
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+    font-size:17px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.login-btn:hover{
+
+    background:#4338CA;
+
+}
+
+.divider{
+
+    text-align:center;
+
+    margin:25px 0;
+
+    color:gray;
+
+}
+
+.google-btn{
+
+    width:100%;
+
+    padding:15px;
+
+    border:1px solid #ddd;
+
+    background:white;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+}
+
+.register-link{
+
+    margin-top:25px;
+
+    text-align:center;
+
+}
+
+.register-link span{
+
+    color:#4F46E5;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+}
