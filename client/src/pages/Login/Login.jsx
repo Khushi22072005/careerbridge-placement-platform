@@ -1,42 +1,48 @@
 import "./Login.css";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Login() {
+
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
 
-      const data = await response.json();
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        formData
+      );
 
-      if (response.ok) {
-        alert("Login Successful!");
+      alert(res.data.message);
 
-        localStorage.setItem("user", JSON.stringify(data.user));
+      // Save user data (optional)
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-        navigate("/home");
-      } else {
-        alert(data.message);
-      }
-    } catch (error) {
-      alert("Server Error!");
-      console.log(error);
+      // Redirect
+      navigate("/dashboard");
+
+    } catch (err) {
+
+      alert(
+        err.response?.data?.message || "Login Failed"
+      );
+
     }
   };
 
@@ -56,7 +62,7 @@ function Login() {
 
         <img
           src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-          alt="Student"
+          alt="student"
         />
 
       </div>
@@ -73,30 +79,33 @@ function Login() {
 
             <input
               type="email"
+              name="email"
               placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={handleChange}
               required
             />
 
             <input
               type="password"
+              name="password"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
               required
             />
 
             <div className="options">
 
               <label>
+
                 <input type="checkbox" />
+
                 Remember Me
+
               </label>
 
-              <Link to="/forgot-password">
-                Forgot Password?
-              </Link>
+              <a href="#">Forgot Password?</a>
 
             </div>
 
@@ -119,10 +128,8 @@ function Login() {
             </button>
 
             <p className="register-link">
-              Don't have an account?{" "}
-              <Link to="/register">
-                Register
-              </Link>
+              Don't have an account?
+              <span> Register</span>
             </p>
 
           </form>

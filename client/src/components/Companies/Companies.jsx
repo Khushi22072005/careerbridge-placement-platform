@@ -1,39 +1,39 @@
-import "./Companies.css";
+// import "./Companies.css";
 
-function Companies() {
+// function Companies() {
 
-return(
+// return(
 
-<section className="companies">
+// <section className="companies">
 
-<h2>
+// <h2>
 
-Trusted By Students Preparing For
+// Trusted By Students Preparing For
 
-</h2>
+// </h2>
 
-<div className="company-list">
+// <div className="company-list">
 
-<div>Google</div>
+// <div>Google</div>
 
-<div>Microsoft</div>
+// <div>Microsoft</div>
 
-<div>Amazon</div>
+// <div>Amazon</div>
 
-<div>TCS</div>
+// <div>TCS</div>
 
-<div>Infosys</div>
+// <div>Infosys</div>
 
-<div>Accenture</div>
+// <div>Accenture</div>
 
-<div>Capgemini</div>
+// <div>Capgemini</div>
 
-</div>
+// </div>
 
-</section>
+// </section>
 
-);
+// );
 
-}
+// }
 
-export default Companies;
+// export default Companies;
