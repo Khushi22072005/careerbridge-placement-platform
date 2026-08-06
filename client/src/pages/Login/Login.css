@@ -11,12 +11,23 @@
 
     display:flex;
 
-    background:linear-gradient(
+    /* background:linear-gradient(
         135deg,
         #6C63FF,
         #4F46E5,
         #2563EB
-    );
+    ); */
+    background: linear-gradient(
+-45deg,
+#6C63FF,
+#4F46E5,
+#2563EB,
+#0EA5E9
+);
+
+background-size:400% 400%;
+
+animation:gradientBG 12s ease infinite;
 
 }
 
@@ -221,5 +232,20 @@
     cursor:pointer;
 
     font-weight:600;
+
+}
+@keyframes gradientBG{
+
+0%{
+background-position:0% 50%;
+}
+
+50%{
+background-position:100% 50%;
+}
+
+100%{
+background-position:0% 50%;
+}
 
 }
