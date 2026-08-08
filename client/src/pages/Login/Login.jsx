@@ -4,18 +4,17 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
 function Login() {
-
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -23,7 +22,6 @@ function Login() {
     e.preventDefault();
 
     try {
-
       const res = await axios.post(
         "http://localhost:5000/api/auth/login",
         formData
@@ -31,23 +29,34 @@ function Login() {
 
       alert(res.data.message);
 
-      // Save user data (optional)
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      // Save logged-in user
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data.user)
+      );
 
-      // Redirect
+      // Save email for Dashboard API
+      localStorage.setItem(
+        "userEmail",
+        formData.email
+      );
+
+      // Go to dashboard
       navigate("/dashboard");
 
     } catch (err) {
-
       alert(
         err.response?.data?.message || "Login Failed"
       );
-
     }
   };
 
   return (
     <div className="login-page">
+
+      {/* =================================
+          LEFT SIDE
+      ================================= */}
 
       <div className="login-left">
 
@@ -56,8 +65,8 @@ function Login() {
         <h2>Welcome Back 👋</h2>
 
         <p>
-          Continue your journey towards your dream career with AI-powered
-          guidance.
+          Continue your journey towards your dream career
+          with AI-powered guidance.
         </p>
 
         <img
@@ -67,6 +76,11 @@ function Login() {
 
       </div>
 
+
+      {/* =================================
+          RIGHT SIDE
+      ================================= */}
+
       <div className="login-right">
 
         <div className="login-card">
@@ -75,7 +89,10 @@ function Login() {
 
           <p>Sign in to continue</p>
 
+
           <form onSubmit={handleLogin}>
+
+            {/* EMAIL */}
 
             <input
               type="email"
@@ -86,6 +103,9 @@ function Login() {
               required
             />
 
+
+            {/* PASSWORD */}
+
             <input
               type="password"
               name="password"
@@ -95,19 +115,29 @@ function Login() {
               required
             />
 
+
+            {/* OPTIONS */}
+
             <div className="options">
 
               <label>
-
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  className="remember-checkbox"
+                />
 
                 Remember Me
-
               </label>
 
-              <a href="#">Forgot Password?</a>
+
+              <Link to="/forgot-password">
+                Forgot Password?
+              </Link>
 
             </div>
+
+
+            {/* LOGIN BUTTON */}
 
             <button
               type="submit"
@@ -116,21 +146,39 @@ function Login() {
               Login
             </button>
 
+
+            {/* DIVIDER */}
+
             <div className="divider">
               OR
             </div>
 
+
+            {/* GOOGLE BUTTON */}
+
             <button
               type="button"
               className="google-btn"
+              onClick={() =>
+                alert("Google Login will be added soon.")
+              }
             >
               Continue with Google
             </button>
 
+
+            {/* REGISTER */}
+
             <p className="register-link">
-  Don't have an account?{" "}
-  <Link to="/register">Register</Link>
-</p>
+
+              Don't have an account?{" "}
+
+              <Link to="/register">
+                <span>Register</span>
+              </Link>
+
+            </p>
+
           </form>
 
         </div>

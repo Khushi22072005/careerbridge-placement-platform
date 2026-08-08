@@ -1,169 +1,717 @@
+import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
-import {
-  FaUserGraduate,
-  FaFileAlt,
-  FaChartLine,
-  FaClipboardCheck,
-  FaBriefcase,
-  FaRobot,
-  FaBook,
-  FaCog,
-  FaSignOutAlt,
-  FaHome,
-} from "react-icons/fa";
 
-function Dashboard() {
+const Dashboard = () => {
+  const [user, setUser] = useState(null);
+  const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      // Get logged-in user's email
+      const email =
+        localStorage.getItem("userEmail") ||
+        localStorage.getItem("email");
+
+      if (!email) {
+        setError("User email not found. Please login again.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(
+        `http://localhost:5000/api/dashboard/${encodeURIComponent(email)}`
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load dashboard");
+      }
+
+      setUser(data.user);
+      setDashboard(data.dashboard);
+    } catch (err) {
+      console.error("Dashboard Error:", err);
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ================= LOADING =================
+
+  if (loading) {
+    return (
+      <div className="dashboard-loading">
+        <div className="loading-spinner"></div>
+
+        <h3>Loading your CareerBridge dashboard...</h3>
+
+        <p>
+          Preparing your personalized career journey
+        </p>
+      </div>
+    );
+  }
+
+  // ================= ERROR =================
+
+  if (error) {
+    return (
+      <div className="dashboard-error">
+        <div className="error-icon">⚠️</div>
+
+        <h2>Unable to load dashboard</h2>
+
+        <p>{error}</p>
+
+        <button onClick={fetchDashboard}>
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  // ================= DATA =================
+
+  const placementReadiness =
+    dashboard?.placementReadiness || 0;
+
+  const careerMatch =
+    dashboard?.careerMatch || 0;
+
+  const roadmapProgress =
+    dashboard?.roadmapProgress || 0;
+
+  const resumeScore =
+    dashboard?.resumeScore || 0;
+
+  const skillsCompleted =
+    dashboard?.skillsCompleted || 0;
+
+  const profileCompletion =
+    dashboard?.profileCompletion || 0;
+
+  const firstName =
+    user?.fullname?.split(" ")[0] || "Student";
+
+  // ================= MAIN =================
+
   return (
-    <div className="dashboard">
+    <div className="dashboard-container">
 
-      {/* Sidebar */}
+      {/* =====================================
+          HEADER
+      ===================================== */}
 
-      <aside className="sidebar">
+      <header className="dashboard-header">
 
-        <h2 className="logo">🎓 CareerBridge</h2>
+        <div className="header-left">
 
-        <ul>
+          <p className="dashboard-label">
+            YOUR CAREER JOURNEY
+          </p>
 
-          <li><FaHome /> Dashboard</li>
+          <h1>
+            Welcome back, {firstName} 👋
+          </h1>
 
-          <li><FaUserGraduate /> Profile</li>
+          <p className="dashboard-subtitle">
+            Track your progress and prepare yourself
+            for your dream career.
+          </p>
 
-          <li><FaClipboardCheck /> Career Assessment</li>
+        </div>
 
-          <li><FaRobot /> AI Recommendation</li>
+        <div className="header-profile">
 
-          <li><FaFileAlt /> Resume Builder</li>
+          <div className="profile-avatar">
+            {firstName.charAt(0).toUpperCase()}
+          </div>
 
-          <li><FaChartLine /> Resume Analyzer</li>
+          <div className="profile-details">
 
-          <li><FaBook /> Learning Hub</li>
+            <strong>
+              {user?.fullname || "Student"}
+            </strong>
 
-          <li><FaBriefcase /> Jobs</li>
-
-          <li><FaCog /> Settings</li>
-
-          <li><FaSignOutAlt /> Logout</li>
-
-        </ul>
-
-      </aside>
-
-      {/* Main Content */}
-
-      <main className="main-content">
-
-        <div className="top-bar">
-
-          <div>
-
-            <h1>Welcome Back, Khushi 👋</h1>
-
-            <p>Let's continue your placement preparation.</p>
+            <span>
+              {user?.email}
+            </span>
 
           </div>
 
-          <img
-            src="https://i.pravatar.cc/100"
-            alt="profile"
-            className="profile-img"
+        </div>
+
+      </header>
+
+
+      {/* =====================================
+          PLACEMENT READINESS
+      ===================================== */}
+
+      <section className="readiness-card">
+
+        <div className="readiness-left">
+
+          <div className="readiness-icon">
+            ⚡
+          </div>
+
+          <div className="readiness-content">
+
+            <p className="small-label">
+              YOUR PLACEMENT READINESS
+            </p>
+
+            <h2>
+              You're making great progress!
+            </h2>
+
+            <p>
+              Complete your career assessment to unlock
+              personalized career recommendations.
+            </p>
+
+            <button className="primary-button">
+              Continue Assessment ↗
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div className="readiness-right">
+
+          <div
+            className="progress-circle"
+            style={{
+              "--progress": `${placementReadiness}%`,
+            }}
+          >
+
+            <div className="progress-inner">
+
+              <strong>
+                {placementReadiness}%
+              </strong>
+
+              <span>
+                Ready
+              </span>
+
+            </div>
+
+          </div>
+
+          <span className="readiness-label">
+            Placement Readiness
+          </span>
+
+        </div>
+
+      </section>
+
+
+      {/* =====================================
+          STATISTICS
+      ===================================== */}
+
+      <section className="stats-grid">
+
+        <StatCard
+          icon="🎯"
+          title="Career Match"
+          value={`${careerMatch}%`}
+          subtitle="Personalized match"
+          iconClass="blue"
+        />
+
+        <StatCard
+          icon="🗺️"
+          title="Roadmap Progress"
+          value={`${roadmapProgress}%`}
+          subtitle="Career roadmap"
+          iconClass="purple"
+        />
+
+        <StatCard
+          icon="📄"
+          title="Resume Score"
+          value={`${resumeScore}/100`}
+          subtitle="Improve your score"
+          iconClass="orange"
+        />
+
+        <StatCard
+          icon="🏆"
+          title="Skills Completed"
+          value={skillsCompleted}
+          subtitle="Skills acquired"
+          iconClass="green"
+        />
+
+      </section>
+
+
+      {/* =====================================
+          CAREER + PROFILE
+      ===================================== */}
+
+      <section className="dashboard-main-grid">
+
+        {/* CAREER MATCH */}
+
+        <div className="dashboard-card career-match-card">
+
+          <div className="card-top">
+
+            <div>
+
+              <p className="small-label">
+                TOP CAREER MATCH
+              </p>
+
+              <h2>
+                Software Developer
+              </h2>
+
+              <p className="card-description">
+                Based on your interests, skills,
+                assessment results, and career preferences.
+              </p>
+
+            </div>
+
+            <span className="match-badge">
+              {careerMatch}% Match
+            </span>
+
+          </div>
+
+
+          <div className="skill-tags">
+
+            <span>JavaScript</span>
+            <span>React</span>
+            <span>SQL</span>
+            <span>Problem Solving</span>
+
+          </div>
+
+
+          <div className="career-bottom">
+
+            <div>
+
+              <p className="small-label">
+                POPULAR HIRING COMPANIES
+              </p>
+
+              <div className="companies">
+
+                <span>Google</span>
+                <span>Microsoft</span>
+                <span>Accenture</span>
+
+              </div>
+
+            </div>
+
+            <button className="outline-button">
+              Explore →
+            </button>
+
+          </div>
+
+        </div>
+
+
+        {/* PROFILE */}
+
+        <div className="dashboard-card profile-card">
+
+          <div className="profile-header">
+
+            <div>
+
+              <p className="small-label">
+                PROFILE
+              </p>
+
+              <h2>
+                Complete Your Profile
+              </h2>
+
+            </div>
+
+            <button className="edit-button">
+              ✎
+            </button>
+
+          </div>
+
+
+          <div className="profile-progress">
+
+            <div
+              className="profile-circle"
+              style={{
+                "--progress": `${profileCompletion}%`,
+              }}
+            >
+
+              <strong>
+                {profileCompletion}%
+              </strong>
+
+            </div>
+
+
+            <div className="profile-progress-text">
+
+              <h3>
+                You're almost there!
+              </h3>
+
+              <p>
+                Complete your profile to receive
+                better career recommendations.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div className="profile-checklist">
+
+            <div className="check-item completed">
+              ✓ Basic Information
+            </div>
+
+            <div className="check-item completed">
+              ✓ Education Details
+            </div>
+
+            <div className="check-item">
+              ○ Skills & Interests
+            </div>
+
+            <div className="check-item">
+              ○ Career Preferences
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* =====================================
+          CAREER ROADMAP
+      ===================================== */}
+
+      <section className="dashboard-card roadmap-card">
+
+        <div className="roadmap-header">
+
+          <div>
+
+            <p className="small-label">
+              YOUR JOURNEY
+            </p>
+
+            <h2>
+              Career Roadmap
+            </h2>
+
+          </div>
+
+          <button className="text-button">
+            View Full Roadmap →
+          </button>
+
+        </div>
+
+
+        <div className="roadmap">
+
+          <div className="roadmap-line"></div>
+
+
+          <RoadmapStep
+            number="01"
+            title="Career Assessment"
+            status="Completed"
+            completed
+          />
+
+          <RoadmapStep
+            number="02"
+            title="Skill Gap Analysis"
+            status="Currently working"
+            active
+          />
+
+          <RoadmapStep
+            number="03"
+            title="Learning Path"
+            status="Upcoming"
+          />
+
+          <RoadmapStep
+            number="04"
+            title="Placement Preparation"
+            status="Upcoming"
           />
 
         </div>
 
-        {/* Dashboard Cards */}
+      </section>
 
-        <div className="cards">
 
-          <div className="card">
-            <h3>Profile Completion</h3>
-            <h2>65%</h2>
-          </div>
+      {/* =====================================
+          TASKS + RECOMMENDATION
+      ===================================== */}
 
-          <div className="card">
-            <h3>Resume Score</h3>
-            <h2>82%</h2>
-          </div>
+      <section className="bottom-grid">
 
-          <div className="card">
-            <h3>Jobs Applied</h3>
-            <h2>5</h2>
-          </div>
+        {/* TASKS */}
 
-          <div className="card">
-            <h3>Mock Interviews</h3>
-            <h2>3</h2>
-          </div>
+        <div className="dashboard-card tasks-card">
 
-        </div>
+          <div className="tasks-header">
 
-        {/* Quick Actions */}
+            <div>
 
-        <div className="section">
+              <p className="small-label">
+                TODAY
+              </p>
 
-          <h2>Quick Actions</h2>
+              <h2>
+                Your Tasks
+              </h2>
 
-          <div className="action-grid">
+            </div>
 
-            <button>🎯 Take Assessment</button>
-
-            <button>📄 Build Resume</button>
-
-            <button>🤖 AI Career Advice</button>
-
-            <button>💼 Find Jobs</button>
+            <span className="task-count">
+              1/4
+            </span>
 
           </div>
 
-        </div>
 
-        {/* Learning Progress */}
+          <div className="task-list">
 
-        <div className="section">
+            <Task
+              text="Complete career assessment"
+              completed
+            />
 
-          <h2>Learning Progress</h2>
+            <Task
+              text="Improve JavaScript skills"
+            />
 
-          <div className="progress-box">
+            <Task
+              text="Update resume projects"
+            />
 
-            <p>Java</p>
-
-            <progress value="80" max="100"></progress>
-
-            <p>React</p>
-
-            <progress value="60" max="100"></progress>
-
-            <p>SQL</p>
-
-            <progress value="75" max="100"></progress>
+            <Task
+              text="Practice mock interview"
+            />
 
           </div>
 
         </div>
 
-        {/* Upcoming Tasks */}
 
-        <div className="section">
+        {/* RECOMMENDATION */}
 
-          <h2>Upcoming Tasks</h2>
+        <div className="recommendation-card">
 
-          <ul className="tasks">
+          <div className="recommendation-icon">
+            ⚡
+          </div>
 
-            <li>✔ Complete Career Assessment</li>
+          <p className="small-label">
+            SMART RECOMMENDATION
+          </p>
 
-            <li>✔ Upload Resume</li>
+          <h2>
+            Strengthen your DSA skills
+          </h2>
 
-            <li>✔ Attend Mock Interview</li>
+          <p>
+            Software Developer roles commonly require
+            strong problem-solving and data structure
+            knowledge.
+          </p>
 
-            <li>✔ Apply for Internship</li>
-
-          </ul>
+          <button>
+            Start Learning ↗
+          </button>
 
         </div>
 
-      </main>
+      </section>
+
+
+      {/* =====================================
+          FOOTER
+      ===================================== */}
+
+      <footer className="dashboard-footer">
+
+        <span>
+          © 2026 CareerBridge
+        </span>
+
+        <span>
+          Personalized career guidance
+        </span>
+
+      </footer>
 
     </div>
   );
-}
+};
+
+
+// =============================================
+// STAT CARD
+// =============================================
+
+const StatCard = ({
+  icon,
+  title,
+  value,
+  subtitle,
+  iconClass,
+}) => {
+
+  return (
+    <div className="stat-card">
+
+      <div className={`stat-icon ${iconClass}`}>
+        {icon}
+      </div>
+
+      <div className="stat-content">
+
+        <p>
+          {title}
+        </p>
+
+        <h2>
+          {value}
+        </h2>
+
+        <span>
+          {subtitle}
+        </span>
+
+      </div>
+
+    </div>
+  );
+};
+
+
+// =============================================
+// ROADMAP STEP
+// =============================================
+
+const RoadmapStep = ({
+  number,
+  title,
+  status,
+  active,
+  completed,
+}) => {
+
+  return (
+    <div
+      className={`roadmap-step ${
+        completed
+          ? "completed-step"
+          : active
+          ? "active-step"
+          : ""
+      }`}
+    >
+
+      <div className="roadmap-circle">
+
+        {completed
+          ? "✓"
+          : active
+          ? "•"
+          : number}
+
+      </div>
+
+      <span className="step-number">
+        STEP {number}
+      </span>
+
+      <h4>
+        {title}
+      </h4>
+
+      <span className="step-status">
+        {status}
+      </span>
+
+    </div>
+  );
+};
+
+
+// =============================================
+// TASK
+// =============================================
+
+const Task = ({
+  text,
+  completed,
+}) => {
+
+  return (
+    <div className="task">
+
+      <span
+        className={`task-checkbox ${
+          completed ? "checked" : ""
+        }`}
+      >
+        {completed ? "✓" : ""}
+      </span>
+
+      <span
+        className={
+          completed
+            ? "task-completed"
+            : ""
+        }
+      >
+        {text}
+      </span>
+
+    </div>
+  );
+};
+
 
 export default Dashboard;
