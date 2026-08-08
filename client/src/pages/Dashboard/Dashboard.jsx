@@ -11,6 +11,10 @@ const Dashboard = () => {
     fetchDashboard();
   }, []);
 
+  // ==========================================
+  // FETCH DASHBOARD FROM BACKEND
+  // ==========================================
+
   const fetchDashboard = async () => {
     try {
       setLoading(true);
@@ -34,7 +38,9 @@ const Dashboard = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to load dashboard");
+        throw new Error(
+          data.message || "Failed to load dashboard"
+        );
       }
 
       setUser(data.user);
@@ -47,14 +53,18 @@ const Dashboard = () => {
     }
   };
 
-  // ================= LOADING =================
+  // ==========================================
+  // LOADING
+  // ==========================================
 
   if (loading) {
     return (
       <div className="dashboard-loading">
         <div className="loading-spinner"></div>
 
-        <h3>Loading your CareerBridge dashboard...</h3>
+        <h3>
+          Loading your CareerBridge dashboard...
+        </h3>
 
         <p>
           Preparing your personalized career journey
@@ -63,7 +73,9 @@ const Dashboard = () => {
     );
   }
 
-  // ================= ERROR =================
+  // ==========================================
+  // ERROR
+  // ==========================================
 
   if (error) {
     return (
@@ -81,30 +93,52 @@ const Dashboard = () => {
     );
   }
 
-  // ================= DATA =================
+  // ==========================================
+  // DASHBOARD DATA
+  // ==========================================
 
   const placementReadiness =
-    dashboard?.placementReadiness || 0;
+    dashboard?.placementReadiness ?? 0;
 
   const careerMatch =
-    dashboard?.careerMatch || 0;
+    dashboard?.careerMatch ?? 0;
 
   const roadmapProgress =
-    dashboard?.roadmapProgress || 0;
+    dashboard?.roadmapProgress ?? 0;
 
   const resumeScore =
-    dashboard?.resumeScore || 0;
+    dashboard?.resumeScore ?? 0;
 
   const skillsCompleted =
-    dashboard?.skillsCompleted || 0;
+    dashboard?.skillsCompleted ?? 0;
 
   const profileCompletion =
-    dashboard?.profileCompletion || 0;
+    dashboard?.profileCompletion ?? 0;
+
+  const career =
+    dashboard?.career || {};
+
+  const roadmap =
+    dashboard?.roadmap || [];
+
+  const tasks =
+    dashboard?.tasks || [];
+
+  const recommendation =
+    dashboard?.recommendation || {};
 
   const firstName =
     user?.fullname?.split(" ")[0] || "Student";
 
-  // ================= MAIN =================
+  // Number of completed tasks
+  const completedTasks =
+    tasks.filter((task) => task.completed).length;
+
+  const totalTasks = tasks.length;
+
+  // ==========================================
+  // MAIN DASHBOARD
+  // ==========================================
 
   return (
     <div className="dashboard-container">
@@ -270,7 +304,9 @@ const Dashboard = () => {
 
       <section className="dashboard-main-grid">
 
-        {/* CAREER MATCH */}
+        {/* =====================================
+            CAREER MATCH
+        ===================================== */}
 
         <div className="dashboard-card career-match-card">
 
@@ -283,7 +319,7 @@ const Dashboard = () => {
               </p>
 
               <h2>
-                Software Developer
+                {career.title || "Software Developer"}
               </h2>
 
               <p className="card-description">
@@ -294,21 +330,26 @@ const Dashboard = () => {
             </div>
 
             <span className="match-badge">
-              {careerMatch}% Match
+              {career.match ?? careerMatch}% Match
             </span>
 
           </div>
 
 
+          {/* SKILLS */}
+
           <div className="skill-tags">
 
-            <span>JavaScript</span>
-            <span>React</span>
-            <span>SQL</span>
-            <span>Problem Solving</span>
+            {career.skills?.map((skill, index) => (
+              <span key={index}>
+                {skill}
+              </span>
+            ))}
 
           </div>
 
+
+          {/* COMPANIES */}
 
           <div className="career-bottom">
 
@@ -320,9 +361,13 @@ const Dashboard = () => {
 
               <div className="companies">
 
-                <span>Google</span>
-                <span>Microsoft</span>
-                <span>Accenture</span>
+                {career.companies?.map(
+                  (company, index) => (
+                    <span key={index}>
+                      {company}
+                    </span>
+                  )
+                )}
 
               </div>
 
@@ -337,7 +382,9 @@ const Dashboard = () => {
         </div>
 
 
-        {/* PROFILE */}
+        {/* =====================================
+            PROFILE
+        ===================================== */}
 
         <div className="dashboard-card profile-card">
 
@@ -381,7 +428,9 @@ const Dashboard = () => {
             <div className="profile-progress-text">
 
               <h3>
-                You're almost there!
+                {profileCompletion >= 100
+                  ? "Profile completed!"
+                  : "You're almost there!"}
               </h3>
 
               <p>
@@ -393,6 +442,8 @@ const Dashboard = () => {
 
           </div>
 
+
+          {/* PROFILE CHECKLIST */}
 
           <div className="profile-checklist">
 
@@ -448,34 +499,18 @@ const Dashboard = () => {
 
         <div className="roadmap">
 
-          <div className="roadmap-line"></div>
+          {roadmap.map((step) => (
 
+            <RoadmapStep
+              key={step.number}
+              number={step.number}
+              title={step.title}
+              status={step.status}
+              active={step.active}
+              completed={step.completed}
+            />
 
-          <RoadmapStep
-            number="01"
-            title="Career Assessment"
-            status="Completed"
-            completed
-          />
-
-          <RoadmapStep
-            number="02"
-            title="Skill Gap Analysis"
-            status="Currently working"
-            active
-          />
-
-          <RoadmapStep
-            number="03"
-            title="Learning Path"
-            status="Upcoming"
-          />
-
-          <RoadmapStep
-            number="04"
-            title="Placement Preparation"
-            status="Upcoming"
-          />
+          ))}
 
         </div>
 
@@ -488,7 +523,9 @@ const Dashboard = () => {
 
       <section className="bottom-grid">
 
-        {/* TASKS */}
+        {/* =====================================
+            TASKS
+        ===================================== */}
 
         <div className="dashboard-card tasks-card">
 
@@ -507,7 +544,7 @@ const Dashboard = () => {
             </div>
 
             <span className="task-count">
-              1/4
+              {completedTasks}/{totalTasks}
             </span>
 
           </div>
@@ -515,29 +552,34 @@ const Dashboard = () => {
 
           <div className="task-list">
 
-            <Task
-              text="Complete career assessment"
-              completed
-            />
+            {tasks.length > 0 ? (
 
-            <Task
-              text="Improve JavaScript skills"
-            />
+              tasks.map((task) => (
 
-            <Task
-              text="Update resume projects"
-            />
+                <Task
+                  key={task.id}
+                  text={task.text}
+                  completed={task.completed}
+                />
 
-            <Task
-              text="Practice mock interview"
-            />
+              ))
+
+            ) : (
+
+              <p className="no-tasks">
+                No tasks available.
+              </p>
+
+            )}
 
           </div>
 
         </div>
 
 
-        {/* RECOMMENDATION */}
+        {/* =====================================
+            SMART RECOMMENDATION
+        ===================================== */}
 
         <div className="recommendation-card">
 
@@ -550,17 +592,17 @@ const Dashboard = () => {
           </p>
 
           <h2>
-            Strengthen your DSA skills
+            {recommendation.title ||
+              "Start building your career skills"}
           </h2>
 
           <p>
-            Software Developer roles commonly require
-            strong problem-solving and data structure
-            knowledge.
+            {recommendation.description ||
+              "Complete your recommended learning activities to improve your placement readiness."}
           </p>
 
           <button>
-            Start Learning ↗
+            {recommendation.action || "Start Learning"} ↗
           </button>
 
         </div>
