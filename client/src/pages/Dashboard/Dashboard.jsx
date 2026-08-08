@@ -16,32 +16,41 @@ const Dashboard = () => {
       setLoading(true);
       setError("");
 
-      // Get logged-in user's email
-      const email =
-        localStorage.getItem("userEmail") ||
-        localStorage.getItem("email");
+      // Get JWT token saved during login
+      const token = localStorage.getItem("token");
 
-      if (!email) {
-        setError("User email not found. Please login again.");
+      if (!token) {
+        setError("Login session not found. Please login again.");
         setLoading(false);
         return;
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/dashboard/${encodeURIComponent(email)}`
+        "http://localhost:5000/api/dashboard/",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to load dashboard");
+        throw new Error(
+          data.message || "Failed to load dashboard"
+        );
       }
 
       setUser(data.user);
       setDashboard(data.dashboard);
     } catch (err) {
       console.error("Dashboard Error:", err);
-      setError(err.message || "Something went wrong");
+      setError(
+        err.message || "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -51,10 +60,10 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="dashboard-loading">
-        <div className="loading-spinner"></div>
-
-        <h3>Loading your CareerBridge dashboard...</h3>
+      <div className="dashboard-container">
+        <h3>
+          Loading your CareerBridge dashboard...
+        </h3>
 
         <p>
           Preparing your personalized career journey
@@ -67,12 +76,18 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="dashboard-error">
-        <div className="error-icon">⚠️</div>
+      <div className="dashboard-container">
+        <div className="error-icon">
+          ⚠️
+        </div>
 
-        <h2>Unable to load dashboard</h2>
+        <h2>
+          Unable to load dashboard
+        </h2>
 
-        <p>{error}</p>
+        <p>
+          {error}
+        </p>
 
         <button onClick={fetchDashboard}>
           Try Again
@@ -102,7 +117,9 @@ const Dashboard = () => {
     dashboard?.profileCompletion || 0;
 
   const firstName =
-    user?.fullname?.split(" ")[0] || "Student";
+    user?.fullname?.split(" ")[0] ||
+    user?.name?.split(" ")[0] ||
+    "Student";
 
   // ================= MAIN =================
 
@@ -141,7 +158,9 @@ const Dashboard = () => {
           <div className="profile-details">
 
             <strong>
-              {user?.fullname || "Student"}
+              {user?.fullname ||
+                user?.name ||
+                "Student"}
             </strong>
 
             <span>
@@ -189,7 +208,6 @@ const Dashboard = () => {
           </div>
 
         </div>
-
 
         <div className="readiness-right">
 
@@ -299,7 +317,6 @@ const Dashboard = () => {
 
           </div>
 
-
           <div className="skill-tags">
 
             <span>JavaScript</span>
@@ -308,7 +325,6 @@ const Dashboard = () => {
             <span>Problem Solving</span>
 
           </div>
-
 
           <div className="career-bottom">
 
@@ -361,7 +377,6 @@ const Dashboard = () => {
 
           </div>
 
-
           <div className="profile-progress">
 
             <div
@@ -377,7 +392,6 @@ const Dashboard = () => {
 
             </div>
 
-
             <div className="profile-progress-text">
 
               <h3>
@@ -392,7 +406,6 @@ const Dashboard = () => {
             </div>
 
           </div>
-
 
           <div className="profile-checklist">
 
@@ -445,11 +458,9 @@ const Dashboard = () => {
 
         </div>
 
-
         <div className="roadmap">
 
           <div className="roadmap-line"></div>
-
 
           <RoadmapStep
             number="01"
@@ -511,7 +522,6 @@ const Dashboard = () => {
             </span>
 
           </div>
-
 
           <div className="task-list">
 
@@ -689,7 +699,7 @@ const Task = ({
 }) => {
 
   return (
-    <div className="task">
+    <div className="task-item">
 
       <span
         className={`task-checkbox ${
