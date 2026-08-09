@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../src/config/db");
 
+const pool = require("../src/config/db");
 
 // =====================================================
 // GET PROFILE

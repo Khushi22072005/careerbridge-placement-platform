@@ -18,7 +18,7 @@ router.get("/:email", async (req, res) => {
 
     const userResult = await pool.query(
       `
-      SELECT id, fullname, email
+      SELECT id, fullname, email, role, created_at
       FROM users
       WHERE email = $1
       `,
@@ -36,18 +36,6 @@ router.get("/:email", async (req, res) => {
     // ------------------------------------------
     // 2. Dashboard data
     // ------------------------------------------
-
-    /*
-      These values can later be calculated from:
-      - career assessment
-      - skills
-      - resume
-      - profile
-      - roadmap
-      - tasks
-
-      For now, these are default values.
-    */
 
     const dashboard = {
       placementReadiness: 68,

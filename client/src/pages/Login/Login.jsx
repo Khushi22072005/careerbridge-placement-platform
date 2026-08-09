@@ -29,13 +29,16 @@ function Login() {
 
       alert(res.data.message);
 
+      // Save JWT token
+      localStorage.setItem("token", res.data.token);
+
       // Save logged-in user
       localStorage.setItem(
         "user",
         JSON.stringify(res.data.user)
       );
 
-      // Save email for Dashboard API
+      // Save email
       localStorage.setItem(
         "userEmail",
         formData.email
@@ -53,10 +56,6 @@ function Login() {
 
   return (
     <div className="login-page">
-
-      {/* =================================
-          LEFT SIDE
-      ================================= */}
 
       <div className="login-left">
 
@@ -76,11 +75,6 @@ function Login() {
 
       </div>
 
-
-      {/* =================================
-          RIGHT SIDE
-      ================================= */}
-
       <div className="login-right">
 
         <div className="login-card">
@@ -89,10 +83,7 @@ function Login() {
 
           <p>Sign in to continue</p>
 
-
           <form onSubmit={handleLogin}>
-
-            {/* EMAIL */}
 
             <input
               type="email"
@@ -103,9 +94,6 @@ function Login() {
               required
             />
 
-
-            {/* PASSWORD */}
-
             <input
               type="password"
               name="password"
@@ -115,9 +103,6 @@ function Login() {
               required
             />
 
-
-            {/* OPTIONS */}
-
             <div className="options">
 
               <label>
@@ -125,19 +110,14 @@ function Login() {
                   type="checkbox"
                   className="remember-checkbox"
                 />
-
                 Remember Me
               </label>
-
 
               <Link to="/forgot-password">
                 Forgot Password?
               </Link>
 
             </div>
-
-
-            {/* LOGIN BUTTON */}
 
             <button
               type="submit"
@@ -146,15 +126,9 @@ function Login() {
               Login
             </button>
 
-
-            {/* DIVIDER */}
-
             <div className="divider">
               OR
             </div>
-
-
-            {/* GOOGLE BUTTON */}
 
             <button
               type="button"
@@ -166,17 +140,12 @@ function Login() {
               Continue with Google
             </button>
 
-
-            {/* REGISTER */}
-
             <p className="register-link">
-
               Don't have an account?{" "}
 
               <Link to="/register">
                 <span>Register</span>
               </Link>
-
             </p>
 
           </form>

@@ -47,7 +47,10 @@ const Dashboard = () => {
       setDashboard(data.dashboard);
     } catch (err) {
       console.error("Dashboard Error:", err);
-      setError(err.message || "Something went wrong");
+
+      setError(
+        err.message || "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -80,11 +83,17 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="dashboard-error">
-        <div className="error-icon">⚠️</div>
+        <div className="error-icon">
+          ⚠️
+        </div>
 
-        <h2>Unable to load dashboard</h2>
+        <h2>
+          Unable to load dashboard
+        </h2>
 
-        <p>{error}</p>
+        <p>
+          {error}
+        </p>
 
         <button onClick={fetchDashboard}>
           Try Again
@@ -128,13 +137,21 @@ const Dashboard = () => {
     dashboard?.recommendation || {};
 
   const firstName =
-    user?.fullname?.split(" ")[0] || "Student";
+    user?.fullname?.split(" ")[0] ||
+    user?.name?.split(" ")[0] ||
+    "Student";
 
-  // Number of completed tasks
+  // ==========================================
+  // TASK COUNT
+  // ==========================================
+
   const completedTasks =
-    tasks.filter((task) => task.completed).length;
+    tasks.filter(
+      (task) => task.completed
+    ).length;
 
-  const totalTasks = tasks.length;
+  const totalTasks =
+    tasks.length;
 
   // ==========================================
   // MAIN DASHBOARD
@@ -175,7 +192,9 @@ const Dashboard = () => {
           <div className="profile-details">
 
             <strong>
-              {user?.fullname || "Student"}
+              {user?.fullname ||
+                user?.name ||
+                "Student"}
             </strong>
 
             <span>
@@ -304,6 +323,7 @@ const Dashboard = () => {
 
       <section className="dashboard-main-grid">
 
+
         {/* =====================================
             CAREER MATCH
         ===================================== */}
@@ -319,7 +339,8 @@ const Dashboard = () => {
               </p>
 
               <h2>
-                {career.title || "Software Developer"}
+                {career.title ||
+                  "Software Developer"}
               </h2>
 
               <p className="card-description">
@@ -340,11 +361,13 @@ const Dashboard = () => {
 
           <div className="skill-tags">
 
-            {career.skills?.map((skill, index) => (
-              <span key={index}>
-                {skill}
-              </span>
-            ))}
+            {career.skills?.map(
+              (skill, index) => (
+                <span key={index}>
+                  {skill}
+                </span>
+              )
+            )}
 
           </div>
 
@@ -499,18 +522,28 @@ const Dashboard = () => {
 
         <div className="roadmap">
 
-          {roadmap.map((step) => (
+          {roadmap.length > 0 ? (
 
-            <RoadmapStep
-              key={step.number}
-              number={step.number}
-              title={step.title}
-              status={step.status}
-              active={step.active}
-              completed={step.completed}
-            />
+            roadmap.map((step) => (
 
-          ))}
+              <RoadmapStep
+                key={step.number}
+                number={step.number}
+                title={step.title}
+                status={step.status}
+                active={step.active}
+                completed={step.completed}
+              />
+
+            ))
+
+          ) : (
+
+            <p className="no-tasks">
+              No roadmap available.
+            </p>
+
+          )}
 
         </div>
 
@@ -522,6 +555,7 @@ const Dashboard = () => {
       ===================================== */}
 
       <section className="bottom-grid">
+
 
         {/* =====================================
             TASKS
@@ -602,7 +636,8 @@ const Dashboard = () => {
           </p>
 
           <button>
-            {recommendation.action || "Start Learning"} ↗
+            {recommendation.action ||
+              "Start Learning"} ↗
           </button>
 
         </div>
@@ -646,7 +681,9 @@ const StatCard = ({
   return (
     <div className="stat-card">
 
-      <div className={`stat-icon ${iconClass}`}>
+      <div
+        className={`stat-icon ${iconClass}`}
+      >
         {icon}
       </div>
 
@@ -731,7 +768,7 @@ const Task = ({
 }) => {
 
   return (
-    <div className="task">
+    <div className="task-item">
 
       <span
         className={`task-checkbox ${
