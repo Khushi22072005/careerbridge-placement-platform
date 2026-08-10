@@ -6,8 +6,9 @@ import Register from "./pages/Register/Register";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import Profile from "./pages/Profile/Profile";
-
+import TechnicalAssessment from "./pages/TechnicalAssessment";
 import DashboardLayout from "./layouts/DashboardLayout";
+import CareerAssessment from "./pages/CareerAssessment";
 
 function App() {
     return (
@@ -30,7 +31,10 @@ function App() {
                 path="/forgot-password"
                 element={<ForgotPassword />}
             />
-
+<Route
+  path="/career-assessment"
+  element={<CareerAssessment />}
+/>
 
             {/* =================================
                 DASHBOARD LAYOUT
@@ -47,6 +51,10 @@ function App() {
                     path="/profile"
                     element={<Profile />}
                 />
+                <Route
+    path="/technical-assessment"
+    element={<TechnicalAssessment />}
+/>
 
             </Route>
 

@@ -1,0 +1,890 @@
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  background: #f5f7fc;
+  color: #17213b;
+}
+
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+.assessment-page {
+  min-height: 100vh;
+  background: #f5f7fc;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.assessment-header {
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 34px;
+
+  background: white;
+
+  border-bottom: 1px solid #e7ebf3;
+}
+
+.back-dashboard {
+  border: none;
+  background: transparent;
+
+  color: #315bea;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.assessment-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  background: #315bea;
+
+  color: white;
+
+  font-weight: 800;
+}
+
+.assessment-brand div:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.assessment-brand strong {
+  font-size: 13px;
+}
+
+.assessment-brand span {
+  margin-top: 2px;
+
+  color: #8a94a8;
+
+  font-size: 9px;
+}
+
+.step-indicator {
+  padding: 7px 11px;
+
+  border-radius: 20px;
+
+  background: #eef2ff;
+
+  color: #315bea;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.assessment-main {
+  width: min(900px, calc(100% - 40px));
+
+  margin: 0 auto;
+
+  padding: 38px 0 30px;
+}
+
+
+/* =====================================================
+   INTRO
+===================================================== */
+
+.assessment-intro {
+  text-align: center;
+
+  max-width: 720px;
+
+  margin: 0 auto 28px;
+}
+
+.intro-label {
+  margin: 0 0 8px;
+
+  color: #315bea;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 1.8px;
+}
+
+.assessment-intro h1 {
+  margin: 0 0 10px;
+
+  color: #102044;
+
+  font-size: 30px;
+
+  letter-spacing: -0.7px;
+}
+
+.assessment-intro > p:last-child {
+  margin: 0 auto;
+
+  max-width: 700px;
+
+  color: #7d879c;
+
+  font-size: 12px;
+
+  line-height: 1.7;
+}
+
+
+/* =====================================================
+   PROGRESS
+===================================================== */
+
+.progress-container {
+  margin-bottom: 24px;
+}
+
+.progress-top {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+
+  color: #7b8599;
+
+  font-size: 10px;
+}
+
+.progress-top strong {
+  color: #315bea;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 5px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  background: #e5e9f2;
+}
+
+.progress-filled {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: linear-gradient(
+    90deg,
+    #315bea,
+    #6046d9
+  );
+
+  transition: width 0.3s ease;
+}
+
+.step-navigation {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, 1fr);
+
+  margin-top: 15px;
+}
+
+.progress-step {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 6px;
+
+  color: #9aa3b4;
+}
+
+.progress-step span {
+  width: 22px;
+  height: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  border: 1px solid #dce2ed;
+
+  background: white;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.progress-step small {
+  font-size: 9px;
+
+  text-align: center;
+}
+
+.progress-step.active {
+  color: #315bea;
+
+  font-weight: 700;
+}
+
+.progress-step.active span {
+  border-color: #315bea;
+
+  background: #eef2ff;
+
+  color: #315bea;
+}
+
+.progress-step.completed span {
+  border-color: #315bea;
+
+  background: #315bea;
+
+  color: white;
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.assessment-card {
+  overflow: hidden;
+
+  background: white;
+
+  border: 1px solid #e7ebf3;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 10px 30px rgba(30, 42, 70, 0.05);
+}
+
+
+/* =====================================================
+   SECTION
+===================================================== */
+
+.assessment-section {
+  padding: 30px;
+}
+
+.section-heading {
+  display: flex;
+
+  gap: 13px;
+
+  margin-bottom: 26px;
+}
+
+.section-icon {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: #eef2ff;
+
+  font-size: 19px;
+}
+
+.section-heading h2 {
+  margin: 0 0 5px;
+
+  font-size: 19px;
+
+  color: #17213b;
+}
+
+.section-heading p {
+  margin: 0;
+
+  color: #8992a6;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* =====================================================
+   QUESTIONS
+===================================================== */
+
+.question-label {
+  display: block;
+
+  margin-bottom: 11px;
+
+  color: #27334e;
+
+  font-size: 11px;
+
+  font-weight: 800;
+}
+
+.question-label span {
+  color: #ef596f;
+}
+
+.second-question {
+  margin-top: 26px;
+}
+
+
+/* =====================================================
+   ROLE GRID
+===================================================== */
+
+.role-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 11px;
+}
+
+.role-card {
+  min-height: 91px;
+
+  position: relative;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 12px;
+
+  padding: 15px;
+
+  text-align: left;
+
+  border: 1px solid #e1e6f0;
+
+  border-radius: 11px;
+
+  background: white;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.role-card:hover {
+  border-color: #b9c6f7;
+
+  background: #fafbff;
+}
+
+.role-card.selected {
+  border-color: #315bea;
+
+  background: #f4f6ff;
+
+  box-shadow:
+    0 0 0 2px rgba(49, 91, 234, 0.07);
+}
+
+.role-icon {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  background: #eef2ff;
+
+  font-size: 17px;
+}
+
+.role-content {
+  padding-right: 20px;
+}
+
+.role-content h3 {
+  margin: 1px 0 5px;
+
+  color: #17213b;
+
+  font-size: 12px;
+}
+
+.role-content p {
+  margin: 0;
+
+  color: #8b94a7;
+
+  font-size: 9px;
+
+  line-height: 1.45;
+}
+
+.radio-circle {
+  width: 17px;
+  height: 17px;
+
+  position: absolute;
+
+  right: 13px;
+  top: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #cfd6e4;
+
+  border-radius: 50%;
+
+  color: white;
+
+  font-size: 9px;
+}
+
+.role-card.selected .radio-circle {
+  border-color: #315bea;
+
+  background: #315bea;
+}
+
+
+/* =====================================================
+   NOTE
+===================================================== */
+
+.assessment-note {
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 20px;
+
+  padding: 12px;
+
+  border-radius: 9px;
+
+  background: #f6f8ff;
+
+  color: #315bea;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.assessment-note span {
+  color: #69758d;
+}
+
+
+/* =====================================================
+   OPTION GRID
+===================================================== */
+
+.option-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 9px;
+}
+
+.option-card {
+  min-height: 43px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 10px 12px;
+
+  border: 1px solid #e0e5ef;
+
+  border-radius: 8px;
+
+  background: white;
+
+  color: #4d5970;
+
+  font-size: 10px;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.option-card:hover {
+  border-color: #b9c6f7;
+}
+
+.option-card.selected {
+  border-color: #315bea;
+
+  background: #f4f6ff;
+
+  color: #315bea;
+
+  font-weight: 700;
+}
+
+.option-check {
+  width: 17px;
+  height: 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ccd4e3;
+
+  border-radius: 4px;
+
+  font-size: 9px;
+}
+
+.option-card.selected .option-check {
+  border-color: #315bea;
+
+  background: #315bea;
+
+  color: white;
+}
+
+
+/* =====================================================
+   DSA
+===================================================== */
+
+.dsa-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  margin-bottom: 18px;
+
+  padding: 13px;
+
+  border-radius: 9px;
+
+  background: #f6f8ff;
+}
+
+.dsa-info strong {
+  color: #315bea;
+
+  font-size: 10px;
+}
+
+.dsa-info span {
+  color: #737e94;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+.dsa-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.dsa-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 14px;
+
+  border: 1px solid #e7ebf2;
+
+  border-radius: 10px;
+
+  background: #fff;
+}
+
+.dsa-topic {
+  min-width: 0;
+}
+
+.dsa-topic h3 {
+  margin: 0 0 4px;
+
+  color: #17213b;
+
+  font-size: 11px;
+}
+
+.dsa-topic p {
+  margin: 0;
+
+  color: #8992a5;
+
+  font-size: 9px;
+}
+
+.level-buttons {
+  display: flex;
+
+  flex-shrink: 0;
+
+  gap: 5px;
+}
+
+.level-buttons button {
+  padding: 7px 9px;
+
+  border: 1px solid #dce2ed;
+
+  border-radius: 6px;
+
+  background: white;
+
+  color: #778196;
+
+  font-size: 8px;
+
+  cursor: pointer;
+}
+
+.level-buttons button:hover {
+  border-color: #aebcf2;
+}
+
+.level-buttons button.level-selected {
+  border-color: #315bea;
+
+  background: #315bea;
+
+  color: white;
+
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   WORK PREFERENCE
+===================================================== */
+
+.work-preference-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 9px;
+}
+
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.assessment-actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 17px 30px;
+
+  border-top: 1px solid #edf0f5;
+
+  background: #fbfcfe;
+}
+
+.previous-button,
+.continue-button {
+  padding: 10px 16px;
+
+  border-radius: 8px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.previous-button {
+  border: 1px solid #e0e5ef;
+
+  background: white;
+
+  color: #8c96a9;
+}
+
+.previous-button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+.continue-button {
+  border: none;
+
+  background: #315bea;
+
+  color: white;
+
+  box-shadow:
+    0 6px 15px rgba(49, 91, 234, 0.2);
+
+  transition: 0.2s ease;
+}
+
+.continue-button:hover {
+  transform: translateY(-1px);
+
+  background: #294fd2;
+}
+
+
+/* =====================================================
+   PRIVACY
+===================================================== */
+
+.privacy-note {
+  margin: 14px 0 0;
+
+  text-align: center;
+
+  color: #a0a8b8;
+
+  font-size: 9px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 700px) {
+  .assessment-header {
+    padding: 0 18px;
+  }
+
+  .assessment-main {
+    width: calc(100% - 24px);
+
+    padding-top: 25px;
+  }
+
+  .assessment-intro h1 {
+    font-size: 24px;
+  }
+
+  .role-grid,
+  .option-grid,
+  .work-preference-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dsa-item {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .level-buttons {
+    width: 100%;
+  }
+
+  .level-buttons button {
+    flex: 1;
+  }
+
+  .assessment-section {
+    padding: 20px;
+  }
+
+  .assessment-actions {
+    padding: 15px 20px;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .assessment-brand {
+    display: none;
+  }
+
+  .step-indicator {
+    margin-left: auto;
+  }
+
+  .step-navigation small {
+    font-size: 7px;
+  }
+
+  .assessment-intro h1 {
+    font-size: 21px;
+  }
+}
