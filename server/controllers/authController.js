@@ -8,10 +8,15 @@ exports.register = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // await pool.query(
+        //     `INSERT INTO users(name, email, password)
+        //      VALUES($1, $2, $3)`,
+        //     [fullname, email, hashedPassword]
+        // );
         await pool.query(
-            `INSERT INTO users(name, email, password)
-             VALUES($1, $2, $3)`,
-            [fullname, email, hashedPassword]
+            `INSERT INTO users(fullname, email, password, role)
+             VALUES($1, $2, $3, $4)`,
+            [fullname, email, hashedPassword, 'student']
         );
 
         res.json({

@@ -60,6 +60,96 @@ router.get("/:email", async (req, res) => {
                 ? profileResult.rows[0]
                 : null;
 
+                // ==========================================
+// 2.5 GET CAREER ASSESSMENT
+// ==========================================
+
+const assessmentResult = await pool.query(
+    `
+    SELECT
+        recommended_career,
+        career_match,
+        technical_score,
+        problem_solving_score,
+        communication_score
+    FROM career_assessments
+    WHERE user_id = $1
+    ORDER BY created_at DESC
+    LIMIT 1
+    `,
+    [user.id]
+);
+
+const assessment =
+    assessmentResult.rows.length > 0
+        ? assessmentResult.rows[0]
+        : null;
+
+        // ==========================================
+// 2.6 GET ROADMAP PROGRESS
+// ==========================================
+
+const roadmapResult = await pool.query(
+    `
+    SELECT
+        career_assessment_completed,
+        skill_gap_completed,
+        learning_path_completed,
+        placement_preparation_completed
+    FROM roadmap_progress
+    WHERE user_id = $1
+    LIMIT 1
+    `,
+    [user.id]
+);
+
+const roadmapProgressData =
+    roadmapResult.rows.length > 0
+        ? roadmapResult.rows[0]
+        : null;
+
+        // ==========================================
+// 2.7 CALCULATE ROADMAP PROGRESS
+// ==========================================
+
+let roadmapProgress = 0;
+
+if (roadmapProgressData) {
+
+    const roadmapSteps = [
+        roadmapProgressData.career_assessment_completed,
+        roadmapProgressData.skill_gap_completed,
+        roadmapProgressData.learning_path_completed,
+        roadmapProgressData.placement_preparation_completed,
+    ];
+
+    const completedSteps =
+        roadmapSteps.filter(Boolean).length;
+
+    roadmapProgress = Math.round(
+        (completedSteps / roadmapSteps.length) * 100
+    );
+}
+// ==========================================
+// 2.8 GET RESUME SCORE
+// ==========================================
+
+const resumeResult = await pool.query(
+    `
+    SELECT resume_score
+    FROM resumes
+    WHERE user_id = $1
+    ORDER BY updated_at DESC
+    LIMIT 1
+    `,
+    [user.id]
+);
+
+const resumeScore =
+    resumeResult.rows.length > 0
+        ? resumeResult.rows[0].resume_score
+        : 0;
+
         // ==========================================
         // 3. CALCULATE PROFILE COMPLETION
         // ==========================================
@@ -120,15 +210,15 @@ const skillsCompleted =
             // These will become dynamic later
             // --------------------------------------
 
-            placementReadiness: 68,
+           placementReadiness: 68,
 
-            careerMatch: 82,
+careerMatch: assessment?.career_match ?? 0,
 
-            roadmapProgress: 46,
+roadmapProgress,
 
-            resumeScore: 74,
+resumeScore,
 
-            skillsCompleted,
+skillsCompleted,
 
             // --------------------------------------
             // NOW DYNAMIC
@@ -141,23 +231,26 @@ const skillsCompleted =
             // ======================================
 
             career: {
-                title: "Software Developer",
+    title:
+        assessment?.recommended_career ||
+        "Complete Career Assessment",
 
-                match: 82,
+    match:
+        assessment?.career_match ?? 0,
 
-                skills: [
-                    "JavaScript",
-                    "React",
-                    "SQL",
-                    "Problem Solving",
-                ],
+    skills: [
+        "JavaScript",
+        "React",
+        "SQL",
+        "Problem Solving",
+    ],
 
-                companies: [
-                    "Google",
-                    "Microsoft",
-                    "Accenture",
-                ],
-            },
+    companies: [
+        "Google",
+        "Microsoft",
+        "Accenture",
+    ],
+},
 
             // ======================================
             // ROADMAP
@@ -258,10 +351,12 @@ const skillsCompleted =
             error
         );
 
-        res.status(500).json({
-            message: "Failed to load dashboard",
-            error: error.message,
-        });
+       res.status(200).json({
+    user,
+    profile,
+    assessment,
+    dashboard,
+});
     }
 });
 
