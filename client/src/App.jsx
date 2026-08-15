@@ -8,8 +8,8 @@ import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import Profile from "./pages/Profile/Profile";
 import TechnicalAssessment from "./pages/TechnicalAssessment";
 import DashboardLayout from "./layouts/DashboardLayout";
-import CareerAssessment from "./pages/CareerAssessment";
-
+import AssessmentResult from "./pages/AssessmentResult";
+import CareerAssessment from "./pages/CareerAssessment/CareerAssessment";
 function App() {
   return (
     <Routes>
