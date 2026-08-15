@@ -131,100 +131,28 @@ const Dashboard = () => {
 
   const tasks = dashboard?.tasks || [];
 
-  const recommendation =
-    dashboard?.recommendation || {};
-
   // =====================================================
   // ASSESSMENT DATA
   // =====================================================
 
-  const assessmentCompleted =
-    Boolean(
-      assessment?.completed ||
+  const assessmentCompleted = Boolean(
+    assessment?.completed ||
       assessment?.is_completed ||
       assessment?.completed_at
-    );
+  );
 
-  const totalQuestions =
-    Number(
-      assessment?.total_questions ||
-        assessment?.question_count ||
-        dashboard?.assessmentTotalQuestions ||
-        30
-    );
+  const totalQuestions = Number(
+    assessment?.total_questions ||
+      assessment?.question_count ||
+      dashboard?.assessmentTotalQuestions ||
+      30
+  );
 
-  const answeredQuestions =
-    Number(
-      assessment?.answered_questions ||
-        assessment?.questions_answered ||
-        0
-    );
-
-  const assessmentProgress =
-    totalQuestions > 0
-      ? Math.min(
-          100,
-          Math.round(
-            (answeredQuestions / totalQuestions) * 100
-          )
-        )
-      : 0;
-
-  // =====================================================
-  // CAREER DOMAINS
-  // =====================================================
-
-  const careerDomains = [
-    {
-      icon: "💻",
-      title: "Software Development",
-      description:
-        "Web, mobile and software application development",
-      path: "/career-recommendations",
-    },
-    {
-      icon: "📊",
-      title: "Data Analytics",
-      description:
-        "Data analysis, SQL, Python, Excel and visualization",
-      path: "/career-recommendations",
-    },
-    {
-      icon: "🔐",
-      title: "Cyber Security",
-      description:
-        "Security, ethical hacking, networks and risk management",
-      path: "/career-recommendations",
-    },
-    {
-      icon: "☁️",
-      title: "Cloud & DevOps",
-      description:
-        "Cloud platforms, deployment and infrastructure",
-      path: "/career-recommendations",
-    },
-    {
-      icon: "🤖",
-      title: "AI & Machine Learning",
-      description:
-        "Machine learning, AI models and intelligent systems",
-      path: "/career-recommendations",
-    },
-    {
-      icon: "🧪",
-      title: "Testing & QA",
-      description:
-        "Software testing, automation and quality assurance",
-      path: "/career-recommendations",
-    },
-    {
-      icon: "📈",
-      title: "Business Analysis",
-      description:
-        "Business requirements, processes and analytics",
-      path: "/career-recommendations",
-    },
-  ];
+  const answeredQuestions = Number(
+    assessment?.answered_questions ||
+      assessment?.questions_answered ||
+      0
+  );
 
   // =====================================================
   // USER NAME
@@ -250,7 +178,7 @@ const Dashboard = () => {
 
   const getReadinessTitle = () => {
     if (placementReadiness >= 80) {
-      return "You're placement ready!";
+      return "You're career ready!";
     }
 
     if (placementReadiness >= 60) {
@@ -261,7 +189,7 @@ const Dashboard = () => {
       return "You're building your career!";
     }
 
-    return "Let's build your placement readiness!";
+    return "Let's build your career readiness!";
   };
 
   // =====================================================
@@ -277,7 +205,7 @@ const Dashboard = () => {
       return "You're on the right track. Continue building your skills, resume and career roadmap.";
     }
 
-    return "Complete your career assessment, build your profile and follow your personalized career roadmap.";
+    return "Complete your profile, career assessment and preparation activities to build your personalized career journey.";
   };
 
   // =====================================================
@@ -332,36 +260,32 @@ const Dashboard = () => {
   // PROFILE CHECKLIST
   // =====================================================
 
-  const hasBasicInformation =
-    !!(
-      profile?.phone &&
+  const hasBasicInformation = Boolean(
+    profile?.phone &&
       user?.fullname &&
       user?.email
-    );
+  );
 
-  const hasEducationDetails =
-    !!(
-      profile?.college &&
+  const hasEducationDetails = Boolean(
+    profile?.college &&
       profile?.degree &&
       profile?.branch &&
       profile?.graduation_year
-    );
+  );
 
-  const hasSkillsAndInterests =
-    !!(
-      Array.isArray(profile?.skills) &&
+  const hasSkillsAndInterests = Boolean(
+    Array.isArray(profile?.skills) &&
       profile.skills.length > 0 &&
       Array.isArray(profile?.interests) &&
       profile.interests.length > 0
-    );
+  );
 
-  const hasCareerPreferences =
-    !!(
-      Array.isArray(profile?.preferred_roles) &&
+  const hasCareerPreferences = Boolean(
+    Array.isArray(profile?.preferred_roles) &&
       profile.preferred_roles.length > 0 &&
       Array.isArray(profile?.preferred_locations) &&
       profile.preferred_locations.length > 0
-    );
+  );
 
   const profileChecklist = [
     {
@@ -406,8 +330,8 @@ const Dashboard = () => {
           </h1>
 
           <p className="dashboard-subtitle">
-            Discover the right career path, build job-ready
-            skills and prepare for your dream career.
+            Track your progress, build job-ready skills
+            and prepare for your dream career.
           </p>
 
         </div>
@@ -436,7 +360,7 @@ const Dashboard = () => {
 
 
       {/* =================================================
-          PLACEMENT READINESS
+          CAREER READINESS
       ================================================= */}
 
       <section className="readiness-card">
@@ -505,7 +429,7 @@ const Dashboard = () => {
 
 
       {/* =================================================
-          STATISTICS
+          MAIN STATISTICS
       ================================================= */}
 
       <section className="stats-grid">
@@ -554,185 +478,14 @@ const Dashboard = () => {
 
 
       {/* =================================================
-          CAREER ASSESSMENT
-      ================================================= */}
-
-      <section className="dashboard-card assessment-card">
-
-        <div className="assessment-header">
-
-          <div>
-
-            <p className="small-label">
-              CAREER DISCOVERY
-            </p>
-
-            <h2>
-              Discover Your Best Career Path
-            </h2>
-
-            <p className="card-description">
-              Answer {totalQuestions} questions about your
-              interests, skills, personality and preferences
-              to discover career paths that match you.
-            </p>
-
-          </div>
-
-          <div className="assessment-icon">
-            🧭
-          </div>
-
-        </div>
-
-
-        <div className="assessment-progress-area">
-
-          <div className="assessment-progress-info">
-
-            <strong>
-              {assessmentCompleted
-                ? "Assessment completed"
-                : `${answeredQuestions} of ${totalQuestions} questions`}
-            </strong>
-
-            <span>
-              {assessmentCompleted
-                ? "Your career recommendations are ready."
-                : "Take the assessment to receive personalized recommendations."}
-            </span>
-
-          </div>
-
-          <div className="assessment-progress-bar">
-
-            <div
-              className="assessment-progress-fill"
-              style={{
-                width: `${assessmentCompleted ? 100 : assessmentProgress}%`,
-              }}
-            ></div>
-
-          </div>
-
-        </div>
-
-
-        <div className="assessment-actions">
-
-          <button
-            className="primary-button"
-            onClick={() =>
-              navigate("/career-assessment")
-            }
-          >
-            {assessmentCompleted
-              ? "View Assessment"
-              : "Start Career Assessment"}{" "}
-            →
-          </button>
-
-          {assessmentCompleted && (
-            <button
-              className="outline-button"
-              onClick={() =>
-                navigate("/career-recommendations")
-              }
-            >
-              View Career Recommendations
-            </button>
-          )}
-
-        </div>
-
-      </section>
-
-
-      {/* =================================================
-          CAREER PATHS
-      ================================================= */}
-
-      <section className="dashboard-card career-paths-card">
-
-        <div className="card-top">
-
-          <div>
-
-            <p className="small-label">
-              EXPLORE CAREER PATHS
-            </p>
-
-            <h2>
-              Careers You Can Explore
-            </h2>
-
-            <p className="card-description">
-              CareerBridge is not limited to software development.
-              Explore different technology and business career paths.
-            </p>
-
-          </div>
-
-          <button
-            className="text-button"
-            onClick={() =>
-              navigate("/career-recommendations")
-            }
-          >
-            View All →
-          </button>
-
-        </div>
-
-
-        <div className="career-path-grid">
-
-          {careerDomains.map((domain, index) => (
-
-            <button
-              key={index}
-              className="career-path-item"
-              onClick={() =>
-                navigate(domain.path)
-              }
-            >
-
-              <div className="career-path-icon">
-                {domain.icon}
-              </div>
-
-              <div className="career-path-content">
-
-                <strong>
-                  {domain.title}
-                </strong>
-
-                <span>
-                  {domain.description}
-                </span>
-
-              </div>
-
-              <span className="career-path-arrow">
-                →
-              </span>
-
-            </button>
-
-          ))}
-
-        </div>
-
-      </section>
-
-
-      {/* =================================================
           CAREER MATCH + PROFILE
       ================================================= */}
 
       <section className="dashboard-main-grid">
 
-        {/* CAREER MATCH */}
+        {/* =================================================
+            CAREER MATCH
+        ================================================= */}
 
         <div className="dashboard-card career-match-card">
 
@@ -759,9 +512,11 @@ const Dashboard = () => {
             </div>
 
             <span className="match-badge">
+
               {assessmentCompleted
                 ? `${careerMatch}% Match`
                 : "Not assessed"}
+
             </span>
 
           </div>
@@ -775,9 +530,11 @@ const Dashboard = () => {
 
               career.skills.map(
                 (skill, index) => (
+
                   <span key={index}>
                     {skill}
                   </span>
+
                 )
               )
 
@@ -829,7 +586,9 @@ const Dashboard = () => {
         </div>
 
 
-        {/* PROFILE */}
+        {/* =================================================
+            PROFILE
+        ================================================= */}
 
         <div className="dashboard-card profile-card">
 
@@ -892,6 +651,8 @@ const Dashboard = () => {
 
           </div>
 
+
+          {/* PROFILE CHECKLIST */}
 
           <div className="profile-checklist">
 
@@ -1041,143 +802,75 @@ const Dashboard = () => {
 
 
       {/* =================================================
-          TASKS + SMART RECOMMENDATION
+          TODAY'S TASKS
       ================================================= */}
 
-      <section className="bottom-grid">
+      <section className="dashboard-card tasks-card">
 
-        {/* TASKS */}
+        <div className="tasks-header">
 
-        <div className="dashboard-card tasks-card">
+          <div>
 
-          <div className="tasks-header">
+            <p className="small-label">
+              TODAY
+            </p>
 
-            <div>
-
-              <p className="small-label">
-                TODAY
-              </p>
-
-              <h2>
-                Your Tasks
-              </h2>
-
-            </div>
-
-            <span className="task-count">
-              {completedTasks}/{totalTasks}
-            </span>
+            <h2>
+              Your Tasks
+            </h2>
 
           </div>
 
-
-          <div className="task-list">
-
-            {tasks.length > 0 ? (
-
-              tasks.map((task) => (
-
-                <Task
-                  key={task.id}
-                  text={task.text}
-                  completed={task.completed}
-                />
-
-              ))
-
-            ) : (
-
-              <>
-
-                <Task
-                  text="Complete your profile"
-                  completed={
-                    profileCompletion >= 100
-                  }
-                />
-
-                <Task
-                  text="Complete career assessment"
-                  completed={assessmentCompleted}
-                />
-
-                <Task
-                  text="Explore recommended career paths"
-                  completed={careerMatch > 0}
-                />
-
-                <Task
-                  text="Build your resume"
-                  completed={resumeScore >= 80}
-                />
-
-              </>
-
-            )}
-
-          </div>
+          <span className="task-count">
+            {completedTasks}/{totalTasks}
+          </span>
 
         </div>
 
 
-        {/* SMART RECOMMENDATION */}
+        <div className="task-list">
 
-        <div className="recommendation-card">
+          {tasks.length > 0 ? (
 
-          <div className="recommendation-icon">
-            💡
-          </div>
+            tasks.map((task) => (
 
-          <p className="small-label">
-            SMART RECOMMENDATION
-          </p>
+              <Task
+                key={task.id}
+                text={task.text}
+                completed={task.completed}
+              />
 
-          <h2>
-            {recommendation.title ||
-              (!assessmentCompleted
-                ? "Discover your ideal career"
-                : career.title
-                ? `Explore ${career.title}`
-                : "Build your career profile")}
-          </h2>
+            ))
 
-          <p>
-            {recommendation.description ||
-              (!assessmentCompleted
-                ? "Take the career assessment to understand which career paths match your interests, skills and preferences."
-                : "Continue building your skills, improving your resume and following your personalized career roadmap.")}
-          </p>
+          ) : (
 
-          <button
-            onClick={() => {
+            <>
 
-              if (!assessmentCompleted) {
-                navigate("/career-assessment");
-                return;
-              }
+              <Task
+                text="Complete your profile"
+                completed={
+                  profileCompletion >= 100
+                }
+              />
 
-              if (profileCompletion < 100) {
-                navigate("/profile");
-                return;
-              }
+              <Task
+                text="Complete career assessment"
+                completed={assessmentCompleted}
+              />
 
-              if (resumeScore < 70) {
-                navigate("/resume-builder");
-                return;
-              }
+              <Task
+                text="Explore recommended career paths"
+                completed={careerMatch > 0}
+              />
 
-              navigate("/career-recommendations");
+              <Task
+                text="Build your resume"
+                completed={resumeScore >= 80}
+              />
 
-            }}
-          >
+            </>
 
-            {recommendation.action ||
-              (!assessmentCompleted
-                ? "Take Assessment"
-                : "Continue Preparation")}{" "}
-            ↗
-
-          </button>
+          )}
 
         </div>
 

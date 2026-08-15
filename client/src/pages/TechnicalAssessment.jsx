@@ -1,810 +1,526 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./TechnicalAssessment.css";
 
 const TechnicalAssessment = () => {
+  const [role, setRole] = useState("");
+  const [questions, setQuestions] = useState([]);
 
-    const navigate = useNavigate();
+  const [currentQuestion, setCurrentQuestion] =
+    useState(0);
 
-    const [questions, setQuestions] =
-        useState([]);
+  const [answers, setAnswers] = useState({});
 
-    const [assessmentId, setAssessmentId] =
-        useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-    const [currentQuestion, setCurrentQuestion] =
-        useState(0);
+  const roleNames = {
+    "software-developer": "Software Developer",
+    "data-analyst": "Data Analyst",
+    cybersecurity: "Cybersecurity Analyst",
+    "cloud-devops": "Cloud / DevOps Engineer",
+    "ui-ux": "UI/UX Designer",
+  };
 
-    const [answers, setAnswers] =
-        useState({});
 
-    const [loading, setLoading] =
-        useState(true);
+  /* =====================================================
+     LOAD ROLE + QUESTIONS
+  ===================================================== */
 
-    const [submitting, setSubmitting] =
-        useState(false);
+  useEffect(() => {
+    const selectedRole =
+      localStorage.getItem(
+        "selectedCareerRole"
+      );
 
-    const [error, setError] =
-        useState("");
+    if (!selectedRole) {
+      window.location.href =
+        "/career-assessment";
 
-    const [timeLeft, setTimeLeft] =
-        useState(20 * 60);
-
-
-    // =====================================================
-    // START ASSESSMENT
-    // =====================================================
-
-    useEffect(() => {
-
-        startAssessment();
-
-    }, []);
-
-
-    const startAssessment = async () => {
-
-        try {
-
-            setLoading(true);
-            setError("");
-
-            const email =
-                localStorage.getItem("userEmail") ||
-                localStorage.getItem("email");
-
-            if (!email) {
-
-                setError(
-                    "Please login again."
-                );
-
-                return;
-            }
-
-            const response =
-                await fetch(
-                    `http://localhost:5000/api/technical-assessment/questions/${encodeURIComponent(email)}`
-                );
-
-            const data =
-                await response.json();
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.message ||
-                    "Failed to start assessment"
-                );
-            }
-
-            setQuestions(
-                data.questions
-            );
-
-            setAssessmentId(
-                data.assessmentId
-            );
-
-        } catch (err) {
-
-            console.error(err);
-
-            setError(
-                err.message ||
-                "Something went wrong"
-            );
-
-        } finally {
-
-            setLoading(false);
-
-        }
-    };
-
-
-    // =====================================================
-    // TIMER
-    // =====================================================
-
-    useEffect(() => {
-
-        if (
-            loading ||
-            submitting ||
-            questions.length === 0
-        ) {
-            return;
-        }
-
-        if (timeLeft <= 0) {
-
-            submitAssessment();
-
-            return;
-        }
-
-        const timer =
-            setInterval(() => {
-
-                setTimeLeft(
-                    (previous) =>
-                        previous - 1
-                );
-
-            }, 1000);
-
-        return () => clearInterval(timer);
-
-    }, [
-        timeLeft,
-        loading,
-        submitting,
-        questions.length,
-    ]);
-
-
-    // =====================================================
-    // FORMAT TIMER
-    // =====================================================
-
-    const formatTime = () => {
-
-        const minutes =
-            Math.floor(
-                timeLeft / 60
-            );
-
-        const seconds =
-            timeLeft % 60;
-
-        return `${String(minutes).padStart(
-            2,
-            "0"
-        )}:${String(seconds).padStart(
-            2,
-            "0"
-        )}`;
-    };
-
-
-    // =====================================================
-    // SELECT ANSWER
-    // =====================================================
-
-    const selectAnswer = (
-        option
-    ) => {
-
-        const question =
-            questions[currentQuestion];
-
-        setAnswers(
-            (previous) => ({
-                ...previous,
-
-                [question.id]:
-                    option,
-            })
-        );
-    };
-
-
-    // =====================================================
-    // NEXT QUESTION
-    // =====================================================
-
-    const nextQuestion = () => {
-
-        if (
-            currentQuestion <
-            questions.length - 1
-        ) {
-
-            setCurrentQuestion(
-                currentQuestion + 1
-            );
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-            });
-        }
-    };
-
-
-    // =====================================================
-    // PREVIOUS QUESTION
-    // =====================================================
-
-    const previousQuestion = () => {
-
-        if (
-            currentQuestion > 0
-        ) {
-
-            setCurrentQuestion(
-                currentQuestion - 1
-            );
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-            });
-        }
-    };
-
-
-    // =====================================================
-    // SUBMIT
-    // =====================================================
-
-    const submitAssessment = async () => {
-
-        if (submitting) {
-            return;
-        }
-
-        try {
-
-            setSubmitting(true);
-
-            const formattedAnswers =
-                questions.map(
-                    (question) => ({
-                        questionId:
-                            question.id,
-
-                        selectedOption:
-                            answers[
-                                question.id
-                            ] || null,
-                    })
-                );
-
-            const response =
-                await fetch(
-                    "http://localhost:5000/api/technical-assessment/submit",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                        },
-
-                        body: JSON.stringify({
-                            assessmentId,
-                            answers:
-                                formattedAnswers,
-                        }),
-                    }
-                );
-
-            const data =
-                await response.json();
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.message ||
-                    "Failed to submit assessment"
-                );
-            }
-
-            // Save result temporarily
-            sessionStorage.setItem(
-                "technicalAssessmentResult",
-                JSON.stringify(
-                    data.result
-                )
-            );
-
-            navigate(
-                "/technical-assessment/result"
-            );
-
-        } catch (err) {
-
-            console.error(err);
-
-            setError(
-                err.message ||
-                "Failed to submit assessment"
-            );
-
-            setSubmitting(false);
-        }
-    };
-
-
-    // =====================================================
-    // LOADING
-    // =====================================================
-
-    if (loading) {
-
-        return (
-            <div className="technical-loading">
-
-                <div className="assessment-spinner">
-                </div>
-
-                <h2>
-                    Preparing your assessment...
-                </h2>
-
-                <p>
-                    Selecting questions based on
-                    different difficulty levels.
-                </p>
-
-            </div>
-        );
+      return;
     }
 
+    setRole(selectedRole);
 
-    // =====================================================
-    // ERROR
-    // =====================================================
+    fetchQuestions(selectedRole);
+  }, []);
 
-    if (error) {
 
-        return (
-            <div className="technical-error">
+  /* =====================================================
+     FETCH QUESTIONS
+  ===================================================== */
 
-                <div className="technical-error-icon">
-                    ⚠️
-                </div>
+  const fetchQuestions = async (
+    selectedRole
+  ) => {
+    try {
+      setLoading(true);
 
-                <h2>
-                    Unable to start assessment
-                </h2>
+      const response = await fetch(
+        `http://localhost:5000/api/technical-assessment/questions?role=${selectedRole}`
+      );
 
-                <p>
-                    {error}
-                </p>
+      const data = await response.json();
 
-                <button
-                    onClick={
-                        startAssessment
-                    }
-                >
-                    Try Again
-                </button>
-
-            </div>
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Unable to load questions."
         );
+      }
+
+      setQuestions(data.questions || []);
+
+    } catch (error) {
+      console.error(
+        "Question loading error:",
+        error
+      );
+
+      alert(
+        error.message ||
+          "Unable to load assessment questions."
+      );
+
+    } finally {
+      setLoading(false);
     }
+  };
 
 
-    // =====================================================
-    // NO QUESTIONS
-    // =====================================================
+  /* =====================================================
+     SELECT ANSWER
+  ===================================================== */
+
+  const handleAnswer = (option) => {
+    setAnswers((previous) => ({
+      ...previous,
+      [questions[currentQuestion].id]:
+        option,
+    }));
+  };
+
+
+  /* =====================================================
+     NEXT
+  ===================================================== */
+
+  const handleNext = () => {
+    const question =
+      questions[currentQuestion];
+
+    if (!answers[question.id]) {
+      alert(
+        "Please select an answer before continuing."
+      );
+
+      return;
+    }
 
     if (
-        questions.length === 0
+      currentQuestion <
+      questions.length - 1
     ) {
+      setCurrentQuestion(
+        (previous) => previous + 1
+      );
 
-        return (
-            <div className="technical-error">
-
-                <h2>
-                    No questions available
-                </h2>
-
-                <p>
-                    Please try again later.
-                </p>
-
-            </div>
-        );
+      return;
     }
 
-
-    // =====================================================
-    // CURRENT QUESTION
-    // =====================================================
-
-    const question =
-        questions[currentQuestion];
+    handleSubmit();
+  };
 
 
-    const selectedAnswer =
-        answers[question.id];
+  /* =====================================================
+     PREVIOUS
+  ===================================================== */
+
+  const handlePrevious = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(
+        (previous) => previous - 1
+      );
+    }
+  };
 
 
-    const answeredCount =
-        Object.keys(answers).length;
+  /* =====================================================
+     SUBMIT
+  ===================================================== */
 
+  const handleSubmit = async () => {
+    try {
+      setSubmitting(true);
 
-    const progress =
-        (
-            ((currentQuestion + 1) /
-                questions.length) *
-            100
+      const email =
+        localStorage.getItem("email");
+
+      if (!email) {
+        alert(
+          "User email not found. Please login again."
         );
 
+        return;
+      }
 
-    // =====================================================
-    // MAIN UI
-    // =====================================================
 
+      const formattedAnswers =
+        questions.map((question) => ({
+          questionId: question.id,
+
+          selectedOption:
+            answers[question.id] || null,
+        }));
+
+
+      const payload = {
+        email,
+        role,
+        answers: formattedAnswers,
+      };
+
+
+      console.log(
+        "Technical Assessment:",
+        payload
+      );
+
+
+      const response = await fetch(
+        "http://localhost:5000/api/technical-assessment/submit",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(payload),
+        }
+      );
+
+
+      const data = await response.json();
+
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Assessment submission failed."
+        );
+      }
+
+
+      localStorage.setItem(
+        "technicalAssessmentResult",
+        JSON.stringify(data)
+      );
+
+
+      window.location.href =
+        "/technical-assessment/result";
+
+    } catch (error) {
+      console.error(
+        "Assessment submission error:",
+        error
+      );
+
+      alert(
+        error.message ||
+          "Unable to submit assessment."
+      );
+
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+
+  /* =====================================================
+     LOADING
+  ===================================================== */
+
+  if (loading) {
     return (
-        <div className="technical-page">
+      <div className="technical-loading">
 
-            {/* HEADER */}
+        <div className="loading-spinner" />
 
-            <header className="technical-header">
+        <h2>
+          Preparing your assessment...
+        </h2>
 
-                <div>
+        <p>
+          Loading questions for your selected role.
+        </p>
 
-                    <span className="technical-label">
-                        CAREERBRIDGE
-                    </span>
+      </div>
+    );
+  }
 
-                    <h1>
-                        Technical Skill Assessment
-                    </h1>
 
-                    <p>
-                        Test your programming,
-                        DSA and problem-solving
-                        fundamentals.
-                    </p>
+  /* =====================================================
+     NO QUESTIONS
+  ===================================================== */
 
-                </div>
+  if (!questions.length) {
+    return (
+      <div className="technical-empty">
 
+        <div className="empty-icon">
+          📚
+        </div>
 
-                <div className="assessment-timer">
+        <h2>
+          Assessment questions are not available yet.
+        </h2>
 
-                    <span>
-                        TIME LEFT
-                    </span>
+        <p>
+          Questions for this role are currently
+          being prepared.
+        </p>
 
-                    <strong
-                        className={
-                            timeLeft <= 300
-                                ? "timer-warning"
-                                : ""
-                        }
-                    >
-                        ⏱ {formatTime()}
-                    </strong>
+        <button
+          onClick={() =>
+            (window.location.href =
+              "/career-assessment")
+          }
+        >
+          ← Choose Another Role
+        </button>
 
-                </div>
+      </div>
+    );
+  }
 
-            </header>
 
+  const question =
+    questions[currentQuestion];
 
-            {/* PROGRESS */}
 
-            <div className="assessment-progress">
+  const selectedAnswer =
+    answers[question.id];
 
-                <div className="progress-info">
 
-                    <span>
-                        Question{" "}
-                        {currentQuestion + 1}
-                        {" "}of{" "}
-                        {questions.length}
-                    </span>
+  const progress =
+    ((currentQuestion + 1) /
+      questions.length) *
+    100;
 
-                    <span>
-                        {answeredCount}/
-                        {questions.length}
-                        {" "}answered
-                    </span>
 
-                </div>
+  /* =====================================================
+     MAIN
+  ===================================================== */
 
-                <div className="progress-bar">
+  return (
+    <div className="technical-page">
 
-                    <div
-                        style={{
-                            width:
-                                `${progress}%`,
-                        }}
-                    />
+      {/* HEADER */}
 
-                </div>
+      <header className="technical-header">
 
-            </div>
+        <div className="technical-brand">
 
+          <div className="brand-logo">
+            C
+          </div>
 
-            {/* QUESTION */}
+          <div>
+            <strong>
+              CareerBridge
+            </strong>
 
-            <main className="assessment-content">
-
-                <div className="question-card">
-
-                    {/* CATEGORY */}
-
-                    <div className="question-meta">
-
-                        <span className="category-badge">
-                            {question.category}
-                        </span>
-
-                        <span
-                            className={`difficulty-badge ${question.difficulty.toLowerCase()}`}
-                        >
-                            {question.difficulty}
-                        </span>
-
-                    </div>
-
-
-                    {/* QUESTION NUMBER */}
-
-                    <p className="question-number">
-                        QUESTION{" "}
-                        {String(
-                            currentQuestion + 1
-                        ).padStart(2, "0")}
-                    </p>
-
-
-                    {/* QUESTION */}
-
-                    <h2>
-                        {question.question}
-                    </h2>
-
-
-                    {/* OPTIONS */}
-
-                    <div className="options">
-
-                        <Option
-                            letter="A"
-                            text={
-                                question.option_a
-                            }
-                            selected={
-                                selectedAnswer ===
-                                "A"
-                            }
-                            onClick={() =>
-                                selectAnswer(
-                                    "A"
-                                )
-                            }
-                        />
-
-                        <Option
-                            letter="B"
-                            text={
-                                question.option_b
-                            }
-                            selected={
-                                selectedAnswer ===
-                                "B"
-                            }
-                            onClick={() =>
-                                selectAnswer(
-                                    "B"
-                                )
-                            }
-                        />
-
-                        <Option
-                            letter="C"
-                            text={
-                                question.option_c
-                            }
-                            selected={
-                                selectedAnswer ===
-                                "C"
-                            }
-                            onClick={() =>
-                                selectAnswer(
-                                    "C"
-                                )
-                            }
-                        />
-
-                        <Option
-                            letter="D"
-                            text={
-                                question.option_d
-                            }
-                            selected={
-                                selectedAnswer ===
-                                "D"
-                            }
-                            onClick={() =>
-                                selectAnswer(
-                                    "D"
-                                )
-                            }
-                        />
-
-                    </div>
-
-
-                    {/* NAVIGATION */}
-
-                    <div className="question-navigation">
-
-                        <button
-                            className="previous-button"
-                            disabled={
-                                currentQuestion ===
-                                0
-                            }
-                            onClick={
-                                previousQuestion
-                            }
-                        >
-                            ← Previous
-                        </button>
-
-
-                        {currentQuestion ===
-                        questions.length - 1 ? (
-
-                            <button
-                                className="submit-button"
-                                onClick={
-                                    submitAssessment
-                                }
-                                disabled={
-                                    submitting
-                                }
-                            >
-                                {submitting
-                                    ? "Submitting..."
-                                    : "Submit Assessment ✓"}
-                            </button>
-
-                        ) : (
-
-                            <button
-                                className="next-button"
-                                onClick={
-                                    nextQuestion
-                                }
-                            >
-                                Next Question →
-                            </button>
-
-                        )}
-
-                    </div>
-
-                </div>
-
-
-                {/* QUESTION PALETTE */}
-
-                <div className="question-palette">
-
-                    <div className="palette-header">
-
-                        <h3>
-                            Questions
-                        </h3>
-
-                        <span>
-                            {answeredCount}/
-                            {questions.length}
-                        </span>
-
-                    </div>
-
-
-                    <div className="palette-grid">
-
-                        {questions.map(
-                            (item, index) => (
-
-                                <button
-                                    key={
-                                        item.id
-                                    }
-                                    className={`
-                                        palette-number
-                                        ${
-                                            index ===
-                                            currentQuestion
-                                                ? "current"
-                                                : ""
-                                        }
-                                        ${
-                                            answers[
-                                                item.id
-                                            ]
-                                                ? "answered"
-                                                : ""
-                                        }
-                                    `}
-                                    onClick={() =>
-                                        setCurrentQuestion(
-                                            index
-                                        )
-                                    }
-                                >
-                                    {index + 1}
-                                </button>
-
-                            )
-                        )}
-
-                    </div>
-
-
-                    <div className="palette-legend">
-
-                        <span>
-                            <i className="legend-current">
-                            </i>
-                            Current
-                        </span>
-
-                        <span>
-                            <i className="legend-answered">
-                            </i>
-                            Answered
-                        </span>
-
-                        <span>
-                            <i className="legend-unanswered">
-                            </i>
-                            Unanswered
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </main>
+            <span>
+              Technical Assessment
+            </span>
+          </div>
 
         </div>
-    );
-};
 
 
-// =====================================================
-// OPTION COMPONENT
-// =====================================================
+        <div className="role-badge">
+          {roleNames[role] || role}
+        </div>
 
-const Option = ({
-    letter,
-    text,
-    selected,
-    onClick,
-}) => {
+      </header>
 
-    return (
-        <button
-            className={
-                `answer-option ${
-                    selected
-                        ? "selected"
-                        : ""
-                }`
-            }
-            onClick={onClick}
-        >
 
-            <span className="option-letter">
-                {letter}
+      {/* MAIN */}
+
+      <main className="technical-main">
+
+        {/* TITLE */}
+
+        <div className="technical-intro">
+
+          <p>
+            ROLE-SPECIFIC KNOWLEDGE TEST
+          </p>
+
+          <h1>
+            Test your technical knowledge.
+          </h1>
+
+          <span>
+            Answer all {questions.length} questions
+            to evaluate your preparation for the
+            selected role.
+          </span>
+
+        </div>
+
+
+        {/* PROGRESS */}
+
+        <div className="question-progress">
+
+          <div className="progress-info">
+
+            <span>
+              Question{" "}
+              {currentQuestion + 1} of{" "}
+              {questions.length}
             </span>
 
-            <span className="option-text">
-                {text}
+            <strong>
+              {Math.round(progress)}%
+            </strong>
+
+          </div>
+
+
+          <div className="question-progress-bar">
+
+            <div
+              style={{
+                width: `${progress}%`,
+              }}
+            />
+
+          </div>
+
+        </div>
+
+
+        {/* QUESTION CARD */}
+
+        <section className="question-card">
+
+          <div className="question-top">
+
+            <span className="question-number">
+              Question{" "}
+              {currentQuestion + 1}
             </span>
 
-            <span className="option-check">
-                {selected
+            <span
+              className={`difficulty ${String(
+                question.difficulty || ""
+              ).toLowerCase()}`}
+            >
+              {question.difficulty}
+            </span>
+
+          </div>
+
+
+          <h2>
+            {question.question}
+          </h2>
+
+
+          {/* OPTIONS */}
+
+          <div className="answers-list">
+
+            {[
+              ["A", question.option_a],
+              ["B", question.option_b],
+              ["C", question.option_c],
+              ["D", question.option_d],
+            ].map(([option, text]) => (
+
+              <button
+                type="button"
+                key={option}
+                className={`answer-option ${
+                  selectedAnswer === option
+                    ? "selected"
+                    : ""
+                }`}
+                onClick={() =>
+                  handleAnswer(option)
+                }
+              >
+
+                <span className="answer-letter">
+                  {option}
+                </span>
+
+                <span className="answer-text">
+                  {text}
+                </span>
+
+                <span className="answer-check">
+                  {selectedAnswer === option
                     ? "✓"
                     : ""}
-            </span>
+                </span>
 
-        </button>
-    );
+              </button>
+
+            ))}
+
+          </div>
+
+        </section>
+
+
+        {/* ACTIONS */}
+
+        <div className="technical-actions">
+
+          <button
+            type="button"
+            className="previous-question"
+            disabled={
+              currentQuestion === 0 ||
+              submitting
+            }
+            onClick={handlePrevious}
+          >
+            ← Previous
+          </button>
+
+
+          <button
+            type="button"
+            className="next-question"
+            disabled={submitting}
+            onClick={handleNext}
+          >
+            {submitting
+              ? "Submitting..."
+              : currentQuestion ===
+                  questions.length - 1
+              ? "Submit Assessment ✓"
+              : "Next Question →"}
+          </button>
+
+        </div>
+
+
+        <p className="assessment-security">
+          🔒 Your answers are securely used to
+          calculate your role preparation score.
+        </p>
+
+      </main>
+
+    </div>
+  );
 };
-
 
 export default TechnicalAssessment;
