@@ -12,6 +12,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import AssessmentResult from "./pages/AssessmentResult";
 import CareerAssessment from "./pages/CareerAssessment/CareerAssessment";
 import ResumeBuilder from "./pages/ResumeBuilder";
+import ResumeAnalyzer from "./pages/ResumeAnalyzer";
 
 function App() {
   return (
@@ -58,6 +59,11 @@ function App() {
         <Route
           path="/resume-builder"
           element={<ResumeBuilder />}
+        />
+
+        <Route
+          path="/resume-analyzer"
+          element={<ResumeAnalyzer />}
         />
 
       </Route>
