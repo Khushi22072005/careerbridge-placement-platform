@@ -1,0 +1,888 @@
+/* =====================================================
+   CAREERBRIDGE LANDING PAGE
+   Desktop design matching reference image
+===================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+.home-page {
+  width: 100%;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #101a35;
+  background: #ffffff;
+}
+
+.home-page a {
+  text-decoration: none;
+}
+
+
+/* =====================================================
+   NAVBAR
+===================================================== */
+
+.home-navbar {
+  height: 72px;
+  width: 100%;
+  padding: 0 6.8%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid #edf0f7;
+  position: relative;
+  z-index: 10;
+}
+
+.home-logo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 21px;
+  font-weight: 700;
+  color: #17233f;
+}
+
+.home-logo > span:last-child span {
+  color: #3048dc;
+}
+
+.logo-cap {
+  font-size: 22px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+  margin-left: 80px;
+}
+
+.nav-links a {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111a32;
+}
+
+.nav-links a:hover {
+  color: #3048dc;
+}
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-login,
+.nav-get-started {
+  padding: 11px 22px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nav-login {
+  color: #3048dc;
+  border: 1px solid #3048dc;
+  background: white;
+}
+
+.nav-get-started {
+  color: white;
+  background: #3548d8;
+  border: 1px solid #3548d8;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero-section {
+  width: 100%;
+  min-height: 380px;
+  background: #ffffff;
+}
+
+.hero-content {
+  width: 86%;
+  max-width: 1250px;
+  min-height: 380px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-left {
+  width: 48%;
+}
+
+.hero-left h1 {
+  margin: 0;
+  font-size: 42px;
+  line-height: 1.13;
+  letter-spacing: -1.2px;
+  color: #111b34;
+}
+
+.hero-left h1 span {
+  color: #3549db;
+}
+
+.hero-left p {
+  width: 480px;
+  margin-top: 23px;
+  margin-bottom: 25px;
+  color: #68738c;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.primary-btn,
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 43px;
+  padding: 0 20px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.primary-btn {
+  background: #3549db;
+  color: white;
+}
+
+.secondary-btn {
+  color: #3549db;
+  border: 1px solid #3549db;
+  background: white;
+}
+
+.hero-right {
+  width: 49%;
+  height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-right img {
+  width: 100%;
+  max-width: 530px;
+  max-height: 340px;
+  object-fit: contain;
+}
+
+
+/* =====================================================
+   COMMON SECTION TITLE
+===================================================== */
+
+.why-section h2,
+.features-section h2,
+.journey-section h2,
+.how-section h2 {
+  text-align: center;
+  margin: 0 0 25px;
+  font-size: 20px;
+  color: #101a35;
+}
+
+
+/* =====================================================
+   WHY SECTION
+===================================================== */
+
+.why-section {
+  padding: 23px 6.5% 28px;
+  background: #ffffff;
+}
+
+.why-grid {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.why-card {
+  min-height: 145px;
+  padding: 18px 20px;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid #edf0f6;
+  border-radius: 9px;
+  box-shadow: 0 4px 16px rgba(33, 52, 95, 0.07);
+}
+
+.round-icon {
+  width: 43px;
+  height: 43px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.blue-icon {
+  color: #5269db;
+  background: #eef1ff;
+}
+
+.green-icon {
+  color: #17b878;
+  background: #e9faf3;
+}
+
+.orange-icon {
+  color: #f2a522;
+  background: #fff5df;
+}
+
+.purple-icon {
+  color: #7c58dc;
+  background: #f2edff;
+}
+
+.why-card h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.why-card p {
+  margin: 0;
+  color: #667087;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* =====================================================
+   FEATURES
+===================================================== */
+
+.features-section {
+  padding: 20px 6.5% 28px;
+  background: #f8faff;
+}
+
+.features-grid {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.feature-card {
+  min-height: 78px;
+  padding: 13px 17px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #eef0f6;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(30, 50, 90, 0.04);
+}
+
+.feature-icon {
+  flex: 0 0 39px;
+  width: 39px;
+  height: 39px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+}
+
+.blue-bg {
+  color: #5368dc;
+  background: #edf0ff;
+}
+
+.green-bg {
+  background: #e8faf2;
+}
+
+.light-blue-bg {
+  color: #3187e8;
+  background: #e9f4ff;
+}
+
+.orange-bg {
+  color: #f39a27;
+  background: #fff3e1;
+}
+
+.purple-bg {
+  color: #8757df;
+  background: #f1eaff;
+}
+
+.pink-bg {
+  color: #eb5584;
+  background: #ffeaf1;
+}
+
+.feature-card h3 {
+  margin: 1px 0 5px;
+  font-size: 12px;
+}
+
+.feature-card p {
+  margin: 0;
+  color: #667087;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+
+/* =====================================================
+   CAREER JOURNEY
+===================================================== */
+
+.journey-section {
+  padding: 20px 6.5% 28px;
+  background: #f5f5ff;
+}
+
+.journey-container {
+  max-width: 1050px;
+  margin: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+}
+
+.journey-step {
+  width: 190px;
+  text-align: center;
+}
+
+.journey-icon {
+  width: 57px;
+  height: 57px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #3549db;
+  background: white;
+  box-shadow: 0 3px 12px rgba(38, 55, 120, 0.08);
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.journey-step h3 {
+  margin: 0 0 6px;
+  color: #3549db;
+  font-size: 12px;
+}
+
+.journey-step p {
+  margin: 0;
+  color: #5d6780;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.journey-arrow {
+  margin-top: 25px;
+  color: #3549db;
+  font-size: 23px;
+}
+
+
+/* =====================================================
+   CAREER MATCH
+===================================================== */
+
+.career-match-section {
+  max-width: 1200px;
+  margin: auto;
+  padding: 25px 6.5%;
+  display: flex;
+  align-items: center;
+  gap: 45px;
+}
+
+.career-match-left {
+  width: 40%;
+}
+
+.career-match-left h2 {
+  margin: 0 0 10px;
+  font-size: 19px;
+}
+
+.career-match-left > p {
+  color: #626c83;
+  font-size: 11px;
+  line-height: 1.55;
+  max-width: 350px;
+}
+
+.check-list {
+  margin: 15px 0;
+}
+
+.check-list div {
+  margin: 8px 0;
+  color: #3d4b61;
+  font-size: 10.5px;
+}
+
+.check-list div::first-letter {
+  color: #1cac63;
+}
+
+.assessment-btn {
+  display: inline-flex;
+  padding: 11px 18px;
+  border-radius: 5px;
+  background: #3549db;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.career-match-card {
+  width: 60%;
+  min-height: 170px;
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #edf0f5;
+  border-radius: 9px;
+  box-shadow: 0 4px 18px rgba(30, 50, 90, 0.07);
+}
+
+.career-results {
+  width: 65%;
+}
+
+.career-results h3 {
+  margin: 0 0 14px;
+  font-size: 11px;
+}
+
+.career-row {
+  margin-bottom: 10px;
+}
+
+.career-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 10px;
+}
+
+.career-label b {
+  font-weight: 600;
+}
+
+.progress {
+  height: 5px;
+  border-radius: 5px;
+  background: #e8ebf3;
+  overflow: hidden;
+}
+
+.progress div {
+  height: 100%;
+  border-radius: 5px;
+  background: #3549db;
+}
+
+.match-circle-area {
+  width: 120px;
+  text-align: center;
+}
+
+.match-circle {
+  width: 88px;
+  height: 88px;
+  margin: auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 8px solid #e6e9f7;
+  border-top-color: #3549db;
+  border-right-color: #3549db;
+  color: #17213a;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.match-circle-area p {
+  margin: 7px 0 2px;
+  font-size: 9px;
+}
+
+.match-circle-area strong {
+  color: #3549db;
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   HOW IT WORKS
+===================================================== */
+
+.how-section {
+  padding: 20px 6.5% 25px;
+  background: #ffffff;
+}
+
+.how-grid {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.how-card {
+  width: 215px;
+  min-height: 95px;
+  padding: 13px;
+  display: flex;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #edf0f6;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(30, 50, 90, 0.05);
+}
+
+.how-card > span {
+  width: 31px;
+  height: 31px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3549db;
+  background: #eef1ff;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.how-card h3 {
+  margin: 2px 0 6px;
+  font-size: 11px;
+}
+
+.how-card p {
+  margin: 0;
+  color: #697289;
+  font-size: 9.5px;
+  line-height: 1.45;
+}
+
+.how-arrow {
+  color: #3549db;
+  font-size: 18px;
+}
+
+
+/* =====================================================
+   PLACEMENT READY
+===================================================== */
+
+.placement-section {
+  min-height: 135px;
+  padding: 18px 8%;
+  display: flex;
+  align-items: center;
+  gap: 35px;
+  background: #f8fff9;
+}
+
+.placement-illustration {
+  width: 30%;
+  display: flex;
+  justify-content: center;
+}
+
+.person-placeholder {
+  width: 150px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+}
+
+.placement-content {
+  flex: 1;
+}
+
+.placement-content h2 {
+  margin: 0 0 9px;
+  font-size: 17px;
+}
+
+.placement-list p {
+  margin: 5px 0;
+  color: #45536a;
+  font-size: 10px;
+}
+
+.prepare-btn {
+  padding: 12px 20px;
+  border-radius: 5px;
+  background: #18ad6b;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   STATS
+===================================================== */
+
+.stats-section {
+  max-width: 1150px;
+  margin: auto;
+  padding: 22px 5%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  color: #3549db;
+  font-size: 22px;
+  margin-bottom: 5px;
+}
+
+.stat h3 {
+  margin: 0 0 3px;
+  font-size: 11px;
+}
+
+.stat p {
+  margin: 0;
+  color: #697289;
+  font-size: 9px;
+}
+
+
+/* =====================================================
+   CTA
+===================================================== */
+
+.cta-section {
+  width: 91%;
+  max-width: 1300px;
+  min-height: 115px;
+  margin: 0 auto 0;
+  padding: 25px 45px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 9px 9px 0 0;
+  color: white;
+  background: linear-gradient(105deg, #3043c8, #384bdd);
+}
+
+.cta-section h2 {
+  margin: 0 0 7px;
+  font-size: 16px;
+}
+
+.cta-section p {
+  margin: 0;
+  font-size: 10px;
+  color: #e0e5ff;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.cta-white,
+.cta-outline {
+  padding: 11px 18px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.cta-white {
+  color: #3549db;
+  background: white;
+}
+
+.cta-outline {
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.home-footer {
+  min-height: 185px;
+  padding: 28px 8% 12px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1.2fr;
+  gap: 35px;
+  position: relative;
+  color: #dce2ef;
+  background: #101c2f;
+}
+
+.footer-brand h2 {
+  margin: 0 0 12px;
+  color: white;
+  font-size: 15px;
+}
+
+.footer-brand p {
+  margin: 0;
+  color: #aab5c9;
+  font-size: 9.5px;
+  line-height: 1.6;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-column h3 {
+  margin: 0 0 7px;
+  color: white;
+  font-size: 10px;
+}
+
+.footer-column a,
+.footer-column p {
+  margin: 0;
+  color: #aab5c9;
+  font-size: 8.5px;
+}
+
+.footer-column a:hover {
+  color: white;
+}
+
+.footer-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 7px;
+  text-align: center;
+  color: #7f8ba1;
+  font-size: 8px;
+}
+
+
+/* =====================================================
+   DESKTOP SIZING
+===================================================== */
+
+@media (min-width: 1200px) {
+  .hero-content {
+    min-height: 390px;
+  }
+
+  .hero-left h1 {
+    font-size: 43px;
+  }
+}
+
+
+/* =====================================================
+   BASIC RESPONSIVE FALLBACK
+===================================================== */
+
+@media (max-width: 900px) {
+
+  .nav-links {
+    display: none;
+  }
+
+  .hero-content {
+    flex-direction: column;
+    padding: 45px 0;
+  }
+
+  .hero-left,
+  .hero-right {
+    width: 100%;
+  }
+
+  .hero-left p {
+    width: 100%;
+  }
+
+  .why-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .journey-container {
+    flex-wrap: wrap;
+  }
+
+  .career-match-section {
+    flex-direction: column;
+  }
+
+  .career-match-left,
+  .career-match-card {
+    width: 100%;
+  }
+
+  .how-grid {
+    flex-wrap: wrap;
+  }
+
+  .stats-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .home-footer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

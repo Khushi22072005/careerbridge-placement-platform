@@ -1,39 +1,49 @@
+import React from "react";
+import { Link } from "react-router-dom";
 import "./Hero.css";
-import heroImage from "../../assets/images/hero.svg";
+import heroGirl from "../../assets/images/hero-girl.png";
 
 function Hero() {
   return (
-    <section className="hero">
+    <section className="hero-section">
+      <div className="hero-container">
 
-      <div className="hero-left">
-        <h1>
-          From Student <br />
-          to Professional
-        </h1>
+        <div className="hero-content">
+          <h1>
+            From Student
+            <br />
+            <span>to Professional</span>
+          </h1>
 
-        <p>
-          Discover your ideal career path,
-          build an ATS-friendly resume,
-          prepare for interviews,
-          and become placement ready —
-          all in one platform.
-        </p>
+          <p>
+            Discover your ideal career path, build an ATS-friendly resume,
+            prepare for interviews, and become placement ready — all in one
+            platform.
+          </p>
 
-        <div className="hero-buttons">
-          <button className="primary">
-            Get Started
-          </button>
+          <div className="hero-buttons">
+            <Link to="/register" className="hero-btn primary-btn">
+              Get Started
+            </Link>
 
-          <button className="secondary">
-            Take Career Test
-          </button>
+            <Link
+              to="/career-assessment"
+              className="hero-btn secondary-btn"
+            >
+              Take Career Test
+            </Link>
+          </div>
         </div>
-      </div>
 
-      <div className="hero-right">
-        <img src={heroImage} alt="CareerBridge Hero" />
-      </div>
+        <div className="hero-image-container">
+          <img
+            src={heroGirl}
+            alt="Student building her career"
+            className="hero-girl"
+          />
+        </div>
 
+      </div>
     </section>
   );
 }
