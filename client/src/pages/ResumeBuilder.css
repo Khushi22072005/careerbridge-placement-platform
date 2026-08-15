@@ -1,0 +1,655 @@
+/* =========================================
+   RESUME BUILDER PAGE
+========================================= */
+
+.resume-builder-page {
+    min-height: 100vh;
+    background: #f5f7fb;
+    padding: 32px 36px 50px;
+    color: #172033;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.resume-builder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+}
+
+.resume-breadcrumb {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #7b8497;
+}
+
+.resume-builder-header h1 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 700;
+    color: #172033;
+}
+
+.resume-subtitle {
+    margin: 7px 0 0;
+    font-size: 14px;
+    color: #7b8497;
+}
+
+.resume-header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.resume-secondary-button,
+.resume-primary-button {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.resume-secondary-button {
+    background: white;
+    color: #344054;
+    border: 1px solid #dce1eb;
+}
+
+.resume-primary-button {
+    background: #315efb;
+    color: white;
+}
+
+.resume-secondary-button:hover {
+    background: #f3f5f9;
+}
+
+.resume-primary-button:hover {
+    background: #244edc;
+}
+
+
+/* =========================================
+   MAIN BUILDER
+========================================= */
+
+.resume-builder-container {
+    display: grid;
+    grid-template-columns: minmax(440px, 0.9fr) minmax(500px, 1.1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+
+/* =========================================
+   FORM PANEL
+========================================= */
+
+.resume-form-panel {
+    background: white;
+    border: 1px solid #e3e7ef;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(31, 41, 55, 0.04);
+}
+
+.form-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.form-panel-header h2 {
+    margin: 0;
+    font-size: 19px;
+    color: #172033;
+}
+
+.form-panel-header p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: #8a93a5;
+}
+
+.completion-badge {
+    padding: 7px 11px;
+    border-radius: 20px;
+    background: #eef3ff;
+    color: #315efb;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =========================================
+   SECTION TABS
+========================================= */
+
+.resume-section-tabs {
+    padding: 14px;
+    border-bottom: 1px solid #edf0f5;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.resume-section-tab {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    padding: 11px 13px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.resume-section-tab span {
+    width: 25px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.resume-section-tab:hover {
+    background: #f5f7fc;
+    color: #315efb;
+}
+
+.resume-section-tab.active {
+    background: #eef3ff;
+    color: #315efb;
+    font-weight: 600;
+}
+
+
+/* =========================================
+   FORM CONTENT
+========================================= */
+
+.resume-form-content {
+    padding: 26px;
+}
+
+.form-section-title {
+    margin-bottom: 22px;
+}
+
+.form-section-title h3,
+.form-section-title-row h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #172033;
+}
+
+.form-section-title p,
+.form-section-title-row p {
+    margin: 5px 0 0;
+    color: #8a93a5;
+    font-size: 13px;
+}
+
+.form-section-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 17px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #344054;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #dce1eb;
+    border-radius: 7px;
+    padding: 11px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #172033;
+    background: #fff;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.form-group textarea {
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #315efb;
+    box-shadow: 0 0 0 3px rgba(49, 94, 251, 0.08);
+}
+
+.character-count {
+    display: block;
+    margin-top: 6px;
+    text-align: right;
+    color: #98a2b3;
+    font-size: 11px;
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.add-button {
+    border: none;
+    background: #eef3ff;
+    color: #315efb;
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-button:hover {
+    background: #e2eaff;
+}
+
+
+/* =========================================
+   REPEATABLE CARDS
+========================================= */
+
+.repeatable-form-card {
+    border: 1px solid #e5e9f0;
+    border-radius: 9px;
+    padding: 18px;
+    margin-bottom: 16px;
+    background: #fbfcfe;
+}
+
+.repeatable-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 17px;
+}
+
+.repeatable-card-header strong {
+    font-size: 13px;
+    color: #344054;
+}
+
+.delete-button {
+    border: none;
+    background: transparent;
+    color: #e04444;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+/* =========================================
+   SKILLS
+========================================= */
+
+.skills-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skill-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.skill-input-row input {
+    flex: 1;
+    border: 1px solid #dce1eb;
+    border-radius: 7px;
+    padding: 11px 12px;
+    font-size: 13px;
+    outline: none;
+}
+
+.skill-input-row input:focus {
+    border-color: #315efb;
+}
+
+.skill-delete {
+    width: 40px;
+    border: none;
+    border-radius: 7px;
+    background: #fff0f0;
+    color: #e04444;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+
+/* =========================================
+   PREVIEW PANEL
+========================================= */
+
+.resume-preview-panel {
+    background: #e9edf4;
+    border: 1px solid #dfe4ed;
+    border-radius: 14px;
+    padding: 20px;
+    min-height: 800px;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.preview-header h2 {
+    margin: 0;
+    font-size: 17px;
+    color: #172033;
+}
+
+.preview-header span {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: #7b8497;
+}
+
+.template-button {
+    background: white;
+    border: 1px solid #dce1eb;
+    border-radius: 7px;
+    padding: 9px 13px;
+    color: #344054;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+
+/* =========================================
+   RESUME PAPER
+========================================= */
+
+.resume-paper {
+    width: 100%;
+    max-width: 720px;
+    min-height: 980px;
+    margin: 0 auto;
+    padding: 48px 52px;
+    box-sizing: border-box;
+    background: white;
+    box-shadow: 0 8px 25px rgba(30, 41, 59, 0.12);
+    color: #20252e;
+}
+
+
+/* =========================================
+   RESUME HEADER
+========================================= */
+
+.resume-paper-header {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1.5px solid #20252e;
+}
+
+.resume-paper-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.resume-paper-header h2 {
+    margin: 6px 0 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #555e6d;
+}
+
+.resume-contact,
+.resume-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 9.5px;
+    color: #4d5562;
+}
+
+.resume-links {
+    margin-top: 5px;
+}
+
+
+/* =========================================
+   RESUME SECTIONS
+========================================= */
+
+.resume-preview-section {
+    margin-top: 20px;
+}
+
+.resume-preview-section h3 {
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+}
+
+.section-line {
+    height: 1px;
+    background: #2d333b;
+    margin: 5px 0 10px;
+}
+
+.preview-summary {
+    margin: 0;
+    font-size: 9.5px;
+    line-height: 1.55;
+    color: #3e4651;
+}
+
+
+/* =========================================
+   RESUME ENTRIES
+========================================= */
+
+.preview-entry {
+    margin-bottom: 12px;
+}
+
+.preview-entry-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    font-size: 10px;
+}
+
+.preview-entry-heading strong {
+    font-weight: 700;
+}
+
+.preview-entry-heading span {
+    white-space: nowrap;
+    color: #555e6d;
+}
+
+.preview-company {
+    margin-top: 2px;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #555e6d;
+}
+
+.preview-entry p {
+    margin: 5px 0 0;
+    font-size: 9px;
+    line-height: 1.5;
+    color: #4d5562;
+}
+
+
+/* =========================================
+   PREVIEW SKILLS
+========================================= */
+
+.preview-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 12px;
+}
+
+.preview-skills span {
+    font-size: 9.5px;
+    color: #333a45;
+}
+
+.preview-skills span:not(:last-child)::after {
+    content: " •";
+    margin-left: 8px;
+    color: #9299a5;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1200px) {
+
+    .resume-builder-container {
+        grid-template-columns: 1fr;
+    }
+
+    .resume-preview-panel {
+        min-height: auto;
+    }
+
+    .resume-paper {
+        max-width: 760px;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .resume-builder-page {
+        padding: 20px;
+    }
+
+    .resume-builder-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .resume-header-actions {
+        width: 100%;
+    }
+
+    .resume-primary-button,
+    .resume-secondary-button {
+        flex: 1;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full-width {
+        grid-column: auto;
+    }
+
+    .form-section-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .resume-paper {
+        padding: 30px;
+    }
+
+}
+
+
+/* =========================================
+   PRINT
+========================================= */
+
+@media print {
+
+    .sidebar,
+    .resume-builder-header,
+    .resume-form-panel,
+    .preview-header {
+        display: none !important;
+    }
+
+    .dashboard-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .resume-builder-page {
+        padding: 0;
+        background: white;
+    }
+
+    .resume-builder-container {
+        display: block;
+    }
+
+    .resume-preview-panel {
+        padding: 0;
+        background: white;
+        border: none;
+    }
+
+    .resume-paper {
+        box-shadow: none;
+        max-width: none;
+        width: 100%;
+        min-height: auto;
+    }
+
+}

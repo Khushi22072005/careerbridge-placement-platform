@@ -9,17 +9,22 @@ import Profile from "./pages/Profile/Profile";
 import TechnicalAssessment from "./pages/TechnicalAssessment";
 import DashboardLayout from "./layouts/DashboardLayout";
 import CareerAssessment from "./pages/CareerAssessment";
+import ResumeBuilder from "./pages/ResumeBuilder";
 
 function App() {
   return (
     <Routes>
+
       <Route path="/" element={<Home />} />
 
       <Route path="/login" element={<Login />} />
 
       <Route path="/register" element={<Register />} />
 
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route
+        path="/forgot-password"
+        element={<ForgotPassword />}
+      />
 
       <Route
         path="/career-assessment"
@@ -27,6 +32,7 @@ function App() {
       />
 
       <Route element={<DashboardLayout />}>
+
         <Route
           path="/dashboard"
           element={<Dashboard />}
@@ -41,9 +47,17 @@ function App() {
           path="/technical-assessment"
           element={<TechnicalAssessment />}
         />
+
+        <Route
+          path="/resume-builder"
+          element={<ResumeBuilder />}
+        />
+
       </Route>
+
     </Routes>
   );
 }
 
 export default App;
+

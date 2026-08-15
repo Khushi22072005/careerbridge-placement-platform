@@ -144,7 +144,7 @@ const Sidebar = () => {
                 </p>
 
                 <NavLink
-                    to="/resume"
+                    to="/resume-builder"
                     className={({ isActive }) =>
                         isActive
                             ? "sidebar-link active"
