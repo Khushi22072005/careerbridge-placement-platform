@@ -8,7 +8,7 @@ import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import Profile from "./pages/Profile/Profile";
 import TechnicalAssessment from "./pages/TechnicalAssessment";
 import DashboardLayout from "./layouts/DashboardLayout";
-
+import CareerRoadmap from "./pages/CareerRoadmap";
 import AssessmentResult from "./pages/AssessmentResult";
 import CareerAssessment from "./pages/CareerAssessment/CareerAssessment";
 import ResumeBuilder from "./pages/ResumeBuilder";
@@ -29,6 +29,10 @@ function App() {
         element={<ForgotPassword />}
       />
 
+<Route
+    path="/career-roadmap"
+    element={<CareerRoadmap />}
+/>
       <Route
         path="/career-assessment"
         element={<CareerAssessment />}

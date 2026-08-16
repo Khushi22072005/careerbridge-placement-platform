@@ -15,62 +15,6 @@ const ROLE_TITLES = {
 };
 
 /* =====================================================
-   DEFAULT DATA
-   Used when backend does not send optional sections.
-===================================================== */
-
-const DEFAULT_ROADMAP = [
-    {
-        title: "SQL & Database Skills",
-        description:
-            "Strengthen SQL querying, filtering, joins, grouping, aggregation and relational database concepts.",
-        topics: [
-            "SELECT & WHERE",
-            "JOINs",
-            "GROUP BY",
-            "Aggregations",
-            "Subqueries",
-        ],
-    },
-    {
-        title: "Statistics & Data Analysis",
-        description:
-            "Build strong foundations in descriptive statistics, probability and analytical reasoning.",
-        topics: [
-            "Mean / Median",
-            "Variance & Standard Deviation",
-            "Probability",
-            "Correlation",
-            "Hypothesis Testing",
-        ],
-    },
-    {
-        title: "Python & Pandas",
-        description:
-            "Develop practical Python skills for cleaning, transforming and analysing datasets.",
-        topics: [
-            "Python Basics",
-            "Pandas",
-            "NumPy",
-            "Data Cleaning",
-            "Data Transformation",
-        ],
-    },
-    {
-        title: "Data Visualization",
-        description:
-            "Learn to communicate analytical findings through effective charts and dashboards.",
-        topics: [
-            "Charts",
-            "Dashboards",
-            "Visual Analysis",
-            "Power BI",
-            "Data Storytelling",
-        ],
-    },
-];
-
-/* =====================================================
    HELPERS
 ===================================================== */
 
@@ -83,9 +27,7 @@ const getRoleTitle = (role) => {
         ROLE_TITLES[role] ||
         role
             .replace(/-/g, " ")
-            .replace(/\b\w/g, (letter) =>
-                letter.toUpperCase()
-            )
+            .replace(/\b\w/g, (letter) => letter.toUpperCase())
     );
 };
 
@@ -128,9 +70,7 @@ const getScore = (result) => {
         Number.isFinite(total) &&
         total > 0
     ) {
-        return Math.round(
-            (correct / total) * 100
-        );
+        return Math.round((correct / total) * 100);
     }
 
     return 0;
@@ -144,11 +84,7 @@ const getCorrectAnswers = (result) => {
 
     const number = Number(value);
 
-    if (Number.isFinite(number)) {
-        return number;
-    }
-
-    return 0;
+    return Number.isFinite(number) ? number : 0;
 };
 
 const getTotalQuestions = (result) => {
@@ -170,21 +106,10 @@ const getTotalQuestions = (result) => {
 };
 
 const getPerformanceLabel = (score) => {
-    if (score >= 90) {
-        return "Excellent";
-    }
-
-    if (score >= 75) {
-        return "Very Good";
-    }
-
-    if (score >= 60) {
-        return "Good";
-    }
-
-    if (score >= 40) {
-        return "Needs Improvement";
-    }
+    if (score >= 90) return "Excellent";
+    if (score >= 75) return "Very Good";
+    if (score >= 60) return "Good";
+    if (score >= 40) return "Needs Improvement";
 
     return "Needs Attention";
 };
@@ -210,8 +135,151 @@ const getPerformanceMessage = (score, roleTitle) => {
 };
 
 const normalizeArray = (value) => {
-    if (Array.isArray(value)) {
-        return value;
+    return Array.isArray(value) ? value : [];
+};
+
+/* =====================================================
+   CATEGORY NORMALIZER
+===================================================== */
+
+const getCategoryPerformance = (result) => {
+    if (!result) {
+        return [];
+    }
+
+    const possibleData =
+        result?.categoryResults ??
+        result?.categoryPerformance ??
+        result?.categoryScores ??
+        result?.categories ??
+        result?.skillPerformance;
+
+    if (Array.isArray(possibleData)) {
+        return possibleData.map((item, index) => {
+            const category =
+                item?.category ??
+                item?.name ??
+                item?.title ??
+                `Skill ${index + 1}`;
+
+            const correct = Number(
+                item?.correctAnswers ??
+                item?.correct ??
+                item?.right ??
+                0
+            );
+
+            const total = Number(
+                item?.totalQuestions ??
+                item?.total ??
+                item?.questions ??
+                0
+            );
+
+            let score = Number(
+                item?.score ??
+                item?.percentage ??
+                item?.accuracy
+            );
+
+            if (
+                !Number.isFinite(score) &&
+                total > 0
+            ) {
+                score = (correct / total) * 100;
+            }
+
+            if (!Number.isFinite(score)) {
+                score = 0;
+            }
+
+            return {
+                category,
+                correct,
+                total,
+                score: Math.max(
+                    0,
+                    Math.min(100, score)
+                ),
+            };
+        });
+    }
+
+    if (
+        possibleData &&
+        typeof possibleData === "object"
+    ) {
+        return Object.entries(possibleData).map(
+            ([category, value], index) => {
+                if (
+                    value &&
+                    typeof value === "object"
+                ) {
+                    const correct = Number(
+                        value.correctAnswers ??
+                        value.correct ??
+                        value.right ??
+                        0
+                    );
+
+                    const total = Number(
+                        value.totalQuestions ??
+                        value.total ??
+                        value.questions ??
+                        0
+                    );
+
+                    let score = Number(
+                        value.score ??
+                        value.percentage ??
+                        value.accuracy
+                    );
+
+                    if (
+                        !Number.isFinite(score) &&
+                        total > 0
+                    ) {
+                        score =
+                            (correct / total) * 100;
+                    }
+
+                    if (!Number.isFinite(score)) {
+                        score = 0;
+                    }
+
+                    return {
+                        category:
+                            value.category ??
+                            value.name ??
+                            category,
+
+                        correct,
+                        total,
+
+                        score: Math.max(
+                            0,
+                            Math.min(100, score)
+                        ),
+                    };
+                }
+
+                const numericValue =
+                    Number(value) || 0;
+
+                return {
+                    category,
+                    correct: 0,
+                    total: 0,
+                    score: Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            numericValue
+                        )
+                    ),
+                };
+            }
+        );
     }
 
     return [];
@@ -225,12 +293,15 @@ function AssessmentResult() {
     const navigate = useNavigate();
 
     const [result, setResult] = useState(null);
-
-    const [role, setRole] = useState(
-        "data-analyst"
-    );
-
+    const [role, setRole] = useState("data-analyst");
     const [loading, setLoading] = useState(true);
+
+    /*
+     * IMPORTANT:
+     * Category analysis starts CLOSED.
+     */
+    const [showCategoryAnalysis, setShowCategoryAnalysis] =
+        useState(false);
 
     /* =================================================
        LOAD RESULT
@@ -269,7 +340,7 @@ function AssessmentResult() {
     }, []);
 
     /* =================================================
-       CALCULATED DATA
+       BASIC CALCULATED DATA
     ================================================= */
 
     const roleTitle = useMemo(
@@ -292,6 +363,11 @@ function AssessmentResult() {
         [result]
     );
 
+    const incorrectAnswers = Math.max(
+        0,
+        totalQuestions - correctAnswers
+    );
+
     const performance = useMemo(
         () => getPerformanceLabel(score),
         [score]
@@ -307,64 +383,13 @@ function AssessmentResult() {
     );
 
     /* =================================================
-       CATEGORY DATA
+       CATEGORY PERFORMANCE
     ================================================= */
 
-    const categoryPerformance = useMemo(() => {
-        if (!result) {
-            return [];
-        }
-
-        const possibleData =
-            result.categoryPerformance ??
-            result.categoryScores ??
-            result.categories ??
-            result.skillPerformance;
-
-        if (
-            Array.isArray(possibleData)
-        ) {
-            return possibleData;
-        }
-
-        if (
-            possibleData &&
-            typeof possibleData === "object"
-        ) {
-            return Object.entries(
-                possibleData
-            ).map(
-                ([category, value]) => {
-
-                    if (
-                        typeof value ===
-                        "object"
-                    ) {
-                        return {
-                            category:
-                                value.category ||
-                                category,
-
-                            score:
-                                Number(
-                                    value.score ??
-                                    value.percentage ??
-                                    0
-                                ),
-                        };
-                    }
-
-                    return {
-                        category,
-                        score:
-                            Number(value) || 0,
-                    };
-                }
-            );
-        }
-
-        return [];
-    }, [result]);
+    const categoryPerformance = useMemo(
+        () => getCategoryPerformance(result),
+        [result]
+    );
 
     /* =================================================
        STRENGTHS
@@ -377,33 +402,56 @@ function AssessmentResult() {
             result?.strengthsList;
 
         const normalized =
-            normalizeArray(
-                backendStrengths
-            );
+            normalizeArray(backendStrengths);
 
         if (normalized.length > 0) {
             return normalized;
+        }
+
+        /*
+         * Automatically derive strengths
+         * from category scores.
+         */
+
+        const derivedStrengths =
+            categoryPerformance
+                .filter(
+                    (item) =>
+                        Number(item.score) >= 75
+                )
+                .sort(
+                    (a, b) =>
+                        b.score - a.score
+                )
+                .slice(0, 3);
+
+        if (derivedStrengths.length > 0) {
+            return derivedStrengths.map(
+                (item) => ({
+                    title: item.category,
+
+                    description:
+                        item.total > 0
+                            ? `You answered ${item.correct} of ${item.total} questions correctly in this area, showing strong understanding.`
+                            : `You demonstrated strong performance in ${item.category}.`,
+                })
+            );
         }
 
         return [
             {
                 title:
                     "Technical Foundation",
+
                 description:
                     `You demonstrated ${performance.toLowerCase()} overall technical knowledge for ${roleTitle}.`,
-            },
-            {
-                title:
-                    "Assessment Completion",
-                description:
-                    `You completed all ${totalQuestions} assessment questions.`,
             },
         ];
     }, [
         result,
+        categoryPerformance,
         performance,
         roleTitle,
-        totalQuestions,
     ]);
 
     /* =================================================
@@ -418,48 +466,56 @@ function AssessmentResult() {
             result?.weaknesses;
 
         const normalized =
-            normalizeArray(
-                backendAreas
-            );
+            normalizeArray(backendAreas);
 
         if (normalized.length > 0) {
             return normalized;
+        }
+
+        /*
+         * Automatically derive weak areas
+         * from category performance.
+         */
+
+        const derivedAreas =
+            categoryPerformance
+                .filter(
+                    (item) =>
+                        Number(item.score) < 75
+                )
+                .sort(
+                    (a, b) =>
+                        a.score - b.score
+                )
+                .slice(0, 4);
+
+        if (derivedAreas.length > 0) {
+            return derivedAreas.map(
+                (item) => ({
+                    title: item.category,
+
+                    description:
+                        item.total > 0
+                            ? `You answered ${item.correct} of ${item.total} questions correctly in this area. Additional practice is recommended.`
+                            : `Spend additional time strengthening ${item.category}.`,
+                })
+            );
         }
 
         return [
             {
                 title:
                     "Continue Skill Development",
+
                 description:
                     `Continue practising ${roleTitle} concepts and work on real-world projects to strengthen your practical knowledge.`,
             },
         ];
     }, [
         result,
+        categoryPerformance,
         roleTitle,
     ]);
-
-    /* =================================================
-       ROADMAP
-    ================================================= */
-
-    const roadmap = useMemo(() => {
-        const backendRoadmap =
-            result?.roadmap ??
-            result?.learningRoadmap ??
-            result?.recommendedRoadmap;
-
-        if (
-            Array.isArray(
-                backendRoadmap
-            ) &&
-            backendRoadmap.length > 0
-        ) {
-            return backendRoadmap;
-        }
-
-        return DEFAULT_ROADMAP;
-    }, [result]);
 
     /* =================================================
        RETAKE
@@ -470,9 +526,7 @@ function AssessmentResult() {
             "assessmentResult"
         );
 
-        navigate(
-            "/career-assessment"
-        );
+        navigate("/career-assessment");
     };
 
     /* =================================================
@@ -481,6 +535,14 @@ function AssessmentResult() {
 
     const handleDashboard = () => {
         navigate("/dashboard");
+    };
+
+    /* =================================================
+       CAREER ROADMAP
+    ================================================= */
+
+    const handleCareerRoadmap = () => {
+        navigate("/career-roadmap");
     };
 
     /* =================================================
@@ -498,9 +560,8 @@ function AssessmentResult() {
                     </h2>
 
                     <p>
-                        Please wait while we
-                        prepare your assessment
-                        report.
+                        Please wait while we prepare
+                        your assessment report.
                     </p>
                 </div>
             </div>
@@ -514,21 +575,16 @@ function AssessmentResult() {
     if (!result) {
         return (
             <div className="result-page">
-
                 <header className="result-header">
-
                     <button
                         type="button"
                         className="result-dashboard-link"
-                        onClick={
-                            handleDashboard
-                        }
+                        onClick={handleDashboard}
                     >
                         ← Dashboard
                     </button>
 
                     <div className="result-brand">
-
                         <div className="result-brand-logo">
                             C
                         </div>
@@ -542,13 +598,10 @@ function AssessmentResult() {
                                 Career Assessment
                             </span>
                         </div>
-
                     </div>
-
                 </header>
 
                 <main className="result-empty">
-
                     <div className="empty-icon">
                         !
                     </div>
@@ -558,29 +611,25 @@ function AssessmentResult() {
                     </h1>
 
                     <p>
-                        Your assessment result is
-                        not available. Please complete
-                        the assessment again.
+                        Your assessment result is not
+                        available. Please complete the
+                        assessment again.
                     </p>
 
                     <button
                         type="button"
                         className="primary-result-button"
-                        onClick={
-                            handleRetake
-                        }
+                        onClick={handleRetake}
                     >
                         Start Assessment
                     </button>
-
                 </main>
-
             </div>
         );
     }
 
     /* =================================================
-       MAIN RESULT PAGE
+       MAIN RESULT
     ================================================= */
 
     return (
@@ -595,9 +644,7 @@ function AssessmentResult() {
                 <button
                     type="button"
                     className="result-dashboard-link"
-                    onClick={
-                        handleDashboard
-                    }
+                    onClick={handleDashboard}
                 >
                     ← Dashboard
                 </button>
@@ -708,8 +755,7 @@ function AssessmentResult() {
 
                             <div>
                                 <strong>
-                                    {totalQuestions -
-                                        correctAnswers}
+                                    {incorrectAnswers}
                                 </strong>
 
                                 <span>
@@ -805,112 +851,179 @@ function AssessmentResult() {
                 </section>
 
                 {/* =================================================
-                    SKILL PERFORMANCE
+                    CATEGORY ANALYSIS
                 ================================================= */}
 
-                <section className="result-section">
+                <section className="result-section skill-section">
 
-                    <div className="result-section-heading">
+                    <button
+                        type="button"
+                        className="category-toggle"
+                        onClick={() =>
+                            setShowCategoryAnalysis(
+                                (previous) =>
+                                    !previous
+                            )
+                        }
+                        aria-expanded={
+                            showCategoryAnalysis
+                        }
+                    >
 
-                        <div className="result-section-icon">
-                            📊
-                        </div>
+                        <div className="category-toggle-left">
 
-                        <div>
-                            <h2>
-                                Skill Performance
-                            </h2>
+                            <div className="result-section-icon">
+                                📊
+                            </div>
 
-                            <p>
-                                Category-wise analysis of
-                                your technical knowledge.
-                            </p>
-                        </div>
+                            <div>
+                                <h2>
+                                    Category Analysis
+                                </h2>
 
-                    </div>
-
-                    {categoryPerformance.length > 0 ? (
-
-                        <div className="skill-list">
-
-                            {categoryPerformance.map(
-                                (item, index) => {
-
-                                    const category =
-                                        item.category ??
-                                        item.name ??
-                                        `Skill ${index + 1}`;
-
-                                    const categoryScore =
-                                        Math.max(
-                                            0,
-                                            Math.min(
-                                                100,
-                                                Number(
-                                                    item.score ??
-                                                    item.percentage ??
-                                                    item.accuracy ??
-                                                    0
-                                                )
-                                            )
-                                        );
-
-                                    return (
-                                        <div
-                                            className="skill-item"
-                                            key={
-                                                `${category}-${index}`
-                                            }
-                                        >
-
-                                            <div className="skill-top">
-
-                                                <span>
-                                                    {category}
-                                                </span>
-
-                                                <strong>
-                                                    {Math.round(
-                                                        categoryScore
-                                                    )}
-                                                    %
-                                                </strong>
-
-                                            </div>
-
-                                            <div className="skill-bar">
-
-                                                <div
-                                                    className="skill-bar-fill"
-                                                    style={{
-                                                        width:
-                                                            `${categoryScore}%`,
-                                                    }}
-                                                />
-
-                                            </div>
-
-                                        </div>
-                                    );
-                                }
-                            )}
+                                <p>
+                                    {categoryPerformance.length > 0
+                                        ? `${categoryPerformance.length} skill areas evaluated`
+                                        : "Detailed skill analysis"}
+                                </p>
+                            </div>
 
                         </div>
 
-                    ) : (
-
-                        <div className="skill-placeholder">
-
-                            <strong>
-                                Category analysis will
-                                appear here.
-                            </strong>
+                        <div className="category-toggle-right">
 
                             <span>
-                                Your backend can provide
-                                category-wise scores as the
-                                assessment system expands.
+                                {showCategoryAnalysis
+                                    ? "Hide"
+                                    : "View"}
                             </span>
+
+                            <span
+                                className={`category-chevron ${
+                                    showCategoryAnalysis
+                                        ? "open"
+                                        : ""
+                                }`}
+                            >
+                                ▼
+                            </span>
+
+                        </div>
+
+                    </button>
+
+                    {showCategoryAnalysis && (
+
+                        <div className="category-analysis-content">
+
+                            {categoryPerformance.length > 0 ? (
+
+                                <div className="skill-list">
+
+                                    {categoryPerformance.map(
+                                        (
+                                            item,
+                                            index
+                                        ) => {
+
+                                            const category =
+                                                item.category ||
+                                                `Skill ${
+                                                    index + 1
+                                                }`;
+
+                                            const categoryScore =
+                                                Math.round(
+                                                    Math.max(
+                                                        0,
+                                                        Math.min(
+                                                            100,
+                                                            Number(
+                                                                item.score
+                                                            ) || 0
+                                                        )
+                                                    )
+                                                );
+
+                                            const hasQuestionCount =
+                                                item.total >
+                                                0;
+
+                                            return (
+                                                <div
+                                                    className="skill-item"
+                                                    key={`${category}-${index}`}
+                                                >
+
+                                                    <div className="skill-top">
+
+                                                        <div className="skill-name-group">
+
+                                                            <span className="skill-name">
+                                                                {category}
+                                                            </span>
+
+                                                            {hasQuestionCount && (
+                                                                <span className="skill-correct-text">
+                                                                    {item.correct} /{" "}
+                                                                    {item.total}{" "}
+                                                                    correct
+                                                                </span>
+                                                            )}
+
+                                                        </div>
+
+                                                        <strong>
+                                                            {categoryScore}%
+                                                        </strong>
+
+                                                    </div>
+
+                                                    <div className="skill-bar">
+
+                                                        <div
+                                                            className={`skill-bar-fill ${
+                                                                categoryScore >=
+                                                                75
+                                                                    ? "high"
+                                                                    : categoryScore >=
+                                                                      50
+                                                                    ? "medium"
+                                                                    : "low"
+                                                            }`}
+                                                            style={{
+                                                                width: `${categoryScore}%`,
+                                                            }}
+                                                        />
+
+                                                    </div>
+
+                                                </div>
+                                            );
+                                        }
+                                    )}
+
+                                </div>
+
+                            ) : (
+
+                                <div className="skill-placeholder">
+
+                                    <strong>
+                                        Category analysis
+                                        is not available.
+                                    </strong>
+
+                                    <span>
+                                        Your assessment backend
+                                        should return category
+                                        or skill-level results
+                                        to display them here.
+                                    </span>
+
+                                </div>
+
+                            )}
 
                         </div>
 
@@ -967,9 +1080,7 @@ function AssessmentResult() {
                                 return (
                                     <div
                                         className="strength-card"
-                                        key={
-                                            `${title}-${index}`
-                                        }
+                                        key={`${title}-${index}`}
                                     >
 
                                         <div className="strength-check">
@@ -1044,9 +1155,7 @@ function AssessmentResult() {
                                 return (
                                     <div
                                         className="improve-card"
-                                        key={
-                                            `${title}-${index}`
-                                        }
+                                        key={`${title}-${index}`}
                                     >
 
                                         <div className="improve-icon-circle">
@@ -1073,111 +1182,6 @@ function AssessmentResult() {
                 </section>
 
                 {/* =================================================
-                    ROADMAP
-                ================================================= */}
-
-                <section className="result-section roadmap-section">
-
-                    <div className="result-section-heading">
-
-                        <div className="result-section-icon roadmap-icon">
-                            🗺️
-                        </div>
-
-                        <div>
-                            <h2>
-                                Recommended {roleTitle} Roadmap
-                            </h2>
-
-                            <p>
-                                A structured learning path based
-                                on your assessment.
-                            </p>
-                        </div>
-
-                    </div>
-
-                    <div className="roadmap">
-
-                        {roadmap.map(
-                            (item, index) => {
-
-                                const title =
-                                    item.title ??
-                                    item.name ??
-                                    `Learning Stage ${
-                                        index + 1
-                                    }`;
-
-                                const description =
-                                    item.description ??
-                                    item.details ??
-                                    "Build practical knowledge in this area.";
-
-                                const topics =
-                                    Array.isArray(
-                                        item.topics
-                                    )
-                                        ? item.topics
-                                        : [];
-
-                                return (
-                                    <div
-                                        className="roadmap-item"
-                                        key={
-                                            `${title}-${index}`
-                                        }
-                                    >
-
-                                        <div className="roadmap-number">
-                                            {index + 1}
-                                        </div>
-
-                                        <div className="roadmap-content">
-
-                                            <h3>
-                                                {title}
-                                            </h3>
-
-                                            <p>
-                                                {description}
-                                            </p>
-
-                                            {topics.length >
-                                                0 && (
-
-                                                <div className="roadmap-topics">
-
-                                                    {topics.map(
-                                                        (
-                                                            topic,
-                                                            topicIndex
-                                                        ) => (
-                                                            <span
-                                                                key={
-                                                                    `${topic}-${topicIndex}`
-                                                                }
-                                                            >
-                                                                {topic}
-                                                            </span>
-                                                        )
-                                                    )}
-
-                                                </div>
-                                            )}
-
-                                        </div>
-
-                                    </div>
-                                );
-                            }
-                        )}
-
-                    </div>
-
-                </section>
-
-                {/* =================================================
                     ACTIONS
                 ================================================= */}
 
@@ -1186,19 +1190,23 @@ function AssessmentResult() {
                     <button
                         type="button"
                         className="secondary-result-button"
-                        onClick={
-                            handleRetake
-                        }
+                        onClick={handleRetake}
                     >
                         Retake Assessment
                     </button>
 
                     <button
                         type="button"
+                        className="secondary-result-button roadmap-button"
+                        onClick={handleCareerRoadmap}
+                    >
+                        View Career Roadmap
+                    </button>
+
+                    <button
+                        type="button"
                         className="primary-result-button"
-                        onClick={
-                            handleDashboard
-                        }
+                        onClick={handleDashboard}
                     >
                         Back to Dashboard →
                     </button>
@@ -1216,7 +1224,6 @@ function AssessmentResult() {
                 </p>
 
             </main>
-
         </div>
     );
 }

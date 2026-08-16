@@ -58,7 +58,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">🏠</span>
+                    <span className="sidebar-icon"></span>
                     <span>Dashboard</span>
                 </NavLink>
 
@@ -77,31 +77,20 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">🎯</span>
+                    <span className="sidebar-icon"></span>
                     <span>Career Assessment</span>
                 </NavLink>
 
                 <NavLink
-                    to="/career-recommendations"
+                    to="/career-roadmap"
                     className={({ isActive }) =>
                         isActive
                             ? "sidebar-link active"
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">💼</span>
-                    <span>Career Recommendations</span>
-                </NavLink>
-
-                <NavLink
-                    to="/roadmap"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link active"
-                            : "sidebar-link"
-                    }
-                >
-                    <span className="sidebar-icon">🗺️</span>
+                    
+                    <span className="sidebar-icon"></span>
                     <span>Career Roadmap</span>
                 </NavLink>
 
@@ -120,7 +109,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">📚</span>
+                    <span className="sidebar-icon"></span>
                     <span>Learning Hub</span>
                 </NavLink>
 
@@ -132,7 +121,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">🧠</span>
+                    <span className="sidebar-icon"></span>
                     <span>My Skills</span>
                 </NavLink>
 
@@ -151,7 +140,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">📄</span>
+                    <span className="sidebar-icon"></span>
                     <span>Resume Builder</span>
                 </NavLink>
 
@@ -163,7 +152,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">🔍</span>
+                    <span className="sidebar-icon"></span>
                     <span>Resume Analyzer</span>
                 </NavLink>
 
@@ -175,7 +164,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">💻</span>
+                    <span className="sidebar-icon"></span>
                     <span>Portfolio</span>
                 </NavLink>
 
@@ -194,7 +183,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">🏢</span>
+                    <span className="sidebar-icon"></span>
                     <span>Companies</span>
                 </NavLink>
 
@@ -206,7 +195,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">🎤</span>
+                    <span className="sidebar-icon"></span>
                     <span>Interview Prep</span>
                 </NavLink>
 
@@ -225,7 +214,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">👤</span>
+                    <span className="sidebar-icon"></span>
                     <span>My Profile</span>
                 </NavLink>
 
@@ -237,7 +226,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    <span className="sidebar-icon">⚙️</span>
+                    <span className="sidebar-icon"></span>
                     <span>Settings</span>
                 </NavLink>
 
@@ -254,7 +243,7 @@ const Sidebar = () => {
                     className="logout-button"
                     onClick={handleLogout}
                 >
-                    <span className="sidebar-icon">🚪</span>
+                    <span className="sidebar-icon"></span>
                     <span>Logout</span>
                 </button>
 

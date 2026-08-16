@@ -1255,5 +1255,12 @@
     .secondary-result-button {
         width: 100%;
     }
+    .result-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin: 18px 0 10px;
+}
 
 }

@@ -61,7 +61,7 @@ function Login() {
 
         <h1>CareerBridge</h1>
 
-        <h2>Welcome Back 👋</h2>
+        <h2>Welcome Back </h2>
 
         <p>
           Continue your journey towards your dream career

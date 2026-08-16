@@ -109,9 +109,6 @@ const Dashboard = () => {
   const placementReadiness =
     Number(dashboard?.placementReadiness) || 0;
 
-  const careerMatch =
-    Number(dashboard?.careerMatch) || 0;
-
   const roadmapProgress =
     Number(dashboard?.roadmapProgress) || 0;
 
@@ -125,10 +122,7 @@ const Dashboard = () => {
   // CAREER DATA
   // =====================================================
 
-  const career = dashboard?.career || {};
-
   const roadmap = dashboard?.roadmap || [];
-
   const tasks = dashboard?.tasks || [];
 
   // =====================================================
@@ -170,7 +164,8 @@ const Dashboard = () => {
   const completedTasks =
     tasks.filter((task) => task.completed).length;
 
-  const totalTasks = tasks.length;
+  const totalTasks =
+    tasks.length > 0 ? tasks.length : 4;
 
   // =====================================================
   // READINESS TITLE
@@ -326,7 +321,7 @@ const Dashboard = () => {
           </p>
 
           <h1>
-            Welcome back, {firstName} 👋
+            Welcome back, {firstName} 
           </h1>
 
           <p className="dashboard-subtitle">
@@ -430,17 +425,11 @@ const Dashboard = () => {
 
       {/* =================================================
           MAIN STATISTICS
+          
+          CAREER MATCH REMOVED
       ================================================= */}
 
       <section className="stats-grid">
-
-        <StatCard
-          icon="🎯"
-          title="Career Match"
-          value={`${careerMatch}%`}
-          subtitle="Personalized match"
-          iconClass="blue"
-        />
 
         <StatCard
           icon="🗺️"
@@ -478,208 +467,95 @@ const Dashboard = () => {
 
 
       {/* =================================================
-          CAREER MATCH + PROFILE
+          PROFILE
       ================================================= */}
 
-      <section className="dashboard-main-grid">
+      <section className="dashboard-card profile-card profile-card-full">
 
-        {/* =================================================
-            CAREER MATCH
-        ================================================= */}
+        <div className="profile-header">
 
-        <div className="dashboard-card career-match-card">
+          <div>
 
-          <div className="card-top">
+            <p className="small-label">
+              PROFILE
+            </p>
 
-            <div>
-
-              <p className="small-label">
-                TOP CAREER MATCH
-              </p>
-
-              <h2>
-                {career.title || "Discover Your Career"}
-              </h2>
-
-              <p className="card-description">
-
-                {assessmentCompleted
-                  ? "Based on your skills, interests, preferences and career assessment."
-                  : "Complete the career assessment to receive personalized career recommendations."}
-
-              </p>
-
-            </div>
-
-            <span className="match-badge">
-
-              {assessmentCompleted
-                ? `${careerMatch}% Match`
-                : "Not assessed"}
-
-            </span>
+            <h2>
+              {profileCompletion >= 100
+                ? "Profile Completed"
+                : "Complete Your Profile"}
+            </h2>
 
           </div>
 
+          <button
+            className="edit-button"
+            onClick={() => navigate("/profile")}
+          >
+            ✎
+          </button>
 
-          {/* CAREER SKILLS */}
+        </div>
 
-          <div className="skill-tags">
 
-            {career.skills?.length > 0 ? (
+        <div className="profile-progress">
 
-              career.skills.map(
-                (skill, index) => (
+          <div
+            className="profile-circle"
+            style={{
+              "--progress": `${profileCompletion}%`,
+            }}
+          >
 
-                  <span key={index}>
-                    {skill}
-                  </span>
-
-                )
-              )
-
-            ) : (
-
-              <span className="empty-tag">
-                Complete your assessment to see recommended skills
-              </span>
-
-            )}
+            <strong>
+              {profileCompletion}%
+            </strong>
 
           </div>
 
+          <div className="profile-progress-text">
 
-          {/* CAREER INTEREST */}
+            <h3>
+              {profileCompletion >= 100
+                ? "Profile completed!"
+                : "You're almost there!"}
+            </h3>
 
-          <div className="career-bottom">
-
-            <div>
-
-              <p className="small-label">
-                CAREER INTEREST
-              </p>
-
-              <div className="companies">
-
-                <span>
-                  {assessment?.career_interest ||
-                    profile?.preferred_roles?.[0] ||
-                    career.title ||
-                    "Not selected"}
-                </span>
-
-              </div>
-
-            </div>
-
-            <button
-              className="outline-button"
-              onClick={() =>
-                navigate("/career-recommendations")
-              }
-            >
-              Explore →
-            </button>
+            <p>
+              {profileCompletion >= 100
+                ? "Your profile is complete."
+                : "Complete your profile for better career recommendations."}
+            </p>
 
           </div>
 
         </div>
 
 
-        {/* =================================================
-            PROFILE
-        ================================================= */}
+        {/* PROFILE CHECKLIST */}
 
-        <div className="dashboard-card profile-card">
+        <div className="profile-checklist">
 
-          <div className="profile-header">
-
-            <div>
-
-              <p className="small-label">
-                PROFILE
-              </p>
-
-              <h2>
-                {profileCompletion >= 100
-                  ? "Profile Completed"
-                  : "Complete Your Profile"}
-              </h2>
-
-            </div>
-
-            <button
-              className="edit-button"
-              onClick={() => navigate("/profile")}
-            >
-              ✎
-            </button>
-
-          </div>
-
-
-          <div className="profile-progress">
+          {profileChecklist.map((item, index) => (
 
             <div
-              className="profile-circle"
-              style={{
-                "--progress": `${profileCompletion}%`,
-              }}
+              key={index}
+              className={`check-item ${
+                item.completed
+                  ? "completed"
+                  : ""
+              }`}
             >
 
-              <strong>
-                {profileCompletion}%
-              </strong>
+              <span className="check-symbol">
+                {item.completed ? "✓" : "○"}
+              </span>
+
+              {item.label}
 
             </div>
 
-            <div className="profile-progress-text">
-
-              <h3>
-                {profileCompletion >= 100
-                  ? "Profile completed!"
-                  : "You're almost there!"}
-              </h3>
-
-              <p>
-                {profileCompletion >= 100
-                  ? "Your profile is complete."
-                  : "Complete your profile for better career recommendations."}
-              </p>
-
-            </div>
-
-          </div>
-
-
-          {/* PROFILE CHECKLIST */}
-
-          <div className="profile-checklist">
-
-            {profileChecklist.map(
-              (item, index) => (
-
-                <div
-                  key={index}
-                  className={`check-item ${
-                    item.completed
-                      ? "completed"
-                      : ""
-                  }`}
-                >
-
-                  <span className="check-symbol">
-                    {item.completed ? "✓" : "○"}
-                  </span>
-
-                  {item.label}
-
-                </div>
-
-              )
-            )}
-
-          </div>
+          ))}
 
         </div>
 
@@ -743,52 +619,52 @@ const Dashboard = () => {
 
               <RoadmapStep
                 number="1"
-                title="Complete Profile"
-                status={
-                  profileCompletion >= 100
-                    ? "Completed"
-                    : "Start"
-                }
-                active={profileCompletion < 100}
-                completed={profileCompletion >= 100}
-              />
-
-              <RoadmapStep
-                number="2"
                 title="Career Assessment"
                 status={
                   assessmentCompleted
                     ? "Completed"
-                    : "Recommended"
+                    : "Pending"
                 }
                 active={!assessmentCompleted}
                 completed={assessmentCompleted}
               />
 
               <RoadmapStep
-                number="3"
-                title="Build Career Skills"
+                number="2"
+                title="Skill Gap Analysis"
                 status={
-                  careerMatch > 0
-                    ? "In Progress"
-                    : "Recommended"
+                  assessmentCompleted
+                    ? "Upcoming"
+                    : "Upcoming"
                 }
-                active={
-                  assessmentCompleted &&
-                  roadmapProgress < 100
+                active={false}
+                completed={false}
+              />
+
+              <RoadmapStep
+                number="3"
+                title="Learning Path"
+                status={
+                  assessmentCompleted
+                    ? "Upcoming"
+                    : "Upcoming"
                 }
-                completed={roadmapProgress >= 100}
+                active={false}
+                completed={false}
               />
 
               <RoadmapStep
                 number="4"
-                title="Resume & Placement Prep"
+                title="Placement Preparation"
                 status={
                   resumeScore >= 70
                     ? "In Progress"
-                    : "Recommended"
+                    : "Upcoming"
                 }
-                active={resumeScore < 100}
+                active={
+                  assessmentCompleted &&
+                  resumeScore < 100
+                }
                 completed={resumeScore >= 100}
               />
 
@@ -801,80 +677,7 @@ const Dashboard = () => {
       </section>
 
 
-      {/* =================================================
-          TODAY'S TASKS
-      ================================================= */}
-
-      <section className="dashboard-card tasks-card">
-
-        <div className="tasks-header">
-
-          <div>
-
-            <p className="small-label">
-              TODAY
-            </p>
-
-            <h2>
-              Your Tasks
-            </h2>
-
-          </div>
-
-          <span className="task-count">
-            {completedTasks}/{totalTasks}
-          </span>
-
-        </div>
-
-
-        <div className="task-list">
-
-          {tasks.length > 0 ? (
-
-            tasks.map((task) => (
-
-              <Task
-                key={task.id}
-                text={task.text}
-                completed={task.completed}
-              />
-
-            ))
-
-          ) : (
-
-            <>
-
-              <Task
-                text="Complete your profile"
-                completed={
-                  profileCompletion >= 100
-                }
-              />
-
-              <Task
-                text="Complete career assessment"
-                completed={assessmentCompleted}
-              />
-
-              <Task
-                text="Explore recommended career paths"
-                completed={careerMatch > 0}
-              />
-
-              <Task
-                text="Build your resume"
-                completed={resumeScore >= 80}
-              />
-
-            </>
-
-          )}
-
-        </div>
-
-      </section>
+     
 
 
       {/* =================================================
@@ -1036,7 +839,7 @@ const RoadmapStep = ({
       </div>
 
       <span className="step-number">
-        STEP {number}
+        STEP {String(number).padStart(2, "0")}
       </span>
 
       <h4>
