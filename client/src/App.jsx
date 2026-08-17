@@ -13,7 +13,7 @@ import AssessmentResult from "./pages/AssessmentResult";
 import CareerAssessment from "./pages/CareerAssessment/CareerAssessment";
 import ResumeBuilder from "./pages/ResumeBuilder";
 import ResumeAnalyzer from "./pages/ResumeAnalyzer";
-
+import MockInterview from "./pages/MockInterview/MockInterview";
 function App() {
   return (
     <Routes>
@@ -28,6 +28,10 @@ function App() {
         path="/forgot-password"
         element={<ForgotPassword />}
       />
+      <Route
+    path="/interview"
+    element={<MockInterview />}
+/>
 
 <Route
     path="/career-roadmap"
