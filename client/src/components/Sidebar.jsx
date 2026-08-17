@@ -196,7 +196,7 @@ const Sidebar = () => {
                     }
                 >
                     <span className="sidebar-icon"></span>
-                    <span>Interview Prep</span>
+                    <span>Mock Interview</span>
                 </NavLink>
 
 
