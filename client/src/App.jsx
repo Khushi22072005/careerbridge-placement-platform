@@ -14,29 +14,46 @@ import CareerAssessment from "./pages/CareerAssessment/CareerAssessment";
 import ResumeBuilder from "./pages/ResumeBuilder";
 import ResumeAnalyzer from "./pages/ResumeAnalyzer";
 import MockInterview from "./pages/MockInterview/MockInterview";
+import Settings from "./pages/Settings";
+
 function App() {
   return (
     <Routes>
 
-      <Route path="/" element={<Home />} />
+      {/* =======================
+          PUBLIC PAGES
+      ======================= */}
 
-      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={<Home />}
+      />
 
-      <Route path="/register" element={<Register />} />
+      <Route
+        path="/login"
+        element={<Login />}
+      />
+
+      <Route
+        path="/register"
+        element={<Register />}
+      />
 
       <Route
         path="/forgot-password"
         element={<ForgotPassword />}
       />
-      <Route
-    path="/interview"
-    element={<MockInterview />}
-/>
 
-<Route
-    path="/career-roadmap"
-    element={<CareerRoadmap />}
-/>
+      <Route
+        path="/interview"
+        element={<MockInterview />}
+      />
+
+      <Route
+        path="/career-roadmap"
+        element={<CareerRoadmap />}
+      />
+
       <Route
         path="/career-assessment"
         element={<CareerAssessment />}
@@ -46,6 +63,11 @@ function App() {
         path="/assessment-result"
         element={<AssessmentResult />}
       />
+
+
+      {/* =======================
+          DASHBOARD PAGES
+      ======================= */}
 
       <Route element={<DashboardLayout />}>
 
@@ -57,6 +79,11 @@ function App() {
         <Route
           path="/profile"
           element={<Profile />}
+        />
+
+        <Route
+          path="/settings"
+          element={<Settings />}
         />
 
         <Route
