@@ -1,11 +1,28 @@
 const express = require("express");
-const OpenAI = require("openai");
+const { GoogleGenAI } = require("@google/genai");
 
 const router = express.Router();
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+/* =========================================================
+   GEMINI CLIENT
+========================================================= */
+
+if (!process.env.GEMINI_API_KEY) {
+    console.error(
+        "❌ GEMINI_API_KEY is missing from server/.env"
+    );
+}
+
+const gemini = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
 });
+
+/* =========================================================
+   GEMINI MODEL
+========================================================= */
+
+const GEMINI_MODEL =
+    process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 /* =========================================================
    ROLE INFORMATION
@@ -24,6 +41,12 @@ const ROLE_NAMES = {
 ========================================================= */
 
 const parseAIJson = (text) => {
+    if (!text) {
+        throw new Error(
+            "Gemini returned an empty response."
+        );
+    }
+
     try {
         return JSON.parse(text);
     } catch (error) {
@@ -36,25 +59,125 @@ const parseAIJson = (text) => {
             return JSON.parse(cleaned);
         } catch (secondError) {
             console.error(
-                "Could not parse AI JSON:",
-                text
+                "❌ Could not parse Gemini JSON."
             );
 
+            console.error(
+                "Raw Gemini response:"
+            );
+
+            console.error(text);
+
             throw new Error(
-                "AI returned an invalid response."
+                "Gemini returned an invalid JSON response."
             );
         }
     }
 };
 
 /* =========================================================
-   EVALUATE ANSWER
+   NORMALIZE SCORE
+========================================================= */
+
+const normalizeScore = (value) => {
+    const number = Number(value);
+
+    if (Number.isNaN(number)) {
+        return 0;
+    }
+
+    return Math.max(
+        0,
+        Math.min(100, Math.round(number))
+    );
+};
+
+/* =========================================================
+   GENERATE CONTENT WITH GEMINI
+========================================================= */
+
+const generateWithGemini = async (prompt) => {
+    if (!process.env.GEMINI_API_KEY) {
+        throw new Error(
+            "GEMINI_API_KEY is missing. Check server/.env."
+        );
+    }
+
+    console.log(
+        "🤖 Sending request to Gemini..."
+    );
+
+    console.log(
+        "Gemini model:",
+        GEMINI_MODEL
+    );
+
+    const response =
+        await gemini.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: prompt,
+        });
+
+    const text =
+        response.text;
+
+    if (!text) {
+        throw new Error(
+            "Gemini returned an empty response."
+        );
+    }
+
+    console.log(
+        "✅ Gemini response received."
+    );
+
+    console.log(
+        "Gemini output:",
+        text
+    );
+
+    return text;
+};
+
+/* =========================================================
+   EVALUATE INTERVIEW ANSWER
 ========================================================= */
 
 router.post(
     "/evaluate",
     async (req, res) => {
         try {
+            console.log(
+                "\n========================================"
+            );
+
+            console.log(
+                "🎯 MOCK INTERVIEW EVALUATION"
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            /* -----------------------------------------
+               CHECK GEMINI API KEY
+            ----------------------------------------- */
+
+            if (!process.env.GEMINI_API_KEY) {
+                console.error(
+                    "❌ GEMINI_API_KEY is missing."
+                );
+
+                return res.status(500).json({
+                    message:
+                        "Gemini API key is missing. Check server/.env.",
+                });
+            }
+
+            /* -----------------------------------------
+               REQUEST DATA
+            ----------------------------------------- */
+
             const {
                 role,
                 question,
@@ -63,10 +186,17 @@ router.post(
                 previousAnswers = [],
             } = req.body;
 
-            if (!question || !answer) {
+            if (!question) {
                 return res.status(400).json({
                     message:
-                        "Question and answer are required.",
+                        "Interview question is required.",
+                });
+            }
+
+            if (!answer) {
+                return res.status(400).json({
+                    message:
+                        "Candidate answer is required.",
                 });
             }
 
@@ -75,19 +205,41 @@ router.post(
                 role ||
                 "Technology Professional";
 
+            /* -----------------------------------------
+               PREVIOUS ANSWERS
+            ----------------------------------------- */
+
             const previousContext =
-                previousAnswers
-                    .slice(-5)
-                    .map(
-                        (item, index) =>
-                            `Previous Answer ${index + 1}:
-Question: ${item.question}
-Answer: ${item.answer}`
-                    )
-                    .join("\n\n");
+                Array.isArray(previousAnswers)
+                    ? previousAnswers
+                          .slice(-5)
+                          .map(
+                              (
+                                  item,
+                                  index
+                              ) =>
+                                  `Previous Answer ${
+                                      index + 1
+                                  }:
+Question: ${
+                                      item.question ||
+                                      ""
+                                  }
+Answer: ${
+                                      item.answer ||
+                                      ""
+                                  }`
+                          )
+                          .join("\n\n")
+                    : "No previous answers.";
+
+            /* -----------------------------------------
+               GEMINI PROMPT
+            ----------------------------------------- */
 
             const prompt = `
-You are an expert technical interviewer conducting a mock interview.
+You are an expert technical interviewer conducting
+a realistic placement interview.
 
 Candidate target role:
 ${roleName}
@@ -102,16 +254,15 @@ Candidate answer:
 ${answer}
 
 Previous interview context:
-${previousContext || "No previous answers."}
+${previousContext}
 
-Evaluate the candidate's ACTUAL answer.
+Evaluate ONLY the candidate's actual answer.
 
-Do not give a fixed score.
-Do not assume the answer is good.
-Do not score based only on answer length.
-Judge the content of the answer.
+Do not automatically give a high score.
+Do not give a low score simply because the answer is short.
+Judge the actual content.
 
-Evaluate:
+Evaluate these areas:
 
 1. Communication
 2. Relevance
@@ -119,79 +270,213 @@ Evaluate:
 4. Completeness
 5. Structure
 
-Score each from 0 to 100.
+Give each score from 0 to 100.
 
-Overall should be a meaningful weighted score based on the above.
+Calculate the overall score based on these areas.
 
 Also provide:
+
 - concise feedback
 - strengths
 - improvements
-- whether the candidate demonstrated good understanding
-- a recommended next interview question
+- understanding
+- recommended next interview question
 - next question type
 - next difficulty
 
-The next question should depend on the candidate's actual answer.
+The next question should adapt to the candidate's
+actual answer.
 
-If the candidate mentioned a technology, project, skill, experience,
-or weakness, you may use that information for the next question.
+If the candidate mentioned a technology, project,
+skill, experience, or weakness, you may use that
+information for the next question.
 
 Do not repeat the exact same question.
 
 Return ONLY valid JSON.
 
-JSON format:
+Do not use markdown.
+Do not use code fences.
+
+Use exactly this structure:
 
 {
-  "overall": 0,
-  "communication": 0,
-  "relevance": 0,
-  "technicalAccuracy": 0,
-  "completeness": 0,
-  "structure": 0,
-  "feedback": "",
-  "strengths": [],
-  "improvements": [],
-  "understanding": "",
-  "nextQuestion": "",
-  "nextQuestionType": "",
-  "nextDifficulty": ""
+    "overall": 0,
+    "communication": 0,
+    "relevance": 0,
+    "technicalAccuracy": 0,
+    "completeness": 0,
+    "structure": 0,
+    "feedback": "",
+    "strengths": [],
+    "improvements": [],
+    "understanding": "",
+    "nextQuestion": "",
+    "nextQuestionType": "",
+    "nextDifficulty": ""
 }
 `;
 
-            const response =
-                await openai.responses.create({
-                    model:
-                        process.env.OPENAI_MODEL ||
-                        "gpt-5.6",
+            /* -----------------------------------------
+               GEMINI REQUEST
+            ----------------------------------------- */
 
-                    instructions:
-                        "You are a professional interviewer. Return only valid JSON. Never use markdown code fences.",
+            const rawText =
+                await generateWithGemini(
+                    prompt
+                );
 
-                    input: prompt,
-                });
+            /* -----------------------------------------
+               PARSE JSON
+            ----------------------------------------- */
 
             const result =
                 parseAIJson(
-                    response.output_text
+                    rawText
                 );
 
-            return res.json(result);
+            /* -----------------------------------------
+               NORMALIZE SCORES
+            ----------------------------------------- */
+
+            result.overall =
+                normalizeScore(
+                    result.overall
+                );
+
+            result.communication =
+                normalizeScore(
+                    result.communication
+                );
+
+            result.relevance =
+                normalizeScore(
+                    result.relevance
+                );
+
+            result.technicalAccuracy =
+                normalizeScore(
+                    result.technicalAccuracy
+                );
+
+            result.completeness =
+                normalizeScore(
+                    result.completeness
+                );
+
+            result.structure =
+                normalizeScore(
+                    result.structure
+                );
+
+            /* -----------------------------------------
+               SAFE ARRAYS
+            ----------------------------------------- */
+
+            if (
+                !Array.isArray(
+                    result.strengths
+                )
+            ) {
+                result.strengths = [];
+            }
+
+            if (
+                !Array.isArray(
+                    result.improvements
+                )
+            ) {
+                result.improvements = [];
+            }
+
+            /* -----------------------------------------
+               SAFE TEXT VALUES
+            ----------------------------------------- */
+
+            result.feedback =
+                result.feedback || "";
+
+            result.understanding =
+                result.understanding || "";
+
+            result.nextQuestion =
+                result.nextQuestion || "";
+
+            result.nextQuestionType =
+                result.nextQuestionType ||
+                "technical";
+
+            result.nextDifficulty =
+                result.nextDifficulty ||
+                "medium";
+
+            /* -----------------------------------------
+               SEND RESULT
+            ----------------------------------------- */
+
+            console.log(
+                "✅ Evaluation completed successfully."
+            );
+
+            console.log(
+                "Overall Score:",
+                result.overall
+            );
+
+            console.log(
+                "========================================\n"
+            );
+
+            return res.json(
+                result
+            );
         } catch (error) {
             console.error(
-                "Mock interview evaluation error:",
+                "\n========================================"
+            );
+
+            console.error(
+                "❌ MOCK INTERVIEW EVALUATION ERROR"
+            );
+
+            console.error(
+                "========================================"
+            );
+
+            console.error(
                 error
+            );
+
+            console.error(
+                "Error message:",
+                error.message
+            );
+
+            if (error.status) {
+                console.error(
+                    "HTTP status:",
+                    error.status
+                );
+            }
+
+            if (error.code) {
+                console.error(
+                    "Error code:",
+                    error.code
+                );
+            }
+
+            console.error(
+                "========================================\n"
             );
 
             return res.status(500).json({
                 message:
                     "Unable to evaluate the interview answer.",
+
                 error:
-                    process.env.NODE_ENV ===
-                    "development"
-                        ? error.message
-                        : undefined,
+                    error.message ||
+                    "Unknown Gemini error.",
             });
         }
     }
@@ -205,6 +490,33 @@ router.post(
     "/next-question",
     async (req, res) => {
         try {
+            console.log(
+                "\n========================================"
+            );
+
+            console.log(
+                "🎯 GENERATING NEXT INTERVIEW QUESTION"
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            /* -----------------------------------------
+               CHECK API KEY
+            ----------------------------------------- */
+
+            if (!process.env.GEMINI_API_KEY) {
+                return res.status(500).json({
+                    message:
+                        "Gemini API key is missing. Check server/.env.",
+                });
+            }
+
+            /* -----------------------------------------
+               REQUEST DATA
+            ----------------------------------------- */
+
             const {
                 role,
                 previousAnswers = [],
@@ -218,49 +530,92 @@ router.post(
                 role ||
                 "Technology Professional";
 
+            /* -----------------------------------------
+               HISTORY
+            ----------------------------------------- */
+
             const history =
-                previousAnswers
-                    .slice(-6)
-                    .map(
-                        (item, index) =>
-                            `Question ${index + 1}: ${item.question}
-Answer: ${item.answer}`
-                    )
-                    .join("\n\n");
+                Array.isArray(
+                    previousAnswers
+                )
+                    ? previousAnswers
+                          .slice(-6)
+                          .map(
+                              (
+                                  item,
+                                  index
+                              ) =>
+                                  `Question ${
+                                      index + 1
+                                  }:
+${
+                                      item.question ||
+                                      ""
+                                  }
+
+Answer:
+${
+                                      item.answer ||
+                                      ""
+                                  }`
+                          )
+                          .join(
+                              "\n\n"
+                          )
+                    : "None";
 
             let prompt;
+
+            /* =================================================
+               FIRST QUESTION
+            ================================================= */
 
             if (
                 !currentQuestion ||
                 !currentAnswer
             ) {
                 prompt = `
-You are an expert interviewer.
+You are an expert placement interviewer.
 
-Create the first mock interview question for a candidate applying for:
+Create the first mock interview question for:
 
+Candidate role:
 ${roleName}
 
 Question number:
 ${questionNumber}
 
-The question should be appropriate for a final-year
-B.Tech IT student preparing for placements.
+The candidate is a final-year B.Tech IT student
+preparing for placements.
 
-Return ONLY valid JSON:
+The question should be realistic and appropriate
+for the candidate's target role.
+
+Return ONLY valid JSON.
+
+Do not use markdown.
+Do not use code fences.
+
+Use exactly:
 
 {
-  "question": "",
-  "type": "",
-  "focus": "",
-  "difficulty": ""
+    "question": "",
+    "type": "",
+    "focus": "",
+    "difficulty": ""
 }
 `;
-            } else {
-                prompt = `
-You are an expert adaptive interviewer.
+            }
 
-Candidate role:
+            /* =================================================
+               ADAPTIVE NEXT QUESTION
+            ================================================= */
+
+            else {
+                prompt = `
+You are an expert adaptive placement interviewer.
+
+Candidate target role:
 ${roleName}
 
 Previous question:
@@ -270,18 +625,21 @@ Candidate's latest answer:
 ${currentAnswer}
 
 Previous interview history:
-${history || "None"}
+${history}
 
 Generate the next interview question.
 
 The question MUST:
-- depend on the candidate's answer when appropriate
-- not simply repeat the previous question
-- be relevant to the target role
-- feel like a real interview
-- adapt difficulty according to the candidate's demonstrated knowledge
 
-Possible types:
+- depend on the candidate's answer when appropriate
+- not repeat the previous question
+- be relevant to the target role
+- feel like a real placement interview
+- adapt to the candidate's demonstrated knowledge
+- gradually increase or decrease difficulty appropriately
+
+Possible question types:
+
 intro
 technical
 problem-solving
@@ -290,49 +648,132 @@ project
 scenario
 follow-up
 
-Return ONLY valid JSON:
+Return ONLY valid JSON.
+
+Do not use markdown.
+Do not use code fences.
+
+Use exactly:
 
 {
-  "question": "",
-  "type": "",
-  "focus": "",
-  "difficulty": ""
+    "question": "",
+    "type": "",
+    "focus": "",
+    "difficulty": ""
 }
 `;
             }
 
-            const response =
-                await openai.responses.create({
-                    model:
-                        process.env.OPENAI_MODEL ||
-                        "gpt-5.6",
+            /* -----------------------------------------
+               GEMINI REQUEST
+            ----------------------------------------- */
 
-                    instructions:
-                        "You are an adaptive professional interviewer. Return only valid JSON.",
+            const rawText =
+                await generateWithGemini(
+                    prompt
+                );
 
-                    input: prompt,
-                });
+            /* -----------------------------------------
+               PARSE RESPONSE
+            ----------------------------------------- */
 
             const result =
                 parseAIJson(
-                    response.output_text
+                    rawText
                 );
 
-            return res.json(result);
+            /* -----------------------------------------
+               VALIDATE QUESTION
+            ----------------------------------------- */
+
+            if (
+                !result.question
+            ) {
+                throw new Error(
+                    "Gemini did not return a question."
+                );
+            }
+
+            if (
+                !result.type
+            ) {
+                result.type =
+                    "technical";
+            }
+
+            if (
+                !result.focus
+            ) {
+                result.focus =
+                    "Technical Knowledge";
+            }
+
+            if (
+                !result.difficulty
+            ) {
+                result.difficulty =
+                    "medium";
+            }
+
+            console.log(
+                "✅ Next question generated."
+            );
+
+            console.log(
+                "Question:",
+                result.question
+            );
+
+            return res.json(
+                result
+            );
         } catch (error) {
             console.error(
-                "Next question generation error:",
+                "\n========================================"
+            );
+
+            console.error(
+                "❌ NEXT QUESTION ERROR"
+            );
+
+            console.error(
+                "========================================"
+            );
+
+            console.error(
                 error
+            );
+
+            console.error(
+                "Error message:",
+                error.message
+            );
+
+            if (error.status) {
+                console.error(
+                    "HTTP status:",
+                    error.status
+                );
+            }
+
+            if (error.code) {
+                console.error(
+                    "Error code:",
+                    error.code
+                );
+            }
+
+            console.error(
+                "========================================\n"
             );
 
             return res.status(500).json({
                 message:
                     "Unable to generate next interview question.",
+
                 error:
-                    process.env.NODE_ENV ===
-                    "development"
-                        ? error.message
-                        : undefined,
+                    error.message ||
+                    "Unknown Gemini error.",
             });
         }
     }
