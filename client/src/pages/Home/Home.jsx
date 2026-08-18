@@ -2,6 +2,8 @@ import React from "react";
 import "./Home.css";
 import { Link } from "react-router-dom";
 import heroImage from "../../assets/images/hero-girl.png";
+import logoImg from "../../assets/images/logo.jpeg";
+
 
 function Home() {
   return (
@@ -9,16 +11,21 @@ function Home() {
 
       {/* ================= NAVBAR ================= */}
       <nav className="home-navbar">
-        <div className="home-logo">
-          <span className="logo-cap">🎓</span>
-          <span>Career<span>Bridge</span></span>
-        </div>
+    <div className="home-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+  <img 
+    src={logoImg} 
+    alt="CareerBridge Logo" 
+    style={{ width: '40px', height: '40px', objectFit: 'contain' }} 
+  />
+  <span>Career<span>Bridge</span></span>
+</div>
+
 
         <div className="nav-links">
           <a href="#home">Home</a>
           <a href="#features">Features</a>
           <a href="#how-it-works">How It Works</a>
-          <a href="#about">About Us</a>
+          
           <a href="#contact">Contact</a>
         </div>
 
