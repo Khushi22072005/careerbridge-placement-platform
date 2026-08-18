@@ -15,6 +15,7 @@ import ResumeBuilder from "./pages/ResumeBuilder";
 import ResumeAnalyzer from "./pages/ResumeAnalyzer";
 import MockInterview from "./pages/MockInterview/MockInterview";
 import Settings from "./pages/Settings";
+import LearningHub from "./pages/LearningHub";
 
 function App() {
   return (
@@ -99,6 +100,12 @@ function App() {
         <Route
           path="/resume-analyzer"
           element={<ResumeAnalyzer />}
+        />
+
+        {/* Learning Hub */}
+        <Route
+          path="/learning-hub"
+          element={<LearningHub />}
         />
 
       </Route>
