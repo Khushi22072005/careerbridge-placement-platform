@@ -2,150 +2,29 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CareerRoadmap.css";
 
-/* =====================================================
-   ROLE ROADMAP DATA
-===================================================== */
+/* =========================================================
+   CAREER ROADMAP DATA
+========================================================= */
 
 const ROADMAPS = {
-    "ui-ux": {
-        title: "UI/UX Designer",
-        subtitle:
-            "A practical progression from design fundamentals to professional UX case studies and portfolio readiness.",
-
-        stages: [
-            {
-                number: "01",
-                title: "Design Foundations",
-                duration: "2–3 weeks",
-                description:
-                    "Build the visual and design-thinking foundation required before moving into product design.",
-                skills: [
-                    "Design principles",
-                    "Typography",
-                    "Color theory",
-                    "Layout & composition",
-                    "Visual hierarchy",
-                ],
-                outcome:
-                    "Understand why an interface looks and feels effective."
-            },
-
-            {
-                number: "02",
-                title: "UX Research & Information Architecture",
-                duration: "3–4 weeks",
-                description:
-                    "Learn how to understand users, define problems and structure digital experiences.",
-                skills: [
-                    "User interviews",
-                    "User personas",
-                    "User journeys",
-                    "Information architecture",
-                    "Usability testing",
-                ],
-                outcome:
-                    "Turn user problems into structured UX decisions."
-            },
-
-            {
-                number: "03",
-                title: "Wireframing & Prototyping",
-                duration: "3–4 weeks",
-                description:
-                    "Move from ideas to low and high-fidelity interactive product designs.",
-                skills: [
-                    "Wireframes",
-                    "User flows",
-                    "Figma",
-                    "Interactive prototypes",
-                    "Design iteration",
-                ],
-                outcome:
-                    "Create complete user flows and interactive prototypes."
-            },
-
-            {
-                number: "04",
-                title: "UI Design & Design Systems",
-                duration: "3–5 weeks",
-                description:
-                    "Develop polished interfaces and learn how professional products maintain visual consistency.",
-                skills: [
-                    "UI patterns",
-                    "Responsive design",
-                    "Components",
-                    "Design systems",
-                    "Accessibility",
-                ],
-                outcome:
-                    "Design scalable and consistent product interfaces."
-            },
-
-            {
-                number: "05",
-                title: "Real Product Projects",
-                duration: "4–6 weeks",
-                description:
-                    "Apply the complete UX process to realistic product problems.",
-                skills: [
-                    "Problem definition",
-                    "Research",
-                    "Wireframes",
-                    "Prototype",
-                    "Usability testing",
-                ],
-                outcome:
-                    "Complete 2–3 end-to-end product design projects."
-            },
-
-            {
-                number: "06",
-                title: "Portfolio & Case Studies",
-                duration: "2–3 weeks",
-                description:
-                    "Convert your projects into professional case studies that communicate your thinking.",
-                skills: [
-                    "Case study writing",
-                    "Problem → solution story",
-                    "Design decisions",
-                    "Before / after",
-                    "Portfolio presentation",
-                ],
-                outcome:
-                    "Build a portfolio that demonstrates design thinking."
-            },
-
-            {
-                number: "07",
-                title: "Job Readiness",
-                duration: "Ongoing",
-                description:
-                    "Prepare for interviews, portfolio reviews and real-world product design discussions.",
-                skills: [
-                    "Portfolio review",
-                    "Design challenges",
-                    "UX interviews",
-                    "Product thinking",
-                    "Communication",
-                ],
-                outcome:
-                    "Become ready for UI/UX Designer internship and job applications."
-            },
-        ],
-    },
-
     "data-analyst": {
         title: "Data Analyst",
+        shortTitle: "Data Analyst",
         subtitle:
-            "A practical path from data fundamentals to SQL, Python, visualization, portfolio projects and analyst job readiness.",
+            "A structured journey from data fundamentals to SQL, Python, visualization, real-world projects and placement readiness.",
+
+        totalDuration: "24–30 weeks",
 
         stages: [
             {
                 number: "01",
                 title: "Data & Excel Foundations",
+                category: "FOUNDATION",
                 duration: "2–3 weeks",
+
                 description:
-                    "Understand how business data is structured and learn the spreadsheet skills used in everyday analysis.",
+                    "Build the foundation required to understand, clean and summarize business data.",
+
                 skills: [
                     "Data types",
                     "Excel formulas",
@@ -153,16 +32,26 @@ const ROADMAPS = {
                     "Pivot tables",
                     "Data cleaning",
                 ],
+
+                milestone:
+                    "Clean and summarize a real-world dataset.",
+
+                project:
+                    "Build an Excel Sales Performance Dashboard",
+
                 outcome:
-                    "Comfortably inspect, clean and summarize business datasets."
+                    "You can confidently inspect, clean and summarize structured datasets.",
             },
 
             {
                 number: "02",
-                title: "SQL & Relational Databases",
+                title: "SQL & Databases",
+                category: "CORE SKILL",
                 duration: "4–5 weeks",
+
                 description:
-                    "Build the most important querying skills for extracting information from databases.",
+                    "Learn to extract meaningful information from relational databases using SQL.",
+
                 skills: [
                     "SELECT",
                     "WHERE",
@@ -172,112 +61,174 @@ const ROADMAPS = {
                     "CTEs",
                     "Window functions",
                 ],
+
+                milestone:
+                    "Solve business questions using SQL queries.",
+
+                project:
+                    "Analyze Customer & Sales Data using SQL",
+
                 outcome:
-                    "Answer real business questions using SQL."
+                    "You can retrieve, transform and analyze data stored in relational databases.",
             },
 
             {
                 number: "03",
                 title: "Statistics & Analytical Thinking",
+                category: "ANALYTICS",
                 duration: "3–4 weeks",
+
                 description:
-                    "Develop the statistical reasoning needed to interpret data correctly.",
+                    "Develop the statistical reasoning required to interpret data and identify meaningful patterns.",
+
                 skills: [
-                    "Mean / median",
+                    "Mean & median",
                     "Variance",
                     "Probability",
                     "Distributions",
                     "Correlation",
                     "Hypothesis testing",
                 ],
+
+                milestone:
+                    "Interpret statistical patterns and relationships.",
+
+                project:
+                    "Customer Behaviour Statistical Analysis",
+
                 outcome:
-                    "Interpret patterns and make statistically informed conclusions."
+                    "You can explain patterns in data and support conclusions with statistical reasoning.",
             },
 
             {
                 number: "04",
                 title: "Python for Data Analysis",
+                category: "TECHNICAL SKILL",
                 duration: "4–5 weeks",
+
                 description:
-                    "Use Python to automate analysis and work with larger datasets.",
+                    "Use Python to automate data preparation, exploration and analysis.",
+
                 skills: [
-                    "Python fundamentals",
+                    "Python",
                     "NumPy",
                     "Pandas",
                     "Data cleaning",
                     "Data transformation",
-                    "Exploratory analysis",
+                    "Exploratory Data Analysis",
                 ],
+
+                milestone:
+                    "Perform an end-to-end analysis using Python.",
+
+                project:
+                    "Python EDA on a Real-World Dataset",
+
                 outcome:
-                    "Perform repeatable analysis using Python."
+                    "You can perform repeatable data analysis using Python and Pandas.",
             },
 
             {
                 number: "05",
-                title: "Visualization & BI",
+                title: "Data Visualization & Power BI",
+                category: "VISUALIZATION",
                 duration: "3–4 weeks",
+
                 description:
-                    "Learn how to convert analysis into dashboards and decision-ready reports.",
+                    "Transform analytical results into dashboards that communicate insights clearly.",
+
                 skills: [
                     "Chart selection",
                     "Power BI",
-                    "Dashboard design",
                     "KPIs",
+                    "Dashboard design",
                     "Data storytelling",
                 ],
+
+                milestone:
+                    "Create an interactive decision-making dashboard.",
+
+                project:
+                    "Power BI Business Intelligence Dashboard",
+
                 outcome:
-                    "Create dashboards that communicate useful business insights."
+                    "You can communicate analytical findings through clear and interactive dashboards.",
             },
 
             {
                 number: "06",
                 title: "End-to-End Analytics Projects",
+                category: "PROJECT",
                 duration: "4–6 weeks",
+
                 description:
-                    "Combine SQL, Python and BI skills to solve realistic analytical problems.",
+                    "Combine SQL, Python, Excel and visualization skills to solve realistic analytical problems.",
+
                 skills: [
                     "Business problem",
                     "Data extraction",
                     "Data cleaning",
-                    "Analysis",
-                    "Dashboard",
+                    "Exploratory analysis",
+                    "Visualization",
                     "Recommendations",
                 ],
+
+                milestone:
+                    "Complete a complete analytics workflow from raw data to business recommendations.",
+
+                project:
+                    "Healthcare / Sales / Customer Analytics Project",
+
                 outcome:
-                    "Build 2–3 portfolio-ready analytics projects."
+                    "You have portfolio-ready evidence of practical Data Analyst skills.",
             },
 
             {
                 number: "07",
                 title: "Portfolio & Job Readiness",
+                category: "JOB READY",
                 duration: "Ongoing",
+
                 description:
-                    "Prepare projects, resume and interview skills for analyst roles.",
+                    "Convert your technical skills and projects into a professional profile for analyst opportunities.",
+
                 skills: [
-                    "SQL interviews",
+                    "SQL interview questions",
                     "Case studies",
-                    "Portfolio",
                     "Resume",
+                    "Portfolio",
                     "Business communication",
+                    "Mock interviews",
                 ],
+
+                milestone:
+                    "Successfully complete a simulated Data Analyst interview.",
+
+                project:
+                    "Professional Data Analyst Portfolio",
+
                 outcome:
-                    "Become ready for Data Analyst internships and job applications."
+                    "You are prepared for Data Analyst internships and entry-level opportunities.",
             },
         ],
     },
 
     "software-developer": {
         title: "Software Developer",
+        shortTitle: "Software Developer",
         subtitle:
             "A structured progression from programming fundamentals to application development, engineering practices and job-ready projects.",
+
+        totalDuration: "26–32 weeks",
 
         stages: [
             {
                 number: "01",
                 title: "Programming Foundations",
+                category: "FOUNDATION",
                 duration: "3–5 weeks",
                 description:
-                    "Build strong programming fundamentals using one primary language.",
+                    "Build strong programming fundamentals using a primary programming language.",
                 skills: [
                     "Variables",
                     "Conditions",
@@ -286,16 +237,21 @@ const ROADMAPS = {
                     "Error handling",
                     "OOP basics",
                 ],
+                milestone:
+                    "Build small programs without relying heavily on tutorials.",
+                project:
+                    "Console-Based Student Management System",
                 outcome:
-                    "Write clean programs without relying heavily on tutorials."
+                    "You can write structured programs using core programming concepts.",
             },
 
             {
                 number: "02",
                 title: "Data Structures & Algorithms",
+                category: "CORE SKILL",
                 duration: "5–7 weeks",
                 description:
-                    "Develop problem-solving skills needed for software engineering work and interviews.",
+                    "Develop problem-solving skills required for software development and technical interviews.",
                 skills: [
                     "Arrays",
                     "Strings",
@@ -305,52 +261,67 @@ const ROADMAPS = {
                     "Trees",
                     "Searching & sorting",
                 ],
+                milestone:
+                    "Solve programming problems using appropriate data structures.",
+                project:
+                    "DSA Problem-Solving Portfolio",
                 outcome:
-                    "Solve programming problems with appropriate data structures."
+                    "You can approach programming problems systematically.",
             },
 
             {
                 number: "03",
                 title: "Web & Application Development",
+                category: "DEVELOPMENT",
                 duration: "5–7 weeks",
                 description:
-                    "Learn how complete applications are structured and communicate with backend services.",
+                    "Learn how frontend, backend, APIs and databases work together.",
                 skills: [
-                    "HTTP",
+                    "HTML/CSS",
+                    "JavaScript",
+                    "React",
                     "REST APIs",
-                    "Frontend basics",
-                    "Backend basics",
-                    "Authentication",
+                    "Backend",
                     "Databases",
                 ],
+                milestone:
+                    "Build a functional full-stack application.",
+                project:
+                    "Full-Stack Web Application",
                 outcome:
-                    "Build functional full-stack or application-level features."
+                    "You can develop and connect application components.",
             },
 
             {
                 number: "04",
                 title: "Engineering Practices",
+                category: "ENGINEERING",
                 duration: "3–4 weeks",
                 description:
-                    "Move from simply writing code to developing maintainable software.",
+                    "Learn professional practices used to develop maintainable software.",
                 skills: [
                     "Git",
+                    "GitHub",
                     "Testing",
                     "Debugging",
                     "Code reviews",
-                    "Environment management",
                     "Clean code",
                 ],
+                milestone:
+                    "Collaborate using Git and maintain a structured codebase.",
+                project:
+                    "Collaborative GitHub Project",
                 outcome:
-                    "Work with codebases using professional development practices."
+                    "You understand professional software development workflows.",
             },
 
             {
                 number: "05",
-                title: "Real-World Applications",
+                title: "Real-World Projects",
+                category: "PROJECT",
                 duration: "5–8 weeks",
                 description:
-                    "Build substantial projects that demonstrate engineering ability.",
+                    "Apply your development skills to substantial applications.",
                 skills: [
                     "Application architecture",
                     "Database design",
@@ -359,38 +330,195 @@ const ROADMAPS = {
                     "Deployment",
                     "Testing",
                 ],
+                milestone:
+                    "Deploy a complete working application.",
+                project:
+                    "Production-Style Full-Stack Application",
                 outcome:
-                    "Complete 2–3 serious software projects."
+                    "You have serious projects demonstrating software engineering ability.",
             },
 
             {
                 number: "06",
                 title: "Portfolio & Interview Preparation",
+                category: "JOB READY",
                 duration: "3–4 weeks",
                 description:
-                    "Present your projects effectively and prepare for technical interviews.",
+                    "Prepare your projects, GitHub profile and technical interview skills.",
                 skills: [
                     "GitHub",
-                    "Project documentation",
-                    "DSA practice",
-                    "System basics",
+                    "DSA",
+                    "Project explanation",
                     "Technical communication",
+                    "Resume",
+                    "Mock interviews",
                 ],
+                milestone:
+                    "Complete a simulated software developer interview.",
+                project:
+                    "Professional Developer Portfolio",
                 outcome:
-                    "Become ready for software developer interviews."
+                    "You are ready for software developer opportunities.",
+            },
+        ],
+    },
+
+    "ui-ux": {
+        title: "UI/UX Designer",
+        shortTitle: "UI/UX",
+        subtitle:
+            "A practical progression from design fundamentals to UX research, product design and professional portfolio readiness.",
+
+        totalDuration: "20–26 weeks",
+
+        stages: [
+            {
+                number: "01",
+                title: "Design Foundations",
+                category: "FOUNDATION",
+                duration: "2–3 weeks",
+                description:
+                    "Build the visual principles required for effective interface design.",
+                skills: [
+                    "Design principles",
+                    "Typography",
+                    "Color theory",
+                    "Layout",
+                    "Visual hierarchy",
+                ],
+                milestone:
+                    "Create a consistent visual design system.",
+                project:
+                    "Mobile App Visual Redesign",
+                outcome:
+                    "You understand the principles behind effective visual interfaces.",
+            },
+
+            {
+                number: "02",
+                title: "UX Research",
+                category: "RESEARCH",
+                duration: "3–4 weeks",
+                description:
+                    "Learn to understand users and define meaningful product problems.",
+                skills: [
+                    "User interviews",
+                    "Personas",
+                    "User journeys",
+                    "Information architecture",
+                    "Usability testing",
+                ],
+                milestone:
+                    "Convert user research into clear UX requirements.",
+                project:
+                    "User Research Case Study",
+                outcome:
+                    "You can identify and communicate user problems.",
+            },
+
+            {
+                number: "03",
+                title: "Wireframing & Prototyping",
+                category: "CORE SKILL",
+                duration: "3–4 weeks",
+                description:
+                    "Move from ideas to interactive product experiences.",
+                skills: [
+                    "Wireframes",
+                    "User flows",
+                    "Figma",
+                    "Prototypes",
+                    "Design iteration",
+                ],
+                milestone:
+                    "Create an interactive prototype.",
+                project:
+                    "Complete Mobile/Web App Prototype",
+                outcome:
+                    "You can convert product requirements into usable experiences.",
+            },
+
+            {
+                number: "04",
+                title: "UI Design & Design Systems",
+                category: "UI DESIGN",
+                duration: "3–5 weeks",
+                description:
+                    "Create polished and consistent interfaces.",
+                skills: [
+                    "UI patterns",
+                    "Responsive design",
+                    "Components",
+                    "Design systems",
+                    "Accessibility",
+                ],
+                milestone:
+                    "Build a reusable design system.",
+                project:
+                    "Responsive Product UI",
+                outcome:
+                    "You can design scalable and consistent interfaces.",
+            },
+
+            {
+                number: "05",
+                title: "Real Product Projects",
+                category: "PROJECT",
+                duration: "4–6 weeks",
+                description:
+                    "Apply the complete UX process to realistic product problems.",
+                skills: [
+                    "Research",
+                    "Problem definition",
+                    "Wireframes",
+                    "Prototype",
+                    "Testing",
+                ],
+                milestone:
+                    "Complete an end-to-end product design case study.",
+                project:
+                    "End-to-End Product Design Case Study",
+                outcome:
+                    "You have practical UX work for your portfolio.",
+            },
+
+            {
+                number: "06",
+                title: "Portfolio & Job Readiness",
+                category: "JOB READY",
+                duration: "2–3 weeks",
+                description:
+                    "Present your design decisions through professional case studies.",
+                skills: [
+                    "Case studies",
+                    "Portfolio",
+                    "Design challenges",
+                    "UX interviews",
+                    "Communication",
+                ],
+                milestone:
+                    "Complete a professional portfolio review.",
+                project:
+                    "Professional UX Portfolio",
+                outcome:
+                    "You are ready for UI/UX internships and entry-level roles.",
             },
         ],
     },
 
     cybersecurity: {
         title: "Cybersecurity",
+        shortTitle: "Cybersecurity",
         subtitle:
-            "A practical security path covering networking, systems, security fundamentals, defensive skills and hands-on security projects.",
+            "A structured security journey from networking and systems fundamentals to defensive security, hands-on labs and job readiness.",
+
+        totalDuration: "25–32 weeks",
 
         stages: [
             {
                 number: "01",
                 title: "IT & Networking Foundations",
+                category: "FOUNDATION",
                 duration: "4–6 weeks",
                 description:
                     "Understand the systems and networks that security professionals protect.",
@@ -402,16 +530,21 @@ const ROADMAPS = {
                     "Routing",
                     "Operating systems",
                 ],
+                milestone:
+                    "Explain how a network communication flows.",
+                project:
+                    "Network Traffic Analysis Lab",
                 outcome:
-                    "Understand how computers and networks communicate."
+                    "You understand fundamental network communication.",
             },
 
             {
                 number: "02",
                 title: "Security Fundamentals",
+                category: "CORE SKILL",
                 duration: "3–4 weeks",
                 description:
-                    "Learn core security concepts and common attack categories.",
+                    "Learn the fundamental principles of information security.",
                 skills: [
                     "CIA triad",
                     "Authentication",
@@ -420,69 +553,87 @@ const ROADMAPS = {
                     "Vulnerabilities",
                     "Risk",
                 ],
+                milestone:
+                    "Perform a basic security risk assessment.",
+                project:
+                    "Security Risk Assessment Report",
                 outcome:
-                    "Understand the foundations of information security."
+                    "You understand fundamental cybersecurity concepts.",
             },
 
             {
                 number: "03",
                 title: "Linux & Security Tools",
+                category: "TECHNICAL SKILL",
                 duration: "4–5 weeks",
                 description:
-                    "Build command-line and security-tool proficiency through controlled labs.",
+                    "Develop command-line and security-tool proficiency through controlled labs.",
                 skills: [
                     "Linux",
                     "Shell",
                     "Logs",
                     "Network analysis",
-                    "Security tooling",
-                    "Lab environments",
+                    "Security tools",
                 ],
+                milestone:
+                    "Investigate a controlled security event.",
+                project:
+                    "Linux Security Investigation Lab",
                 outcome:
-                    "Investigate systems and security events using practical tools."
+                    "You can investigate systems using practical security tools.",
             },
 
             {
                 number: "04",
-                title: "Defensive Security & Monitoring",
+                title: "Defensive Security",
+                category: "DEFENSE",
                 duration: "4–6 weeks",
                 description:
-                    "Learn how security teams detect, investigate and respond to suspicious activity.",
+                    "Understand how security teams detect and respond to suspicious activity.",
                 skills: [
                     "Log analysis",
-                    "SIEM concepts",
+                    "SIEM",
                     "Incident response",
                     "Threat detection",
-                    "Indicators of compromise",
                     "Security monitoring",
                 ],
+                milestone:
+                    "Analyze and document a simulated incident.",
+                project:
+                    "SOC Incident Investigation",
                 outcome:
-                    "Understand the workflow of a defensive security team."
+                    "You understand the workflow of defensive security teams.",
             },
 
             {
                 number: "05",
                 title: "Hands-On Security Labs",
+                category: "PROJECT",
                 duration: "5–8 weeks",
                 description:
-                    "Apply security concepts through legal and controlled practice environments.",
+                    "Apply security concepts through legal and controlled environments.",
                 skills: [
                     "CTF labs",
-                    "Incident investigations",
+                    "Incident investigation",
                     "Network analysis",
-                    "Security reports",
                     "Detection exercises",
+                    "Security reports",
                 ],
+                milestone:
+                    "Complete multiple controlled security labs.",
+                project:
+                    "Cybersecurity Lab Portfolio",
                 outcome:
-                    "Build practical evidence of security skills."
+                    "You have practical evidence of security skills.",
             },
 
             {
                 number: "06",
                 title: "Specialization & Job Readiness",
+                category: "JOB READY",
                 duration: "Ongoing",
                 description:
-                    "Choose a direction such as SOC, cloud security, application security or security testing.",
+                    "Choose a direction such as SOC, cloud security or application security.",
                 skills: [
                     "Specialization",
                     "Security projects",
@@ -490,24 +641,32 @@ const ROADMAPS = {
                     "Portfolio",
                     "Interview preparation",
                 ],
+                milestone:
+                    "Complete a simulated cybersecurity interview.",
+                project:
+                    "Professional Cybersecurity Portfolio",
                 outcome:
-                    "Prepare for entry-level cybersecurity opportunities."
+                    "You are prepared for entry-level cybersecurity opportunities.",
             },
         ],
     },
 
     "cloud-devops": {
         title: "Cloud / DevOps",
+        shortTitle: "Cloud / DevOps",
         subtitle:
             "A practical progression from Linux and networking to cloud infrastructure, automation, containers, CI/CD and production practices.",
+
+        totalDuration: "26–34 weeks",
 
         stages: [
             {
                 number: "01",
-                title: "Linux & Networking Foundations",
+                title: "Linux & Networking",
+                category: "FOUNDATION",
                 duration: "4–5 weeks",
                 description:
-                    "Understand the operating systems and networking concepts behind modern infrastructure.",
+                    "Understand the operating systems and networking concepts behind infrastructure.",
                 skills: [
                     "Linux",
                     "Shell",
@@ -516,16 +675,21 @@ const ROADMAPS = {
                     "DNS",
                     "SSH",
                 ],
+                milestone:
+                    "Manage a Linux environment using the command line.",
+                project:
+                    "Linux Server Administration Lab",
                 outcome:
-                    "Comfortably work from a Linux command line and understand network fundamentals."
+                    "You can work comfortably with Linux and networking fundamentals.",
             },
 
             {
                 number: "02",
                 title: "Git & Automation",
+                category: "AUTOMATION",
                 duration: "2–3 weeks",
                 description:
-                    "Learn the version-control and scripting practices used in engineering teams.",
+                    "Learn version control and scripting practices used by engineering teams.",
                 skills: [
                     "Git",
                     "Branches",
@@ -533,13 +697,18 @@ const ROADMAPS = {
                     "Automation",
                     "Environment variables",
                 ],
+                milestone:
+                    "Automate a repetitive development task.",
+                project:
+                    "Shell Automation Project",
                 outcome:
-                    "Automate repeatable development and infrastructure tasks."
+                    "You can automate repeatable development tasks.",
             },
 
             {
                 number: "03",
                 title: "Cloud Fundamentals",
+                category: "CLOUD",
                 duration: "4–6 weeks",
                 description:
                     "Understand cloud compute, storage, networking and identity services.",
@@ -551,16 +720,21 @@ const ROADMAPS = {
                     "Monitoring",
                     "Cloud architecture",
                 ],
+                milestone:
+                    "Deploy an application to the cloud.",
+                project:
+                    "Cloud-Hosted Web Application",
                 outcome:
-                    "Deploy and manage basic cloud infrastructure."
+                    "You can deploy and manage basic cloud infrastructure.",
             },
 
             {
                 number: "04",
-                title: "Containers & Infrastructure as Code",
+                title: "Docker & Infrastructure as Code",
+                category: "INFRASTRUCTURE",
                 duration: "4–5 weeks",
                 description:
-                    "Learn how modern infrastructure is packaged, provisioned and reproduced.",
+                    "Learn how modern infrastructure is packaged and reproduced.",
                 skills: [
                     "Docker",
                     "Container images",
@@ -568,16 +742,21 @@ const ROADMAPS = {
                     "Terraform",
                     "Infrastructure as Code",
                 ],
+                milestone:
+                    "Containerize and reproduce an application environment.",
+                project:
+                    "Dockerized Application",
                 outcome:
-                    "Create repeatable infrastructure and containerized applications."
+                    "You can build repeatable containerized environments.",
             },
 
             {
                 number: "05",
                 title: "CI/CD & Kubernetes",
+                category: "ADVANCED",
                 duration: "5–7 weeks",
                 description:
-                    "Build deployment pipelines and understand container orchestration.",
+                    "Build automated deployment workflows and understand orchestration.",
                 skills: [
                     "CI/CD",
                     "Build pipelines",
@@ -586,42 +765,51 @@ const ROADMAPS = {
                     "Services",
                     "Secrets",
                 ],
+                milestone:
+                    "Create an automated deployment pipeline.",
+                project:
+                    "CI/CD Deployment Pipeline",
                 outcome:
-                    "Build automated deployment workflows."
+                    "You understand modern application deployment workflows.",
             },
 
             {
                 number: "06",
                 title: "Production Projects & Job Readiness",
+                category: "JOB READY",
                 duration: "5–8 weeks",
                 description:
                     "Combine cloud, automation and monitoring skills into production-style projects.",
                 skills: [
                     "Cloud project",
-                    "CI/CD pipeline",
+                    "CI/CD",
                     "Monitoring",
                     "Logging",
                     "Security",
                     "Documentation",
                 ],
+                milestone:
+                    "Deploy and monitor a production-style application.",
+                project:
+                    "End-to-End DevOps Project",
                 outcome:
-                    "Build a DevOps portfolio demonstrating practical infrastructure skills."
+                    "You have a practical DevOps portfolio for entry-level opportunities.",
             },
         ],
     },
 };
 
 
-/* =====================================================
-   FALLBACK
-===================================================== */
+/* =========================================================
+   FALLBACK ROLE
+========================================================= */
 
 const DEFAULT_ROLE = "data-analyst";
 
 
-/* =====================================================
+/* =========================================================
    COMPONENT
-===================================================== */
+========================================================= */
 
 function CareerRoadmap() {
     const navigate = useNavigate();
@@ -632,10 +820,15 @@ function CareerRoadmap() {
 
     const roadmap = useMemo(() => {
         return (
-            ROADMAPS[role] ??
+            ROADMAPS[role] ||
             ROADMAPS[DEFAULT_ROLE]
         );
     }, [role]);
+
+
+    /* =====================================================
+       NAVIGATION
+    ===================================================== */
 
     const handleDashboard = () => {
         navigate("/dashboard");
@@ -644,6 +837,25 @@ function CareerRoadmap() {
     const handleAssessment = () => {
         navigate("/assessment-result");
     };
+
+
+    /* =====================================================
+       PROGRESS
+    ===================================================== */
+
+    // Initial stage shown as current.
+    // Later this can be connected to backend progress tracking.
+    const currentStage = 0;
+
+    const completedStages = currentStage;
+
+    const progress =
+        Math.round(
+            (completedStages /
+                roadmap.stages.length) *
+                100
+        );
+
 
     return (
         <div className="career-roadmap-page">
@@ -660,7 +872,7 @@ function CareerRoadmap() {
                         C
                     </div>
 
-                    <div>
+                    <div className="roadmap-brand-text">
                         <strong>
                             CareerBridge
                         </strong>
@@ -684,14 +896,16 @@ function CareerRoadmap() {
                         Dashboard
                     </button>
 
+
                     <button
                         type="button"
                         onClick={handleAssessment}
                         className="roadmap-nav-item"
                     >
                         <span>✓</span>
-                        Assessment
+                        Career Assessment
                     </button>
+
 
                     <button
                         type="button"
@@ -709,11 +923,11 @@ function CareerRoadmap() {
                     <div className="roadmap-role-box">
 
                         <span>
-                            YOUR SELECTED ROLE
+                            YOUR CAREER PATH
                         </span>
 
                         <strong>
-                            {roadmap.title}
+                            {roadmap.shortTitle}
                         </strong>
 
                     </div>
@@ -724,23 +938,28 @@ function CareerRoadmap() {
 
 
             {/* =================================================
-                MAIN
+                MAIN CONTENT
             ================================================= */}
 
             <main className="career-roadmap-main">
 
-                {/* HEADER */}
+                {/* =================================================
+                    HEADER
+                ================================================= */}
 
                 <header className="roadmap-page-header">
 
                     <div>
 
                         <p className="roadmap-eyebrow">
-                            CAREER DEVELOPMENT
+                            PERSONALIZED CAREER PATH
                         </p>
 
                         <h1>
-                            {roadmap.title} Roadmap
+                            {roadmap.title}
+                            <span>
+                                {" "}Roadmap
+                            </span>
                         </h1>
 
                         <p className="roadmap-subtitle">
@@ -748,6 +967,7 @@ function CareerRoadmap() {
                         </p>
 
                     </div>
+
 
                     <button
                         type="button"
@@ -760,156 +980,166 @@ function CareerRoadmap() {
                 </header>
 
 
-                {/* =================================================
-                    ROADMAP OVERVIEW
-                ================================================= */}
-
-                <section className="roadmap-overview">
-
-                    <div className="roadmap-overview-card">
-
-                        <span className="overview-number">
-                            {roadmap.stages.length}
-                        </span>
-
-                        <div>
-                            <strong>
-                                Learning Stages
-                            </strong>
-
-                            <span>
-                                From foundation to job readiness
-                            </span>
-                        </div>
-
-                    </div>
+                
 
 
-                    <div className="roadmap-overview-card">
-
-                        <span className="overview-icon">
-                            →
-                        </span>
-
-                        <div>
-                            <strong>
-                                Progressive Path
-                            </strong>
-
-                            <span>
-                                Each stage builds on the previous one
-                            </span>
-                        </div>
-
-                    </div>
-
-
-                    <div className="roadmap-overview-card">
-
-                        <span className="overview-icon">
-                            ◆
-                        </span>
-
-                        <div>
-                            <strong>
-                                Project Based
-                            </strong>
-
-                            <span>
-                                Practical outcomes at every stage
-                            </span>
-                        </div>
-
-                    </div>
-
-                </section>
+              
 
 
                 {/* =================================================
-                    VISUAL FLOWCHART
+                    VISUAL ROADMAP
                 ================================================= */}
 
-                <section className="roadmap-flow-section">
+                <section className="roadmap-journey">
 
-                    <div className="roadmap-section-title">
-
-                        <div>
-                            <h2>
-                                Your Learning Journey
-                            </h2>
-
-                            <p>
-                                Follow the stages in order. Each stage
-                                gives you the skills needed for the next.
-                            </p>
-                        </div>
-
-                    </div>
+                    <div className="journey-line" />
 
 
-                    <div className="roadmap-flow">
+                    {roadmap.stages.map(
+                        (stage, index) => {
 
-                        {roadmap.stages.map(
-                            (stage, index) => (
+                            const isCurrent =
+                                index === currentStage;
 
+                            const isCompleted =
+                                index < currentStage;
+
+                            return (
                                 <React.Fragment
                                     key={stage.number}
                                 >
 
                                     <article
-                                        className={`roadmap-stage ${
-                                            index === 0
-                                                ? "first-stage"
+                                        className={`journey-stage ${
+                                            isCurrent
+                                                ? "current-stage"
+                                                : ""
+                                        } ${
+                                            isCompleted
+                                                ? "completed-stage"
                                                 : ""
                                         }`}
                                     >
 
-                                        <div className="stage-number">
-                                            {stage.number}
+                                        {/* =================================================
+                                            TIMELINE NODE
+                                        ================================================= */}
+
+                                        <div className="journey-node">
+
+                                            {isCompleted ? (
+                                                "✓"
+                                            ) : (
+                                                stage.number
+                                            )}
+
                                         </div>
 
-                                        <div className="stage-content">
 
-                                            <div className="stage-header">
+                                        {/* =================================================
+                                            STAGE CARD
+                                        ================================================= */}
+
+                                        <div className="journey-card">
+
+                                            <div className="journey-card-top">
 
                                                 <div>
+
+                                                    <span className="stage-category">
+                                                        {stage.category}
+                                                    </span>
 
                                                     <h3>
                                                         {stage.title}
                                                     </h3>
 
-                                                    <span className="stage-duration">
-                                                        {stage.duration}
+                                                </div>
+
+
+                                                <span className="stage-time">
+                                                    ⏱ {stage.duration}
+                                                </span>
+
+                                            </div>
+
+
+                                            
+
+
+                                            <p className="journey-description">
+                                                {stage.description}
+                                            </p>
+
+
+                                            {/* =================================================
+                                                SKILLS
+                                            ================================================= */}
+
+                                            <div className="journey-section">
+
+                                                <div className="journey-section-label">
+                                                    <span>
+                                                        ✦
                                                     </span>
+                                                    SKILLS TO DEVELOP
+                                                </div>
+
+
+                                                <div className="journey-skills">
+
+                                                    {stage.skills.map(
+                                                        (skill) => (
+                                                            <span
+                                                                key={
+                                                                    skill
+                                                                }
+                                                            >
+                                                                {skill}
+                                                            </span>
+                                                        )
+                                                    )}
 
                                                 </div>
 
                                             </div>
 
 
-                                            <p className="stage-description">
-                                                {stage.description}
-                                            </p>
+                                          
 
 
-                                            <div className="stage-skills">
+                                            {/* =================================================
+                                                PROJECT
+                                            ================================================= */}
 
-                                                {stage.skills.map(
-                                                    (skill) => (
-                                                        <span
-                                                            key={
-                                                                skill
-                                                            }
-                                                        >
-                                                            {skill}
-                                                        </span>
-                                                    )
-                                                )}
+                                            <div className="journey-project">
+
+                                                <div className="project-icon">
+                                                    ↗
+                                                </div>
+
+                                                <div>
+
+                                                    <span>
+                                                        PRACTICAL PROJECT
+                                                    </span>
+
+                                                    <strong>
+                                                        {
+                                                            stage.project
+                                                        }
+                                                    </strong>
+
+                                                </div>
 
                                             </div>
 
 
-                                            <div className="stage-outcome">
+                                            {/* =================================================
+                                                OUTCOME
+                                            ================================================= */}
+
+                                            <div className="journey-outcome">
 
                                                 <span>
                                                     OUTCOME
@@ -926,34 +1156,30 @@ function CareerRoadmap() {
                                     </article>
 
 
+                                    {/* =================================================
+                                        CONNECTOR
+                                    ================================================= */}
+
                                     {index <
                                         roadmap.stages.length -
                                             1 && (
-
-                                        <div className="roadmap-connector">
-
-                                            <div className="connector-line"></div>
-
-                                            <div className="connector-arrow">
+                                        <div className="journey-connector">
+                                            <span>
                                                 ↓
-                                            </div>
-
+                                            </span>
                                         </div>
-
                                     )}
 
                                 </React.Fragment>
-
-                            )
-                        )}
-
-                    </div>
+                            );
+                        }
+                    )}
 
                 </section>
 
 
                 {/* =================================================
-                    FINAL READINESS
+                    FINAL DESTINATION
                 ================================================= */}
 
                 <section className="roadmap-finish">
@@ -962,25 +1188,53 @@ function CareerRoadmap() {
                         ✓
                     </div>
 
-                    <div>
-
-                        <p>
-                            FINAL DESTINATION
-                        </p>
-
-                        <h2>
-                            Ready for {roadmap.title} Opportunities
-                        </h2>
+                    <div className="finish-content">
 
                         <span>
-                            Complete the roadmap with practical
-                            projects, a strong portfolio and focused
-                            interview preparation.
+                            FINAL DESTINATION
                         </span>
+
+                        <h2>
+                            Job Ready
+                        </h2>
+
+                        <p>
+                            Complete the roadmap, build your portfolio,
+                            strengthen your resume and practice interviews
+                            to become ready for {roadmap.title} opportunities.
+                        </p>
 
                     </div>
 
+                    <div className="finish-badge">
+                        <span>
+                            CAREER
+                        </span>
+
+                        <strong>
+                            READY
+                        </strong>
+                    </div>
+
                 </section>
+
+
+                {/* =================================================
+                    FOOTER NOTE
+                ================================================= */}
+
+                <div className="roadmap-footer-note">
+
+                    <span>
+                        CareerBridge
+                    </span>
+
+                    <p>
+                        Your career path is a journey.
+                        Build one skill at a time.
+                    </p>
+
+                </div>
 
             </main>
 

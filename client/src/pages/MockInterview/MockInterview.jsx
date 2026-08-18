@@ -108,7 +108,7 @@ const INITIAL_QUESTIONS = {
 ========================================================= */
 
 const AI_INTERVIEWER = {
-    fullName: "Alex",
+    
     role: "AI Interviewer",
 };
 
