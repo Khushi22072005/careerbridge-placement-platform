@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./LearningHub.css";
 
@@ -47,46 +47,18 @@ const courses = [
     }
 ];
 
-const continueLearning = [
-    {
-        id: 1,
-        title: "SQL JOINs",
-        provider: "Udemy",
-        level: "Intermediate",
-        duration: "45 min",
-        progress: 65,
-        icon: "SQL",
-        iconClass: "sql-icon"
-    },
-    {
-        id: 2,
-        title: "Power BI Basics",
-        provider: "Udemy",
-        level: "Beginner",
-        duration: "1h 20m",
-        progress: 30,
-        icon: "BI",
-        iconClass: "powerbi-icon"
-    },
-    {
-        id: 3,
-        title: "Python for Data Analysis",
-        provider: "Coursera",
-        level: "Intermediate",
-        duration: "2h 15m",
-        progress: 40,
-        icon: "PY",
-        iconClass: "python-icon"
-    }
-];
-
 const skills = [
     { name: "SQL", courses: 12, icon: "SQL", iconClass: "sql-icon" },
     { name: "Python", courses: 15, icon: "PY", iconClass: "python-icon" },
     { name: "Excel", courses: 10, icon: "XL", iconClass: "excel-icon" },
     { name: "Power BI", courses: 8, icon: "BI", iconClass: "powerbi-icon" },
     { name: "Statistics", courses: 6, icon: "Σ", iconClass: "statistics-icon" },
-    { name: "Data Visualization", courses: 9, icon: "DV", iconClass: "visual-icon" }
+    {
+        name: "Data Visualization",
+        courses: 9,
+        icon: "DV",
+        iconClass: "visual-icon"
+    }
 ];
 
 const practice = [
@@ -121,58 +93,189 @@ const practice = [
 ];
 
 function LearningHub() {
+
+    // =====================================================
+    // USER'S ENROLLED COURSES
+    // =====================================================
+
+    const [myCourses, setMyCourses] = useState([]);
+    const [loadingCourses, setLoadingCourses] = useState(true);
+
+    useEffect(() => {
+
+        const fetchMyCourses = async () => {
+
+            try {
+
+                const token = localStorage.getItem("token");
+
+                if (!token) {
+                    console.log("No authentication token found");
+                    setLoadingCourses(false);
+                    return;
+                }
+
+                const response = await fetch(
+                    "http://localhost:5000/api/learning/my-courses",
+                    {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Failed to fetch learning courses"
+                    );
+                }
+
+                const data = await response.json();
+
+                console.log(
+                    "My learning courses:",
+                    data
+                );
+
+                setMyCourses(data);
+
+            } catch (error) {
+
+                console.error(
+                    "Error loading learning courses:",
+                    error
+                );
+
+            } finally {
+
+                setLoadingCourses(false);
+
+            }
+        };
+
+        fetchMyCourses();
+
+    }, []);
+
+
+    // =====================================================
+    // CALCULATED LEARNING STATS
+    // =====================================================
+
+    const totalCourses = myCourses.length;
+
+    const completedCourses = myCourses.filter(
+        (course) =>
+            course.status === "completed" ||
+            Number(course.progress) === 100
+    ).length;
+
+    const overallProgress =
+        totalCourses > 0
+            ? Math.round(
+                myCourses.reduce(
+                    (total, course) =>
+                        total + Number(course.progress || 0),
+                    0
+                ) / totalCourses
+            )
+            : 0;
+
+
     return (
         <div className="learning-page">
 
             {/* PAGE HEADER */}
+
             <div className="learning-header">
 
                 <div className="learning-title-section">
+
                     <div className="learning-header-icon">
                         🎓
                     </div>
 
                     <div>
-                        <span className="section-label">LEARNING HUB</span>
-                        <h1>Learning Hub</h1>
+
+                        <span className="section-label">
+                            LEARNING HUB
+                        </span>
+
+                        <h1>
+                            Learning Hub
+                        </h1>
+
                         <p>
                             Discover the best learning resources recommended for your career goals.
                         </p>
+
                     </div>
+
                 </div>
 
+
                 <div className="learning-actions">
+
                     <div className="course-search">
-                        <span>⌕</span>
+
+                        <span>
+                            ⌕
+                        </span>
+
                         <input
                             type="text"
                             placeholder="Search for skills, courses or topics..."
                         />
+
                     </div>
 
+
                     <button className="filter-button">
-                        <span>⚱</span>
+
+                        <span>
+                            ⚱
+                        </span>
+
                         Filters
+
                     </button>
+
                 </div>
+
             </div>
 
 
             {/* LEARNING PROGRESS */}
+
             <section className="learning-overview">
 
                 <div className="overview-left">
 
-                    <h2>Your Learning Progress</h2>
+                    <h2>
+                        Your Learning Progress
+                    </h2>
+
 
                     <div className="progress-content">
 
                         <div className="progress-circle">
+
                             <div className="progress-circle-inner">
-                                <strong>42%</strong>
-                                <span>Overall Progress</span>
+
+                                <strong>
+                                    {overallProgress}%
+                                </strong>
+
+                                <span>
+                                    Overall Progress
+                                </span>
+
                             </div>
+
                         </div>
+
 
                         <div className="skill-progress-list">
 
@@ -205,7 +308,9 @@ function LearningHub() {
                             />
 
                         </div>
+
                     </div>
+
                 </div>
 
 
@@ -214,149 +319,318 @@ function LearningHub() {
                     <div className="stats-grid">
 
                         <div className="learning-stat">
-                            <div className="stat-icon book-icon">📖</div>
-                            <div>
-                                <strong>24</strong>
-                                <span>Courses Enrolled</span>
+
+                            <div className="stat-icon book-icon">
+                                📖
                             </div>
+
+                            <div>
+
+                                <strong>
+                                    {totalCourses}
+                                </strong>
+
+                                <span>
+                                    Courses Enrolled
+                                </span>
+
+                            </div>
+
                         </div>
 
-                        <div className="learning-stat">
-                            <div className="stat-icon completed-icon">✓</div>
-                            <div>
-                                <strong>10</strong>
-                                <span>Completed</span>
-                            </div>
-                        </div>
 
                         <div className="learning-stat">
-                            <div className="stat-icon time-icon">◷</div>
-                            <div>
-                                <strong>36h</strong>
-                                <span>Time Spent</span>
+
+                            <div className="stat-icon completed-icon">
+                                ✓
                             </div>
+
+                            <div>
+
+                                <strong>
+                                    {completedCourses}
+                                </strong>
+
+                                <span>
+                                    Completed
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="learning-stat">
+
+                            <div className="stat-icon time-icon">
+                                ◷
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    36h
+                                </strong>
+
+                                <span>
+                                    Time Spent
+                                </span>
+
+                            </div>
+
                         </div>
 
                     </div>
 
+
                     <div className="progress-message">
-                        <div className="message-star">★</div>
+
+                        <div className="message-star">
+                            ★
+                        </div>
 
                         <div>
-                            <strong>Great progress, Sapna!</strong>
+
+                            <strong>
+                                Great progress!
+                            </strong>
+
                             <p>
                                 Keep learning consistently to improve your career readiness.
                             </p>
+
                         </div>
 
-                        <div className="trophy">🏆</div>
+                        <div className="trophy">
+                            🏆
+                        </div>
+
                     </div>
 
                 </div>
+
             </section>
 
 
             {/* MAIN CONTENT GRID */}
+
             <div className="learning-main-grid">
 
                 <div className="learning-main-column">
 
+
                     {/* CONTINUE LEARNING */}
+
                     <section className="learning-card">
 
                         <div className="card-heading">
-                            <h2>Continue Learning</h2>
-                            <button>View all</button>
+
+                            <h2>
+                                Continue Learning
+                            </h2>
+
+                            <button>
+                                View all
+                            </button>
+
                         </div>
+
 
                         <div className="continue-list">
 
-                            {continueLearning.map((course) => (
-                                <div className="continue-course" key={course.id}>
+                            {loadingCourses ? (
 
-                                    <div className={`course-thumbnail ${course.iconClass}`}>
-                                        {course.icon}
-                                    </div>
+                                <p>
+                                    Loading your courses...
+                                </p>
 
-                                    <div className="continue-course-info">
+                            ) : myCourses.length === 0 ? (
 
-                                        <h3>{course.title}</h3>
+                                <p>
+                                    You haven't enrolled in any courses yet.
+                                </p>
 
-                                        <p>
-                                            {course.provider}
-                                            <span>•</span>
-                                            {course.level}
-                                            <span>•</span>
-                                            {course.duration}
-                                        </p>
+                            ) : (
 
-                                        <div className="mini-progress-row">
-                                            <div className="mini-progress">
-                                                <div
-                                                    style={{
-                                                        width: `${course.progress}%`
-                                                    }}
-                                                />
-                                            </div>
+                                myCourses.map((course) => (
 
-                                            <span>{course.progress}%</span>
+                                    <div
+                                        className="continue-course"
+                                        key={course.id}
+                                    >
+
+                                        <div
+                                            className={`course-thumbnail ${
+                                                course.skill === "Power BI"
+                                                    ? "powerbi-icon"
+                                                    : course.skill === "Python"
+                                                    ? "python-icon"
+                                                    : course.skill === "Excel"
+                                                    ? "excel-icon"
+                                                    : "sql-icon"
+                                            }`}
+                                        >
+                                            {course.skill || "COURSE"}
                                         </div>
 
+
+                                        <div className="continue-course-info">
+
+                                            <h3>
+                                                {course.course_title}
+                                            </h3>
+
+
+                                            <p>
+
+                                                {course.provider ||
+                                                    "Learning Platform"}
+
+                                                <span>
+                                                    •
+                                                </span>
+
+                                                {course.skill ||
+                                                    "General"}
+
+                                            </p>
+
+
+                                            <div className="mini-progress-row">
+
+                                                <div className="mini-progress">
+
+                                                    <div
+                                                        style={{
+                                                            width: `${
+                                                                course.progress || 0
+                                                            }%`
+                                                        }}
+                                                    />
+
+                                                </div>
+
+
+                                                <span>
+                                                    {course.progress || 0}%
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <button
+                                            className="continue-button"
+                                            onClick={() => {
+
+                                                if (
+                                                    course.course_url
+                                                ) {
+
+                                                    window.open(
+                                                        course.course_url,
+                                                        "_blank"
+                                                    );
+
+                                                }
+
+                                            }}
+                                        >
+                                            ▶ Continue
+                                        </button>
+
                                     </div>
 
-                                    <button className="continue-button">
-                                        ▶ Continue
-                                    </button>
+                                ))
 
-                                </div>
-                            ))}
+                            )}
 
                         </div>
+
                     </section>
 
 
                     {/* RECOMMENDED COURSES */}
+
                     <section className="learning-card">
 
                         <div className="card-heading">
+
                             <div>
-                                <h2>Recommended for You</h2>
+
+                                <h2>
+                                    Recommended for You
+                                </h2>
+
                                 <p className="card-subtitle">
                                     Based on your Data Analyst career goal and skill gaps
                                 </p>
+
                             </div>
 
-                            <button>View all</button>
+
+                            <button>
+                                View all
+                            </button>
+
                         </div>
+
 
                         <div className="recommended-list">
 
                             {courses.map((course) => (
-                                <div className="recommended-course" key={course.id}>
 
-                                    <div className={`course-thumbnail large ${course.iconClass}`}>
+                                <div
+                                    className="recommended-course"
+                                    key={course.id}
+                                >
+
+                                    <div
+                                        className={`course-thumbnail large ${course.iconClass}`}
+                                    >
                                         {course.icon}
                                     </div>
 
+
                                     <div className="recommended-info">
 
-                                        <h3>{course.title}</h3>
+                                        <h3>
+                                            {course.title}
+                                        </h3>
+
 
                                         <p className="course-meta">
+
                                             {course.provider}
-                                            <span>•</span>
+
+                                            <span>
+                                                •
+                                            </span>
+
                                             {course.level}
-                                            <span>•</span>
+
+                                            <span>
+                                                •
+                                            </span>
+
                                             {course.duration}
-                                            <span>•</span>
+
+                                            <span>
+                                                •
+                                            </span>
+
                                             ⭐ {course.rating}
+
                                         </p>
+
 
                                         <div className="recommendation-reason">
                                             {course.reason}
                                         </div>
 
                                     </div>
+
 
                                     <div className="course-actions">
 
@@ -366,6 +640,7 @@ function LearningHub() {
                                         >
                                             ♡
                                         </button>
+
 
                                         <a
                                             href={course.url}
@@ -379,98 +654,170 @@ function LearningHub() {
                                     </div>
 
                                 </div>
+
                             ))}
 
                         </div>
+
                     </section>
 
 
                     {/* BROWSE BY SKILL */}
+
                     <section className="learning-card">
 
                         <div className="card-heading">
-                            <h2>Browse by Skill</h2>
-                            <button>View all</button>
+
+                            <h2>
+                                Browse by Skill
+                            </h2>
+
+                            <button>
+                                View all
+                            </button>
+
                         </div>
+
 
                         <div className="skills-grid">
 
                             {skills.map((skill) => (
-                                <button className="skill-card" key={skill.name}>
 
-                                    <div className={`skill-icon ${skill.iconClass}`}>
+                                <button
+                                    className="skill-card"
+                                    key={skill.name}
+                                >
+
+                                    <div
+                                        className={`skill-icon ${skill.iconClass}`}
+                                    >
                                         {skill.icon}
                                     </div>
 
+
                                     <div>
-                                        <strong>{skill.name}</strong>
-                                        <span>{skill.courses} Courses</span>
+
+                                        <strong>
+                                            {skill.name}
+                                        </strong>
+
+                                        <span>
+                                            {skill.courses} Courses
+                                        </span>
+
                                     </div>
 
                                 </button>
+
                             ))}
 
+
                             <button className="skill-card more-skill">
+
                                 <div className="skill-icon more-icon">
                                     +
                                 </div>
 
                                 <div>
-                                    <strong>More</strong>
-                                    <span>View all</span>
+
+                                    <strong>
+                                        More
+                                    </strong>
+
+                                    <span>
+                                        View all
+                                    </span>
+
                                 </div>
+
                             </button>
 
                         </div>
+
                     </section>
 
 
                     {/* PRACTICE ZONE */}
+
                     <section className="learning-card">
 
                         <div className="card-heading">
-                            <h2>Practice Zone</h2>
-                            <button>View all</button>
+
+                            <h2>
+                                Practice Zone
+                            </h2>
+
+                            <button>
+                                View all
+                            </button>
+
                         </div>
+
 
                         <div className="practice-grid">
 
                             {practice.map((item) => (
-                                <div className="practice-card" key={item.title}>
 
-                                    <div className={`practice-icon ${item.iconClass}`}>
+                                <div
+                                    className="practice-card"
+                                    key={item.title}
+                                >
+
+                                    <div
+                                        className={`practice-icon ${item.iconClass}`}
+                                    >
                                         {item.icon}
                                     </div>
 
-                                    <div>
-                                        <h3>{item.title}</h3>
 
-                                        <p>{item.description}</p>
+                                    <div>
+
+                                        <h3>
+                                            {item.title}
+                                        </h3>
+
+                                        <p>
+                                            {item.description}
+                                        </p>
 
                                         <button>
                                             {item.button} →
                                         </button>
+
                                     </div>
 
                                 </div>
+
                             ))}
 
                         </div>
+
                     </section>
 
                 </div>
 
 
                 {/* RIGHT SIDEBAR */}
+
                 <aside className="learning-sidebar">
 
+
                     {/* LEARNING GOALS */}
+
                     <section className="side-card">
 
                         <div className="side-card-heading">
-                            <h2>My Learning Goals</h2>
-                            <button>Edit Goals</button>
+
+                            <h2>
+                                My Learning Goals
+                            </h2>
+
+                            <button>
+                                Edit Goals
+                            </button>
+
                         </div>
+
 
                         <LearningGoal
                             title="Improve SQL to Advanced"
@@ -491,29 +838,65 @@ function LearningHub() {
 
 
                     {/* PLATFORMS */}
+
                     <section className="side-card">
 
-                        <h2>Top Platforms</h2>
+                        <h2>
+                            Top Platforms
+                        </h2>
+
 
                         <div className="platform-row">
-                            <strong>Udemy</strong>
-                            <span>18 Courses</span>
+
+                            <strong>
+                                Udemy
+                            </strong>
+
+                            <span>
+                                18 Courses
+                            </span>
+
                         </div>
 
-                        <div className="platform-row">
-                            <strong>Coursera</strong>
-                            <span>4 Courses</span>
-                        </div>
 
                         <div className="platform-row">
-                            <strong>YouTube</strong>
-                            <span>12 Courses</span>
+
+                            <strong>
+                                Coursera
+                            </strong>
+
+                            <span>
+                                4 Courses
+                            </span>
+
                         </div>
 
+
                         <div className="platform-row">
-                            <strong>edX</strong>
-                            <span>2 Courses</span>
+
+                            <strong>
+                                YouTube
+                            </strong>
+
+                            <span>
+                                12 Courses
+                            </span>
+
                         </div>
+
+
+                        <div className="platform-row">
+
+                            <strong>
+                                edX
+                            </strong>
+
+                            <span>
+                                2 Courses
+                            </span>
+
+                        </div>
+
 
                         <button className="side-link">
                             View all platforms →
@@ -523,9 +906,13 @@ function LearningHub() {
 
 
                     {/* RESOURCES */}
+
                     <section className="side-card">
 
-                        <h2>Learning Resources</h2>
+                        <h2>
+                            Learning Resources
+                        </h2>
+
 
                         <button className="resource-row">
                             📄 Articles & Blogs
@@ -543,6 +930,7 @@ function LearningHub() {
                             📚 Roadmap Guides
                         </button>
 
+
                         <button className="side-link">
                             View all resources →
                         </button>
@@ -555,10 +943,19 @@ function LearningHub() {
 
 
             {/* BOTTOM TIP */}
+
             <div className="learning-tip">
-                <span>💡</span>
-                <strong>Tip:</strong>
+
+                <span>
+                    💡
+                </span>
+
+                <strong>
+                    Tip:
+                </strong>
+
                 Complete recommended courses and practice regularly to improve your career readiness.
+
             </div>
 
         </div>
@@ -566,52 +963,103 @@ function LearningHub() {
 }
 
 
-/* SKILL PROGRESS COMPONENT */
-function SkillProgress({ name, progress, icon, iconClass }) {
+/* =====================================================
+   SKILL PROGRESS COMPONENT
+===================================================== */
+
+function SkillProgress({
+    name,
+    progress,
+    icon,
+    iconClass
+}) {
+
     return (
+
         <div className="skill-progress">
 
-            <div className={`skill-progress-icon ${iconClass}`}>
+            <div
+                className={`skill-progress-icon ${iconClass}`}
+            >
                 {icon}
             </div>
 
-            <strong>{name}</strong>
+
+            <strong>
+                {name}
+            </strong>
+
 
             <div className="skill-progress-bar">
+
                 <div
                     style={{
                         width: `${progress}%`
                     }}
                 />
+
             </div>
 
-            <span>{progress}%</span>
+
+            <span>
+                {progress}%
+            </span>
 
         </div>
+
     );
 }
 
 
-/* LEARNING GOAL COMPONENT */
-function LearningGoal({ title, progress }) {
+/* =====================================================
+   LEARNING GOAL COMPONENT
+===================================================== */
+
+function LearningGoal({
+    title,
+    progress
+}) {
+
     return (
+
         <div className="learning-goal">
 
             <div className="goal-title">
-                <span className="goal-check">✓</span>
-                <strong>{title}</strong>
+
+                <span className="goal-check">
+                    ✓
+                </span>
+
+                <strong>
+                    {title}
+                </strong>
+
             </div>
 
+
             <div className="goal-progress">
+
                 <div>
-                    <span style={{ width: `${progress}%` }} />
+
+                    <span
+                        style={{
+                            width: `${progress}%`
+                        }}
+                    />
+
                 </div>
 
-                <small>{progress}%</small>
+
+                <small>
+                    {progress}%
+                </small>
+
             </div>
 
         </div>
+
     );
 }
+
 
 export default LearningHub;
