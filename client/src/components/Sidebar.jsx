@@ -89,7 +89,6 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    
                     <span className="sidebar-icon"></span>
                     <span>Career Roadmap</span>
                 </NavLink>
@@ -102,7 +101,7 @@ const Sidebar = () => {
                 </p>
 
                 <NavLink
-                    to="/learning"
+                    to="/learning-hub"
                     className={({ isActive }) =>
                         isActive
                             ? "sidebar-link active"
@@ -156,7 +155,17 @@ const Sidebar = () => {
                     <span>Resume Analyzer</span>
                 </NavLink>
 
-                
+                <NavLink
+                    to="/portfolio"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "sidebar-link active"
+                            : "sidebar-link"
+                    }
+                >
+                    <span className="sidebar-icon"></span>
+                    <span>Portfolio</span>
+                </NavLink>
 
 
                 {/* ================= PLACEMENT ================= */}
