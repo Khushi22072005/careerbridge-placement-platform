@@ -6,7 +6,8 @@ const cors = require("cors");
 const authRoutes = require("../routes/authRoutes");
 const dashboardRoutes = require("../routes/dashboardRoutes");
 const profileRoutes = require("../routes/profileRoutes");
-
+const mockInterviewRoutes =
+    require("../routes/mockInterviewRoutes");
 const assessmentRoutes =
     require("../routes/assessmentroutes");
 
@@ -32,7 +33,10 @@ app.use(
     "/api/auth",
     authRoutes
 );
-
+app.use(
+    "/api/mock-interview",
+    mockInterviewRoutes
+);
 app.use(
     "/api/dashboard",
     dashboardRoutes

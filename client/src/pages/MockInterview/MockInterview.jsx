@@ -1,511 +1,409 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+    useEffect,
+    useRef,
+    useState,
+} from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import "./MockInterview.css";
 
-/* =========================================================
-   INTERVIEW QUESTIONS
-========================================================= */
-
-const INTERVIEW_QUESTIONS = {
-    "software-developer": [
-        {
-            id: 1,
-            type: "intro",
-            question:
-                "Tell me about yourself and your background in software development.",
-            focus: "Introduction & Communication",
-        },
-        {
-            id: 2,
-            type: "technical",
-            question:
-                "What is the difference between a process and a thread?",
-            focus: "Operating Systems",
-        },
-        {
-            id: 3,
-            type: "technical",
-            question:
-                "Explain the concept of object-oriented programming and its main principles.",
-            focus: "Programming Fundamentals",
-        },
-        {
-            id: 4,
-            type: "problem-solving",
-            question:
-                "Suppose an application suddenly becomes very slow in production. How would you investigate the problem?",
-            focus: "Problem Solving",
-        },
-        {
-            id: 5,
-            type: "behavioral",
-            question:
-                "Tell me about a technical problem you faced and how you solved it.",
-            focus: "Behavioral",
-        },
-    ],
-
-    "data-analyst": [
-        {
-            id: 1,
-            type: "intro",
-            question:
-                "Tell me about yourself and why you are interested in becoming a Data Analyst.",
-            focus: "Introduction & Communication",
-        },
-        {
-            id: 2,
-            type: "technical",
-            question:
-                "What is the difference between WHERE and HAVING in SQL?",
-            focus: "SQL",
-        },
-        {
-            id: 3,
-            type: "technical",
-            question:
-                "How would you handle missing values in a dataset?",
-            focus: "Data Cleaning",
-        },
-        {
-            id: 4,
-            type: "problem-solving",
-            question:
-                "Imagine that sales suddenly dropped by 20 percent this month. How would you investigate the reason?",
-            focus: "Analytical Thinking",
-        },
-        {
-            id: 5,
-            type: "behavioral",
-            question:
-                "Tell me about a project where you used data to make a decision.",
-            focus: "Behavioral",
-        },
-    ],
-
-    cybersecurity: [
-        {
-            id: 1,
-            type: "intro",
-            question:
-                "Tell me about yourself and why you are interested in cybersecurity.",
-            focus: "Introduction & Communication",
-        },
-        {
-            id: 2,
-            type: "technical",
-            question:
-                "What is the difference between authentication and authorization?",
-            focus: "Security Fundamentals",
-        },
-        {
-            id: 3,
-            type: "technical",
-            question:
-                "What is SQL injection and how can it be prevented?",
-            focus: "Application Security",
-        },
-        {
-            id: 4,
-            type: "problem-solving",
-            question:
-                "You notice unusual login activity on a company's system. What would you do first?",
-            focus: "Incident Response",
-        },
-        {
-            id: 5,
-            type: "behavioral",
-            question:
-                "Tell me about a time when you had to investigate a difficult technical issue.",
-            focus: "Behavioral",
-        },
-    ],
-
-    "cloud-devops": [
-        {
-            id: 1,
-            type: "intro",
-            question:
-                "Tell me about yourself and your interest in Cloud and DevOps.",
-            focus: "Introduction & Communication",
-        },
-        {
-            id: 2,
-            type: "technical",
-            question:
-                "What is the difference between Docker containers and virtual machines?",
-            focus: "Cloud Fundamentals",
-        },
-        {
-            id: 3,
-            type: "technical",
-            question:
-                "What is CI/CD and why is it important?",
-            focus: "DevOps",
-        },
-        {
-            id: 4,
-            type: "problem-solving",
-            question:
-                "A deployment works locally but fails in production. How would you debug it?",
-            focus: "Troubleshooting",
-        },
-        {
-            id: 5,
-            type: "behavioral",
-            question:
-                "Tell me about a time you worked with a team to solve a technical problem.",
-            focus: "Behavioral",
-        },
-    ],
-
-    "ui-ux": [
-        {
-            id: 1,
-            type: "intro",
-            question:
-                "Tell me about yourself and what interests you about UI/UX design.",
-            focus: "Introduction & Communication",
-        },
-        {
-            id: 2,
-            type: "technical",
-            question:
-                "What is the difference between UX design and UI design?",
-            focus: "Design Fundamentals",
-        },
-        {
-            id: 3,
-            type: "technical",
-            question:
-                "How would you approach designing a new mobile application?",
-            focus: "Design Process",
-        },
-        {
-            id: 4,
-            type: "problem-solving",
-            question:
-                "Users are abandoning an important screen in your application. How would you investigate the problem?",
-            focus: "User Research",
-        },
-        {
-            id: 5,
-            type: "behavioral",
-            question:
-                "Tell me about a design decision you made that received criticism. How did you respond?",
-            focus: "Communication",
-        },
-    ],
-};
 
 /* =========================================================
    ROLE NAMES
 ========================================================= */
 
 const ROLE_NAMES = {
-    "software-developer": "Software Developer",
-    "data-analyst": "Data Analyst",
-    cybersecurity: "Cybersecurity",
-    "cloud-devops": "Cloud / DevOps",
-    "ui-ux": "UI/UX Designer",
+    "software-developer":
+        "Software Developer",
+
+    "data-analyst":
+        "Data Analyst",
+
+    cybersecurity:
+        "Cybersecurity",
+
+    "cloud-devops":
+        "Cloud / DevOps",
+
+    "ui-ux":
+        "UI/UX Designer",
 };
 
+
 /* =========================================================
-   AI INTERVIEWER PROFILE
+   INITIAL QUESTIONS
+========================================================= */
+
+const INITIAL_QUESTIONS = {
+    "software-developer": {
+        question:
+            "Tell me about yourself and your background in software development.",
+
+        type: "intro",
+
+        focus:
+            "Introduction & Communication",
+
+        difficulty:
+            "easy",
+    },
+
+    "data-analyst": {
+        question:
+            "Tell me about yourself and why you are interested in becoming a Data Analyst.",
+
+        type: "intro",
+
+        focus:
+            "Introduction & Communication",
+
+        difficulty:
+            "easy",
+    },
+
+    cybersecurity: {
+        question:
+            "Tell me about yourself and why you are interested in cybersecurity.",
+
+        type: "intro",
+
+        focus:
+            "Introduction & Communication",
+
+        difficulty:
+            "easy",
+    },
+
+    "cloud-devops": {
+        question:
+            "Tell me about yourself and your interest in Cloud and DevOps.",
+
+        type: "intro",
+
+        focus:
+            "Introduction & Communication",
+
+        difficulty:
+            "easy",
+    },
+
+    "ui-ux": {
+        question:
+            "Tell me about yourself and what interests you about UI/UX design.",
+
+        type: "intro",
+
+        focus:
+            "Introduction & Communication",
+
+        difficulty:
+            "easy",
+    },
+};
+
+
+/* =========================================================
+   AI INTERVIEWER
 ========================================================= */
 
 const AI_INTERVIEWER = {
-    firstName: "Alex",
-    // fullName: "Alex Morgan",
+    fullName: "Alex",
     role: "AI Interviewer",
 };
 
+
 /* =========================================================
-   TEXT TO SPEECH
+   API BASE URL
 ========================================================= */
 
-const speakText = (text, setIsSpeaking) => {
-    if (!window.speechSynthesis) {
+const API_BASE_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:5000";
+
+
+/* =========================================================
+   SPEAK TEXT
+========================================================= */
+
+const speakText = (
+    text,
+    setIsSpeaking
+) => {
+    if (
+        !(
+            "speechSynthesis" in
+            window
+        )
+    ) {
         return;
     }
 
-    window.speechSynthesis.cancel();
+    try {
+        window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+        const utterance =
+            new window.SpeechSynthesisUtterance(
+                text
+            );
 
-    utterance.lang = "en-IN";
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
+        utterance.lang =
+            "en-IN";
 
-    const voices = window.speechSynthesis.getVoices();
+        utterance.rate =
+            0.9;
 
-    const preferredVoice =
-        voices.find((voice) =>
-            voice.lang?.toLowerCase().includes("en-in")
-        ) ||
-        voices.find((voice) =>
-            voice.lang?.toLowerCase().includes("en-us")
-        ) ||
-        voices.find((voice) =>
-            voice.lang?.toLowerCase().includes("en-gb")
+        utterance.pitch =
+            1;
+
+        const voices =
+            window.speechSynthesis.getVoices();
+
+        const preferredVoice =
+            voices.find(
+                (voice) =>
+                    voice.lang
+                        ?.toLowerCase()
+                        .startsWith(
+                            "en-in"
+                        )
+            ) ||
+            voices.find(
+                (voice) =>
+                    voice.lang
+                        ?.toLowerCase()
+                        .startsWith(
+                            "en-us"
+                        )
+            ) ||
+            voices.find(
+                (voice) =>
+                    voice.lang
+                        ?.toLowerCase()
+                        .startsWith(
+                            "en-gb"
+                        )
+            );
+
+        if (preferredVoice) {
+            utterance.voice =
+                preferredVoice;
+        }
+
+        utterance.onstart = () => {
+            setIsSpeaking?.(
+                true
+            );
+        };
+
+        utterance.onend = () => {
+            setIsSpeaking?.(
+                false
+            );
+        };
+
+        utterance.onerror = () => {
+            setIsSpeaking?.(
+                false
+            );
+        };
+
+        window.speechSynthesis.speak(
+            utterance
+        );
+    } catch (error) {
+        console.error(
+            "Speech synthesis error:",
+            error
         );
 
-    if (preferredVoice) {
-        utterance.voice = preferredVoice;
+        setIsSpeaking?.(
+            false
+        );
     }
-
-    utterance.onstart = () => {
-        if (setIsSpeaking) {
-            setIsSpeaking(true);
-        }
-    };
-
-    utterance.onend = () => {
-        if (setIsSpeaking) {
-            setIsSpeaking(false);
-        }
-    };
-
-    utterance.onerror = () => {
-        if (setIsSpeaking) {
-            setIsSpeaking(false);
-        }
-    };
-
-    window.speechSynthesis.speak(utterance);
 };
+
 
 /* =========================================================
    STOP AI
 ========================================================= */
 
-const stopAI = (setIsSpeaking) => {
-    if (window.speechSynthesis) {
+const stopAI = (
+    setIsSpeaking
+) => {
+    if (
+        "speechSynthesis" in
+        window
+    ) {
         window.speechSynthesis.cancel();
     }
 
-    if (setIsSpeaking) {
-        setIsSpeaking(false);
-    }
+    setIsSpeaking?.(
+        false
+    );
 };
 
-/* =========================================================
-   LOCAL INTERVIEW EVALUATION
-========================================================= */
-
-const evaluateAnswer = (answer, question) => {
-    const text = answer.trim();
-
-    const words = text.length > 0 ? text.split(/\s+/) : [];
-
-    const wordCount = words.length;
-
-    /* -------------------------
-       COMMUNICATION SCORE
-    ------------------------- */
-
-    let communication = 30;
-
-    if (wordCount >= 20) {
-        communication += 15;
-    }
-
-    if (wordCount >= 50) {
-        communication += 15;
-    }
-
-    if (wordCount >= 90) {
-        communication += 10;
-    }
-
-    if (
-        /because|therefore|however|for example|first|then|finally/i.test(
-            text
-        )
-    ) {
-        communication += 10;
-    }
-
-    communication = Math.min(communication, 100);
-
-    /* -------------------------
-       COMPLETENESS SCORE
-    ------------------------- */
-
-    let completeness = 25;
-
-    if (wordCount >= 30) {
-        completeness += 20;
-    }
-
-    if (wordCount >= 60) {
-        completeness += 20;
-    }
-
-    if (wordCount >= 100) {
-        completeness += 20;
-    }
-
-    completeness = Math.min(completeness, 100);
-
-    /* -------------------------
-       STRUCTURE SCORE
-    ------------------------- */
-
-    let structure = 40;
-
-    if (
-        /first|second|then|finally|because|for example|in my experience|overall/i.test(
-            text
-        )
-    ) {
-        structure += 25;
-    }
-
-    if (wordCount >= 60) {
-        structure += 20;
-    }
-
-    structure = Math.min(structure, 100);
-
-    /* -------------------------
-       TECHNICAL / RELEVANCE
-    ------------------------- */
-
-    let relevance = 45;
-
-    const questionWords = question.question
-        .toLowerCase()
-        .split(/\s+/)
-        .filter((word) => word.length > 5);
-
-    const answerLower = text.toLowerCase();
-
-    const matchingWords = questionWords.filter((word) =>
-        answerLower.includes(
-            word.replace(/[^a-z]/gi, "")
-        )
-    );
-
-    if (matchingWords.length >= 1) {
-        relevance += 10;
-    }
-
-    if (matchingWords.length >= 2) {
-        relevance += 15;
-    }
-
-    if (matchingWords.length >= 3) {
-        relevance += 20;
-    }
-
-    relevance = Math.min(relevance, 100);
-
-    /* -------------------------
-       OVERALL
-    ------------------------- */
-
-    const overall = Math.round(
-        communication * 0.25 +
-            completeness * 0.25 +
-            structure * 0.2 +
-            relevance * 0.3
-    );
-
-    let feedback =
-        "Good attempt. Try to provide a more structured and detailed response.";
-
-    if (overall >= 85) {
-        feedback =
-            "Excellent response. Your answer was clear, structured and relevant.";
-    } else if (overall >= 70) {
-        feedback =
-            "Good response. Add a little more detail and structure to make it stronger.";
-    } else if (overall >= 55) {
-        feedback =
-            "Decent response. Try explaining your reasoning with a concrete example.";
-    }
-
-    return {
-        overall,
-        communication,
-        completeness,
-        structure,
-        relevance,
-        feedback,
-    };
-};
 
 /* =========================================================
    COMPONENT
 ========================================================= */
 
 const MockInterview = () => {
-    const navigate = useNavigate();
+    const navigate =
+        useNavigate();
+
 
     /* =====================================================
        STATE
     ===================================================== */
 
-    const [selectedRole, setSelectedRole] = useState(
-        localStorage.getItem("selectedRole") ||
+    const [
+        selectedRole,
+        setSelectedRole,
+    ] = useState(
+        localStorage.getItem(
+            "selectedRole"
+        ) ||
             "data-analyst"
     );
 
-    const [interviewStarted, setInterviewStarted] =
-        useState(false);
 
-    const [currentQuestion, setCurrentQuestion] =
-        useState(0);
+    const [
+        interviewStarted,
+        setInterviewStarted,
+    ] = useState(false);
 
-    const [transcript, setTranscript] = useState("");
 
-    const [isListening, setIsListening] =
-        useState(false);
+    const [
+        currentQuestion,
+        setCurrentQuestion,
+    ] = useState(
+        INITIAL_QUESTIONS[
+            localStorage.getItem(
+                "selectedRole"
+            ) ||
+                "data-analyst"
+        ] ||
+            INITIAL_QUESTIONS[
+                "data-analyst"
+            ]
+    );
 
-    const [isSpeaking, setIsSpeaking] =
-        useState(false);
 
-    const [isThinking, setIsThinking] =
-        useState(false);
+    const [
+        questionNumber,
+        setQuestionNumber,
+    ] = useState(1);
 
-    const [answerSubmitted, setAnswerSubmitted] =
-        useState(false);
 
-    const [answers, setAnswers] = useState([]);
+    const [
+        transcript,
+        setTranscript,
+    ] = useState("");
 
-    const [interviewFinished, setInterviewFinished] =
-        useState(false);
 
-    const [currentEvaluation, setCurrentEvaluation] =
-        useState(null);
+    const [
+        isListening,
+        setIsListening,
+    ] = useState(false);
 
-    const [elapsedTime, setElapsedTime] =
-        useState(0);
 
-    const recognitionRef = useRef(null);
+    const [
+        isSpeaking,
+        setIsSpeaking,
+    ] = useState(false);
 
-    const finalTranscriptRef = useRef("");
+
+    const [
+        isThinking,
+        setIsThinking,
+    ] = useState(false);
+
+
+    const [
+        answerSubmitted,
+        setAnswerSubmitted,
+    ] = useState(false);
+
+
+    const [
+        answers,
+        setAnswers,
+    ] = useState([]);
+
+
+    const [
+        interviewFinished,
+        setInterviewFinished,
+    ] = useState(false);
+
+
+    const [
+        currentEvaluation,
+        setCurrentEvaluation,
+    ] = useState(null);
+
+
+    const [
+        elapsedTime,
+        setElapsedTime,
+    ] = useState(0);
+
+
+    const [
+        speechError,
+        setSpeechError,
+    ] = useState("");
+
+
+    const [
+        speechSupported,
+        setSpeechSupported,
+    ] = useState(true);
+
 
     /* =====================================================
-       QUESTIONS
+       REFS
     ===================================================== */
 
-    const questions =
-        INTERVIEW_QUESTIONS[selectedRole] ||
-        INTERVIEW_QUESTIONS["data-analyst"];
+    const recognitionRef =
+        useRef(null);
 
-    const question = questions[currentQuestion];
+    const recognitionRunningRef =
+        useRef(false);
+
+    const finalTranscriptRef =
+        useRef("");
+
+    const isMountedRef =
+        useRef(true);
+
 
     /* =====================================================
-       PROGRESS
+       CLEANUP
     ===================================================== */
 
-    const progress =
-        (currentQuestion / questions.length) * 100;
+    useEffect(() => {
+        isMountedRef.current =
+            true;
+
+        return () => {
+            isMountedRef.current =
+                false;
+
+            try {
+                recognitionRef.current?.abort();
+            } catch (error) {}
+
+            stopAI(
+                setIsSpeaking
+            );
+        };
+    }, []);
+
 
     /* =====================================================
-       SPEECH RECOGNITION
+       SPEECH RECOGNITION SUPPORT
     ===================================================== */
 
     useEffect(() => {
@@ -514,89 +412,19 @@ const MockInterview = () => {
             window.webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
-            return;
-        }
-
-        const recognition = new SpeechRecognition();
-
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = "en-IN";
-
-        recognition.onstart = () => {
-            setIsListening(true);
-        };
-
-        recognition.onend = () => {
-            setIsListening(false);
-        };
-
-        recognition.onerror = (event) => {
-            console.error(
-                "Speech recognition error:",
-                event.error
+            setSpeechSupported(
+                false
             );
 
-            setIsListening(false);
-        };
-
-        recognition.onresult = (event) => {
-            let finalText = "";
-            let interimText = "";
-
-            for (
-                let i = event.resultIndex;
-                i < event.results.length;
-                i++
-            ) {
-                const result = event.results[i];
-
-                const text = result[0].transcript;
-
-                if (result.isFinal) {
-                    finalText += text + " ";
-                } else {
-                    interimText += text;
-                }
-            }
-
-            if (finalText.trim()) {
-                finalTranscriptRef.current =
-                    `${finalTranscriptRef.current} ${finalText}`.trim();
-            }
-
-            setTranscript(
-                `${finalTranscriptRef.current} ${interimText}`.trim()
+            setSpeechError(
+                "Speech recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge."
             );
-        };
-
-        recognitionRef.current = recognition;
-
-        return () => {
-            try {
-                recognition.stop();
-            } catch (error) {
-                console.log(
-                    "Recognition cleanup"
-                );
-            }
-
-            stopAI(setIsSpeaking);
-        };
-    }, []);
-
-    /* =====================================================
-       LOAD SPEECH VOICES
-    ===================================================== */
-
-    useEffect(() => {
-        if (window.speechSynthesis) {
-            window.speechSynthesis.getVoices();
         }
     }, []);
 
+
     /* =====================================================
-       INTERVIEW TIMER
+       TIMER
     ===================================================== */
 
     useEffect(() => {
@@ -607,17 +435,23 @@ const MockInterview = () => {
             return;
         }
 
-        const interval = setInterval(() => {
-            setElapsedTime(
-                (previous) => previous + 1
-            );
-        }, 1000);
+        const interval =
+            setInterval(() => {
+                setElapsedTime(
+                    (previous) =>
+                        previous + 1
+                );
+            }, 1000);
 
-        return () => clearInterval(interval);
+        return () =>
+            clearInterval(
+                interval
+            );
     }, [
         interviewStarted,
         interviewFinished,
     ]);
+
 
     /* =====================================================
        SPEAK CURRENT QUESTION
@@ -625,213 +459,673 @@ const MockInterview = () => {
 
     useEffect(() => {
         if (
-            interviewStarted &&
-            !interviewFinished &&
-            question?.question
+            !interviewStarted ||
+            interviewFinished ||
+            !currentQuestion?.question
         ) {
-            const timer = setTimeout(() => {
+            return;
+        }
+
+        const timer =
+            setTimeout(() => {
                 speakText(
-                    question.question,
+                    currentQuestion.question,
                     setIsSpeaking
                 );
-            }, 700);
+            }, 600);
 
-            return () => {
-                clearTimeout(timer);
+        return () => {
+            clearTimeout(
+                timer
+            );
 
-                stopAI(setIsSpeaking);
-            };
-        }
+            stopAI(
+                setIsSpeaking
+            );
+        };
     }, [
         interviewStarted,
         interviewFinished,
         currentQuestion,
     ]);
 
+
     /* =====================================================
        FORMAT TIME
     ===================================================== */
 
-    const formatTime = (seconds) => {
-        const minutes = Math.floor(seconds / 60);
+    const formatTime = (
+        seconds
+    ) => {
+        const minutes =
+            Math.floor(
+                seconds / 60
+            );
 
-        const remaining = seconds % 60;
+        const remaining =
+            seconds % 60;
 
-        return `${String(minutes).padStart(
+        return `${String(
+            minutes
+        ).padStart(
             2,
             "0"
-        )}:${String(remaining).padStart(
+        )}:${String(
+            remaining
+        ).padStart(
             2,
             "0"
         )}`;
     };
 
+
     /* =====================================================
        START INTERVIEW
     ===================================================== */
 
-    const startInterview = () => {
-        stopAI(setIsSpeaking);
+    const startInterview =
+        () => {
+            const firstQuestion =
+                INITIAL_QUESTIONS[
+                    selectedRole
+                ] ||
+                INITIAL_QUESTIONS[
+                    "data-analyst"
+                ];
 
-        setInterviewStarted(true);
+            stopAI(
+                setIsSpeaking
+            );
 
-        setCurrentQuestion(0);
+            setInterviewStarted(
+                true
+            );
 
-        setTranscript("");
+            setCurrentQuestion(
+                firstQuestion
+            );
 
-        finalTranscriptRef.current = "";
+            setQuestionNumber(
+                1
+            );
 
-        setAnswers([]);
+            setTranscript(
+                ""
+            );
 
-        setInterviewFinished(false);
+            finalTranscriptRef.current =
+                "";
 
-        setAnswerSubmitted(false);
+            setAnswers([]);
 
-        setCurrentEvaluation(null);
+            setInterviewFinished(
+                false
+            );
 
-        setElapsedTime(0);
-    };
+            setAnswerSubmitted(
+                false
+            );
+
+            setCurrentEvaluation(
+                null
+            );
+
+            setElapsedTime(
+                0
+            );
+
+            setSpeechError("");
+        };
+
 
     /* =====================================================
        START LISTENING
     ===================================================== */
 
-    const startListening = () => {
-        if (!recognitionRef.current) {
-            alert(
-                "Speech recognition is not supported in this browser. Please use Google Chrome."
+    const startListening =
+        () => {
+            setSpeechError("");
+
+            const SpeechRecognition =
+                window.SpeechRecognition ||
+                window.webkitSpeechRecognition;
+
+            if (!SpeechRecognition) {
+                setSpeechSupported(
+                    false
+                );
+
+                setSpeechError(
+                    "Speech recognition is not available in this browser. Please use Google Chrome or Microsoft Edge."
+                );
+
+                return;
+            }
+
+            if (
+                recognitionRunningRef.current
+            ) {
+                return;
+            }
+
+            stopAI(
+                setIsSpeaking
             );
 
-            return;
-        }
+            finalTranscriptRef.current =
+                transcript || "";
 
-        stopAI(setIsSpeaking);
+            const recognition =
+                new SpeechRecognition();
 
-        finalTranscriptRef.current = "";
+            recognition.continuous =
+                true;
 
-        setTranscript("");
+            recognition.interimResults =
+                true;
 
-        try {
-            recognitionRef.current.start();
-        } catch (error) {
-            console.log(
-                "Recognition already running."
-            );
-        }
-    };
+            recognition.lang =
+                "en-IN";
+
+            recognition.maxAlternatives =
+                1;
+
+
+            recognition.onstart =
+                () => {
+                    recognitionRunningRef.current =
+                        true;
+
+                    setIsListening(
+                        true
+                    );
+
+                    setSpeechError(
+                        ""
+                    );
+
+                    console.log(
+                        "Microphone listening started."
+                    );
+                };
+
+
+            recognition.onresult =
+                (event) => {
+                    let finalText =
+                        finalTranscriptRef.current;
+
+                    let interimText =
+                        "";
+
+                    for (
+                        let i =
+                            event.resultIndex;
+                        i <
+                        event.results.length;
+                        i++
+                    ) {
+                        const result =
+                            event
+                                .results[
+                                i
+                            ];
+
+                        const text =
+                            result[
+                                0
+                            ]
+                                ?.transcript ||
+                            "";
+
+                        if (
+                            result.isFinal
+                        ) {
+                            finalText =
+                                `${finalText} ${text}`.trim();
+
+                            finalTranscriptRef.current =
+                                finalText;
+                        } else {
+                            interimText +=
+                                text;
+                        }
+                    }
+
+                    const combined =
+                        `${finalText} ${interimText}`.trim();
+
+                    if (
+                        isMountedRef.current
+                    ) {
+                        setTranscript(
+                            combined
+                        );
+                    }
+                };
+
+
+            recognition.onerror =
+                (event) => {
+                    console.error(
+                        "Speech recognition error:",
+                        event.error
+                    );
+
+                    recognitionRunningRef.current =
+                        false;
+
+                    setIsListening(
+                        false
+                    );
+
+                    if (
+                        event.error ===
+                            "not-allowed" ||
+                        event.error ===
+                            "permission-denied"
+                    ) {
+                        setSpeechError(
+                            "Microphone permission was denied. Allow microphone access for this site."
+                        );
+                    } else if (
+                        event.error ===
+                        "audio-capture"
+                    ) {
+                        setSpeechError(
+                            "Microphone could not be accessed. Check your microphone."
+                        );
+                    } else if (
+                        event.error ===
+                        "network"
+                    ) {
+                        setSpeechError(
+                            "Speech recognition could not connect to the browser speech service. Check your internet connection and try again."
+                        );
+                    } else if (
+                        event.error ===
+                        "no-speech"
+                    ) {
+                        setSpeechError(
+                            "No speech was detected. Please speak clearly and try again."
+                        );
+                    } else if (
+                        event.error !==
+                        "aborted"
+                    ) {
+                        setSpeechError(
+                            `Speech recognition error: ${event.error}`
+                        );
+                    }
+                };
+
+
+            recognition.onend =
+                () => {
+                    recognitionRunningRef.current =
+                        false;
+
+                    setIsListening(
+                        false
+                    );
+
+                    console.log(
+                        "Microphone listening ended."
+                    );
+                };
+
+
+            recognitionRef.current =
+                recognition;
+
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error(
+                    "Could not start recognition:",
+                    error
+                );
+
+                recognitionRunningRef.current =
+                    false;
+
+                setIsListening(
+                    false
+                );
+
+                setSpeechError(
+                    "Could not start speech recognition. Please try again."
+                );
+            }
+        };
+
 
     /* =====================================================
        STOP LISTENING
     ===================================================== */
 
-    const stopListening = () => {
-        if (recognitionRef.current) {
+    const stopListening =
+        () => {
             try {
-                recognitionRef.current.stop();
-            } catch (error) {
-                console.log(
-                    "Recognition already stopped."
-                );
-            }
-        }
+                recognitionRef.current?.stop();
+            } catch (error) {}
 
-        setIsListening(false);
-    };
+            recognitionRunningRef.current =
+                false;
 
-    /* =====================================================
-       SUBMIT ANSWER
-    ===================================================== */
-
-    const submitAnswer = () => {
-        stopListening();
-
-        stopAI(setIsSpeaking);
-
-        const cleanAnswer =
-            finalTranscriptRef.current ||
-            transcript;
-
-        if (!cleanAnswer.trim()) {
-            return;
-        }
-
-        setIsThinking(true);
-
-        const evaluation = evaluateAnswer(
-            cleanAnswer,
-            question
-        );
-
-        const newAnswer = {
-            question: question.question,
-            answer: cleanAnswer.trim(),
-            focus: question.focus,
-            type: question.type,
-            evaluation,
+            setIsListening(
+                false
+            );
         };
 
-        setAnswers((previous) => [
-            ...previous,
-            newAnswer,
-        ]);
 
-        setTimeout(() => {
-            setCurrentEvaluation(evaluation);
+    /* =====================================================
+       EVALUATE ANSWER WITH AI
+    ===================================================== */
 
-            setIsThinking(false);
+    const submitAnswer =
+        async () => {
+            stopListening();
 
-            setAnswerSubmitted(true);
-        }, 1000);
-    };
+            stopAI(
+                setIsSpeaking
+            );
+
+            const cleanAnswer =
+                transcript.trim();
+
+            if (!cleanAnswer) {
+                setSpeechError(
+                    "Please speak or type an answer before submitting."
+                );
+
+                return;
+            }
+
+            setSpeechError("");
+
+            setIsThinking(
+                true
+            );
+
+            try {
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/mock-interview/evaluate`,
+                        {
+                            method:
+                                "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+                            },
+
+                            body: JSON.stringify(
+                                {
+                                    role:
+                                        selectedRole,
+
+                                    question:
+                                        currentQuestion.question,
+
+                                    questionType:
+                                        currentQuestion.type,
+
+                                    answer:
+                                        cleanAnswer,
+
+                                    previousAnswers:
+                                        answers,
+                                }
+                            ),
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (
+                    !response.ok
+                ) {
+                    throw new Error(
+                        data.message ||
+                            "AI evaluation failed."
+                    );
+                }
+
+                const newAnswer =
+                    {
+                        question:
+                            currentQuestion.question,
+
+                        answer:
+                            cleanAnswer,
+
+                        type:
+                            currentQuestion.type,
+
+                        focus:
+                            currentQuestion.focus,
+
+                        evaluation:
+                            data,
+                    };
+
+                setAnswers(
+                    (previous) => [
+                        ...previous,
+                        newAnswer,
+                    ]
+                );
+
+                setCurrentEvaluation(
+                    data
+                );
+
+                setAnswerSubmitted(
+                    true
+                );
+            } catch (error) {
+                console.error(
+                    "AI evaluation error:",
+                    error
+                );
+
+                setSpeechError(
+                    `AI evaluation failed: ${error.message}`
+                );
+            } finally {
+                setIsThinking(
+                    false
+                );
+            }
+        };
+
 
     /* =====================================================
        NEXT QUESTION
     ===================================================== */
 
-    const nextQuestion = () => {
-        stopAI(setIsSpeaking);
+    const nextQuestion =
+        async () => {
+            stopListening();
 
-        if (
-            currentQuestion >=
-            questions.length - 1
-        ) {
-            setInterviewFinished(true);
+            stopAI(
+                setIsSpeaking
+            );
 
-            return;
-        }
+            if (
+                !currentEvaluation
+            ) {
+                return;
+            }
 
-        setCurrentQuestion(
-            (previous) => previous + 1
-        );
+            setIsThinking(
+                true
+            );
 
-        setTranscript("");
+            try {
+                const latestAnswer =
+                    {
+                        question:
+                            currentQuestion.question,
 
-        finalTranscriptRef.current = "";
+                        answer:
+                            transcript.trim(),
+                    };
 
-        setAnswerSubmitted(false);
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/mock-interview/next-question`,
+                        {
+                            method:
+                                "POST",
 
-        setIsThinking(false);
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+                            },
 
-        setCurrentEvaluation(null);
-    };
+                            body: JSON.stringify(
+                                {
+                                    role:
+                                        selectedRole,
+
+                                    previousAnswers:
+                                        [
+                                            ...answers,
+                                            latestAnswer,
+                                        ],
+
+                                    currentQuestion:
+                                        currentQuestion.question,
+
+                                    currentAnswer:
+                                        transcript.trim(),
+
+                                    questionNumber:
+                                        questionNumber +
+                                        1,
+                                }
+                            ),
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (
+                    !response.ok
+                ) {
+                    throw new Error(
+                        data.message ||
+                            "Could not generate next question."
+                    );
+                }
+
+                setCurrentQuestion(
+                    data
+                );
+
+                setQuestionNumber(
+                    (previous) =>
+                        previous + 1
+                );
+
+                setTranscript(
+                    ""
+                );
+
+                finalTranscriptRef.current =
+                    "";
+
+                setAnswerSubmitted(
+                    false
+                );
+
+                setCurrentEvaluation(
+                    null
+                );
+
+                setSpeechError("");
+            } catch (error) {
+                console.error(
+                    "Next question error:",
+                    error
+                );
+
+                setSpeechError(
+                    `Could not generate next question: ${error.message}`
+                );
+            } finally {
+                setIsThinking(
+                    false
+                );
+            }
+        };
+
 
     /* =====================================================
-       EXIT INTERVIEW
+       FINISH INTERVIEW
     ===================================================== */
 
-    const exitInterview = () => {
-        stopListening();
+    const finishInterview =
+        () => {
+            stopListening();
 
-        stopAI(setIsSpeaking);
+            stopAI(
+                setIsSpeaking
+            );
 
-        navigate("/dashboard");
-    };
+            setInterviewFinished(
+                true
+            );
+        };
+
+
+    /* =====================================================
+       EXIT
+    ===================================================== */
+
+    const exitInterview =
+        () => {
+            stopListening();
+
+            stopAI(
+                setIsSpeaking
+            );
+
+            navigate(
+                "/dashboard"
+            );
+        };
+
+
+    /* =====================================================
+       PROGRESS
+    ===================================================== */
+
+    const MAX_QUESTIONS =
+        8;
+
+    const progress =
+        Math.min(
+            ((questionNumber -
+                1) /
+                MAX_QUESTIONS) *
+                100,
+            100
+        );
+
 
     /* =====================================================
        START SCREEN
     ===================================================== */
 
-    if (!interviewStarted) {
+    if (
+        !interviewStarted
+    ) {
         return (
             <div className="mock-interview-page">
 
@@ -861,17 +1155,15 @@ const MockInterview = () => {
 
                         <p>
                             Meet your CareerBridge
-                            AI interviewer. Listen
-                            to questions, answer
-                            naturally using your
-                            voice, and receive
-                            instant performance
-                            feedback.
+                            AI interviewer. Answer
+                            using your voice or
+                            keyboard and receive
+                            personalized AI feedback.
                         </p>
 
                     </div>
-
                 </div>
+
 
                 <main className="interview-start-card">
 
@@ -888,13 +1180,13 @@ const MockInterview = () => {
                     </h2>
 
                     <p className="start-description">
-                        Your AI interviewer will
-                        conduct a role-specific
-                        interview and evaluate
-                        your communication,
-                        completeness, structure
-                        and relevance.
+                        Your interview adapts to
+                        your answers. Questions,
+                        difficulty and feedback are
+                        generated according to your
+                        performance.
                     </p>
+
 
                     <div className="role-selector">
 
@@ -906,18 +1198,25 @@ const MockInterview = () => {
                                 label,
                             ]) => (
                                 <button
-                                    key={value}
+                                    key={
+                                        value
+                                    }
                                     className={
                                         selectedRole ===
                                         value
                                             ? "role-option selected"
                                             : "role-option"
                                     }
-                                    onClick={() =>
+                                    onClick={() => {
                                         setSelectedRole(
                                             value
-                                        )
-                                    }
+                                        );
+
+                                        localStorage.setItem(
+                                            "selectedRole",
+                                            value
+                                        );
+                                    }}
                                 >
                                     {label}
                                 </button>
@@ -925,6 +1224,7 @@ const MockInterview = () => {
                         )}
 
                     </div>
+
 
                     <div className="interview-features">
 
@@ -938,10 +1238,8 @@ const MockInterview = () => {
                             </strong>
 
                             <p>
-                                Hear each
-                                interview
-                                question
-                                naturally.
+                                Hear interview
+                                questions naturally.
                             </p>
                         </div>
 
@@ -951,13 +1249,12 @@ const MockInterview = () => {
                             </span>
 
                             <strong>
-                                Voice Answers
+                                Voice + Typing
                             </strong>
 
                             <p>
-                                Answer using
-                                your
-                                microphone.
+                                Speak and edit
+                                your answer.
                             </p>
                         </div>
 
@@ -971,13 +1268,13 @@ const MockInterview = () => {
                             </strong>
 
                             <p>
-                                Get a score
-                                after every
-                                answer.
+                                Receive personalized
+                                evaluation.
                             </p>
                         </div>
 
                     </div>
+
 
                     <button
                         className="start-interview-button"
@@ -988,10 +1285,11 @@ const MockInterview = () => {
                         Start AI Interview →
                     </button>
 
+
                     <span className="interview-note">
-                        Use Google Chrome and allow
-                        microphone access for the
-                        best experience.
+                        Use Google Chrome or
+                        Microsoft Edge and allow
+                        microphone access.
                     </span>
 
                 </main>
@@ -1000,28 +1298,35 @@ const MockInterview = () => {
         );
     }
 
+
     /* =====================================================
        FINAL REPORT
     ===================================================== */
 
-    if (interviewFinished) {
+    if (
+        interviewFinished
+    ) {
         const overallScore =
             answers.length
                 ? Math.round(
                       answers.reduce(
                           (
                               total,
-                              answer
+                              item
                           ) =>
                               total +
-                              answer
-                                  .evaluation
-                                  .overall,
+                              Number(
+                                  item
+                                      .evaluation
+                                      ?.overall ||
+                                  0
+                              ),
                           0
                       ) /
                           answers.length
                   )
                 : 0;
+
 
         const communicationScore =
             answers.length
@@ -1029,17 +1334,21 @@ const MockInterview = () => {
                       answers.reduce(
                           (
                               total,
-                              answer
+                              item
                           ) =>
                               total +
-                              answer
-                                  .evaluation
-                                  .communication,
+                              Number(
+                                  item
+                                      .evaluation
+                                      ?.communication ||
+                                  0
+                              ),
                           0
                       ) /
                           answers.length
                   )
                 : 0;
+
 
         const relevanceScore =
             answers.length
@@ -1047,17 +1356,77 @@ const MockInterview = () => {
                       answers.reduce(
                           (
                               total,
-                              answer
+                              item
                           ) =>
                               total +
-                              answer
-                                  .evaluation
-                                  .relevance,
+                              Number(
+                                  item
+                                      .evaluation
+                                      ?.relevance ||
+                                  0
+                              ),
                           0
                       ) /
                           answers.length
                   )
                 : 0;
+
+
+        const technicalScore =
+            answers.length
+                ? Math.round(
+                      answers.reduce(
+                          (
+                              total,
+                              item
+                          ) =>
+                              total +
+                              Number(
+                                  item
+                                      .evaluation
+                                      ?.technicalAccuracy ||
+                                  0
+                              ),
+                          0
+                      ) /
+                          answers.length
+                  )
+                : 0;
+
+
+        const allStrengths =
+            answers.flatMap(
+                (item) =>
+                    item.evaluation
+                        ?.strengths ||
+                    []
+            );
+
+
+        const allImprovements =
+            answers.flatMap(
+                (item) =>
+                    item.evaluation
+                        ?.improvements ||
+                    []
+            );
+
+
+        const uniqueStrengths =
+            [
+                ...new Set(
+                    allStrengths
+                ),
+            ].slice(0, 6);
+
+
+        const uniqueImprovements =
+            [
+                ...new Set(
+                    allImprovements
+                ),
+            ].slice(0, 6);
+
 
         return (
             <div className="mock-interview-page">
@@ -1078,8 +1447,8 @@ const MockInterview = () => {
                     </h1>
 
                     <p>
-                        You completed a
-                        simulated interview
+                        You completed an
+                        adaptive AI interview
                         for the{" "}
                         <strong>
                             {
@@ -1090,6 +1459,7 @@ const MockInterview = () => {
                         </strong>{" "}
                         role.
                     </p>
+
 
                     <div className="final-score">
 
@@ -1104,6 +1474,7 @@ const MockInterview = () => {
                         </span>
 
                     </div>
+
 
                     <div className="complete-stats">
 
@@ -1146,49 +1517,152 @@ const MockInterview = () => {
                         <div>
                             <strong>
                                 {
-                                    formatTime(
-                                        elapsedTime
-                                    )
+                                    technicalScore
                                 }
                             </strong>
 
                             <span>
-                                Interview Time
+                                Technical
                             </span>
                         </div>
 
                     </div>
 
+
+                    {uniqueStrengths.length >
+                        0 && (
+                        <div className="final-feedback">
+
+                            <h3>
+                                💪 Your Strengths
+                            </h3>
+
+                            <ul>
+                                {uniqueStrengths.map(
+                                    (
+                                        strength,
+                                        index
+                                    ) => (
+                                        <li
+                                            key={
+                                                index
+                                            }
+                                        >
+                                            {
+                                                strength
+                                            }
+                                        </li>
+                                    )
+                                )}
+                            </ul>
+
+                        </div>
+                    )}
+
+
+                    {uniqueImprovements.length >
+                        0 && (
+                        <div className="final-feedback">
+
+                            <h3>
+                                📌 Areas to Improve
+                            </h3>
+
+                            <ul>
+                                {uniqueImprovements.map(
+                                    (
+                                        improvement,
+                                        index
+                                    ) => (
+                                        <li
+                                            key={
+                                                index
+                                            }
+                                        >
+                                            {
+                                                improvement
+                                            }
+                                        </li>
+                                    )
+                                )}
+                            </ul>
+
+                        </div>
+                    )}
+
+
                     <div className="final-feedback">
 
                         <h3>
-                            AI Interview Summary
+                            🤖 AI Interview Summary
                         </h3>
 
                         <p>
-                            {overallScore >= 85
-                                ? "Excellent performance. You demonstrated strong communication and relevant responses."
-                                : overallScore >= 70
-                                ? "Good performance. Your answers were generally relevant. Continue improving structure and depth."
-                                : overallScore >= 55
-                                ? "You are making progress. Focus on giving more detailed, structured and confident answers."
-                                : "Keep practicing. Try giving longer, more structured answers and support your responses with examples."}
+                            {overallScore >=
+                            85
+                                ? "Excellent performance. You demonstrated strong knowledge, communication and adaptability."
+                                : overallScore >=
+                                  70
+                                ? "Good performance. Your answers were generally strong. Continue improving depth and examples."
+                                : overallScore >=
+                                  55
+                                ? "You are making progress. Focus on technical depth, structure and supporting answers with examples."
+                                : "Keep practicing. Work on giving clearer, more relevant and technically detailed answers."}
                         </p>
 
                     </div>
+
 
                     <div className="complete-actions">
 
                         <button
                             className="secondary-interview-button"
-                            onClick={() =>
+                            onClick={() => {
                                 setInterviewStarted(
                                     false
-                                )
-                            }
+                                );
+
+                                setInterviewFinished(
+                                    false
+                                );
+
+                                setAnswers(
+                                    []
+                                );
+
+                                setCurrentQuestion(
+                                    INITIAL_QUESTIONS[
+                                        selectedRole
+                                    ]
+                                );
+
+                                setQuestionNumber(
+                                    1
+                                );
+
+                                setElapsedTime(
+                                    0
+                                );
+
+                                setTranscript(
+                                    ""
+                                );
+
+                                finalTranscriptRef.current =
+                                    "";
+
+                                setCurrentEvaluation(
+                                    null
+                                );
+
+                                setAnswerSubmitted(
+                                    false
+                                );
+                            }}
                         >
                             Practice Again
                         </button>
+
 
                         <button
                             className="primary-interview-button"
@@ -1208,6 +1682,7 @@ const MockInterview = () => {
             </div>
         );
     }
+
 
     /* =====================================================
        INTERVIEW SCREEN
@@ -1230,12 +1705,16 @@ const MockInterview = () => {
 
                 </div>
 
+
                 <div className="interview-role">
-
-                    {ROLE_NAMES[selectedRole]}{" "}
+                    {
+                        ROLE_NAMES[
+                            selectedRole
+                        ]
+                    }{" "}
                     AI Interview
-
                 </div>
+
 
                 <div className="interview-header-right">
 
@@ -1259,6 +1738,7 @@ const MockInterview = () => {
 
             </header>
 
+
             <main className="interview-workspace">
 
                 {/* =========================================
@@ -1271,9 +1751,11 @@ const MockInterview = () => {
 
                         <span>
                             Question{" "}
-                            {currentQuestion + 1}{" "}
+                            {
+                                questionNumber
+                            }{" "}
                             of{" "}
-                            {questions.length}
+                            {MAX_QUESTIONS}
                         </span>
 
                         <span>
@@ -1284,6 +1766,7 @@ const MockInterview = () => {
                         </span>
 
                     </div>
+
 
                     <div className="interview-progress">
 
@@ -1297,8 +1780,9 @@ const MockInterview = () => {
 
                 </div>
 
+
                 {/* =========================================
-                    QUESTION
+                    QUESTION CARD
                 ========================================= */}
 
                 <section className="question-card">
@@ -1306,18 +1790,30 @@ const MockInterview = () => {
                     <div className="question-meta">
 
                         <span>
-                            {question.type.toUpperCase()}
+                            {(
+                                currentQuestion.type ||
+                                "question"
+                            ).toUpperCase()}
                         </span>
 
                         <span>
-                            {question.focus}
+                            {
+                                currentQuestion.focus ||
+                                "Interview"
+                            }
                         </span>
+
+                        {currentQuestion.difficulty && (
+                            <span>
+                                Difficulty:{" "}
+                                {
+                                    currentQuestion.difficulty
+                                }
+                            </span>
+                        )}
 
                     </div>
 
-                    {/* =====================================
-                        AI INTERVIEWER PROFILE
-                    ===================================== */}
 
                     <div className="interviewer-profile-row">
 
@@ -1357,6 +1853,7 @@ const MockInterview = () => {
 
                         </div>
 
+
                         <div className="interviewer-info">
 
                             <p className="ai-label">
@@ -1364,7 +1861,9 @@ const MockInterview = () => {
                             </p>
 
                             <div className="ai-interviewer-name">
-                                {AI_INTERVIEWER.fullName}
+                                {
+                                    AI_INTERVIEWER.fullName
+                                }
                             </div>
 
                             <div className="ai-speaking-status">
@@ -1384,7 +1883,7 @@ const MockInterview = () => {
                                     : isListening
                                     ? "Listening to you..."
                                     : isThinking
-                                    ? "Evaluating your response..."
+                                    ? "Thinking..."
                                     : "Your AI interviewer is ready"}
 
                             </div>
@@ -1393,31 +1892,41 @@ const MockInterview = () => {
 
                     </div>
 
+
                     <h1>
-                        {question.question}
+                        {
+                            currentQuestion.question
+                        }
                     </h1>
+
 
                     <p className="question-hint">
                         Take a moment to think,
                         then answer naturally.
-                        Speak as if you were
-                        sitting in a real
-                        interview.
+                        You can speak or type your
+                        answer and edit the transcript
+                        before submitting.
                     </p>
+
 
                     <button
                         className="repeat-question-button"
                         onClick={() =>
                             speakText(
-                                question.question,
+                                currentQuestion.question,
                                 setIsSpeaking
                             )
+                        }
+                        disabled={
+                            isListening ||
+                            isThinking
                         }
                     >
                         🔊 Repeat Question
                     </button>
 
                 </section>
+
 
                 {/* =========================================
                     ANSWER AREA
@@ -1434,12 +1943,15 @@ const MockInterview = () => {
                             </p>
 
                             <span>
-                                Speak clearly and
-                                explain your
-                                reasoning.
+                                Speak naturally or
+                                type your answer.
+                                You can edit the
+                                transcript before
+                                submitting.
                             </span>
 
                         </div>
+
 
                         {isListening && (
                             <div className="listening-status">
@@ -1453,7 +1965,21 @@ const MockInterview = () => {
 
                     </div>
 
-                    {/* LIVE TRANSCRIPT */}
+
+                    {speechError && (
+                        <div
+                            className="speech-error"
+                            role="alert"
+                        >
+                            ⚠️{" "}
+                            {speechError}
+                        </div>
+                    )}
+
+
+                    {/* =====================================
+                        EDITABLE TRANSCRIPT
+                    ===================================== */}
 
                     <div
                         className={
@@ -1463,45 +1989,59 @@ const MockInterview = () => {
                         }
                     >
 
-                        {transcript ? (
-                            <div>
+                        <div className="transcript-editor-container">
 
-                                <div className="live-transcript-label">
-                                    LIVE TRANSCRIPT
-                                </div>
-
-                                <p>
-                                    {transcript}
-                                </p>
-
+                            <div className="live-transcript-label">
+                                {isListening
+                                    ? "LIVE TRANSCRIPT"
+                                    : "YOUR EDITABLE ANSWER"}
                             </div>
-                        ) : (
-                            <div className="answer-placeholder">
 
-                                <div className="microphone-large">
-                                    🎙️
-                                </div>
 
-                                <strong>
-                                    Your spoken
-                                    answer will
-                                    appear here
-                                </strong>
+                            <textarea
+                                className="transcript-editor"
+                                value={
+                                    transcript
+                                }
+                                onChange={(
+                                    event
+                                ) => {
+                                    const value =
+                                        event
+                                            .target
+                                            .value;
 
-                                <span>
-                                    Click Start
-                                    Speaking and
-                                    answer the
-                                    question
-                                    naturally.
-                                </span>
+                                    setTranscript(
+                                        value
+                                    );
 
+                                    finalTranscriptRef.current =
+                                        value;
+                                }}
+                                placeholder="Start speaking or type your answer here..."
+                                rows={8}
+                                disabled={
+                                    isThinking ||
+                                    answerSubmitted
+                                }
+                            />
+
+
+                            <div className="transcript-help">
+                                ✏️ You can correct
+                                speech-to-text
+                                mistakes before
+                                submitting.
                             </div>
-                        )}
+
+                        </div>
 
                     </div>
 
-                    {/* CONTROLS */}
+
+                    {/* =====================================
+                        CONTROLS
+                    ===================================== */}
 
                     <div className="answer-controls">
 
@@ -1517,6 +2057,7 @@ const MockInterview = () => {
                                     : startListening
                             }
                             disabled={
+                                !speechSupported ||
                                 isThinking ||
                                 answerSubmitted
                             }
@@ -1533,6 +2074,7 @@ const MockInterview = () => {
                                 : "Start Speaking"}
 
                         </button>
+
 
                         <button
                             className="submit-answer-button"
@@ -1558,6 +2100,7 @@ const MockInterview = () => {
 
                 </section>
 
+
                 {/* =========================================
                     FEEDBACK
                 ========================================= */}
@@ -1570,17 +2113,20 @@ const MockInterview = () => {
                                 ✓
                             </div>
 
+
                             <div className="feedback-content">
 
                                 <strong>
                                     AI Feedback
                                 </strong>
 
+
                                 <p>
                                     {
                                         currentEvaluation.feedback
                                     }
                                 </p>
+
 
                                 <div className="feedback-scores">
 
@@ -1593,6 +2139,7 @@ const MockInterview = () => {
                                         </strong>
                                     </span>
 
+
                                     <span>
                                         Communication{" "}
                                         <strong>
@@ -1601,6 +2148,7 @@ const MockInterview = () => {
                                             }
                                         </strong>
                                     </span>
+
 
                                     <span>
                                         Relevance{" "}
@@ -1611,17 +2159,99 @@ const MockInterview = () => {
                                         </strong>
                                     </span>
 
+
+                                    <span>
+                                        Technical{" "}
+                                        <strong>
+                                            {
+                                                currentEvaluation.technicalAccuracy
+                                            }
+                                        </strong>
+                                    </span>
+
+
+                                    <span>
+                                        Completeness{" "}
+                                        <strong>
+                                            {
+                                                currentEvaluation.completeness
+                                            }
+                                        </strong>
+                                    </span>
+
                                 </div>
+
+
+                                {currentEvaluation.strengths?.length >
+                                    0 && (
+                                    <div>
+                                        <strong>
+                                            💪 Strengths
+                                        </strong>
+
+                                        <ul>
+                                            {currentEvaluation.strengths.map(
+                                                (
+                                                    item,
+                                                    index
+                                                ) => (
+                                                    <li
+                                                        key={
+                                                            index
+                                                        }
+                                                    >
+                                                        {
+                                                            item
+                                                        }
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+
+
+                                {currentEvaluation.improvements?.length >
+                                    0 && (
+                                    <div>
+                                        <strong>
+                                            📌 Improve
+                                        </strong>
+
+                                        <ul>
+                                            {currentEvaluation.improvements.map(
+                                                (
+                                                    item,
+                                                    index
+                                                ) => (
+                                                    <li
+                                                        key={
+                                                            index
+                                                        }
+                                                    >
+                                                        {
+                                                            item
+                                                        }
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
 
                             </div>
 
+
                             <button
                                 onClick={
-                                    nextQuestion
+                                    questionNumber >=
+                                    MAX_QUESTIONS
+                                        ? finishInterview
+                                        : nextQuestion
                                 }
                             >
-                                {currentQuestion ===
-                                questions.length - 1
+                                {questionNumber >=
+                                MAX_QUESTIONS
                                     ? "Finish Interview"
                                     : "Next Question →"}
                             </button>
@@ -1634,5 +2264,6 @@ const MockInterview = () => {
         </div>
     );
 };
+
 
 export default MockInterview;
