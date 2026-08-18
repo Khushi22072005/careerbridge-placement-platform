@@ -22,7 +22,7 @@ const gemini = new GoogleGenAI({
 ========================================================= */
 
 const GEMINI_MODEL =
-    process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
 /* =========================================================
    ROLE INFORMATION
@@ -160,14 +160,10 @@ router.post(
             );
 
             /* -----------------------------------------
-               CHECK GEMINI API KEY
+               CHECK API KEY
             ----------------------------------------- */
 
             if (!process.env.GEMINI_API_KEY) {
-                console.error(
-                    "❌ GEMINI_API_KEY is missing."
-                );
-
                 return res.status(500).json({
                     message:
                         "Gemini API key is missing. Check server/.env.",
@@ -221,11 +217,15 @@ router.post(
                                   `Previous Answer ${
                                       index + 1
                                   }:
-Question: ${
+
+Question:
+${
                                       item.question ||
                                       ""
                                   }
-Answer: ${
+
+Answer:
+${
                                       item.answer ||
                                       ""
                                   }`
@@ -234,7 +234,7 @@ Answer: ${
                     : "No previous answers.";
 
             /* -----------------------------------------
-               GEMINI PROMPT
+               EVALUATION PROMPT
             ----------------------------------------- */
 
             const prompt = `
@@ -260,9 +260,10 @@ Evaluate ONLY the candidate's actual answer.
 
 Do not automatically give a high score.
 Do not give a low score simply because the answer is short.
+
 Judge the actual content.
 
-Evaluate these areas:
+Evaluate:
 
 1. Communication
 2. Relevance
@@ -272,7 +273,7 @@ Evaluate these areas:
 
 Give each score from 0 to 100.
 
-Calculate the overall score based on these areas.
+Calculate a meaningful overall score.
 
 Also provide:
 
@@ -280,18 +281,42 @@ Also provide:
 - strengths
 - improvements
 - understanding
-- recommended next interview question
-- next question type
-- next difficulty
 
-The next question should adapt to the candidate's
-actual answer.
+IMPORTANT:
 
-If the candidate mentioned a technology, project,
-skill, experience, or weakness, you may use that
-information for the next question.
+The nextQuestion field must be based on the
+candidate's ACTUAL answer.
 
-Do not repeat the exact same question.
+Identify something meaningful from the answer such as:
+
+- technology
+- tool
+- project
+- concept
+- skill
+- experience
+- decision
+- problem
+- weakness
+- claim
+
+Then generate a natural follow-up question.
+
+Do NOT generate a random unrelated question.
+
+Do NOT repeat the current question.
+
+If the candidate mentioned a project,
+ask something deeper about that project.
+
+If the candidate mentioned a technology,
+ask about that technology.
+
+If the candidate gave a weak answer,
+ask a simpler clarification question.
+
+If the candidate gave a strong answer,
+gradually increase difficulty.
 
 Return ONLY valid JSON.
 
@@ -390,7 +415,7 @@ Use exactly this structure:
             }
 
             /* -----------------------------------------
-               SAFE TEXT VALUES
+               SAFE TEXT
             ----------------------------------------- */
 
             result.feedback =
@@ -404,14 +429,14 @@ Use exactly this structure:
 
             result.nextQuestionType =
                 result.nextQuestionType ||
-                "technical";
+                "follow-up";
 
             result.nextDifficulty =
                 result.nextDifficulty ||
                 "medium";
 
             /* -----------------------------------------
-               SEND RESULT
+               RESPONSE
             ----------------------------------------- */
 
             console.log(
@@ -424,13 +449,20 @@ Use exactly this structure:
             );
 
             console.log(
+                "Personalized Next Question:",
+                result.nextQuestion
+            );
+
+            console.log(
                 "========================================\n"
             );
 
             return res.json(
                 result
             );
+
         } catch (error) {
+
             console.error(
                 "\n========================================"
             );
@@ -459,13 +491,6 @@ Use exactly this structure:
                 );
             }
 
-            if (error.code) {
-                console.error(
-                    "Error code:",
-                    error.code
-                );
-            }
-
             console.error(
                 "========================================\n"
             );
@@ -483,7 +508,7 @@ Use exactly this structure:
 );
 
 /* =========================================================
-   GENERATE FIRST / NEXT QUESTION
+   PERSONALIZED FIRST / NEXT QUESTION
 ========================================================= */
 
 router.post(
@@ -495,7 +520,7 @@ router.post(
             );
 
             console.log(
-                "🎯 GENERATING NEXT INTERVIEW QUESTION"
+                "🎯 PERSONALIZED NEXT INTERVIEW QUESTION"
             );
 
             console.log(
@@ -530,42 +555,6 @@ router.post(
                 role ||
                 "Technology Professional";
 
-            /* -----------------------------------------
-               HISTORY
-            ----------------------------------------- */
-
-            const history =
-                Array.isArray(
-                    previousAnswers
-                )
-                    ? previousAnswers
-                          .slice(-6)
-                          .map(
-                              (
-                                  item,
-                                  index
-                              ) =>
-                                  `Question ${
-                                      index + 1
-                                  }:
-${
-                                      item.question ||
-                                      ""
-                                  }
-
-Answer:
-${
-                                      item.answer ||
-                                      ""
-                                  }`
-                          )
-                          .join(
-                              "\n\n"
-                          )
-                    : "None";
-
-            let prompt;
-
             /* =================================================
                FIRST QUESTION
             ================================================= */
@@ -574,49 +563,71 @@ ${
                 !currentQuestion ||
                 !currentAnswer
             ) {
-                prompt = `
-You are an expert placement interviewer.
 
-Create the first mock interview question for:
+                console.log(
+                    "🟢 Generating first interview question..."
+                );
+
+                return res.json({
+                    question:
+                        `Tell me about yourself and why you are interested in becoming a ${roleName}.`,
+
+                    type:
+                        "intro",
+
+                    focus:
+                        "Introduction and Career Interest",
+
+                    difficulty:
+                        "easy",
+                });
+            }
+
+            /* =================================================
+               INTERVIEW HISTORY
+            ================================================= */
+
+            const history =
+                Array.isArray(
+                    previousAnswers
+                )
+                    ? previousAnswers
+                          .slice(-5)
+                          .map(
+                              (
+                                  item,
+                                  index
+                              ) =>
+                                  `
+Question ${index + 1}:
+${
+                                      item.question ||
+                                      ""
+                                  }
+
+Candidate Answer:
+${
+                                      item.answer ||
+                                      ""
+                                  }
+`
+                          )
+                          .join("\n")
+                    : "No previous interview history.";
+
+            /* =================================================
+               PERSONALIZED PROMPT
+            ================================================= */
+
+            const prompt = `
+You are conducting a REALISTIC adaptive placement
+interview for a final-year B.Tech student.
 
 Candidate role:
 ${roleName}
 
 Question number:
 ${questionNumber}
-
-The candidate is a final-year B.Tech IT student
-preparing for placements.
-
-The question should be realistic and appropriate
-for the candidate's target role.
-
-Return ONLY valid JSON.
-
-Do not use markdown.
-Do not use code fences.
-
-Use exactly:
-
-{
-    "question": "",
-    "type": "",
-    "focus": "",
-    "difficulty": ""
-}
-`;
-            }
-
-            /* =================================================
-               ADAPTIVE NEXT QUESTION
-            ================================================= */
-
-            else {
-                prompt = `
-You are an expert adaptive placement interviewer.
-
-Candidate target role:
-${roleName}
 
 Previous question:
 ${currentQuestion}
@@ -627,26 +638,154 @@ ${currentAnswer}
 Previous interview history:
 ${history}
 
-Generate the next interview question.
+=========================================================
+YOUR TASK
+=========================================================
 
-The question MUST:
+Generate ONLY ONE personalized next interview question.
 
-- depend on the candidate's answer when appropriate
-- not repeat the previous question
-- be relevant to the target role
-- feel like a real placement interview
-- adapt to the candidate's demonstrated knowledge
-- gradually increase or decrease difficulty appropriately
+The next question MUST primarily depend on the
+candidate's latest answer.
 
-Possible question types:
+Analyze the candidate's answer and identify
+something meaningful.
+
+For example:
+
+- technology mentioned
+- programming language
+- tool
+- project
+- concept
+- skill
+- experience
+- decision
+- problem
+- weakness
+- claim
+- answer that needs clarification
+
+Then ask a natural follow-up question about it.
+
+=========================================================
+IMPORTANT RULES
+=========================================================
+
+RULE 1:
+DO NOT ask a random unrelated question.
+
+RULE 2:
+DO NOT use a predefined fixed sequence.
+
+RULE 3:
+DO NOT repeat the previous question.
+
+RULE 4:
+The candidate's latest answer should determine
+the direction of the next question.
+
+RULE 5:
+If the candidate mentions a PROJECT,
+ask deeper questions about that project.
+
+RULE 6:
+If the candidate mentions a TECHNOLOGY,
+ask about their understanding or practical use
+of that technology.
+
+RULE 7:
+If the candidate mentions SQL,
+you may ask about joins, queries, aggregation,
+subqueries, optimization, etc.
+
+RULE 8:
+If the candidate mentions Python,
+you may ask about Pandas, NumPy, functions,
+data cleaning, analysis, etc.
+
+RULE 9:
+If the candidate mentions Power BI,
+you may ask about dashboards, KPIs,
+data modelling, DAX, visualization, etc.
+
+RULE 10:
+If the candidate gives a weak answer,
+ask a simpler clarification/follow-up question.
+
+RULE 11:
+If the candidate gives a strong answer,
+gradually increase the difficulty.
+
+RULE 12:
+Keep the interview realistic for placements.
+
+RULE 13:
+Do not jump randomly between unrelated topics.
+
+=========================================================
+EXAMPLES
+=========================================================
+
+Candidate answer:
+"I used SQL and Power BI in my healthcare project."
+
+Good next question:
+"How did you use SQL to prepare the healthcare
+data before creating your Power BI dashboard?"
+
+---------------------------------------------------------
+
+Candidate answer:
+"I used Pandas to clean the dataset."
+
+Good next question:
+"Which Pandas operations did you use to handle
+missing values and duplicate records?"
+
+---------------------------------------------------------
+
+Candidate answer:
+"I created a healthcare accessibility map using QGIS."
+
+Good next question:
+"How did you use buffer analysis in your
+healthcare accessibility project?"
+
+---------------------------------------------------------
+
+Candidate answer:
+"I am comfortable with SQL JOINs."
+
+Good next question:
+"Can you explain a situation where you used a JOIN
+to combine data from two tables?"
+
+---------------------------------------------------------
+
+Candidate answer:
+"I used Power BI to create a dashboard."
+
+Good next question:
+"What KPIs did you include in your dashboard,
+and how did you decide which KPIs were important?"
+
+=========================================================
+QUESTION TYPES
+=========================================================
+
+Possible types:
 
 intro
 technical
+project
+follow-up
 problem-solving
 behavioral
-project
 scenario
-follow-up
+
+=========================================================
+OUTPUT
+=========================================================
 
 Return ONLY valid JSON.
 
@@ -662,61 +801,59 @@ Use exactly:
     "difficulty": ""
 }
 `;
-            }
 
-            /* -----------------------------------------
+            /* =================================================
                GEMINI REQUEST
-            ----------------------------------------- */
+            ================================================= */
+
+            console.log(
+                "🤖 Generating personalized question..."
+            );
 
             const rawText =
                 await generateWithGemini(
                     prompt
                 );
 
-            /* -----------------------------------------
+            /* =================================================
                PARSE RESPONSE
-            ----------------------------------------- */
+            ================================================= */
 
             const result =
                 parseAIJson(
                     rawText
                 );
 
-            /* -----------------------------------------
-               VALIDATE QUESTION
-            ----------------------------------------- */
+            /* =================================================
+               VALIDATE
+            ================================================= */
 
             if (
                 !result.question
             ) {
                 throw new Error(
-                    "Gemini did not return a question."
+                    "Gemini did not return a personalized question."
                 );
             }
 
-            if (
-                !result.type
-            ) {
-                result.type =
-                    "technical";
-            }
+            result.type =
+                result.type ||
+                "follow-up";
 
-            if (
-                !result.focus
-            ) {
-                result.focus =
-                    "Technical Knowledge";
-            }
+            result.focus =
+                result.focus ||
+                "Candidate's Previous Answer";
 
-            if (
-                !result.difficulty
-            ) {
-                result.difficulty =
-                    "medium";
-            }
+            result.difficulty =
+                result.difficulty ||
+                "medium";
+
+            /* =================================================
+               RESPONSE
+            ================================================= */
 
             console.log(
-                "✅ Next question generated."
+                "✅ Personalized question generated."
             );
 
             console.log(
@@ -724,16 +861,37 @@ Use exactly:
                 result.question
             );
 
+            console.log(
+                "Type:",
+                result.type
+            );
+
+            console.log(
+                "Focus:",
+                result.focus
+            );
+
+            console.log(
+                "Difficulty:",
+                result.difficulty
+            );
+
+            console.log(
+                "========================================\n"
+            );
+
             return res.json(
                 result
             );
+
         } catch (error) {
+
             console.error(
                 "\n========================================"
             );
 
             console.error(
-                "❌ NEXT QUESTION ERROR"
+                "❌ PERSONALIZED NEXT QUESTION ERROR"
             );
 
             console.error(
@@ -756,20 +914,13 @@ Use exactly:
                 );
             }
 
-            if (error.code) {
-                console.error(
-                    "Error code:",
-                    error.code
-                );
-            }
-
             console.error(
                 "========================================\n"
             );
 
             return res.status(500).json({
                 message:
-                    "Unable to generate next interview question.",
+                    "Unable to generate personalized interview question.",
 
                 error:
                     error.message ||
@@ -778,5 +929,9 @@ Use exactly:
         }
     }
 );
+
+/* =========================================================
+   EXPORT
+========================================================= */
 
 module.exports = router;

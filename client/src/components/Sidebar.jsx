@@ -1,6 +1,8 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
+import logoImg from "../assets/images/logo.jpeg";
+
 
 const Sidebar = () => {
     const navigate = useNavigate();
@@ -26,9 +28,20 @@ const Sidebar = () => {
 
             <div className="sidebar-logo">
 
-                <div className="logo-icon">
+                {/* <div className="logo-icon">
                     C
-                </div>
+                </div> */}
+                <img 
+  src={logoImg} 
+  alt="CareerBridge Logo" 
+  style={{ 
+    width: '45px', 
+    height: '45px', 
+    objectFit: 'contain', 
+    borderRadius: '8px' 
+  }} 
+/>
+
 
                 <div className="logo-text">
                     <h2>CareerBridge</h2>
@@ -89,6 +102,7 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
+                    
                     <span className="sidebar-icon"></span>
                     <span>Career Roadmap</span>
                 </NavLink>
@@ -101,7 +115,7 @@ const Sidebar = () => {
                 </p>
 
                 <NavLink
-                    to="/learning-hub"
+                    to="/learning"
                     className={({ isActive }) =>
                         isActive
                             ? "sidebar-link active"
