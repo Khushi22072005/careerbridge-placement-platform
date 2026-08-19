@@ -8,17 +8,17 @@
     background:
         radial-gradient(
             circle at 10% 0%,
-            rgba(49, 91, 234, 0.10),
+            rgba(124, 58, 237, 0.10),
             transparent 30%
         ),
         radial-gradient(
             circle at 90% 10%,
-            rgba(123, 97, 255, 0.08),
+            rgba(139, 92, 246, 0.08),
             transparent 30%
         ),
-        #f6f8fc;
+        #faf8ff;
 
-    color: #17213b;
+    color: #24163d;
 
     font-family:
         "Inter",
@@ -45,8 +45,8 @@
     background:
         linear-gradient(
             135deg,
-            #101c3b,
-            #182b62
+            #2e1065,
+            #4c1d95
         );
 
     color: white;
@@ -85,7 +85,7 @@
 
     background: transparent;
 
-    color: #cdd7f5;
+    color: #e9d5ff;
 
     font-size: 13px;
 
@@ -130,7 +130,7 @@
     background:
         rgba(255,255,255,0.08);
 
-    color: #dbe4ff;
+    color: #f3e8ff;
 
     font-size: 10px;
 
@@ -155,13 +155,15 @@
 
     margin: 0 auto;
 
-    color: #b8c4e4;
+    color: #ddd6fe;
 
     font-size: 15px;
 
     line-height: 1.7;
 }
-    /* =====================================================
+
+
+/* =====================================================
    START CARD
 ===================================================== */
 
@@ -185,13 +187,13 @@
     background: white;
 
     border:
-        1px solid #e2e7f1;
+        1px solid #e9dff5;
 
     border-radius: 22px;
 
     box-shadow:
         0 25px 70px
-        rgba(19, 34, 68, 0.12);
+        rgba(76, 29, 149, 0.12);
 
     text-align: center;
 }
@@ -213,8 +215,8 @@
     background:
         linear-gradient(
             135deg,
-            #315bea,
-            #617cf4
+            #7c3aed,
+            #8b5cf6
         );
 
     color: white;
@@ -223,13 +225,13 @@
 
     box-shadow:
         0 10px 25px
-        rgba(49,91,234,0.22);
+        rgba(124,58,237,0.22);
 }
 
 .interview-label {
     margin: 0 0 7px;
 
-    color: #315bea;
+    color: #7c3aed;
 
     font-size: 10px;
 
@@ -242,7 +244,7 @@
     margin:
         0 0 10px;
 
-    color: #122044;
+    color: #32135f;
 
     font-size: 28px;
 }
@@ -253,7 +255,7 @@
     margin:
         0 auto 28px;
 
-    color: #7d879c;
+    color: #81778f;
 
     font-size: 13px;
 
@@ -281,13 +283,13 @@
         12px 8px;
 
     border:
-        1px solid #dfe5ef;
+        1px solid #e6dff0;
 
     border-radius: 10px;
 
     background: white;
 
-    color: #647089;
+    color: #756b86;
 
     font-size: 11px;
 
@@ -299,27 +301,27 @@
 }
 
 .role-option:hover {
-    border-color: #9eafe9;
+    border-color: #b794f6;
 
-    color: #315bea;
+    color: #7c3aed;
 }
 
 .role-option.selected {
-    border-color: #315bea;
+    border-color: #7c3aed;
 
-    background: #eef2ff;
+    background: #f3e8ff;
 
-    color: #315bea;
+    color: #7c3aed;
 
     box-shadow:
         0 5px 15px
-        rgba(49,91,234,0.10);
+        rgba(124,58,237,0.10);
 }
 
 
 /* =====================================================
    FEATURES
-   ===================================================== */
+===================================================== */
 
 .interview-features {
     display: grid;
@@ -336,11 +338,11 @@
     padding: 18px;
 
     border:
-        1px solid #e6eaf2;
+        1px solid #ece6f4;
 
     border-radius: 13px;
 
-    background: #fafbfe;
+    background: #fcfaff;
 }
 
 .interview-features span {
@@ -356,7 +358,7 @@
 
     margin-bottom: 5px;
 
-    color: #26334e;
+    color: #403451;
 
     font-size: 12px;
 }
@@ -364,7 +366,7 @@
 .interview-features p {
     margin: 0;
 
-    color: #8a94a7;
+    color: #91879f;
 
     font-size: 10px;
 
@@ -383,8 +385,8 @@
     background:
         linear-gradient(
             135deg,
-            #315bea,
-            #2449cf
+            #7c3aed,
+            #6d28d9
         );
 
     color: white;
@@ -397,7 +399,7 @@
 
     box-shadow:
         0 10px 25px
-        rgba(49,91,234,0.20);
+        rgba(124,58,237,0.20);
 
     transition: 0.2s ease;
 }
@@ -407,7 +409,7 @@
 
     box-shadow:
         0 14px 30px
-        rgba(49,91,234,0.28);
+        rgba(124,58,237,0.28);
 }
 
 .interview-note {
@@ -415,7 +417,7 @@
 
     margin-top: 12px;
 
-    color: #9aa3b4;
+    color: #a29aaa;
 
     font-size: 9px;
 }
@@ -440,7 +442,7 @@
     background: white;
 
     border-bottom:
-        1px solid #e5e9f1;
+        1px solid #e9e3f0;
 
     position: sticky;
 
@@ -468,7 +470,7 @@
 
     border-radius: 8px;
 
-    background: #315bea;
+    background: #7c3aed;
 
     color: white;
 
@@ -476,14 +478,15 @@
 }
 
 .interview-brand span {
-    color: #17213b;
+    color: #24163d;
 
     font-size: 13px;
- font-weight: 900;
+
+    font-weight: 900;
 }
 
 .interview-role {
-    color: #65718a;
+    color: #756b86;
 
     font-size: 11px;
 
@@ -499,7 +502,7 @@
 }
 
 .interview-timer {
-    color: #65718a;
+    color: #756b86;
 
     font-size: 11px;
 
@@ -508,11 +511,11 @@
 
 .exit-interview {
     border:
-        1px solid #dfe4ee;
+        1px solid #e3dce9;
 
     background: white;
 
-    color: #707b91;
+    color: #756b86;
 
     padding:
         8px 14px;
@@ -527,9 +530,9 @@
 }
 
 .exit-interview:hover {
-    border-color: #315bea;
+    border-color: #7c3aed;
 
-    color: #315bea;
+    color: #7c3aed;
 }
 
 
@@ -563,7 +566,7 @@
 
     margin-bottom: 8px;
 
-    color: #7d879c;
+    color: #81778f;
 
     font-size: 10px;
 
@@ -577,7 +580,7 @@
 
     border-radius: 10px;
 
-    background: #e8ecf4;
+    background: #e9e1f2;
 }
 
 .interview-progress > div {
@@ -588,8 +591,8 @@
     background:
         linear-gradient(
             90deg,
-            #315bea,
-            #6b7ff0
+            #7c3aed,
+            #a78bfa
         );
 
     transition:
@@ -611,17 +614,17 @@
         linear-gradient(
             145deg,
             #ffffff,
-            #f9faff
+            #fcfaff
         );
 
     border:
-        1px solid #e1e6f0;
+        1px solid #e8e1f0;
 
     border-radius: 18px;
 
     box-shadow:
         0 15px 40px
-        rgba(26,42,76,0.07);
+        rgba(76,29,149,0.07);
 }
 
 .question-meta {
@@ -631,15 +634,16 @@
 
     margin-bottom: 28px;
 }
-question-meta span {
+
+.question-meta span {
     padding:
         6px 9px;
 
     border-radius: 7px;
 
-    background: #eef2ff;
+    background: #f3e8ff;
 
-    color: #315bea;
+    color: #7c3aed;
 
     font-size: 8px;
 
@@ -686,13 +690,13 @@ question-meta span {
     background:
         linear-gradient(
             145deg,
-            #dce6ff,
-            #eef2ff
+            #e9d5ff,
+            #f3e8ff
         );
 
     box-shadow:
         0 8px 25px
-        rgba(49, 91, 234, 0.16);
+        rgba(124,58,237,0.16);
 
     transition:
         transform 0.25s ease,
@@ -717,21 +721,21 @@ question-meta span {
     100% {
         box-shadow:
             0 0 0 4px
-            rgba(49, 91, 234, 0.10),
+            rgba(124,58,237,0.10),
             0 0 0 9px
-            rgba(49, 91, 234, 0.04),
+            rgba(124,58,237,0.04),
             0 12px 30px
-            rgba(49, 91, 234, 0.20);
+            rgba(124,58,237,0.20);
     }
 
     50% {
         box-shadow:
             0 0 0 6px
-            rgba(49, 91, 234, 0.14),
+            rgba(124,58,237,0.14),
             0 0 0 13px
-            rgba(49, 91, 234, 0.05),
+            rgba(124,58,237,0.05),
             0 14px 35px
-            rgba(49, 91, 234, 0.28);
+            rgba(124,58,237,0.28);
     }
 }
 
@@ -782,8 +786,9 @@ question-meta span {
     background:
         linear-gradient(
             135deg,
-            #18233c,
-             );
+            #24143d,
+            #4c1d95
+        );
 
     z-index: 3;
 }
@@ -828,7 +833,7 @@ question-meta span {
 
     border-radius: 50%;
 
-    background: #17213b;
+    background: #24163d;
 }
 
 .ai-eye.left {
@@ -914,6 +919,7 @@ question-meta span {
     }
 }
 
+
 /* =====================================================
    ONLINE DOT
 ===================================================== */
@@ -955,7 +961,7 @@ question-meta span {
 .interviewer-info .ai-label {
     margin: 0;
 
-    color: #315bea;
+    color: #7c3aed;
 
     font-size: 8px;
 
@@ -965,7 +971,7 @@ question-meta span {
 }
 
 .ai-interviewer-name {
-    color: #17213b;
+    color: #24163d;
 
     font-size: 16px;
 
@@ -979,7 +985,7 @@ question-meta span {
 
     gap: 6px;
 
-    color: #8b95a8;
+    color: #8f849d;
 
     font-size: 9px;
 
@@ -987,7 +993,7 @@ question-meta span {
 }
 
 .voice-indicator {
-    color: #b5bdca;
+    color: #b8afc2;
 
     font-size: 7px;
 
@@ -995,7 +1001,7 @@ question-meta span {
 }
 
 .voice-indicator.active {
-    color: #315bea;
+    color: #7c3aed;
 
     animation:
         voice-dot-pulse 0.8s infinite;
@@ -1030,7 +1036,7 @@ question-meta span {
     margin:
         0 0 12px;
 
-    color: #17213b;
+    color: #24163d;
 
     font-size: 26px;
 
@@ -1042,7 +1048,7 @@ question-meta span {
 .question-hint {
     margin: 0;
 
-    color: #8993a7;
+    color: #91879f;
 
     font-size: 11px;
 
@@ -1059,7 +1065,7 @@ question-meta span {
 
     background: transparent;
 
-    color: #315bea;
+    color: #7c3aed;
 
     font-size: 10px;
 
@@ -1076,6 +1082,7 @@ question-meta span {
 /* =====================================================
    ANSWER
 ===================================================== */
+
 answer-area {
     margin-top: 18px;
 
@@ -1085,7 +1092,7 @@ answer-area {
     background: white;
 
     border:
-        1px solid #e1e6f0;
+        1px solid #e8e1f0;
 
     border-radius: 16px;
 }
@@ -1104,7 +1111,7 @@ answer-area {
     margin:
         0 0 3px;
 
-    color: #34415d;
+    color: #403451;
 
     font-size: 9px;
 
@@ -1114,7 +1121,7 @@ answer-area {
 }
 
 .answer-header span {
-    color: #9aa3b4;
+    color: #a29aaa;
 
     font-size: 9px;
 }
@@ -1162,11 +1169,11 @@ answer-area {
     align-items: flex-start;
 
     border:
-        1px solid #e2e7f0;
+        1px solid #e6dff0;
 
     border-radius: 12px;
 
-    background: #fafbfe;
+    background: #fcfaff;
 
     transition: 0.2s ease;
 }
@@ -1182,7 +1189,7 @@ answer-area {
 .answer-box > p {
     margin: 0;
 
-    color: #3f4b64;
+    color: #514663;
 
     font-size: 13px;
 
@@ -1214,13 +1221,13 @@ answer-area {
 .answer-placeholder strong {
     margin-bottom: 4px;
 
-    color: #59657c;
+    color: #675b78;
 
     font-size: 11px;
 }
 
 .answer-placeholder span {
-    color: #a0a8b8;
+    color: #a29aaa;
 
     font-size: 9px;
 }
@@ -1228,7 +1235,7 @@ answer-area {
 .live-transcript-label {
     margin-bottom: 8px;
 
-    color: #315bea;
+    color: #7c3aed;
 
     font-size: 8px;
 
@@ -1240,7 +1247,7 @@ answer-area {
 .answer-box p {
     margin: 0;
 
-    color: #3f4b64;
+    color: #514663;
 
     font-size: 13px;
 
@@ -1280,17 +1287,17 @@ answer-area {
 
 .mic-button {
     border:
-        1px solid #dce2ed;
+        1px solid #e1d9eb;
 
     background: white;
 
-    color: #48546c;
+    color: #5d526d;
 }
 
 .mic-button:hover {
-    border-color: #315bea;
+    border-color: #7c3aed;
 
-    color: #315bea;
+    color: #7c3aed;
 }
 
 .mic-button.recording {
@@ -1304,13 +1311,13 @@ answer-area {
 .submit-answer-button {
     border: none;
 
-    background: #315bea;
+    background: #7c3aed;
 
     color: white;
 }
 
 .submit-answer-button:hover:not(:disabled) {
-    background: #2549cc;
+    background: #6d28d9;
 
     transform:
         translateY(-1px);
@@ -1453,13 +1460,13 @@ answer-area {
     background: white;
 
     border:
-        1px solid #e1e6f0;
+        1px solid #e8e1f0;
 
     border-radius: 22px;
 
     box-shadow:
         0 20px 60px
-        rgba(25,42,77,0.09);
+        rgba(76,29,149,0.09);
 
     text-align: center;
 }
@@ -1491,13 +1498,13 @@ answer-area {
     margin:
         0 0 12px;
 
-    color: #17213b;
+    color: #24163d;
 
     font-size: 28px;
 }
 
 .interview-complete > p {
-    color: #7e889d;
+    color: #81778f;
 
     font-size: 12px;
 
@@ -1516,7 +1523,7 @@ answer-area {
 }
 
 .final-score strong {
-    color: #315bea;
+    color: #7c3aed;
 
     font-size: 52px;
 
@@ -1525,7 +1532,8 @@ answer-area {
 
 .final-score span {
     margin-top: 6px;
-     color: #8d97aa;
+
+    color: #968ca1;
 
     font-size: 10px;
 
@@ -1542,7 +1550,7 @@ answer-area {
         30px 0;
 
     border:
-        1px solid #e5e9f1;
+        1px solid #e8e1f0;
 
     border-radius: 13px;
 
@@ -1553,7 +1561,7 @@ answer-area {
     padding: 17px;
 
     border-right:
-        1px solid #e5e9f1;
+        1px solid #e8e1f0;
 }
 
 .complete-stats div:last-child {
@@ -1565,13 +1573,13 @@ answer-area {
 
     margin-bottom: 4px;
 
-    color: #315bea;
+    color: #7c3aed;
 
     font-size: 18px;
 }
 
 .complete-stats span {
-    color: #9099aa;
+    color: #968ca1;
 
     font-size: 8px;
 
@@ -1585,18 +1593,18 @@ answer-area {
     padding: 18px;
 
     border:
-        1px solid #e5e9f1;
+        1px solid #e8e1f0;
 
     border-radius: 12px;
 
-    background: #fafbfe;
+    background: #fcfaff;
 }
 
 .final-feedback h3 {
     margin:
         0 0 8px;
 
-    color: #26334e;
+    color: #403451;
 
     font-size: 13px;
 }
@@ -1604,7 +1612,7 @@ answer-area {
 .final-feedback p {
     margin: 0;
 
-    color: #7e889d;
+    color: #81778f;
 
     font-size: 10px;
 
@@ -1636,18 +1644,18 @@ answer-area {
 .primary-interview-button {
     border: none;
 
-    background: #315bea;
+    background: #7c3aed;
 
     color: white;
 }
 
 .secondary-interview-button {
     border:
-        1px solid #dce2ed;
+        1px solid #e1d9eb;
 
     background: white;
 
-    color: #59657c;
+    color: #625670;
 }
 
 
@@ -1800,7 +1808,7 @@ answer-area {
         border-right: none;
 
         border-bottom:
-            1px solid #e5e9f1;
+            1px solid #e8e1f0;
     }
 
     .complete-stats div:last-child {

@@ -83,9 +83,7 @@ function CareerAssessment() {
     // =================================================
 
     const [questions, setQuestions] = useState([]);
-
     const [currentQuestion, setCurrentQuestion] = useState(0);
-
     const [answers, setAnswers] = useState({});
 
     // =================================================
@@ -93,7 +91,6 @@ function CareerAssessment() {
     // =================================================
 
     const [loading, setLoading] = useState(false);
-
     const [submitting, setSubmitting] = useState(false);
 
     // =================================================
@@ -101,6 +98,14 @@ function CareerAssessment() {
     // =================================================
 
     const [error, setError] = useState("");
+
+    // =================================================
+    // GET TOKEN
+    // =================================================
+
+    const getToken = () => {
+        return localStorage.getItem("token");
+    };
 
     // =================================================
     // SELECT ROLE
@@ -125,7 +130,10 @@ function CareerAssessment() {
             setLoading(true);
             setError("");
 
-            localStorage.setItem("selectedRole", selectedRole);
+            localStorage.setItem(
+                "selectedRole",
+                selectedRole
+            );
 
             const url =
                 `${API_BASE_URL}/assessment/questions/` +
@@ -166,11 +174,13 @@ function CareerAssessment() {
             }
 
             // =================================================
-            // IMPORTANT:
             // EXACTLY 20 QUESTIONS REQUIRED
             // =================================================
 
-            if (data.questions.length !== REQUIRED_QUESTIONS) {
+            if (
+                data.questions.length !==
+                REQUIRED_QUESTIONS
+            ) {
                 throw new Error(
                     `This role currently has ${data.questions.length} questions. Exactly ${REQUIRED_QUESTIONS} questions are required.`
                 );
@@ -203,6 +213,7 @@ function CareerAssessment() {
                 top: 0,
                 behavior: "smooth",
             });
+
         } catch (err) {
             console.error(
                 "Load Assessment Error:",
@@ -213,6 +224,7 @@ function CareerAssessment() {
                 err.message ||
                 "Unable to load assessment questions."
             );
+
         } finally {
             setLoading(false);
         }
@@ -249,11 +261,11 @@ function CareerAssessment() {
         const currentQuestionId =
             currentQuestionData.id;
 
-        // Require current question to be answered
         if (!answers[currentQuestionId]) {
             setError(
                 "Please select an answer before continuing."
             );
+
             return;
         }
 
@@ -310,8 +322,34 @@ function CareerAssessment() {
     // =====================================================
 
     const handleSubmit = async () => {
+
         // =================================================
-        // CHECK ALL 20 QUESTIONS
+        // CHECK TOKEN
+        // =================================================
+
+        const token = getToken();
+
+        console.log(
+            "Authentication token exists:",
+            !!token
+        );
+
+        if (!token) {
+            setError(
+                "Your login session has expired. Please login again."
+            );
+
+            localStorage.removeItem("token");
+
+            setTimeout(() => {
+                navigate("/login");
+            }, 1500);
+
+            return;
+        }
+
+        // =================================================
+        // CHECK ALL QUESTIONS
         // =================================================
 
         const unansweredQuestions =
@@ -354,9 +392,15 @@ function CareerAssessment() {
 
             console.log({
                 role: selectedRole,
-                totalQuestions: answerList.length,
+                totalQuestions:
+                    answerList.length,
                 answers: answerList,
             });
+
+            console.log(
+                "Token being sent:",
+                token ? "YES" : "NO"
+            );
 
             console.log(
                 "================================="
@@ -374,6 +418,14 @@ function CareerAssessment() {
                     headers: {
                         "Content-Type":
                             "application/json",
+
+                        // =================================================
+                        // IMPORTANT FIX
+                        // SEND JWT TOKEN TO BACKEND
+                        // =================================================
+
+                        Authorization:
+                            `Bearer ${token}`,
                     },
 
                     body: JSON.stringify({
@@ -394,7 +446,31 @@ function CareerAssessment() {
             }
 
             // =================================================
-            // API ERROR
+            // TOKEN EXPIRED / UNAUTHORIZED
+            // =================================================
+
+            if (response.status === 401) {
+
+                console.error(
+                    "401 Unauthorized:",
+                    data
+                );
+
+                localStorage.removeItem("token");
+
+                setError(
+                    "Your login session has expired. Please login again."
+                );
+
+                setTimeout(() => {
+                    navigate("/login");
+                }, 1500);
+
+                return;
+            }
+
+            // =================================================
+            // OTHER API ERROR
             // =================================================
 
             if (!response.ok) {
@@ -433,7 +509,9 @@ function CareerAssessment() {
             // =================================================
 
             navigate("/assessment-result");
+
         } catch (err) {
+
             console.error(
                 "Submit Assessment Error:",
                 err
@@ -443,6 +521,7 @@ function CareerAssessment() {
                 err.message ||
                 "Unable to submit assessment."
             );
+
         } finally {
             setSubmitting(false);
         }
@@ -921,11 +1000,6 @@ function CareerAssessment() {
 
                 </div>
 
-                {/* IMPORTANT:
-                    Always use questions.length.
-                    This will display 20, never 200.
-                */}
-
                 <div className="step-indicator">
                     Step 2 of 2
                     {" • "}
@@ -1101,6 +1175,8 @@ function CareerAssessment() {
 
                     <div className="question-options">
 
+                        {/* OPTION A */}
+
                         <button
                             type="button"
                             className={
@@ -1127,6 +1203,8 @@ function CareerAssessment() {
                             </span>
 
                         </button>
+
+                        {/* OPTION B */}
 
                         <button
                             type="button"
@@ -1155,6 +1233,8 @@ function CareerAssessment() {
 
                         </button>
 
+                        {/* OPTION C */}
+
                         <button
                             type="button"
                             className={
@@ -1181,6 +1261,8 @@ function CareerAssessment() {
                             </span>
 
                         </button>
+
+                        {/* OPTION D */}
 
                         <button
                             type="button"
@@ -1267,13 +1349,7 @@ function CareerAssessment() {
 
                 </div>
 
-                {/* =================================================
-                    QUESTION NAVIGATOR
-
-                    IMPORTANT:
-                    This replaces the old raw
-                    123456789101112... display.
-                ================================================= */}
+                {/* QUESTION NAVIGATOR */}
 
                 <div className="question-navigator">
 
@@ -1312,7 +1388,8 @@ function CareerAssessment() {
 
                                         window.scrollTo({
                                             top: 0,
-                                            behavior: "smooth",
+                                            behavior:
+                                                "smooth",
                                         });
                                     }}
                                 >

@@ -1,141 +1,330 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./CareerDevelopment.css";
 
-const developmentAreas = [
-    {
-        title: "Communication",
-        description: "Express your ideas clearly and confidently.",
-        score: 82,
-        level: "Strong",
-        icon: "💬",
-        colorClass: "communication",
-    },
-    {
-        title: "Confidence",
-        description: "Build confidence for interviews and presentations.",
-        score: 64,
-        level: "Developing",
-        icon: "✦",
-        colorClass: "confidence",
-    },
-    {
-        title: "Leadership",
-        description: "Develop initiative and decision-making skills.",
-        score: 58,
-        level: "Developing",
-        icon: "◈",
-        colorClass: "leadership",
-    },
-    {
-        title: "Problem Solving",
-        description: "Improve your approach to real-world situations.",
-        score: 76,
-        level: "Strong",
-        icon: "💡",
-        colorClass: "problem-solving",
-    },
-    {
-        title: "Time Management",
-        description: "Manage priorities and meet professional deadlines.",
-        score: 71,
-        level: "Good",
-        icon: "◷",
-        colorClass: "time-management",
-    },
-    {
-        title: "Professionalism",
-        description: "Develop workplace-ready professional behavior.",
-        score: 79,
-        level: "Strong",
-        icon: "▣",
-        colorClass: "professionalism",
-    },
-];
-
-const recentActivities = [
-    {
-        title: "Self Introduction Practice",
-        type: "Communication",
-        date: "Completed today",
-        score: "84%",
-        icon: "◉",
-    },
-    {
-        title: "Situational Judgment",
-        type: "Problem Solving",
-        date: "Completed yesterday",
-        score: "78%",
-        icon: "◆",
-    },
-    {
-        title: "Professional Communication",
-        type: "Professionalism",
-        date: "Completed 3 days ago",
-        score: "91%",
-        icon: "✦",
-    },
-];
+const API_BASE_URL = "http://localhost:5000/api";
 
 function CareerDevelopment() {
-    const readinessScore = 74;
+    const [developmentAreas, setDevelopmentAreas] = useState([]);
+    const [recentActivities, setRecentActivities] = useState([]);
+    const [improvementPlan, setImprovementPlan] = useState([]);
+    const [achievements, setAchievements] = useState([]);
+    const [weeklyGoal, setWeeklyGoal] = useState(null);
+
+    const [readinessScore, setReadinessScore] = useState(0);
+
+    const [readinessStats, setReadinessStats] = useState({
+        strong: 0,
+        developing: 0,
+        focus: 0,
+        activities: 0,
+    });
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    /* =====================================================
+       LOAD CAREER DEVELOPMENT DATA
+    ===================================================== */
+
+    useEffect(() => {
+        loadCareerDevelopment();
+    }, []);
+
+    const loadCareerDevelopment = async () => {
+        try {
+            setLoading(true);
+            setError("");
+
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(
+                `${API_BASE_URL}/career-development`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...(token && {
+                            Authorization: `Bearer ${token}`,
+                        }),
+                    },
+                }
+            );
+
+            const contentType =
+                response.headers.get("content-type") || "";
+
+            if (!contentType.includes("application/json")) {
+                throw new Error(
+                    `Career Development API returned ${response.status}. Backend route may not exist.`
+                );
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to load career development data"
+                );
+            }
+
+            setDevelopmentAreas(data.developmentAreas || []);
+            setRecentActivities(data.recentActivities || []);
+            setImprovementPlan(data.improvementPlan || []);
+            setAchievements(data.achievements || []);
+            setWeeklyGoal(data.weeklyGoal || null);
+
+            setReadinessScore(
+                Math.min(
+                    Math.max(data.readinessScore || 0, 0),
+                    100
+                )
+            );
+
+            setReadinessStats({
+                strong: data.readinessStats?.strong || 0,
+                developing: data.readinessStats?.developing || 0,
+                focus: data.readinessStats?.focus || 0,
+                activities: data.readinessStats?.activities || 0,
+            });
+
+        } catch (err) {
+            console.error(
+                "Career Development loading error:",
+                err
+            );
+
+            setError(
+                err.message ||
+                "Unable to load career development data"
+            );
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    /* =====================================================
+       NAVIGATION
+    ===================================================== */
+
+    const handleAssessment = () => {
+        window.location.href = "/career-assessment";
+    };
+
+
+    const handlePractice = (area) => {
+        if (area.activityLink) {
+            window.location.href = area.activityLink;
+        }
+    };
+
+
+    const handleWeeklyGoal = () => {
+        if (weeklyGoal?.link) {
+            window.location.href = weeklyGoal.link;
+        }
+    };
+
+
+    const openActivity = (path) => {
+        window.location.href = path;
+    };
+
+
+    /* =====================================================
+       READINESS MESSAGE
+    ===================================================== */
+
+    const getReadinessMessage = () => {
+        if (readinessScore >= 85) {
+            return {
+                title: "You're highly career ready.",
+                description:
+                    "You have built strong professional foundations. Keep practicing and refining your skills to stay placement ready.",
+            };
+        }
+
+        if (readinessScore >= 70) {
+            return {
+                title: "You're on a strong path.",
+                description:
+                    "Your professional skills are developing well. A few focused activities can help you become even more placement ready.",
+            };
+        }
+
+        if (readinessScore >= 50) {
+            return {
+                title: "You're making good progress.",
+                description:
+                    "You have a solid starting point. Continue working on your development areas to improve your overall career readiness.",
+            };
+        }
+
+        return {
+            title: "Let's build your career readiness.",
+            description:
+                "Complete your assessment and professional activities to identify your strengths and create a personalized growth path.",
+        };
+    };
+
+
+    const readinessMessage = getReadinessMessage();
+
+
+    /* =====================================================
+       LOADING
+    ===================================================== */
+
+    if (loading) {
+        return (
+            <div className="career-development-page">
+
+                <div className="loading-state">
+
+                    <div className="loading-spinner"></div>
+
+                    <h3>
+                        Loading Career Development
+                    </h3>
+
+                    <p>
+                        Preparing your personalized development plan...
+                    </p>
+
+                </div>
+
+            </div>
+        );
+    }
+
+
+    /* =====================================================
+       ERROR
+    ===================================================== */
+
+    if (error) {
+        return (
+            <div className="career-development-page">
+
+                <div className="error-state">
+
+                    <div className="error-icon">
+                        !
+                    </div>
+
+                    <h2>
+                        Unable to load Career Development
+                    </h2>
+
+                    <p>
+                        {error}
+                    </p>
+
+                    <button
+                        className="assessment-button"
+                        onClick={loadCareerDevelopment}
+                    >
+                        Try Again
+                    </button>
+
+                </div>
+
+            </div>
+        );
+    }
+
 
     return (
         <div className="career-development-page">
 
-            {/* HEADER */}
-            <div className="career-development-header">
+            {/* =====================================================
+                HEADER
+            ===================================================== */}
+
+            <header className="career-development-header">
 
                 <div>
+
                     <p className="page-eyebrow">
                         PERSONAL & PROFESSIONAL GROWTH
                     </p>
 
-                    <h1>Career Development</h1>
+                    <h1>
+                        Career Development
+                    </h1>
 
                     <p className="page-description">
-                        Build the confidence, communication and professional
-                        skills you need to succeed in your career.
+                        Strengthen the professional skills, workplace
+                        confidence and habits that help you move from
+                        student to professional.
                     </p>
+
                 </div>
 
-                <button className="assessment-button">
+                <button
+                    className="assessment-button"
+                    onClick={handleAssessment}
+                >
                     <span>✦</span>
-                    Take Assessment
+                    Retake Assessment
                 </button>
 
-            </div>
+            </header>
 
 
-            {/* CAREER READINESS */}
+            {/* =====================================================
+                CAREER READINESS
+            ===================================================== */}
+
             <section className="readiness-section">
 
                 <div className="readiness-card">
 
                     <div className="readiness-content">
 
-                        <div>
+                        <div className="readiness-text">
 
                             <span className="section-label">
                                 CAREER READINESS
                             </span>
 
                             <h2>
-                                You are making good progress.
+                                {readinessMessage.title}
                             </h2>
 
                             <p>
-                                Your current development profile shows strong
-                                potential, with a few areas that can be
-                                improved before placement season.
+                                {readinessMessage.description}
                             </p>
 
+                            <div className="readiness-mini-tags">
+
+                                <span>
+                                    ✓ Professional Skills
+                                </span>
+
+                                <span>
+                                    ✓ Workplace Readiness
+                                </span>
+
+                                <span>
+                                    ✓ Continuous Growth
+                                </span>
+
+                            </div>
+
                         </div>
+
 
                         <div className="readiness-progress">
 
                             <div className="readiness-circle">
 
-                                <svg viewBox="0 0 120 120">
+                                <svg
+                                    viewBox="0 0 120 120"
+                                    aria-label={`${readinessScore}% career readiness`}
+                                >
 
                                     <circle
                                         className="circle-background"
@@ -149,11 +338,20 @@ function CareerDevelopment() {
                                         cx="60"
                                         cy="60"
                                         r="50"
+                                        style={{
+                                            strokeDasharray: 314,
+                                            strokeDashoffset:
+                                                314 -
+                                                (314 *
+                                                    readinessScore) /
+                                                    100,
+                                        }}
                                     />
 
                                 </svg>
 
                                 <div className="readiness-score">
+
                                     <strong>
                                         {readinessScore}%
                                     </strong>
@@ -161,6 +359,7 @@ function CareerDevelopment() {
                                     <span>
                                         Ready
                                     </span>
+
                                 </div>
 
                             </div>
@@ -170,26 +369,48 @@ function CareerDevelopment() {
                     </div>
 
 
+                    {/* STATS */}
+
                     <div className="readiness-stats">
 
                         <div>
-                            <strong>3</strong>
-                            <span>Strong Areas</span>
+                            <strong>
+                                {readinessStats.strong}
+                            </strong>
+
+                            <span>
+                                Strong Areas
+                            </span>
                         </div>
 
                         <div>
-                            <strong>2</strong>
-                            <span>Developing</span>
+                            <strong>
+                                {readinessStats.developing}
+                            </strong>
+
+                            <span>
+                                Developing
+                            </span>
                         </div>
 
                         <div>
-                            <strong>1</strong>
-                            <span>Needs Focus</span>
+                            <strong>
+                                {readinessStats.focus}
+                            </strong>
+
+                            <span>
+                                Needs Focus
+                            </span>
                         </div>
 
                         <div>
-                            <strong>12</strong>
-                            <span>Activities Done</span>
+                            <strong>
+                                {readinessStats.activities}
+                            </strong>
+
+                            <span>
+                                Activities Done
+                            </span>
                         </div>
 
                     </div>
@@ -199,7 +420,10 @@ function CareerDevelopment() {
             </section>
 
 
-            {/* DEVELOPMENT AREAS */}
+            {/* =====================================================
+                DEVELOPMENT AREAS
+            ===================================================== */}
+
             <section className="development-section">
 
                 <div className="section-heading">
@@ -211,236 +435,729 @@ function CareerDevelopment() {
                         </span>
 
                         <h2>
-                            Areas to work on
+                            Professional skill profile
                         </h2>
 
                     </div>
 
-                    <button className="text-button">
+                    <button
+                        className="text-button"
+                        onClick={handleAssessment}
+                    >
                         View Assessment →
                     </button>
 
                 </div>
 
 
-                <div className="development-grid">
+                {developmentAreas.length === 0 ? (
 
-                    {developmentAreas.map((area) => (
+                    <div className="empty-development">
 
-                        <div
-                            className="development-card"
-                            key={area.title}
+                        <div className="empty-development-icon">
+                            ✦
+                        </div>
+
+                        <h3>
+                            No development profile yet
+                        </h3>
+
+                        <p>
+                            Complete your career assessment to
+                            generate personalized development areas.
+                        </p>
+
+                        <button
+                            className="assessment-button"
+                            onClick={handleAssessment}
                         >
+                            Take Assessment
+                        </button>
+
+                    </div>
+
+                ) : (
+
+                    <div className="development-grid">
+
+                        {developmentAreas.map((area, index) => (
 
                             <div
-                                className={`development-icon ${area.colorClass}`}
+                                className="development-card"
+                                key={
+                                    area.title ||
+                                    `development-${index}`
+                                }
                             >
-                                {area.icon}
-                            </div>
 
+                                <div
+                                    className={`development-icon ${
+                                        area.colorClass || ""
+                                    }`}
+                                >
+                                    {area.icon || "✦"}
+                                </div>
 
-                            <div className="development-card-top">
+                                <div className="development-card-top">
 
-                                <div>
+                                    <div>
 
-                                    <h3>
-                                        {area.title}
-                                    </h3>
+                                        <h3>
+                                            {area.title}
+                                        </h3>
 
-                                    <p>
-                                        {area.description}
-                                    </p>
+                                        <p>
+                                            {area.description}
+                                        </p>
+
+                                    </div>
+
+                                    <span
+                                        className={`development-level ${
+                                            area.level
+                                                ?.toLowerCase()
+                                                .replace(
+                                                    /\s+/g,
+                                                    "-"
+                                                ) || "developing"
+                                        }`}
+                                    >
+                                        {area.level || "Developing"}
+                                    </span>
 
                                 </div>
 
+                                <div className="skill-score-row">
 
-                                <span
-                                    className={`development-level ${area.level
-                                        .toLowerCase()
-                                        .replace(" ", "-")}`}
+                                    <span>
+                                        Current level
+                                    </span>
+
+                                    <strong>
+                                        {area.score || 0}%
+                                    </strong>
+
+                                </div>
+
+                                <div className="skill-progress">
+
+                                    <div
+                                        className={`skill-progress-fill ${
+                                            area.colorClass || ""
+                                        }`}
+                                        style={{
+                                            width:
+                                                `${Math.min(
+                                                    Math.max(
+                                                        area.score || 0,
+                                                        0
+                                                    ),
+                                                    100
+                                                )}%`,
+                                        }}
+                                    />
+
+                                </div>
+
+                                <button
+                                    className="practice-button"
+                                    onClick={() =>
+                                        handlePractice(area)
+                                    }
                                 >
-                                    {area.level}
-                                </span>
+                                    {area.practiceText ||
+                                        "Practice Skill →"}
+                                </button>
 
                             </div>
 
+                        ))}
 
-                            <div className="skill-score-row">
+                    </div>
 
-                                <span>
-                                    Current level
-                                </span>
+                )}
+
+            </section>
+
+
+            {/* =====================================================
+                IMPROVEMENT PLAN
+            ===================================================== */}
+
+            <section className="improvement-section">
+
+                <div className="section-heading">
+
+                    <div>
+
+                        <span className="section-label">
+                            PERSONALIZED PLAN
+                        </span>
+
+                        <h2>
+                            Your improvement roadmap
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                {improvementPlan.length === 0 ? (
+
+                    <div className="empty-development">
+
+                        <div className="empty-development-icon">
+                            🎯
+                        </div>
+
+                        <h3>
+                            Your improvement roadmap will appear here
+                        </h3>
+
+                        <p>
+                            Complete development activities to receive
+                            personalized recommendations.
+                        </p>
+
+                    </div>
+
+                ) : (
+
+                    <div className="improvement-list">
+
+                        {improvementPlan.map((item, index) => {
+
+                            const progress = Math.min(
+                                Math.max(
+                                    item.progress || 0,
+                                    0
+                                ),
+                                100
+                            );
+
+                            return (
+                                <div
+                                    className="improvement-item"
+                                    key={
+                                        item.title ||
+                                        `improvement-${index}`
+                                    }
+                                >
+
+                                    <div
+                                        className={`improvement-icon ${
+                                            item.status || ""
+                                        }`}
+                                    >
+                                        {item.status === "completed"
+                                            ? "✓"
+                                            : "!"}
+                                    </div>
+
+                                    <div className="improvement-content">
+
+                                        <div className="improvement-title-row">
+
+                                            <h3>
+                                                {item.title}
+                                            </h3>
+
+                                            <span>
+                                                {item.currentScore || 0}%
+                                                <b> → </b>
+                                                {item.targetScore || 0}%
+                                            </span>
+
+                                        </div>
+
+                                        <p>
+                                            {item.description}
+                                        </p>
+
+                                        <div className="improvement-progress">
+
+                                            <div
+                                                style={{
+                                                    width:
+                                                        `${progress}%`,
+                                                }}
+                                            />
+
+                                        </div>
+
+                                        <small>
+                                            Recommended:{" "}
+                                            {item.recommendation}
+                                        </small>
+
+                                    </div>
+
+                                    {item.link && (
+
+                                        <button
+                                            className="improvement-button"
+                                            onClick={() =>
+                                                window.location.href =
+                                                    item.link
+                                            }
+                                        >
+                                            Continue →
+                                        </button>
+
+                                    )}
+
+                                </div>
+                            );
+                        })}
+
+                    </div>
+
+                )}
+
+            </section>
+
+
+            {/* =====================================================
+                WEEKLY GOAL
+            ===================================================== */}
+
+            {weeklyGoal && (
+
+                <section className="weekly-goal-section">
+
+                    <div className="weekly-goal-card">
+
+                        <div className="weekly-goal-icon">
+                            🎯
+                        </div>
+
+                        <div className="weekly-goal-content">
+
+                            <span className="section-label">
+                                THIS WEEK'S DEVELOPMENT GOAL
+                            </span>
+
+                            <h2>
+                                {weeklyGoal.title}
+                            </h2>
+
+                            <p>
+                                {weeklyGoal.description}
+                            </p>
+
+                            <div className="weekly-goal-progress-row">
+
+                                <div className="weekly-goal-progress">
+
+                                    <div
+                                        style={{
+                                            width:
+                                                `${Math.min(
+                                                    Math.max(
+                                                        weeklyGoal.progress || 0,
+                                                        0
+                                                    ),
+                                                    100
+                                                )}%`,
+                                        }}
+                                    />
+
+                                </div>
 
                                 <strong>
-                                    {area.score}%
+                                    {weeklyGoal.progress || 0}%
                                 </strong>
 
                             </div>
 
-
-                            <div className="skill-progress">
-
-                                <div
-                                    className={`skill-progress-fill ${area.colorClass}`}
-                                    style={{
-                                        width: `${area.score}%`,
-                                    }}
-                                ></div>
-
-                            </div>
-
-
-                            <button className="practice-button">
-                                Practice →
-                            </button>
-
-                        </div>
-
-                    ))}
-
-                </div>
-
-            </section>
-
-
-            {/* TODAY'S CHALLENGE */}
-            <section className="challenge-section">
-
-                <div className="challenge-card">
-
-                    <div className="challenge-left">
-
-                        <div className="challenge-icon">
-                            🎯
-                        </div>
-
-
-                        <div>
-
-                            <span className="section-label">
-                                TODAY'S CHALLENGE
-                            </span>
-
-                            <h2>
-                                Introduce yourself in 60 seconds
-                            </h2>
-
-                            <p>
-                                Imagine you are sitting in your first
-                                interview. Give a concise introduction
-                                covering your background, strengths and
-                                career goals.
-                            </p>
-
-
-                            <div className="challenge-meta">
-
-                                <span>
-                                    ◷ 5 min
-                                </span>
-
-                                <span>
-                                    ◉ Speaking
-                                </span>
-
-                                <span>
-                                    ↗ Confidence
-                                </span>
-
-                            </div>
-
-
-                            <button className="start-challenge-button">
-                                ▶ Start Challenge
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div className="challenge-decoration">
-
-                        <div className="decoration-circle circle-one"></div>
-
-                        <div className="decoration-circle circle-two"></div>
-
-                        <div className="decoration-card">
-
-                            <span className="decoration-mic">
-                                ◉
-                            </span>
-
-                            <span>
-                                Practice
+                            <span className="weekly-goal-meta">
+                                {weeklyGoal.completed || 0} of{" "}
+                                {weeklyGoal.total || 0} activities
+                                completed
                             </span>
 
                         </div>
 
+                        <button
+                            className="weekly-goal-button"
+                            onClick={handleWeeklyGoal}
+                        >
+                            Continue Goal →
+                        </button>
+
                     </div>
 
-                </div>
+                </section>
 
-            </section>
-
-
-            {/* AI DEVELOPMENT */}
-            <section className="ai-section">
-
-                <div className="ai-card">
-
-                    <div className="ai-card-icon">
-                        ✦
-                    </div>
+            )}
 
 
-                    <div className="ai-card-content">
+            {/* =====================================================
+                PROFESSIONAL SKILL ACTIVITIES
+            ===================================================== */}
+
+            <section className="activities-section">
+
+                <div className="section-heading">
+
+                    <div>
 
                         <span className="section-label">
-                            AI-POWERED DEVELOPMENT
+                            SKILL BUILDING
                         </span>
 
                         <h2>
-                            Get personalized feedback
+                            Build workplace skills
                         </h2>
 
-                        <p>
-                            Practice interview answers, communication
-                            scenarios and workplace situations. CareerBridge
-                            AI can analyze your responses and suggest
-                            specific areas for improvement.
-                        </p>
+                    </div>
+
+                    <span className="section-helper">
+                        Short activities • Practical scenarios
+                    </span>
+
+                </div>
 
 
-                        <div className="ai-features">
+                <div className="professional-activities-grid">
+
+                    {/* COMMUNICATION */}
+
+                    <div className="professional-activity-card">
+
+                        <div className="professional-card-top">
+
+                            <div className="professional-activity-icon communication">
+                                💬
+                            </div>
 
                             <span>
-                                ✓ Communication feedback
-                            </span>
-
-                            <span>
-                                ✓ Interview response analysis
-                            </span>
-
-                            <span>
-                                ✓ Personalized recommendations
+                                5 min
                             </span>
 
                         </div>
 
+                        <h3>
+                            Communication Challenge
+                        </h3>
+
+                        <p>
+                            Practice explaining ideas clearly,
+                            writing professional messages and
+                            communicating with confidence.
+                        </p>
+
+                        <button
+                            onClick={() =>
+                                openActivity(
+                                    "/career-development/communication"
+                                )
+                            }
+                        >
+                            Start Activity →
+                        </button>
+
                     </div>
 
 
-                    <button className="ai-button">
-                        Start AI Practice →
-                    </button>
+                    {/* LEADERSHIP */}
+
+                    <div className="professional-activity-card">
+
+                        <div className="professional-card-top">
+
+                            <div className="professional-activity-icon leadership">
+                                ◈
+                            </div>
+
+                            <span>
+                                7 min
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            Leadership Scenario
+                        </h3>
+
+                        <p>
+                            Respond to realistic workplace
+                            situations and develop better
+                            decision-making skills.
+                        </p>
+
+                        <button
+                            onClick={() =>
+                                openActivity(
+                                    "/career-development/leadership"
+                                )
+                            }
+                        >
+                            Start Activity →
+                        </button>
+
+                    </div>
+
+
+                    {/* PROBLEM SOLVING */}
+
+                    <div className="professional-activity-card">
+
+                        <div className="professional-card-top">
+
+                            <div className="professional-activity-icon problem-solving">
+                                💡
+                            </div>
+
+                            <span>
+                                8 min
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            Problem Solving
+                        </h3>
+
+                        <p>
+                            Solve realistic workplace problems
+                            using structured and logical thinking.
+                        </p>
+
+                        <button
+                            onClick={() =>
+                                openActivity(
+                                    "/career-development/problem-solving"
+                                )
+                            }
+                        >
+                            Start Activity →
+                        </button>
+
+                    </div>
+
+
+                    {/* TIME MANAGEMENT */}
+
+                    <div className="professional-activity-card">
+
+                        <div className="professional-card-top">
+
+                            <div className="professional-activity-icon time-management">
+                                ◷
+                            </div>
+
+                            <span>
+                                5 min
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            Time Management
+                        </h3>
+
+                        <p>
+                            Prioritize tasks, manage deadlines
+                            and make better use of your working day.
+                        </p>
+
+                        <button
+                            onClick={() =>
+                                openActivity(
+                                    "/career-development/time-management"
+                                )
+                            }
+                        >
+                            Start Activity →
+                        </button>
+
+                    </div>
+
+
+                    {/* PROFESSIONALISM */}
+
+                    <div className="professional-activity-card">
+
+                        <div className="professional-card-top">
+
+                            <div className="professional-activity-icon professionalism">
+                                ✦
+                            </div>
+
+                            <span>
+                                6 min
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            Workplace Professionalism
+                        </h3>
+
+                        <p>
+                            Learn how to handle workplace etiquette,
+                            teamwork, accountability and professional
+                            behaviour.
+                        </p>
+
+                        <button
+                            onClick={() =>
+                                openActivity(
+                                    "/career-development/professionalism"
+                                )
+                            }
+                        >
+                            Start Activity →
+                        </button>
+
+                    </div>
+
+
+                    {/* CONFIDENCE */}
+
+                    <div className="professional-activity-card">
+
+                        <div className="professional-card-top">
+
+                            <div className="professional-activity-icon confidence">
+                                ✨
+                            </div>
+
+                            <span>
+                                5 min
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            Confidence Builder
+                        </h3>
+
+                        <p>
+                            Practice confident workplace responses,
+                            introductions and professional self-expression.
+                        </p>
+
+                        <button
+                            onClick={() =>
+                                openActivity(
+                                    "/career-development/confidence"
+                                )
+                            }
+                        >
+                            Start Activity →
+                        </button>
+
+                    </div>
 
                 </div>
 
             </section>
 
 
-            {/* RECENT ACTIVITIES */}
+            {/* =====================================================
+                ACHIEVEMENTS
+            ===================================================== */}
+
+            <section className="achievements-section">
+
+                <div className="section-heading">
+
+                    <div>
+
+                        <span className="section-label">
+                            MILESTONES
+                        </span>
+
+                        <h2>
+                            Your achievements
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                {achievements.length === 0 ? (
+
+                    <div className="achievement-empty">
+
+                        <div className="achievement-empty-icon">
+                            🏆
+                        </div>
+
+                        <h3>
+                            Your first achievement is waiting
+                        </h3>
+
+                        <p>
+                            Complete professional activities to
+                            unlock milestones and build your growth
+                            streak.
+                        </p>
+
+                    </div>
+
+                ) : (
+
+                    <div className="achievements-grid">
+
+                        {achievements.map(
+                            (achievement, index) => (
+
+                                <div
+                                    className={`achievement-card ${
+                                        achievement.unlocked
+                                            ? "unlocked"
+                                            : "locked"
+                                    }`}
+                                    key={
+                                        achievement.title ||
+                                        index
+                                    }
+                                >
+
+                                    <div className="achievement-icon">
+                                        {achievement.icon ||
+                                            "🏆"}
+                                    </div>
+
+                                    <div>
+
+                                        <h3>
+                                            {achievement.title}
+                                        </h3>
+
+                                        <p>
+                                            {achievement.description}
+                                        </p>
+
+                                    </div>
+
+                                    {achievement.unlocked && (
+                                        <span className="achievement-status">
+                                            Unlocked
+                                        </span>
+                                    )}
+
+                                </div>
+
+                            )
+                        )}
+
+                    </div>
+
+                )}
+
+            </section>
+
+
+            {/* =====================================================
+                RECENT ACTIVITIES
+            ===================================================== */}
+
             <section className="activity-section">
 
                 <div className="section-heading">
@@ -457,64 +1174,114 @@ function CareerDevelopment() {
 
                     </div>
 
-                    <button className="text-button">
-                        View All →
-                    </button>
-
                 </div>
 
 
-                <div className="activity-list">
+                {recentActivities.length === 0 ? (
 
-                    {recentActivities.map((activity) => (
+                    <div className="empty-activities">
 
-                        <div
-                            className="activity-item"
-                            key={activity.title}
-                        >
-
-                            <div className="activity-icon">
-                                {activity.icon}
-                            </div>
-
-
-                            <div className="activity-info">
-
-                                <h3>
-                                    {activity.title}
-                                </h3>
-
-                                <p>
-                                    {activity.type} · {activity.date}
-                                </p>
-
-                            </div>
-
-
-                            <div className="activity-score">
-
-                                <span>
-                                    Score
-                                </span>
-
-                                <strong>
-                                    {activity.score}
-                                </strong>
-
-                            </div>
-
-
-                            <div className="completed-icon">
-                                ✓
-                            </div>
-
+                        <div className="empty-activity-icon">
+                            ◉
                         </div>
 
-                    ))}
+                        <h3>
+                            No activities yet
+                        </h3>
+
+                        <p>
+                            Complete your first professional
+                            development activity to start
+                            tracking your progress.
+                        </p>
+
+                    </div>
+
+                ) : (
+
+                    <div className="activity-list">
+
+                        {recentActivities.map(
+                            (activity, index) => (
+
+                                <div
+                                    className="activity-item"
+                                    key={
+                                        activity.title ||
+                                        index
+                                    }
+                                >
+
+                                    <div className="activity-icon">
+                                        {activity.icon || "✦"}
+                                    </div>
+
+                                    <div className="activity-info">
+
+                                        <h3>
+                                            {activity.title}
+                                        </h3>
+
+                                        <p>
+                                            {activity.type}
+                                            {" · "}
+                                            {activity.date}
+                                        </p>
+
+                                    </div>
+
+                                    <div className="activity-score">
+
+                                        <span>
+                                            Score
+                                        </span>
+
+                                        <strong>
+                                            {activity.score || 0}%
+                                        </strong>
+
+                                    </div>
+
+                                    <div className="completed-icon">
+                                        ✓
+                                    </div>
+
+                                </div>
+
+                            )
+                        )}
+
+                    </div>
+
+                )}
+
+            </section>
+
+
+            {/* =====================================================
+                FOOTER MESSAGE
+            ===================================================== */}
+
+            <div className="development-footer-card">
+
+                <div className="development-footer-icon">
+                    ✦
+                </div>
+
+                <div>
+
+                    <h3>
+                        Small progress creates big career growth.
+                    </h3>
+
+                    <p>
+                        Keep completing activities, improving your
+                        weakest areas and tracking your progress.
+                    </p>
 
                 </div>
 
-            </section>
+            </div>
 
         </div>
     );

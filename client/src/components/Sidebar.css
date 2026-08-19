@@ -1,18 +1,51 @@
-/* =========================================
+/* =========================================================
+   CAREERBRIDGE SIDEBAR
+   Final Year Project — Professional Light Purple UI
+========================================================= */
+
+
+/* =========================================================
+   BRAND VARIABLES
+========================================================= */
+
+:root {
+    --cb-sidebar-bg: #F7F4FF;
+    --cb-sidebar-white: #FFFFFF;
+
+    --cb-primary: #6D28D9;
+    --cb-primary-dark: #4C1D95;
+    --cb-primary-light: #8B5CF6;
+
+    --cb-purple-soft: #EEE8FF;
+    --cb-purple-hover: #F1ECFF;
+
+    --cb-text-dark: #241B35;
+    --cb-text: #514A61;
+    --cb-text-muted: #8F879F;
+
+    --cb-border: #E7E0F2;
+
+    --cb-danger: #DC2626;
+    --cb-danger-bg: #FFF1F2;
+}
+
+
+/* =========================================================
    SIDEBAR
-========================================= */
+========================================================= */
 
 .sidebar {
     position: fixed;
+
     top: 0;
     left: 0;
 
     width: 250px;
     height: 100vh;
 
-    background: #ffffff;
+    background: var(--cb-sidebar-bg);
 
-    border-right: 1px solid #e8eaf2;
+    border-right: 1px solid var(--cb-border);
 
     display: flex;
     flex-direction: column;
@@ -20,55 +53,72 @@
     z-index: 1000;
 
     box-sizing: border-box;
+
+    box-shadow:
+        2px 0 12px rgba(76, 29, 149, 0.04);
 }
 
 
-/* =========================================
-   LOGO
-========================================= */
+/* =========================================================
+   LOGO AREA
+========================================================= */
 
 .sidebar-logo {
-    height: 76px;
+    height: 78px;
 
     display: flex;
     align-items: center;
 
     padding: 0 18px;
 
-    border-bottom: 1px solid #f0f1f5;
+    background: var(--cb-sidebar-white);
+
+    border-bottom: 1px solid var(--cb-border);
 
     flex-shrink: 0;
 
     box-sizing: border-box;
 }
 
+
+/* =========================================================
+   LOGO ICON
+========================================================= */
+
 .logo-icon {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
 
-    min-width: 38px;
+    min-width: 40px;
 
-    border-radius: 10px;
+    border-radius: 11px;
 
-    background: linear-gradient(
-        135deg,
-        #4f46e5,
-        #6366f1
-    );
+    background:
+        linear-gradient(
+            135deg,
+            var(--cb-primary),
+            var(--cb-primary-light)
+        );
 
-    color: #ffffff;
+    color: #FFFFFF;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
     font-size: 19px;
-    font-weight: 700;
+    font-weight: 800;
 
-    margin-right: 10px;
+    margin-right: 11px;
 
-    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.18);
+    box-shadow:
+        0 5px 14px rgba(109, 40, 217, 0.22);
 }
+
+
+/* =========================================================
+   LOGO TEXT
+========================================================= */
 
 .logo-text {
     min-width: 0;
@@ -77,10 +127,13 @@
 .sidebar-logo h2 {
     margin: 0;
 
-    font-size: 17px;
-    font-weight: 700;
+    font-size: 18px;
 
-    color: #172554;
+    font-weight: 800;
+
+    letter-spacing: -0.2px;
+
+    color: var(--cb-text-dark);
 
     white-space: nowrap;
 }
@@ -90,17 +143,19 @@
 
     margin-top: 2px;
 
-    font-size: 10px;
+    font-size: 9px;
 
-    color: #8a91a3;
+    font-weight: 500;
+
+    color: var(--cb-text-muted);
 
     white-space: nowrap;
 }
 
 
-/* =========================================
-   NAVIGATION
-========================================= */
+/* =========================================================
+   NAVIGATION AREA
+========================================================= */
 
 .sidebar-nav {
     flex: 1;
@@ -113,20 +168,22 @@
 }
 
 
-/* =========================================
+/* =========================================================
    SECTION TITLE
-========================================= */
+========================================================= */
 
 .sidebar-section-title {
     font-size: 9px;
 
-    font-weight: 700;
+    font-weight: 800;
 
-    letter-spacing: 1px;
+    letter-spacing: 1.1px;
 
-    color: #9ca3af;
+    text-transform: uppercase;
 
-    margin: 17px 10px 7px;
+    color: #9A91AA;
+
+    margin: 19px 10px 8px;
 
     user-select: none;
 }
@@ -136,25 +193,27 @@
 }
 
 
-/* =========================================
+/* =========================================================
    SIDEBAR LINKS
-========================================= */
+========================================================= */
 
 .sidebar-link {
+    position: relative;
+
     display: flex;
     align-items: center;
 
     width: 100%;
 
-    padding: 10px 12px;
+    padding: 11px 12px;
 
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 
     border-radius: 9px;
 
     text-decoration: none;
 
-    color: #596174;
+    color: var(--cb-text);
 
     font-size: 12px;
 
@@ -163,36 +222,85 @@
     transition:
         background 0.2s ease,
         color 0.2s ease,
-        transform 0.2s ease;
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 
     box-sizing: border-box;
 }
 
-.sidebar-link:hover {
-    background: #f3f4ff;
 
-    color: #4f46e5;
+/* =========================================================
+   HOVER
+========================================================= */
+
+.sidebar-link:hover {
+    background: var(--cb-purple-hover);
+
+    color: var(--cb-primary);
 
     transform: translateX(2px);
 }
 
+
+/* =========================================================
+   ACTIVE LINK
+========================================================= */
+
 .sidebar-link.active {
-    background: #eef0ff;
+    background:
+        linear-gradient(
+            90deg,
+            #EDE7FF,
+            #F4F0FF
+        );
 
-    color: #4f46e5;
+    color: var(--cb-primary);
 
-    font-weight: 600;
+    font-weight: 700;
+
+    box-shadow:
+        0 2px 8px rgba(109, 40, 217, 0.06);
 }
 
 
-/* =========================================
+/* =========================================================
+   ACTIVE LEFT INDICATOR
+========================================================= */
+
+.sidebar-link.active::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 3px;
+
+    height: 22px;
+
+    border-radius: 0 4px 4px 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            var(--cb-primary),
+            var(--cb-primary-light)
+        );
+}
+
+
+/* =========================================================
    ICON
-========================================= */
+========================================================= */
 
 .sidebar-icon {
-    width: 25px;
+    width: 27px;
 
-    min-width: 25px;
+    min-width: 27px;
 
     font-size: 15px;
 
@@ -204,24 +312,45 @@
     margin-right: 8px;
 
     line-height: 1;
+
+    transition: transform 0.2s ease;
 }
 
 
-/* =========================================
-   LOGOUT / BOTTOM
-========================================= */
+/* Icon movement on hover */
+
+.sidebar-link:hover .sidebar-icon {
+    transform: scale(1.06);
+}
+
+
+/* Active icon */
+
+.sidebar-link.active .sidebar-icon {
+    color: var(--cb-primary);
+}
+
+
+/* =========================================================
+   BOTTOM AREA
+========================================================= */
 
 .sidebar-bottom {
-    padding: 14px 12px;
+    padding: 13px 12px;
 
-    border-top: 1px solid #f0f1f5;
+    background: var(--cb-sidebar-white);
 
-    background: #ffffff;
+    border-top: 1px solid var(--cb-border);
 
     flex-shrink: 0;
 
     box-sizing: border-box;
 }
+
+
+/* =========================================================
+   LOGOUT BUTTON
+========================================================= */
 
 .logout-button {
     width: 100%;
@@ -235,9 +364,10 @@
     border-radius: 9px;
 
     display: flex;
+
     align-items: center;
 
-    color: #dc2626;
+    color: var(--cb-danger);
 
     font-family: inherit;
 
@@ -257,18 +387,23 @@
     box-sizing: border-box;
 }
 
-.logout-button:hover {
-    background: #fef2f2;
 
-    color: #b91c1c;
+/* =========================================================
+   LOGOUT HOVER
+========================================================= */
+
+.logout-button:hover {
+    background: var(--cb-danger-bg);
+
+    color: #B91C1C;
 
     transform: translateX(2px);
 }
 
 
-/* =========================================
+/* =========================================================
    SCROLLBAR
-========================================= */
+========================================================= */
 
 .sidebar-nav::-webkit-scrollbar {
     width: 4px;
@@ -279,19 +414,19 @@
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-    background: #d9dce8;
+    background: #D8CFE8;
 
     border-radius: 10px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
-    background: #bfc3d2;
+    background: #BFB2D5;
 }
 
 
-/* =========================================
-   RESPONSIVE — TABLET
-========================================= */
+/* =========================================================
+   TABLET
+========================================================= */
 
 @media (max-width: 900px) {
 
@@ -302,15 +437,20 @@
 }
 
 
-/* =========================================
-   RESPONSIVE — MOBILE
-========================================= */
+/* =========================================================
+   MOBILE
+========================================================= */
 
 @media (max-width: 700px) {
 
     .sidebar {
         width: 70px;
     }
+
+
+    /* -----------------------------------------
+       LOGO
+    ----------------------------------------- */
 
     .sidebar-logo {
         justify-content: center;
@@ -328,6 +468,11 @@
         display: none;
     }
 
+
+    /* -----------------------------------------
+       NAVIGATION
+    ----------------------------------------- */
+
     .sidebar-nav {
         padding: 18px 8px;
     }
@@ -335,6 +480,11 @@
     .sidebar-section-title {
         display: none;
     }
+
+
+    /* -----------------------------------------
+       LINKS
+    ----------------------------------------- */
 
     .sidebar-link {
         justify-content: center;
@@ -346,6 +496,11 @@
         display: none;
     }
 
+
+    /* -----------------------------------------
+       ICON
+    ----------------------------------------- */
+
     .sidebar-icon {
         width: 100%;
 
@@ -355,6 +510,22 @@
 
         font-size: 17px;
     }
+
+
+    /* -----------------------------------------
+       ACTIVE INDICATOR
+    ----------------------------------------- */
+
+    .sidebar-link.active::before {
+        left: 2px;
+
+        height: 24px;
+    }
+
+
+    /* -----------------------------------------
+       BOTTOM
+    ----------------------------------------- */
 
     .sidebar-bottom {
         padding: 12px 8px;
@@ -377,4 +548,28 @@
 
         margin-right: 0;
     }
+
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+    .sidebar {
+        width: 64px;
+    }
+
+    .sidebar-nav {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+    .sidebar-bottom {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
 }

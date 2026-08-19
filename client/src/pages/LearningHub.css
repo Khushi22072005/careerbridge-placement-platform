@@ -1,22 +1,26 @@
+/* =====================================================
+   LEARNING HUB - CAREERBRIDGE
+===================================================== */
+
 .learning-page {
     min-height: 100vh;
-    background: #f7f8fc;
+    background: #faf8ff;
     padding: 30px 36px 40px;
-    color: #17213d;
+    color: #211936;
     box-sizing: border-box;
 }
 
 
-/* =========================
+/* =====================================================
    HEADER
-========================= */
+===================================================== */
 
 .learning-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 25px;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 
 .learning-title-section {
@@ -29,384 +33,827 @@
     width: 54px;
     height: 54px;
     border-radius: 16px;
-    background: #eef0ff;
+    background: #f0e9ff;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     font-size: 25px;
+    flex-shrink: 0;
 }
 
 .section-label {
     display: block;
+
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 1.5px;
-    color: #315be8;
+
+    color: #7c3aed;
+
     margin-bottom: 5px;
 }
 
 .learning-header h1 {
     margin: 0;
+
     font-size: 30px;
     font-weight: 750;
-    color: #17213d;
+
+    color: #24183b;
 }
 
 .learning-header p {
     margin: 5px 0 0;
-    color: #6c7690;
+
+    color: #766d88;
     font-size: 14px;
-}
-
-.learning-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.course-search {
-    width: 335px;
-    height: 44px;
-    background: white;
-    border: 1px solid #e3e7f0;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    padding: 0 14px;
-    box-sizing: border-box;
-}
-
-.course-search span {
-    font-size: 23px;
-    color: #77809a;
-    margin-right: 8px;
-}
-
-.course-search input {
-    width: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 13px;
-    color: #25304c;
-}
-
-.filter-button {
-    height: 44px;
-    padding: 0 17px;
-    border-radius: 10px;
-    border: 1px solid #e3e7f0;
-    background: white;
-    color: #35405d;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
+    line-height: 1.5;
 }
 
 
-/* =========================
-   OVERVIEW
-========================= */
+/* =====================================================
+   CAREER ROLE SECTION
+===================================================== */
 
-.learning-overview {
-    background: white;
-    border: 1px solid #e5e8f0;
+.career-role-section {
+    background: #ffffff;
+
+    border: 1px solid #e6ddf3;
     border-radius: 15px;
-    padding: 25px;
-    display: grid;
-    grid-template-columns: 1.05fr 1fr;
-    gap: 28px;
-    margin-bottom: 22px;
-    box-shadow: 0 3px 15px rgba(32, 45, 80, 0.03);
+
+    padding: 22px;
+    margin-bottom: 18px;
+
+    box-shadow:
+        0 3px 15px rgba(91, 60, 130, 0.04);
 }
 
-.learning-overview h2,
-.learning-card h2,
-.side-card h2 {
-    font-size: 15px;
+.career-role-heading {
+    margin-bottom: 17px;
+}
+
+.career-role-heading h2 {
     margin: 0;
-    color: #17213d;
+
+    color: #24183b;
+
+    font-size: 18px;
     font-weight: 750;
 }
 
-.overview-left {
-    padding-right: 25px;
-    border-right: 1px solid #edf0f5;
+.career-role-heading p {
+    margin: 5px 0 0;
+
+    color: #817791;
+
+    font-size: 11px;
+    line-height: 1.5;
 }
 
-.progress-content {
-    display: flex;
-    align-items: center;
-    gap: 35px;
-    margin-top: 20px;
+
+/* =====================================================
+   CAREER ROLE GRID
+===================================================== */
+
+.career-role-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 10px;
 }
 
-.progress-circle {
-    width: 138px;
-    height: 138px;
-    border-radius: 50%;
-    background: conic-gradient(
-        #315be8 0deg,
-        #315be8 151deg,
-        #e7ebf5 151deg,
-        #e7ebf5 360deg
-    );
+
+/* =====================================================
+   CAREER ROLE CARD
+===================================================== */
+
+.career-role-card {
+    position: relative;
+
+    min-height: 108px;
+
+    padding: 13px;
+
+    border-radius: 12px;
+    border: 1px solid #e7def5;
+
+    background: #ffffff;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.career-role-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #cdb9eb;
+
+    box-shadow:
+        0 7px 20px rgba(91, 60, 130, 0.08);
+}
+
+.career-role-card.active {
+    border-color: #7c3aed;
+
+    background: #f8f3ff;
+
+    box-shadow:
+        0 6px 20px rgba(124, 58, 237, 0.12);
+}
+
+
+/* =====================================================
+   ROLE ICON
+===================================================== */
+
+.role-card-icon {
+    width: 37px;
+    height: 37px;
+
+    border-radius: 10px;
+
+    background: #f0e9ff;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    font-size: 18px;
+
+    margin-bottom: 9px;
+}
+
+.career-role-card.active .role-card-icon {
+    background: #e9ddff;
+}
+
+
+/* =====================================================
+   ROLE CONTENT
+===================================================== */
+
+.role-card-content {
+    padding-right: 10px;
+}
+
+.role-card-content strong {
+    display: block;
+
+    color: #281a40;
+
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.role-card-content span {
+    display: block;
+
+    color: #817791;
+
+    font-size: 8px;
+    line-height: 1.4;
+
+    margin-top: 4px;
+}
+
+
+/* =====================================================
+   ROLE RADIO
+===================================================== */
+
+.role-radio {
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+
+    width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
+
+    border: 1px solid #dcd1eb;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 9px;
+
+    color: #ffffff;
+}
+
+.career-role-card.active .role-radio {
+    background: #7c3aed;
+    border-color: #7c3aed;
+}
+
+
+/* =====================================================
+   SELECTED ROLE BANNER
+===================================================== */
+
+.selected-role-banner {
+    background:
+        linear-gradient(
+            135deg,
+            #f3ecff,
+            #faf7ff
+        );
+
+    border: 1px solid #ded1f3;
+
+    border-radius: 14px;
+
+    padding: 17px 20px;
+
+    margin-bottom: 18px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+}
+
+.selected-role-icon {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 13px;
+
+    background: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 23px;
+
+    box-shadow:
+        0 4px 12px rgba(91, 60, 130, 0.08);
+
+    flex-shrink: 0;
+}
+
+.selected-role-banner span {
+    display: block;
+
+    font-size: 8px;
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+
+    color: #7c3aed;
+}
+
+.selected-role-banner h2 {
+    margin: 3px 0 2px;
+
+    font-size: 17px;
+
+    color: #281a40;
+}
+
+.selected-role-banner p {
+    margin: 0;
+
+    color: #766d88;
+
+    font-size: 10px;
+}
+
+
+/* =====================================================
+   LEARNING OVERVIEW
+===================================================== */
+
+.learning-overview {
+    background: #ffffff;
+
+    border: 1px solid #e6ddf3;
+    border-radius: 15px;
+
+    padding: 22px;
+
+    display: grid;
+
+    grid-template-columns:
+        1.05fr 1fr;
+
+    gap: 28px;
+
+    margin-bottom: 18px;
+
+    box-shadow:
+        0 3px 15px rgba(91, 60, 130, 0.04);
+}
+
+.learning-overview h2 {
+    font-size: 15px;
+
+    margin: 0;
+
+    color: #24183b;
+
+    font-weight: 750;
+}
+
+
+/* =====================================================
+   OVERVIEW LEFT
+===================================================== */
+
+.overview-left {
+    padding-right: 25px;
+
+    border-right:
+        1px solid #eee9f5;
+}
+
+
+/* =====================================================
+   PROGRESS CONTENT
+===================================================== */
+
+.progress-content {
+    display: flex;
+
+    align-items: center;
+
+    gap: 28px;
+
+    margin-top: 18px;
+}
+
+
+/* =====================================================
+   PROGRESS CIRCLE
+===================================================== */
+
+.progress-circle {
+    width: 128px;
+    height: 128px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     flex-shrink: 0;
 }
 
 .progress-circle-inner {
-    width: 112px;
-    height: 112px;
+    width: 103px;
+    height: 103px;
+
     border-radius: 50%;
-    background: white;
+
+    background: #ffffff;
+
     display: flex;
     flex-direction: column;
+
     align-items: center;
     justify-content: center;
 }
 
 .progress-circle-inner strong {
-    font-size: 24px;
-    color: #18223e;
+    font-size: 23px;
+
+    color: #281a40;
 }
 
 .progress-circle-inner span {
-    font-size: 10px;
-    color: #788198;
+    font-size: 9px;
+
+    color: #827791;
+
     margin-top: 4px;
+
+    text-align: center;
 }
 
-.skill-progress-list {
-    width: 100%;
-}
 
-.skill-progress {
-    display: grid;
-    grid-template-columns: 30px 65px 1fr 35px;
-    gap: 9px;
-    align-items: center;
-    margin-bottom: 14px;
-}
-
-.skill-progress:last-child {
-    margin-bottom: 0;
-}
-
-.skill-progress strong {
-    font-size: 12px;
-}
-
-.skill-progress span {
-    font-size: 11px;
-    color: #6c7690;
-    text-align: right;
-}
-
-.skill-progress-icon {
-    width: 26px;
-    height: 26px;
-    border-radius: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    font-weight: 800;
-}
-
-.skill-progress-bar {
-    height: 5px;
-    background: #e9edf5;
-    border-radius: 20px;
-    overflow: hidden;
-}
-
-.skill-progress-bar div {
-    height: 100%;
-    background: #315be8;
-    border-radius: 20px;
-}
-
-.overview-right {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-}
-
-.learning-stat {
-    border: 1px solid #edf0f5;
-    border-radius: 12px;
-    padding: 15px 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.stat-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-}
-
-.book-icon {
-    background: #eef0ff;
-}
-
-.completed-icon {
-    background: #eaf9f2;
-    color: #19a66b;
-    font-weight: bold;
-}
-
-.time-icon {
-    background: #fff4e8;
-    color: #f39b24;
-}
-
-.learning-stat strong {
-    display: block;
-    font-size: 19px;
-}
-
-.learning-stat span {
-    display: block;
-    color: #77809a;
-    font-size: 9px;
-    margin-top: 2px;
-}
+/* =====================================================
+   PROGRESS MESSAGE
+===================================================== */
 
 .progress-message {
-    margin-top: 14px;
-    background: #f5f2ff;
+    background: #f5f0ff;
+
     border-radius: 12px;
+
     min-height: 67px;
-    padding: 12px 15px;
+
+    padding: 12px 14px;
+
     display: flex;
+
     align-items: center;
-    gap: 12px;
+
+    gap: 10px;
+
     box-sizing: border-box;
+
+    flex: 1;
 }
 
 .message-star {
     width: 35px;
     height: 35px;
-    background: #315be8;
+
+    background: #7c3aed;
+
     border-radius: 50%;
+
     color: white;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    flex-shrink: 0;
 }
 
 .progress-message strong {
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .progress-message p {
     margin: 3px 0 0;
-    font-size: 10px;
-    color: #68728b;
+
+    font-size: 9px;
+
+    color: #766d88;
+
+    line-height: 1.4;
 }
 
 .trophy {
     margin-left: auto;
-    font-size: 30px;
+
+    font-size: 25px;
 }
 
 
-/* =========================
+/* =====================================================
+   OVERVIEW RIGHT
+===================================================== */
+
+.overview-right {
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+.stats-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 10px;
+}
+
+.learning-stat {
+    border: 1px solid #eee9f5;
+
+    border-radius: 12px;
+
+    padding: 14px 10px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.learning-stat:hover {
+    border-color: #d9c9f4;
+
+    box-shadow:
+        0 5px 15px rgba(91, 60, 130, 0.05);
+}
+
+.stat-icon {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 17px;
+
+    flex-shrink: 0;
+}
+
+.book-icon {
+    background: #f0e9ff;
+}
+
+.completed-icon {
+    background: #f1eafe;
+
+    color: #7c3aed;
+
+    font-weight: bold;
+}
+
+.time-icon {
+    background: #f7efff;
+
+    color: #9556d8;
+}
+
+.learning-stat strong {
+    display: block;
+
+    font-size: 17px;
+
+    color: #281a40;
+}
+
+.learning-stat span {
+    display: block;
+
+    color: #817791;
+
+    font-size: 8px;
+
+    margin-top: 2px;
+}
+
+
+/* =====================================================
+   SUCCESS MESSAGE
+===================================================== */
+
+.learning-success-message {
+    background: #f0eaff;
+
+    border: 1px solid #d9c9f4;
+
+    color: #6534b5;
+
+    border-radius: 9px;
+
+    padding: 10px 14px;
+
+    margin-bottom: 18px;
+
+    font-size: 11px;
+
+    font-weight: 650;
+}
+
+
+/* =====================================================
    MAIN GRID
-========================= */
+===================================================== */
 
 .learning-main-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 245px;
+
+    grid-template-columns:
+        minmax(0, 1fr) 245px;
+
     gap: 18px;
+
     align-items: start;
 }
 
 .learning-main-column {
     display: flex;
+
     flex-direction: column;
+
     gap: 18px;
 }
 
+
+/* =====================================================
+   GENERAL CARDS
+===================================================== */
+
 .learning-card,
 .side-card {
-    background: white;
-    border: 1px solid #e5e8f0;
+    background: #ffffff;
+
+    border: 1px solid #e6ddf3;
+
     border-radius: 15px;
+
     padding: 20px;
-    box-shadow: 0 3px 15px rgba(32, 45, 80, 0.025);
+
+    box-shadow:
+        0 3px 15px rgba(91, 60, 130, 0.025);
+}
+
+.learning-card h2,
+.side-card h2 {
+    font-size: 15px;
+
+    margin: 0;
+
+    color: #24183b;
+
+    font-weight: 750;
 }
 
 .card-heading {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 16px;
-}
 
-.card-heading button,
-.side-card-heading button {
-    border: none;
-    background: transparent;
-    color: #315be8;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 16px;
 }
 
 .card-subtitle {
     margin: 4px 0 0;
-    color: #7a8398;
+
+    color: #817791;
+
     font-size: 10px;
+
+    line-height: 1.4;
+}
+
+.course-count {
+    background: #f3ecff;
+
+    color: #7035c9;
+
+    border-radius: 20px;
+
+    padding: 6px 10px;
+
+    font-size: 8px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
 }
 
 
-/* =========================
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.course-search {
+    width: 100%;
+
+    height: 40px;
+
+    background: #ffffff;
+
+    border: 1px solid #e7def5;
+
+    border-radius: 9px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 0 12px;
+
+    box-sizing: border-box;
+
+    margin-bottom: 13px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.course-search:focus-within {
+    border-color: #b99be7;
+
+    box-shadow:
+        0 0 0 3px rgba(124, 58, 237, 0.06);
+}
+
+.course-search span {
+    font-size: 20px;
+
+    color: #9186a6;
+
+    margin-right: 7px;
+}
+
+.course-search input {
+    width: 100%;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    font-size: 11px;
+
+    color: #33284a;
+}
+
+.course-search input::placeholder {
+    color: #a49aaa;
+}
+
+
+/* =====================================================
    CONTINUE LEARNING
-========================= */
+===================================================== */
 
 .continue-list {
     display: flex;
+
     flex-direction: column;
+
     gap: 9px;
 }
 
 .continue-course {
     min-height: 76px;
-    border: 1px solid #e7eaf1;
+
+    border: 1px solid #e9e4f1;
+
     border-radius: 11px;
+
     padding: 10px;
+
     display: flex;
+
     align-items: center;
+
     gap: 13px;
+
     box-sizing: border-box;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
 }
+
+.continue-course:hover {
+    border-color: #d6c5ec;
+
+    box-shadow:
+        0 7px 22px rgba(91, 60, 130, 0.07);
+
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   COURSE THUMBNAIL
+===================================================== */
 
 .course-thumbnail {
     width: 52px;
     height: 52px;
+
     border-radius: 9px;
+
     flex-shrink: 0;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+
+    font-size: 10px;
+
     font-weight: 800;
 }
 
@@ -415,48 +862,59 @@
     height: 58px;
 }
 
-.sql-icon {
-    background: #e9edff;
-    color: #315be8;
-}
 
-.powerbi-icon {
-    background: #fff4d9;
-    color: #d99600;
+/* =====================================================
+   COURSE PLATFORM ICON COLORS
+===================================================== */
+
+.sql-icon {
+    background: #eee8ff;
+    color: #7040d5;
 }
 
 .python-icon {
-    background: #edf5ff;
-    color: #2877b8;
+    background: #edf3ff;
+    color: #315ca8;
+}
+
+.powerbi-icon {
+    background: #fff6d9;
+    color: #9a7300;
 }
 
 .excel-icon {
-    background: #e8f7ed;
-    color: #168a55;
+    background: #eaf8ef;
+    color: #198754;
 }
 
-.statistics-icon {
-    background: #eee9ff;
-    color: #7357d9;
+.youtube-icon {
+    background: #ffecec;
+    color: #d00000;
 }
 
-.visual-icon {
-    background: #ffeef2;
-    color: #db5570;
+.coursera-icon {
+    background: #eaf4ff;
+    color: #0056b3;
 }
 
-.aptitude-icon {
-    background: #fff0f6;
-    color: #e05a91;
+.udemy-icon {
+    background: #f3eaff;
+    color: #6d28d9;
 }
 
-.more-icon {
-    background: #f0f2f7;
-    color: #667089;
+.online-icon {
+    background: #eafaf1;
+    color: #16834b;
 }
+
+
+/* =====================================================
+   CONTINUE COURSE INFORMATION
+===================================================== */
 
 .continue-course-info {
     flex: 1;
+
     min-width: 0;
 }
 
@@ -464,14 +922,19 @@
 .recommended-info h3,
 .practice-card h3 {
     margin: 0;
+
     font-size: 12px;
+
     font-weight: 750;
-    color: #18223e;
+
+    color: #281a40;
 }
 
 .continue-course-info p {
     margin: 5px 0 7px;
-    color: #7a8398;
+
+    color: #817791;
+
     font-size: 9px;
 }
 
@@ -480,187 +943,572 @@
     margin: 0 5px;
 }
 
+
+/* =====================================================
+   MINI PROGRESS
+===================================================== */
+
 .mini-progress-row {
     display: flex;
+
     align-items: center;
+
     gap: 8px;
 }
 
 .mini-progress {
     height: 4px;
-    background: #e9edf5;
+
+    background: #eeeaf5;
+
     border-radius: 20px;
+
     width: 100%;
+
     max-width: 180px;
+
     overflow: hidden;
 }
 
 .mini-progress div {
     height: 100%;
-    background: #315be8;
+
+    background: #7c3aed;
+
     border-radius: 20px;
 }
 
 .mini-progress-row span {
     font-size: 9px;
-    color: #69738a;
+
+    color: #766d88;
 }
+
+
+/* =====================================================
+   CONTINUE BUTTON
+===================================================== */
 
 .continue-button {
-    border: 1px solid #e0e5ff;
-    background: #f2f1ff;
-    color: #315be8;
+    border: 1px solid #e2d5f7;
+
+    background: #f5efff;
+
+    color: #7035c9;
+
     border-radius: 7px;
+
     padding: 8px 12px;
+
     font-size: 10px;
+
     font-weight: 650;
+
     cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.continue-button:hover {
+    background: #7c3aed;
+
+    color: #ffffff;
 }
 
 
-/* =========================
-   RECOMMENDED
-========================= */
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.empty-learning {
+    border: 1px dashed #ddd2ed;
+
+    border-radius: 11px;
+
+    padding: 22px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 6px;
+
+    text-align: center;
+}
+
+.empty-learning-icon {
+    font-size: 24px;
+
+    margin-bottom: 3px;
+}
+
+.empty-learning strong {
+    font-size: 12px;
+
+    color: #39264f;
+}
+
+.empty-learning span {
+    font-size: 10px;
+
+    color: #817791;
+}
+
+
+/* =====================================================
+   RECOMMENDED COURSES
+===================================================== */
 
 .recommended-list {
     display: flex;
+
     flex-direction: column;
+
     gap: 9px;
 }
 
 .recommended-course {
-    border: 1px solid #e7eaf1;
+    border: 1px solid #e9e4f1;
+
     border-radius: 11px;
+
     padding: 10px;
+
     display: flex;
+
     align-items: center;
+
     gap: 13px;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.recommended-course:hover {
+    border-color: #d6c5ec;
+
+    box-shadow:
+        0 7px 22px rgba(91, 60, 130, 0.07);
+
+    transform: translateY(-1px);
 }
 
 .recommended-info {
     flex: 1;
+
     min-width: 0;
 }
 
 .course-meta {
-    color: #727c94;
+    color: #817791;
+
     font-size: 9px;
+
     margin: 5px 0 6px;
 }
 
 .recommendation-reason {
     display: inline-block;
-    background: #edf9f3;
-    color: #159365;
+
+    background: #f4edff;
+
+    color: #7440c5;
+
     border-radius: 5px;
+
     padding: 4px 7px;
+
     font-size: 8px;
 }
+
+
+/* =====================================================
+   COURSE ACTIONS
+===================================================== */
 
 .course-actions {
     display: flex;
+
     align-items: center;
+
     gap: 7px;
 }
 
-.save-course {
-    width: 31px;
-    height: 31px;
-    border: 1px solid #e1e5ee;
-    background: white;
-    color: #68728a;
-    border-radius: 7px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
 .view-course-button {
-    padding: 9px 11px;
+    padding: 9px 13px;
+
     border-radius: 7px;
-    background: #f0efff;
-    color: #315be8;
+
+    border: none;
+
+    background: #f1eaff;
+
+    color: #7035c9;
+
     font-size: 9px;
+
     font-weight: 700;
-    text-decoration: none;
+
     white-space: nowrap;
-}
 
-
-/* =========================
-   SKILLS
-========================= */
-
-.skills-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-}
-
-.skill-card {
-    border: 1px solid #e7eaf1;
-    background: white;
-    border-radius: 10px;
-    padding: 11px 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
     cursor: pointer;
-    text-align: left;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
-.skill-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+.view-course-button:hover {
+    background: #7c3aed;
+
+    color: #ffffff;
+
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   LEARNING RESOURCES
+===================================================== */
+
+.learning-resources-section {
+    margin-top: 18px;
+}
+
+.learning-resource-list {
     display: flex;
+
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+.learning-resource-card {
+    border: 1px solid #e9e4f1;
+
+    border-radius: 11px;
+
+    padding: 11px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.learning-resource-card:hover {
+    border-color: #d6c5ec;
+
+    box-shadow:
+        0 7px 22px rgba(91, 60, 130, 0.07);
+
+    transform: translateY(-1px);
+}
+
+.resource-thumbnail {
+    width: 58px;
+    height: 58px;
+
+    border-radius: 10px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    font-size: 8px;
+
+    font-size: 11px;
+
     font-weight: 800;
 }
 
-.skill-card strong {
-    display: block;
-    font-size: 10px;
+.learning-resource-info {
+    flex: 1;
+
+    min-width: 0;
 }
 
-.skill-card span {
-    display: block;
-    margin-top: 3px;
+.learning-resource-info h3 {
+    margin: 0;
+
+    color: #281a40;
+
+    font-size: 12px;
+
+    font-weight: 750;
+}
+
+.learning-resource-info p {
+    margin: 4px 0 0;
+
+    color: #817791;
+
+    font-size: 9px;
+
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   RESOURCE META
+===================================================== */
+
+.resource-meta {
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 5px;
+
+    margin-top: 6px;
+}
+
+.resource-meta span {
+    color: #817791;
+
     font-size: 8px;
-    color: #7c8498;
+}
+
+.resource-platform {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 4px 8px;
+
+    border-radius: 6px;
+
+    font-size: 8px;
+
+    font-weight: 750;
+}
+
+.platform-coursera {
+    background: #eaf4ff;
+
+    color: #0056b3;
+}
+
+.platform-udemy {
+    background: #f3eaff;
+
+    color: #6d28d9;
+}
+
+.platform-youtube {
+    background: #ffecec;
+
+    color: #d00000;
+}
+
+.platform-online {
+    background: #eafaf1;
+
+    color: #16834b;
+}
+
+.resource-type {
+    display: inline-block;
+
+    padding: 4px 7px;
+
+    border-radius: 5px;
+
+    background: #f5f1fa;
+
+    color: #766d88;
+
+    font-size: 8px;
+
+    font-weight: 650;
 }
 
 
-/* =========================
-   PRACTICE
-========================= */
+/* =====================================================
+   RESOURCE ACTIONS
+===================================================== */
+
+.learning-resource-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.view-resource-button {
+    padding: 9px 13px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: #f1eaff;
+
+    color: #7035c9;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.view-resource-button:hover {
+    background: #7c3aed;
+
+    color: #ffffff;
+
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   RESOURCE FILTERS
+===================================================== */
+
+.resource-filter-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 14px;
+
+    flex-wrap: wrap;
+}
+
+.resource-filter-button {
+    border: 1px solid #e5dcef;
+
+    background: #ffffff;
+
+    color: #766d88;
+
+    padding: 7px 11px;
+
+    border-radius: 7px;
+
+    font-size: 9px;
+
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.resource-filter-button:hover {
+    border-color: #cdb9eb;
+
+    color: #7035c9;
+}
+
+.resource-filter-button.active {
+    background: #7c3aed;
+
+    border-color: #7c3aed;
+
+    color: #ffffff;
+}
+
+
+/* =====================================================
+   PRACTICE ZONE
+===================================================== */
 
 .practice-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
     gap: 10px;
 }
 
 .practice-card {
-    border: 1px solid #e7eaf1;
+    border: 1px solid #e9e4f1;
+
     border-radius: 10px;
+
     padding: 12px;
+
     display: flex;
+
     gap: 10px;
+
     align-items: flex-start;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
 }
+
+.practice-card:hover {
+    border-color: #d6c5ec;
+
+    box-shadow:
+        0 7px 22px rgba(91, 60, 130, 0.07);
+
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   PRACTICE ICON
+===================================================== */
 
 .practice-icon {
     width: 34px;
     height: 34px;
+
     border-radius: 9px;
+
+    background: #f0e9ff;
+
+    color: #7040d5;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     flex-shrink: 0;
+
     font-size: 8px;
+
     font-weight: 800;
 }
 
@@ -670,206 +1518,266 @@
 
 .practice-card p {
     margin: 5px 0 9px;
+
     font-size: 8px;
+
     line-height: 1.4;
-    color: #7a8398;
+
+    color: #817791;
 }
+
+
+/* =====================================================
+   PRACTICE BUTTON
+===================================================== */
 
 .practice-card button {
     border: none;
-    background: transparent;
-    color: #315be8;
-    padding: 0;
+
+    background: #f1eaff;
+
+    color: #7035c9;
+
+    padding: 7px 9px;
+
+    border-radius: 6px;
+
     font-size: 9px;
-    font-weight: 650;
+
+    font-weight: 700;
+
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.practice-card button:hover {
+    background: #7c3aed;
+
+    color: #ffffff;
+
+    transform: translateX(2px);
 }
 
 
-/* =========================
+/* =====================================================
    RIGHT SIDEBAR
-========================= */
+===================================================== */
 
 .learning-sidebar {
     display: flex;
+
     flex-direction: column;
+
     gap: 18px;
 }
 
-.side-card-heading {
+
+/* =====================================================
+   CAREER PATH MINI
+===================================================== */
+
+.career-path-mini {
+    text-align: center;
+
+    padding-top: 4px;
+}
+
+.path-mini-icon {
+    width: 58px;
+    height: 58px;
+
+    margin: 0 auto 10px;
+
+    border-radius: 15px;
+
+    background: #f0e9ff;
+
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 17px;
-}
 
-.learning-goal {
-    margin-bottom: 18px;
-}
-
-.learning-goal:last-child {
-    margin-bottom: 0;
-}
-
-.goal-title {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
-
-.goal-title strong {
-    font-size: 10px;
-    font-weight: 650;
-}
-
-.goal-check {
-    width: 17px;
-    height: 17px;
-    background: #eaf8f1;
-    color: #1a9b68;
-    border-radius: 50%;
-    display: flex;
     align-items: center;
     justify-content: center;
+
+    font-size: 27px;
+}
+
+.career-path-mini strong {
+    display: block;
+
+    color: #281a40;
+
+    font-size: 12px;
+}
+
+.career-path-mini p {
+    margin: 6px 0 0;
+
+    color: #817791;
+
     font-size: 9px;
+
+    line-height: 1.5;
 }
 
-.goal-progress {
-    margin-top: 7px;
+
+/* =====================================================
+   LEARNING TIPS
+===================================================== */
+
+.learning-tips-list {
     display: flex;
-    align-items: center;
-    gap: 7px;
+
+    flex-direction: column;
+
+    gap: 13px;
 }
 
-.goal-progress > div {
-    flex: 1;
-    height: 4px;
-    background: #e8ecf4;
-    border-radius: 20px;
-    overflow: hidden;
-}
-
-.goal-progress > div span {
-    display: block;
-    height: 100%;
-    background: #315be8;
-    border-radius: 20px;
-}
-
-.goal-progress small {
-    color: #768096;
-    font-size: 8px;
-}
-
-.side-card > h2 {
-    margin-bottom: 17px;
-}
-
-.platform-row {
+.learning-tips-list > div {
     display: flex;
-    justify-content: space-between;
+
+    align-items: flex-start;
+
+    gap: 9px;
+}
+
+.learning-tips-list span {
+    width: 22px;
+    height: 22px;
+
+    border-radius: 6px;
+
+    background: #f1eaff;
+
+    color: #7c3aed;
+
+    display: flex;
+
     align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #f0f2f6;
-}
+    justify-content: center;
 
-.platform-row strong {
-    font-size: 10px;
-    font-weight: 650;
-}
+    flex-shrink: 0;
 
-.platform-row span {
     font-size: 8px;
-    color: #7a8398;
+
+    font-weight: 800;
 }
 
-.side-link {
-    display: block;
-    margin: 14px auto 0;
-    border: none;
-    background: transparent;
-    color: #315be8;
+.learning-tips-list p {
+    margin: 1px 0 0;
+
+    color: #766d88;
+
     font-size: 9px;
-    font-weight: 650;
-    cursor: pointer;
-}
 
-.resource-row {
-    display: block;
-    width: 100%;
-    padding: 9px 0;
-    border: none;
-    background: transparent;
-    text-align: left;
-    color: #4d5770;
-    font-size: 10px;
-    cursor: pointer;
+    line-height: 1.45;
 }
 
 
-/* =========================
-   TIP
-========================= */
+/* =====================================================
+   BOTTOM CAREER TIP
+===================================================== */
 
 .learning-tip {
     margin-top: 18px;
-    border: 1px solid #e0e5ff;
-    background: #f4f3ff;
+
+    border: 1px solid #e2d7f3;
+
+    background: #f6f1ff;
+
     border-radius: 10px;
+
     min-height: 40px;
+
     padding: 10px 15px;
+
     box-sizing: border-box;
+
     display: flex;
+
     align-items: center;
+
     gap: 7px;
+
     font-size: 10px;
-    color: #626c84;
+
+    color: #706582;
 }
 
 .learning-tip strong {
-    color: #35405d;
+    color: #4b3a61;
 }
 
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* =====================================================
+   EXTERNAL LINKS
+===================================================== */
+
+.external-resource-link {
+    text-decoration: none;
+}
+
+
+/* =====================================================
+   GENERAL HOVER
+===================================================== */
+
+.learning-card,
+.side-card {
+    transition:
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.learning-card:hover,
+.side-card:hover {
+    border-color: #e0d4ef;
+
+    box-shadow:
+        0 5px 20px rgba(91, 60, 130, 0.04);
+}
+
+
+/* =====================================================
+   RESPONSIVE - 1200px
+===================================================== */
 
 @media (max-width: 1200px) {
+
+    .career-role-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
     .learning-main-grid {
         grid-template-columns: 1fr;
     }
 
     .learning-sidebar {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
     }
 
-    .skills-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .practice-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
+
+/* =====================================================
+   RESPONSIVE - 900px
+===================================================== */
+
 @media (max-width: 900px) {
+
     .learning-page {
         padding: 22px;
     }
 
-    .learning-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .learning-actions {
-        width: 100%;
-    }
-
-    .course-search {
-        flex: 1;
+    .career-role-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
     }
 
     .learning-overview {
@@ -878,24 +1786,115 @@
 
     .overview-left {
         padding-right: 0;
+
         padding-bottom: 20px;
+
         border-right: none;
-        border-bottom: 1px solid #edf0f5;
+
+        border-bottom:
+            1px solid #eee9f5;
     }
 
     .learning-sidebar {
         grid-template-columns: 1fr;
     }
+
 }
 
-@media (max-width: 650px) {
+
+/* =====================================================
+   RESPONSIVE - 700px
+===================================================== */
+
+@media (max-width: 700px) {
+
     .learning-page {
+        padding: 18px;
+    }
+
+    .learning-header {
+        align-items: flex-start;
+    }
+
+    .learning-header h1 {
+        font-size: 25px;
+    }
+
+    .learning-header p {
+        font-size: 12px;
+    }
+
+    .career-role-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .career-role-card {
+        min-height: 92px;
+    }
+
+    .selected-role-banner {
+        align-items: flex-start;
+    }
+
+    .stats-grid {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+    .practice-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =====================================================
+   RESPONSIVE - 550px
+===================================================== */
+
+@media (max-width: 550px) {
+
+    .learning-page {
+        padding: 15px;
+    }
+
+    .learning-title-section {
+        align-items: flex-start;
+    }
+
+    .learning-header-icon {
+        width: 46px;
+        height: 46px;
+
+        border-radius: 13px;
+
+        font-size: 21px;
+    }
+
+    .learning-header h1 {
+        font-size: 21px;
+    }
+
+    .learning-header p {
+        font-size: 11px;
+    }
+
+    .career-role-section,
+    .learning-card,
+    .side-card {
         padding: 16px;
     }
 
     .progress-content {
         flex-direction: column;
+
         align-items: flex-start;
+
+        width: 100%;
+    }
+
+    .progress-message {
+        width: 100%;
     }
 
     .stats-grid {
@@ -903,13 +1902,24 @@
     }
 
     .continue-course,
-    .recommended-course {
+    .recommended-course,
+    .learning-resource-card {
         align-items: flex-start;
+
         flex-wrap: wrap;
+    }
+
+    .continue-course-info,
+    .recommended-info,
+    .learning-resource-info {
+        min-width:
+            calc(100% - 75px);
     }
 
     .continue-button {
         width: 100%;
+
+        margin-top: 4px;
     }
 
     .course-actions {
@@ -917,15 +1927,68 @@
     }
 
     .view-course-button {
-        flex: 1;
+        width: 100%;
+
         text-align: center;
     }
 
-    .skills-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .learning-resource-actions {
+        width: 100%;
     }
 
-    .practice-grid {
-        grid-template-columns: 1fr;
+    .view-resource-button {
+        width: 100%;
+
+        text-align: center;
     }
+
+    .learning-tip {
+        align-items: flex-start;
+
+        flex-wrap: wrap;
+    }
+
+}
+
+
+/* =====================================================
+   RESPONSIVE - 400px
+===================================================== */
+
+@media (max-width: 400px) {
+
+    .learning-page {
+        padding: 12px;
+    }
+
+    .career-role-section {
+        padding: 13px;
+    }
+
+    .career-role-card {
+        padding: 11px;
+    }
+
+    .selected-role-banner {
+        padding: 14px;
+    }
+
+    .selected-role-icon {
+        width: 42px;
+        height: 42px;
+
+        font-size: 20px;
+    }
+
+    .learning-card,
+    .side-card {
+        padding: 14px;
+    }
+
+    .course-thumbnail.large,
+    .resource-thumbnail {
+        width: 50px;
+        height: 50px;
+    }
+
 }

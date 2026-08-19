@@ -5,8 +5,8 @@
 .career-roadmap-page {
     min-height: 100vh;
     display: flex;
-    background: #f6f8fc;
-    color: #182230;
+    background: #f7f5fb;
+    color: #24213a;
     font-family: Inter, Arial, sans-serif;
 }
 
@@ -23,7 +23,7 @@
     display: flex;
     flex-direction: column;
     background: #ffffff;
-    border-right: 1px solid #e7ebf2;
+    border-right: 1px solid #e4deef;
     padding: 26px 18px;
     box-sizing: border-box;
 }
@@ -44,7 +44,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #182230;
+    background: #6c4ab6;
     color: #ffffff;
     font-size: 20px;
     font-weight: 800;
@@ -60,13 +60,14 @@
 .roadmap-brand-text strong {
     font-size: 16px;
     letter-spacing: -0.3px;
+    color: #24213a;
 }
 
 
 .roadmap-brand-text span {
     margin-top: 3px;
     font-size: 10px;
-    color: #8a94a6;
+    color: #8f88a3;
 }
 
 
@@ -85,7 +86,7 @@
     width: 100%;
     border: none;
     background: transparent;
-    color: #687386;
+    color: #756e87;
     padding: 13px 14px;
     border-radius: 11px;
     display: flex;
@@ -110,14 +111,14 @@
 
 
 .roadmap-nav-item:hover {
-    background: #f2f4f8;
-    color: #182230;
+    background: #f1ecfa;
+    color: #6c4ab6;
     transform: translateX(2px);
 }
 
 
 .roadmap-nav-item.active {
-    background: #182230;
+    background: #6c4ab6;
     color: #ffffff;
 }
 
@@ -128,10 +129,10 @@
 
 
 .roadmap-role-box {
-    border: 1px solid #e4e8ef;
+    border: 1px solid #e4deef;
     border-radius: 14px;
     padding: 15px;
-    background: #fafbfc;
+    background: #faf9fd;
 }
 
 
@@ -140,7 +141,7 @@
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 1px;
-    color: #929baa;
+    color: #968fa7;
 }
 
 
@@ -148,7 +149,7 @@
     display: block;
     margin-top: 7px;
     font-size: 13px;
-    color: #182230;
+    color: #24213a;
 }
 
 
@@ -183,7 +184,7 @@
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 1.8px;
-    color: #7c8798;
+    color: #6c4ab6;
 }
 
 
@@ -192,20 +193,20 @@
     font-size: 40px;
     line-height: 1.12;
     letter-spacing: -1.5px;
-    color: #151d29;
+    color: #24213a;
 }
 
 
 .roadmap-page-header h1 span {
     font-weight: 400;
-    color: #7d8797;
+    color: #817990;
 }
 
 
 .roadmap-subtitle {
     max-width: 690px;
     margin: 14px 0 0;
-    color: #687386;
+    color: #756e87;
     font-size: 14px;
     line-height: 1.7;
 }
@@ -213,9 +214,9 @@
 
 .roadmap-back-button {
     flex-shrink: 0;
-    border: 1px solid #dfe4ec;
+    border: 1px solid #e0d9eb;
     background: #ffffff;
-    color: #313b4b;
+    color: #403a52;
     border-radius: 10px;
     padding: 11px 15px;
     font-size: 12px;
@@ -226,9 +227,9 @@
 
 
 .roadmap-back-button:hover {
-    background: #182230;
+    background: #6c4ab6;
     color: #ffffff;
-    border-color: #182230;
+    border-color: #6c4ab6;
 }
 
 
@@ -239,10 +240,10 @@
 .roadmap-progress-card {
     position: relative;
     background: #ffffff;
-    border: 1px solid #e5e9f0;
+    border: 1px solid #e4deef;
     border-radius: 18px;
     padding: 22px 24px;
-    box-shadow: 0 10px 35px rgba(20, 30, 50, 0.04);
+    box-shadow: 0 10px 35px rgba(76, 55, 110, 0.04);
     margin-bottom: 50px;
 }
 
@@ -261,7 +262,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #182230;
+    background: #6c4ab6;
     color: #ffffff;
     font-size: 14px;
 }
@@ -277,13 +278,14 @@
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 1.3px;
-    color: #929baa;
+    color: #968fa7;
 }
 
 
 .progress-text strong {
     margin-top: 4px;
     font-size: 14px;
+    color: #24213a;
 }
 
 
@@ -305,13 +307,14 @@
 
 .progress-stats strong {
     font-size: 16px;
+    color: #6c4ab6;
 }
 
 
 .progress-stats span {
     margin-top: 3px;
     font-size: 9px;
-    color: #929baa;
+    color: #968fa7;
 }
 
 
@@ -322,7 +325,7 @@
 
 .progress-bar {
     height: 6px;
-    background: #edf0f5;
+    background: #eeeaf4;
     border-radius: 20px;
     overflow: hidden;
 }
@@ -330,7 +333,7 @@
 
 .progress-bar-fill {
     height: 100%;
-    background: #182230;
+    background: #6c4ab6;
     border-radius: inherit;
     transition: width 0.5s ease;
 }
@@ -350,7 +353,7 @@
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 1.5px;
-    color: #9099a8;
+    color: #6c4ab6;
 }
 
 
@@ -358,13 +361,14 @@
     margin: 0;
     font-size: 25px;
     letter-spacing: -0.7px;
+    color: #24213a;
 }
 
 
 .journey-heading span {
     display: block;
     margin-top: 8px;
-    color: #7b8595;
+    color: #817990;
     font-size: 13px;
 }
 
@@ -385,7 +389,7 @@
     top: 30px;
     bottom: 30px;
     width: 2px;
-    background: #dfe4eb;
+    background: #ddd6e8;
 }
 
 
@@ -407,13 +411,13 @@
     height: 58px;
     border-radius: 50%;
     background: #ffffff;
-    border: 2px solid #dce2ea;
+    border: 2px solid #ddd6e8;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 12px;
     font-weight: 800;
-    color: #8a94a4;
+    color: #938ba3;
     box-sizing: border-box;
     z-index: 3;
     transition: 0.25s ease;
@@ -421,19 +425,19 @@
 
 
 .current-stage .journey-node {
-    background: #182230;
-    border-color: #182230;
+    background: #6c4ab6;
+    border-color: #6c4ab6;
     color: #ffffff;
     box-shadow:
-        0 0 0 7px #eef1f5,
-        0 8px 20px rgba(20, 30, 50, 0.14);
+        0 0 0 7px #f1ecfa,
+        0 8px 20px rgba(108, 74, 182, 0.14);
 }
 
 
 .completed-stage .journey-node {
-    background: #eef1f5;
-    border-color: #182230;
-    color: #182230;
+    background: #f1ecfa;
+    border-color: #6c4ab6;
+    color: #6c4ab6;
 }
 
 
@@ -443,11 +447,11 @@
 
 .journey-card {
     background: #ffffff;
-    border: 1px solid #e4e8ef;
+    border: 1px solid #e4deef;
     border-radius: 18px;
     padding: 25px;
     margin-bottom: 0;
-    box-shadow: 0 8px 30px rgba(20, 30, 50, 0.035);
+    box-shadow: 0 8px 30px rgba(76, 55, 110, 0.035);
     transition:
         transform 0.25s ease,
         box-shadow 0.25s ease,
@@ -457,14 +461,14 @@
 
 .journey-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 38px rgba(20, 30, 50, 0.07);
-    border-color: #cfd6e1;
+    box-shadow: 0 15px 38px rgba(76, 55, 110, 0.07);
+    border-color: #cfc4df;
 }
 
 
 .current-stage .journey-card {
-    border-color: #aeb8c8;
-    box-shadow: 0 14px 42px rgba(20, 30, 50, 0.07);
+    border-color: #c3b4da;
+    box-shadow: 0 14px 42px rgba(108, 74, 182, 0.07);
 }
 
 
@@ -485,8 +489,8 @@
     font-size: 8px;
     font-weight: 900;
     letter-spacing: 1.3px;
-    color: #7c8797;
-    background: #f2f4f7;
+    color: #6c4ab6;
+    background: #f1ecfa;
     border-radius: 5px;
     padding: 5px 7px;
 }
@@ -496,7 +500,7 @@
     margin: 9px 0 0;
     font-size: 20px;
     letter-spacing: -0.4px;
-    color: #1b2431;
+    color: #29233d;
 }
 
 
@@ -504,9 +508,9 @@
     white-space: nowrap;
     font-size: 10px;
     font-weight: 700;
-    color: #727d8e;
-    background: #f7f8fa;
-    border: 1px solid #eceff3;
+    color: #756e87;
+    background: #faf9fc;
+    border: 1px solid #ebe6f1;
     border-radius: 7px;
     padding: 7px 9px;
 }
@@ -522,8 +526,8 @@
     gap: 7px;
     margin-top: 14px;
     padding: 6px 9px;
-    background: #f1f3f6;
-    color: #182230;
+    background: #f1ecfa;
+    color: #6c4ab6;
     border-radius: 6px;
     font-size: 8px;
     font-weight: 900;
@@ -535,22 +539,22 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #182230;
+    background: #6c4ab6;
     animation: roadmapPulse 1.7s infinite;
 }
 
 
 @keyframes roadmapPulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(24, 34, 48, 0.25);
+        box-shadow: 0 0 0 0 rgba(108, 74, 182, 0.25);
     }
 
     70% {
-        box-shadow: 0 0 0 6px rgba(24, 34, 48, 0);
+        box-shadow: 0 0 0 6px rgba(108, 74, 182, 0);
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(24, 34, 48, 0);
+        box-shadow: 0 0 0 0 rgba(108, 74, 182, 0);
     }
 }
 
@@ -562,7 +566,7 @@
 .journey-description {
     margin: 17px 0 21px;
     max-width: 800px;
-    color: #6c7788;
+    color: #756e87;
     font-size: 13px;
     line-height: 1.7;
 }
@@ -573,7 +577,7 @@
 ========================================================= */
 
 .journey-section {
-    border-top: 1px solid #edf0f4;
+    border-top: 1px solid #eeeaf4;
     padding-top: 17px;
 }
 
@@ -586,13 +590,13 @@
     font-size: 9px;
     font-weight: 900;
     letter-spacing: 1.1px;
-    color: #8791a0;
+    color: #8f88a0;
 }
 
 
 .journey-section-label span {
     font-size: 11px;
-    color: #182230;
+    color: #6c4ab6;
 }
 
 
@@ -609,10 +613,10 @@
 
 .journey-skills span {
     padding: 7px 10px;
-    background: #f7f8fa;
-    border: 1px solid #e9edf2;
+    background: #faf9fc;
+    border: 1px solid #e8e2f0;
     border-radius: 7px;
-    color: #4e5969;
+    color: #5e576d;
     font-size: 10px;
     font-weight: 600;
 }
@@ -628,8 +632,8 @@
     align-items: flex-start;
     margin-top: 19px;
     padding: 14px;
-    background: #fafbfc;
-    border: 1px solid #edf0f4;
+    background: #faf8fd;
+    border: 1px solid #ece6f3;
     border-radius: 11px;
 }
 
@@ -639,7 +643,7 @@
     height: 28px;
     flex-shrink: 0;
     border-radius: 8px;
-    background: #182230;
+    background: #6c4ab6;
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -655,7 +659,7 @@
     font-size: 8px;
     font-weight: 900;
     letter-spacing: 1.1px;
-    color: #8b95a4;
+    color: #91899f;
 }
 
 
@@ -663,7 +667,7 @@
     margin: 5px 0 0;
     font-size: 11px;
     line-height: 1.5;
-    color: #414b5a;
+    color: #514a5f;
 }
 
 
@@ -678,7 +682,7 @@
     margin-top: 10px;
     padding: 13px 14px;
     border-radius: 11px;
-    background: #f4f6f9;
+    background: #f5f1fb;
 }
 
 
@@ -691,7 +695,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #182230;
+    color: #6c4ab6;
     font-weight: 800;
 }
 
@@ -700,7 +704,7 @@
     display: block;
     margin-top: 4px;
     font-size: 11px;
-    color: #273141;
+    color: #40394f;
 }
 
 
@@ -711,13 +715,13 @@
 .journey-outcome {
     margin-top: 17px;
     padding-top: 16px;
-    border-top: 1px dashed #e2e6ec;
+    border-top: 1px dashed #ddd6e8;
 }
 
 
 .journey-outcome p {
     margin: 5px 0 0;
-    color: #657082;
+    color: #756e87;
     font-size: 11px;
     line-height: 1.6;
 }
@@ -744,11 +748,11 @@
     height: 23px;
     border-radius: 50%;
     background: #ffffff;
-    border: 1px solid #dce2e9;
+    border: 1px solid #ddd6e8;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #9aa3b1;
+    color: #9b93aa;
     font-size: 12px;
 }
 
@@ -764,9 +768,9 @@
     gap: 18px;
     padding: 24px;
     border-radius: 18px;
-    background: #182230;
+    background: #4b2e83;
     color: #ffffff;
-    box-shadow: 0 15px 40px rgba(20, 30, 50, 0.13);
+    box-shadow: 0 15px 40px rgba(75, 46, 131, 0.13);
 }
 
 
@@ -776,7 +780,7 @@
     flex-shrink: 0;
     border-radius: 14px;
     background: #ffffff;
-    color: #182230;
+    color: #4b2e83;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -807,7 +811,7 @@
 .finish-content p {
     margin: 0;
     max-width: 700px;
-    color: #c5ccd6;
+    color: #ddd4f0;
     font-size: 11px;
     line-height: 1.6;
 }
@@ -848,13 +852,13 @@
     align-items: center;
     gap: 8px;
     margin-top: 35px;
-    color: #9aa3b0;
+    color: #9b93aa;
     font-size: 10px;
 }
 
 
 .roadmap-footer-note span {
-    color: #4e5968;
+    color: #6c4ab6;
     font-weight: 800;
 }
 
@@ -901,7 +905,7 @@
         width: 100%;
         min-height: auto;
         border-right: none;
-        border-bottom: 1px solid #e7ebf2;
+        border-bottom: 1px solid #e4deef;
         padding: 16px;
     }
 
@@ -960,8 +964,8 @@
 
     .current-stage .journey-node {
         box-shadow:
-            0 0 0 5px #eef1f5,
-            0 8px 18px rgba(20, 30, 50, 0.12);
+            0 0 0 5px #f1ecfa,
+            0 8px 18px rgba(108, 74, 182, 0.12);
     }
 
     .journey-card {

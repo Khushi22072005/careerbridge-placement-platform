@@ -26,7 +26,8 @@ const technicalAssessmentRoutes =
 
 const learningRoutes =
     require("../routes/learningRoutes");
-
+const careerDevelopmentRoutes =
+    require("../routes/careerDevelopmentRoutes");
 
 const app = express();
 
@@ -71,7 +72,14 @@ app.use(
     profileRoutes
 );
 
+// =====================================================
+// CAREER DEVELOPMENT
+// =====================================================
 
+app.use(
+    "/api/career-development",
+    careerDevelopmentRoutes
+);
 // RESUME
 app.use(
     "/api/resume",

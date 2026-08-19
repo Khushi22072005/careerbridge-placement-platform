@@ -1,793 +1,1740 @@
+/* =========================================================
+   CAREER DEVELOPMENT PAGE
+========================================================= */
+
 .career-development-page {
-  min-height: 100vh;
-  padding: 32px 36px 60px;
-  background: #f7f8fc;
-  color: #1f2937;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    min-height: 100vh;
+    padding: 32px 36px 60px;
+    background: #f7f8fc;
+    color: #1f2937;
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 }
 
-/* =========================
+
+/* =========================================================
    HEADER
-========================= */
+========================================================= */
 
 .career-development-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 30px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 30px;
 }
 
 .page-eyebrow,
 .section-label {
-  display: block;
-  margin: 0 0 8px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #8b93a7;
+    display: block;
+    margin: 0 0 8px;
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    color: #8b93a7;
 }
 
 .career-development-header h1 {
-  margin: 0;
-  font-size: 32px;
-  line-height: 1.15;
-  font-weight: 750;
-  letter-spacing: -0.03em;
-  color: #171b2d;
+    margin: 0;
+    color: #171b2d;
+    font-size: 32px;
+    line-height: 1.15;
+    font-weight: 750;
+    letter-spacing: -0.03em;
 }
 
 .page-description {
-  max-width: 650px;
-  margin: 10px 0 0;
-  font-size: 14px;
-  line-height: 1.7;
-  color: #7b8498;
+    max-width: 680px;
+    margin: 10px 0 0;
+    color: #7b8498;
+    font-size: 14px;
+    line-height: 1.7;
 }
 
+
+/* =========================================================
+   MAIN BUTTON
+========================================================= */
+
 .assessment-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 42px;
-  padding: 0 18px;
-  border: 0;
-  border-radius: 10px;
-  background: #6256d9;
-  color: white;
-  font-size: 13px;
-  font-weight: 650;
-  cursor: pointer;
-  transition: 0.2s ease;
-  box-shadow: 0 8px 20px rgba(98, 86, 217, 0.16);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    height: 42px;
+    padding: 0 18px;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: #6256d9;
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+
+    box-shadow:
+        0 8px 20px rgba(98, 86, 217, 0.16);
 }
 
 .assessment-button:hover {
-  transform: translateY(-1px);
-  background: #5549cb;
+    transform: translateY(-1px);
+    background: #5549cb;
+
+    box-shadow:
+        0 10px 24px rgba(98, 86, 217, 0.22);
 }
 
-/* =========================
-   READINESS
-========================= */
+
+/* =========================================================
+   CAREER READINESS
+========================================================= */
 
 .readiness-section {
-  margin-bottom: 38px;
+    margin-bottom: 38px;
 }
 
 .readiness-card {
-  overflow: hidden;
-  border: 1px solid #e8eaf1;
-  border-radius: 18px;
-  background: white;
-  box-shadow: 0 8px 30px rgba(33, 37, 61, 0.04);
+    overflow: hidden;
+
+    border: 1px solid #e8eaf1;
+    border-radius: 18px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 8px 30px rgba(33, 37, 61, 0.04);
 }
 
 .readiness-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 205px;
-  padding: 30px 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 205px;
+
+    padding: 30px 34px;
+}
+
+.readiness-text {
+    flex: 1;
 }
 
 .readiness-content h2 {
-  margin: 0;
-  font-size: 22px;
-  color: #202438;
+    margin: 0;
+
+    color: #202438;
+
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 720;
 }
 
 .readiness-content p {
-  max-width: 650px;
-  margin: 10px 0 0;
-  font-size: 13px;
-  line-height: 1.7;
-  color: #7d8497;
+    max-width: 680px;
+
+    margin: 10px 0 0;
+
+    color: #7d8497;
+
+    font-size: 13px;
+    line-height: 1.7;
 }
 
+
+/* =========================================================
+   READINESS TAGS
+========================================================= */
+
+.readiness-mini-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin-top: 17px;
+}
+
+.readiness-mini-tags span {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 9px;
+
+    border: 1px solid #e8e5ff;
+    border-radius: 7px;
+
+    background: #faf9ff;
+
+    color: #6c65a8;
+
+    font-size: 9px;
+    font-weight: 650;
+}
+
+
+/* =========================================================
+   READINESS CIRCLE
+========================================================= */
+
 .readiness-progress {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 160px;
 }
 
 .readiness-circle {
-  position: relative;
-  width: 128px;
-  height: 128px;
+    position: relative;
+
+    width: 128px;
+    height: 128px;
 }
 
 .readiness-circle svg {
-  width: 128px;
-  height: 128px;
-  transform: rotate(-90deg);
+    width: 128px;
+    height: 128px;
+
+    transform: rotate(-90deg);
 }
 
 .circle-background,
 .circle-progress {
-  fill: none;
-  stroke-width: 9;
+    fill: none;
+    stroke-width: 9;
 }
 
 .circle-background {
-  stroke: #eeeef7;
+    stroke: #eeeef7;
 }
 
 .circle-progress {
-  stroke: #6256d9;
-  stroke-linecap: round;
-  stroke-dasharray: 314;
-  stroke-dashoffset: 82;
+    stroke: #6256d9;
+    stroke-linecap: round;
+
+    transition:
+        stroke-dashoffset 0.8s ease;
 }
 
 .readiness-score {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
 }
 
 .readiness-score strong {
-  font-size: 25px;
-  font-weight: 750;
-  color: #24263a;
+    color: #24263a;
+
+    font-size: 25px;
+    font-weight: 750;
 }
 
 .readiness-score span {
-  margin-top: 2px;
-  font-size: 11px;
-  color: #8a91a4;
+    margin-top: 2px;
+
+    color: #8a91a4;
+
+    font-size: 11px;
 }
 
+
+/* =========================================================
+   READINESS STATS
+========================================================= */
+
 .readiness-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-top: 1px solid #eceef3;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    border-top: 1px solid #eceef3;
 }
 
 .readiness-stats div {
-  padding: 17px 20px;
-  text-align: center;
-  border-right: 1px solid #eceef3;
+    padding: 17px 20px;
+
+    text-align: center;
+
+    border-right: 1px solid #eceef3;
 }
 
 .readiness-stats div:last-child {
-  border-right: 0;
+    border-right: 0;
 }
 
 .readiness-stats strong {
-  display: block;
-  font-size: 19px;
-  font-weight: 750;
-  color: #25283b;
+    display: block;
+
+    color: #25283b;
+
+    font-size: 19px;
+    font-weight: 750;
 }
 
 .readiness-stats span {
-  display: block;
-  margin-top: 3px;
-  font-size: 11px;
-  color: #9298aa;
+    display: block;
+
+    margin-top: 3px;
+
+    color: #9298aa;
+
+    font-size: 10px;
 }
 
-/* =========================
+
+/* =========================================================
    SECTION HEADINGS
-========================= */
+========================================================= */
 
 .development-section,
-.challenge-section,
-.ai-section,
+.improvement-section,
+.weekly-goal-section,
+.activities-section,
+.achievements-section,
 .activity-section {
-  margin-bottom: 38px;
+    margin-bottom: 40px;
 }
 
 .section-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 17px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 17px;
 }
 
 .section-heading h2 {
-  margin: 0;
-  font-size: 20px;
-  color: #202438;
+    margin: 0;
+
+    color: #202438;
+
+    font-size: 20px;
+    font-weight: 720;
 }
+
+.section-helper {
+    color: #9a9faf;
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   TEXT BUTTON
+========================================================= */
 
 .text-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 0;
-  background: transparent;
-  color: #6256d9;
-  font-size: 12px;
-  font-weight: 650;
-  cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+
+    border: 0;
+    background: transparent;
+
+    color: #6256d9;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: color 0.2s ease;
 }
 
-/* =========================
-   DEVELOPMENT CARDS
-========================= */
+.text-button:hover {
+    color: #4f44bd;
+}
+
+
+/* =========================================================
+   DEVELOPMENT GRID
+========================================================= */
 
 .development-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 16px;
 }
 
 .development-card {
-  position: relative;
-  padding: 21px;
-  border: 1px solid #e7e9f0;
-  border-radius: 15px;
-  background: white;
-  box-shadow: 0 6px 22px rgba(33, 37, 61, 0.035);
-  transition: 0.2s ease;
+    position: relative;
+
+    padding: 21px;
+
+    border: 1px solid #e7e9f0;
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 6px 22px rgba(33, 37, 61, 0.035);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .development-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(33, 37, 61, 0.07);
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 30px rgba(33, 37, 61, 0.07);
 }
 
+
+/* =========================================================
+   DEVELOPMENT ICONS
+========================================================= */
+
 .development-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  margin-bottom: 17px;
-  border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    margin-bottom: 17px;
+
+    border-radius: 10px;
+
+    font-size: 17px;
 }
 
 .development-icon.communication {
-  background: #eeecff;
-  color: #6256d9;
+    background: #eeecff;
+    color: #6256d9;
 }
 
 .development-icon.confidence {
-  background: #fff1e7;
-  color: #e4864f;
+    background: #fff1e7;
+    color: #e4864f;
 }
 
 .development-icon.leadership {
-  background: #eaf6ef;
-  color: #4e9b69;
+    background: #eaf6ef;
+    color: #4e9b69;
 }
 
 .development-icon.problem-solving {
-  background: #e9f2ff;
-  color: #4e82d7;
+    background: #e9f2ff;
+    color: #4e82d7;
 }
 
 .development-icon.time-management {
-  background: #f5edff;
-  color: #9566d4;
+    background: #f5edff;
+    color: #9566d4;
 }
 
 .development-icon.professionalism {
-  background: #edf2f5;
-  color: #5f7481;
+    background: #edf2f5;
+    color: #5f7481;
 }
 
+
+/* =========================================================
+   DEVELOPMENT CARD CONTENT
+========================================================= */
+
 .development-card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 10px;
 }
 
 .development-card h3 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  color: #25283a;
+    margin: 0;
+
+    color: #25283a;
+
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .development-card p {
-  min-height: 38px;
-  margin: 6px 0 0;
-  font-size: 11px;
-  line-height: 1.55;
-  color: #858c9f;
+    min-height: 38px;
+
+    margin: 6px 0 0;
+
+    color: #858c9f;
+
+    font-size: 11px;
+    line-height: 1.55;
 }
 
+
+/* =========================================================
+   DEVELOPMENT LEVEL
+========================================================= */
+
 .development-level {
-  flex-shrink: 0;
-  padding: 5px 8px;
-  border-radius: 6px;
-  font-size: 9px;
-  font-weight: 700;
+    flex-shrink: 0;
+
+    padding: 5px 8px;
+
+    border-radius: 6px;
+
+    font-size: 8px;
+    font-weight: 750;
+    text-transform: uppercase;
 }
 
 .development-level.strong {
-  background: #e9f6ed;
-  color: #4c9463;
+    background: #e9f6ed;
+    color: #4c9463;
 }
 
 .development-level.developing {
-  background: #fff4df;
-  color: #b47a26;
+    background: #fff4df;
+    color: #b47a26;
 }
 
 .development-level.good {
-  background: #edf1ff;
-  color: #5d6fbd;
+    background: #edf1ff;
+    color: #5d6fbd;
 }
 
+
+/* =========================================================
+   SKILL SCORE
+========================================================= */
+
 .skill-score-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 17px;
-  margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 17px;
+    margin-bottom: 7px;
 }
 
 .skill-score-row span {
-  font-size: 10px;
-  color: #969caf;
+    color: #969caf;
+    font-size: 10px;
 }
 
 .skill-score-row strong {
-  font-size: 11px;
-  color: #3c4051;
+    color: #3c4051;
+    font-size: 11px;
 }
 
+
+/* =========================================================
+   SKILL PROGRESS
+========================================================= */
+
 .skill-progress {
-  width: 100%;
-  height: 6px;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #f0f1f5;
+    width: 100%;
+    height: 6px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #f0f1f5;
 }
 
 .skill-progress-fill {
-  height: 100%;
-  border-radius: inherit;
+    height: 100%;
+
+    border-radius: inherit;
+
+    transition: width 0.7s ease;
 }
 
 .skill-progress-fill.communication {
-  background: #6256d9;
+    background: #6256d9;
 }
 
 .skill-progress-fill.confidence {
-  background: #e4864f;
+    background: #e4864f;
 }
 
 .skill-progress-fill.leadership {
-  background: #4e9b69;
+    background: #4e9b69;
 }
 
 .skill-progress-fill.problem-solving {
-  background: #4e82d7;
+    background: #4e82d7;
 }
 
 .skill-progress-fill.time-management {
-  background: #9566d4;
+    background: #9566d4;
 }
 
 .skill-progress-fill.professionalism {
-  background: #5f7481;
+    background: #5f7481;
 }
+
+
+/* =========================================================
+   PRACTICE BUTTON
+========================================================= */
 
 .practice-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 16px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #6256d9;
-  font-size: 11px;
-  font-weight: 650;
-  cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+
+    margin-top: 16px;
+    padding: 0;
+
+    border: 0;
+    background: transparent;
+
+    color: #6256d9;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    cursor: pointer;
 }
 
-/* =========================
-   TODAY'S CHALLENGE
-========================= */
-
-.challenge-card {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  min-height: 235px;
-  overflow: hidden;
-  padding: 28px 32px;
-  border-radius: 18px;
-  background: #26233f;
-  color: white;
+.practice-button:hover {
+    color: #4f44bd;
 }
 
-.challenge-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 18px;
-  max-width: 800px;
-  z-index: 2;
+
+/* =========================================================
+   IMPROVEMENT PLAN
+========================================================= */
+
+.improvement-list {
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid #e8eaf0;
+    border-radius: 15px;
+
+    background: #ffffff;
 }
 
-.challenge-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 47px;
-  height: 47px;
-  border-radius: 13px;
-  background: rgba(255, 255, 255, 0.11);
-  color: #d7d1ff;
+.improvement-item {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px 20px;
+
+    border-bottom: 1px solid #eef0f4;
 }
 
-.challenge-card .section-label {
-  color: #aaa5c8;
+.improvement-item:last-child {
+    border-bottom: 0;
 }
 
-.challenge-card h2 {
-  margin: 4px 0 10px;
-  font-size: 21px;
-  font-weight: 700;
+.improvement-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    background: #fff4df;
+    color: #b47a26;
+
+    font-size: 13px;
+    font-weight: 750;
 }
 
-.challenge-card p {
-  max-width: 690px;
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.7;
-  color: #c2bed5;
+.improvement-icon.completed {
+    background: #e9f6ed;
+    color: #4c9463;
 }
 
-.challenge-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 17px;
+.improvement-content {
+    flex: 1;
+    min-width: 0;
 }
 
-.challenge-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  color: #aaa6be;
+.improvement-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
 }
 
-.start-challenge-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 21px;
-  padding: 10px 15px;
-  border: 0;
-  border-radius: 8px;
-  background: white;
-  color: #28253f;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
+.improvement-title-row h3 {
+    margin: 0;
+
+    color: #333649;
+
+    font-size: 13px;
+    font-weight: 700;
 }
 
-.challenge-decoration {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 330px;
-  height: 100%;
+.improvement-title-row span {
+    flex-shrink: 0;
+
+    color: #7d789f;
+
+    font-size: 10px;
 }
 
-.decoration-circle {
-  position: absolute;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
+.improvement-title-row b {
+    color: #b0aec2;
 }
 
-.circle-one {
-  width: 280px;
-  height: 280px;
-  top: -80px;
-  right: -80px;
+.improvement-content p {
+    margin: 5px 0 9px;
+
+    color: #8b91a2;
+
+    font-size: 10px;
+    line-height: 1.55;
 }
 
-.circle-two {
-  width: 190px;
-  height: 190px;
-  top: 20px;
-  right: 20px;
+.improvement-progress {
+    width: 100%;
+    height: 5px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #f0f1f5;
 }
 
-.decoration-card {
-  position: absolute;
-  top: 73px;
-  right: 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 105px;
-  height: 90px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(5px);
-  color: #dcd8ed;
+.improvement-progress div {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: #6256d9;
+
+    transition: width 0.6s ease;
 }
 
-.decoration-card span {
-  margin-top: 7px;
-  font-size: 10px;
+.improvement-content small {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #9b9faf;
+
+    font-size: 9px;
 }
 
-/* =========================
-   AI SECTION
-========================= */
+.improvement-button {
+    flex-shrink: 0;
 
-.ai-card {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 25px 27px;
-  border: 1px solid #e6e3ff;
-  border-radius: 16px;
-  background: #f7f5ff;
+    padding: 8px 12px;
+
+    border: 0;
+    border-radius: 7px;
+
+    background: #f1efff;
+
+    color: #6256d9;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    cursor: pointer;
 }
 
-.ai-card-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 13px;
-  background: #e8e4ff;
-  color: #6256d9;
+
+/* =========================================================
+   WEEKLY GOAL
+========================================================= */
+
+.weekly-goal-card {
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 24px 26px;
+
+    border: 1px solid #e3e0ff;
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #faf9ff 0%,
+            #f4f1ff 100%
+        );
 }
 
-.ai-card-content {
-  flex: 1;
+.weekly-goal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 50px;
+    height: 50px;
+
+    border-radius: 14px;
+
+    background: #e7e3ff;
+
+    font-size: 21px;
 }
 
-.ai-card-content h2 {
-  margin: 0;
-  font-size: 18px;
-  color: #28263e;
+.weekly-goal-content {
+    flex: 1;
 }
 
-.ai-card-content p {
-  max-width: 760px;
-  margin: 7px 0 12px;
-  font-size: 11px;
-  line-height: 1.65;
-  color: #77748a;
+.weekly-goal-content h2 {
+    margin: 0;
+
+    color: #28263e;
+
+    font-size: 17px;
 }
 
-.ai-features {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
+.weekly-goal-content p {
+    max-width: 700px;
+
+    margin: 6px 0 12px;
+
+    color: #77748a;
+
+    font-size: 10px;
+    line-height: 1.6;
 }
 
-.ai-features span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  color: #69657c;
+.weekly-goal-progress-row {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
 }
 
-.ai-features svg {
-  color: #6256d9;
+.weekly-goal-progress {
+    width: 230px;
+    height: 6px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #e5e2f1;
 }
 
-.ai-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
-  padding: 10px 15px;
-  border: 0;
-  border-radius: 8px;
-  background: #6256d9;
-  color: white;
-  font-size: 11px;
-  font-weight: 650;
-  cursor: pointer;
+.weekly-goal-progress div {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: #6256d9;
 }
 
-/* =========================
+.weekly-goal-progress-row strong {
+    color: #5149a8;
+
+    font-size: 10px;
+}
+
+.weekly-goal-meta {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #9692a7;
+
+    font-size: 9px;
+}
+
+.weekly-goal-button {
+    flex-shrink: 0;
+
+    padding: 10px 14px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #6256d9;
+    color: #ffffff;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.weekly-goal-button:hover {
+    background: #5549cb;
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   PROFESSIONAL ACTIVITIES
+========================================================= */
+
+.professional-activities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 16px;
+}
+
+.professional-activity-card {
+    position: relative;
+
+    padding: 20px;
+
+    border: 1px solid #e7e9f0;
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 6px 22px rgba(33, 37, 61, 0.035);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.professional-activity-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 30px rgba(33, 37, 61, 0.07);
+}
+
+.professional-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+}
+
+.professional-card-top > span {
+    padding: 5px 8px;
+
+    border-radius: 6px;
+
+    background: #f5f4f9;
+
+    color: #9296a6;
+
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.professional-activity-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 11px;
+
+    font-size: 18px;
+}
+
+.professional-activity-icon.communication {
+    background: #eeecff;
+}
+
+.professional-activity-icon.leadership {
+    background: #eaf6ef;
+}
+
+.professional-activity-icon.problem-solving {
+    background: #e9f2ff;
+}
+
+.professional-activity-icon.time-management {
+    background: #f5edff;
+}
+
+.professional-activity-icon.professionalism {
+    background: #edf2f5;
+}
+
+.professional-activity-icon.confidence {
+    background: #fff1e7;
+}
+
+.professional-activity-card h3 {
+    margin: 0;
+
+    color: #25283a;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.professional-activity-card p {
+    min-height: 48px;
+
+    margin: 7px 0 17px;
+
+    color: #858c9f;
+
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.professional-activity-card button {
+    width: 100%;
+
+    padding: 9px 12px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: #f1efff;
+
+    color: #6256d9;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.professional-activity-card button:hover {
+    background: #e6e2ff;
+}
+
+
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 14px;
+}
+
+.achievement-card {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    position: relative;
+
+    min-height: 92px;
+
+    padding: 17px;
+
+    border: 1px solid #e8eaf0;
+    border-radius: 14px;
+
+    background: #ffffff;
+}
+
+.achievement-card.locked {
+    opacity: 0.65;
+}
+
+.achievement-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 11px;
+
+    background: #fff7df;
+
+    font-size: 18px;
+}
+
+.achievement-card h3 {
+    margin: 0;
+
+    color: #333649;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.achievement-card p {
+    margin: 5px 0 0;
+
+    color: #9297a7;
+
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.achievement-status {
+    position: absolute;
+
+    top: 12px;
+    right: 12px;
+
+    padding: 4px 6px;
+
+    border-radius: 5px;
+
+    background: #e9f6ed;
+    color: #4c9463;
+
+    font-size: 7px;
+    font-weight: 750;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
    RECENT ACTIVITIES
-========================= */
+========================================================= */
 
 .activity-list {
-  overflow: hidden;
-  border: 1px solid #e8eaf0;
-  border-radius: 14px;
-  background: white;
+    overflow: hidden;
+
+    border: 1px solid #e8eaf0;
+    border-radius: 14px;
+
+    background: #ffffff;
 }
 
 .activity-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 19px;
-  border-bottom: 1px solid #eef0f4;
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 16px 19px;
+
+    border-bottom: 1px solid #eef0f4;
 }
 
 .activity-item:last-child {
-  border-bottom: 0;
+    border-bottom: 0;
 }
 
 .activity-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: #f1efff;
-  color: #6256d9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    background: #f1efff;
+    color: #6256d9;
+
+    font-size: 15px;
 }
 
 .activity-info {
-  flex: 1;
+    flex: 1;
+    min-width: 0;
 }
 
 .activity-info h3 {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 650;
-  color: #333649;
+    margin: 0;
+
+    color: #333649;
+
+    font-size: 12px;
+    font-weight: 650;
 }
 
 .activity-info p {
-  margin: 4px 0 0;
-  font-size: 10px;
-  color: #959bac;
+    margin: 4px 0 0;
+
+    color: #959bac;
+
+    font-size: 9px;
 }
 
 .activity-score {
-  min-width: 60px;
-  text-align: right;
+    min-width: 60px;
+
+    text-align: right;
 }
 
 .activity-score span {
-  display: block;
-  font-size: 9px;
-  color: #a0a5b3;
+    display: block;
+
+    color: #a0a5b3;
+
+    font-size: 8px;
 }
 
 .activity-score strong {
-  display: block;
-  margin-top: 2px;
-  font-size: 13px;
-  color: #444759;
+    display: block;
+
+    margin-top: 2px;
+
+    color: #444759;
+
+    font-size: 13px;
 }
 
 .completed-icon {
-  display: flex;
-  color: #5ca46d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 24px;
+    height: 24px;
+
+    border-radius: 50%;
+
+    background: #edf8f0;
+    color: #5ca46d;
+
+    font-size: 11px;
+    font-weight: 750;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+
+/* =========================================================
+   EMPTY STATES
+========================================================= */
+
+.empty-development {
+    padding: 45px 25px;
+
+    text-align: center;
+
+    border: 1px dashed #dcdbea;
+    border-radius: 16px;
+
+    background: #ffffff;
+}
+
+.empty-development-icon {
+    width: 48px;
+    height: 48px;
+
+    margin: 0 auto 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: #eeecff;
+    color: #6256d9;
+
+    font-size: 20px;
+}
+
+.empty-development h3 {
+    margin: 0;
+
+    color: #25283a;
+
+    font-size: 16px;
+}
+
+.empty-development p {
+    max-width: 430px;
+
+    margin: 8px auto 18px;
+
+    color: #858c9f;
+
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.empty-activities {
+    padding: 40px 25px;
+
+    text-align: center;
+
+    border: 1px dashed #e0e1e8;
+    border-radius: 14px;
+
+    background: #ffffff;
+}
+
+.empty-activity-icon {
+    width: 42px;
+    height: 42px;
+
+    margin: 0 auto 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #f1efff;
+    color: #6256d9;
+}
+
+.empty-activities h3 {
+    margin: 0;
+
+    color: #333649;
+
+    font-size: 14px;
+}
+
+.empty-activities p {
+    margin: 7px 0 0;
+
+    color: #959bac;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   ACHIEVEMENT EMPTY
+========================================================= */
+
+.achievement-empty {
+    padding: 30px;
+
+    text-align: center;
+
+    border: 1px dashed #dddde8;
+    border-radius: 14px;
+
+    background: #ffffff;
+}
+
+.achievement-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 45px;
+    height: 45px;
+
+    margin: 0 auto 10px;
+
+    border-radius: 12px;
+
+    background: #fff7df;
+
+    font-size: 19px;
+}
+
+.achievement-empty h3 {
+    margin: 0;
+
+    color: #333649;
+
+    font-size: 13px;
+}
+
+.achievement-empty p {
+    max-width: 430px;
+
+    margin: 6px auto 0;
+
+    color: #9297a7;
+
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   FOOTER CARD
+========================================================= */
+
+.development-footer-card {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px 21px;
+
+    border: 1px solid #e8e5ff;
+    border-radius: 14px;
+
+    background: #faf9ff;
+}
+
+.development-footer-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    background: #eeecff;
+    color: #6256d9;
+
+    font-size: 16px;
+}
+
+.development-footer-card h3 {
+    margin: 0;
+
+    color: #37334f;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.development-footer-card p {
+    margin: 4px 0 0;
+
+    color: #8b879c;
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading-state {
+    min-height: 500px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    color: #7b8498;
+}
+
+.loading-spinner {
+    width: 38px;
+    height: 38px;
+
+    border: 4px solid #e9e7ff;
+    border-top-color: #6256d9;
+
+    border-radius: 50%;
+
+    animation: careerSpin 0.8s linear infinite;
+}
+
+.loading-state h3 {
+    margin: 5px 0 0;
+
+    color: #333649;
+
+    font-size: 15px;
+}
+
+.loading-state p {
+    margin: 0;
+
+    color: #9297a7;
+
+    font-size: 11px;
+}
+
+@keyframes careerSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.error-state {
+    min-height: 500px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px;
+
+    text-align: center;
+}
+
+.error-icon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 18px;
+
+    border-radius: 16px;
+
+    background: #fff1f1;
+    color: #d65c5c;
+
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.error-state h2 {
+    margin: 0;
+
+    color: #25283a;
+
+    font-size: 21px;
+}
+
+.error-state p {
+    max-width: 500px;
+
+    margin: 10px 0 20px;
+
+    color: #858c9f;
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+button:focus-visible {
+    outline: 3px solid rgba(98, 86, 217, 0.25);
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   RESPONSIVE — 1100px
+========================================================= */
 
 @media (max-width: 1100px) {
-  .development-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 
-  .challenge-decoration {
-    opacity: 0.55;
-  }
+    .development-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .professional-activities-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .achievements-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
+
+
+/* =========================================================
+   RESPONSIVE — 850px
+========================================================= */
 
 @media (max-width: 850px) {
-  .career-development-page {
-    padding: 25px 20px 50px;
-  }
 
-  .career-development-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
+    .career-development-page {
+        padding: 25px 20px 50px;
+    }
 
-  .readiness-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 25px;
-  }
+    .career-development-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
 
-  .readiness-progress {
-    align-self: center;
-  }
+    .readiness-content {
+        flex-direction: column;
 
-  .ai-card {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
+        align-items: flex-start;
 
-  .ai-button {
-    margin-left: 66px;
-  }
+        gap: 25px;
+    }
+
+    .readiness-progress {
+        align-self: center;
+    }
+
+    .weekly-goal-card {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .weekly-goal-button {
+        margin-left: 68px;
+    }
 }
 
+
+/* =========================================================
+   RESPONSIVE — 650px
+========================================================= */
+
 @media (max-width: 650px) {
-  .career-development-header h1 {
-    font-size: 27px;
-  }
 
-  .development-grid {
-    grid-template-columns: 1fr;
-  }
+    .career-development-header h1 {
+        font-size: 27px;
+    }
 
-  .readiness-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
+    .development-grid,
+    .professional-activities-grid,
+    .achievements-grid {
+        grid-template-columns: 1fr;
+    }
 
-  .readiness-stats div:nth-child(2) {
-    border-right: 0;
-  }
+    .readiness-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-  .readiness-stats div:nth-child(-n + 2) {
-    border-bottom: 1px solid #eceef3;
-  }
+    .readiness-stats div:nth-child(2) {
+        border-right: 0;
+    }
 
-  .challenge-card {
-    padding: 23px;
-  }
+    .readiness-stats div:nth-child(-n + 2) {
+        border-bottom: 1px solid #eceef3;
+    }
 
-  .challenge-decoration {
-    display: none;
-  }
+    .readiness-mini-tags {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-  .challenge-left {
-    max-width: 100%;
-  }
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
 
-  .ai-card {
-    flex-direction: column;
-  }
+        gap: 8px;
+    }
 
-  .ai-button {
-    margin-left: 0;
-  }
+    .improvement-item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
 
-  .ai-features {
-    flex-direction: column;
-    gap: 8px;
-  }
+    .improvement-button {
+        margin-left: 53px;
+    }
 
-  .activity-item {
-    gap: 10px;
-  }
+    .weekly-goal-card {
+        flex-direction: column;
+    }
 
-  .activity-score {
-    min-width: 45px;
-  }
+    .weekly-goal-button {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .weekly-goal-progress {
+        width: 180px;
+    }
+
+    .activity-item {
+        gap: 10px;
+    }
+
+    .activity-score {
+        min-width: 45px;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE — 500px
+========================================================= */
+
+@media (max-width: 500px) {
+
+    .career-development-page {
+        padding: 20px 14px 40px;
+    }
+
+    .readiness-content {
+        padding: 24px 20px;
+    }
+
+    .readiness-stats div {
+        padding: 14px 10px;
+    }
+
+    .readiness-content h2 {
+        font-size: 19px;
+    }
+
+    .professional-activity-card p {
+        min-height: auto;
+    }
+
+    .improvement-title-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .improvement-button {
+        margin-left: 0;
+    }
+
+    .activity-item {
+        padding: 14px;
+    }
+
+    .activity-info h3 {
+        font-size: 11px;
+    }
+
+    .activity-score {
+        min-width: 40px;
+    }
+
+    .completed-icon {
+        width: 20px;
+        height: 20px;
+        font-size: 9px;
+    }
+
+    .development-footer-card {
+        align-items: flex-start;
+    }
 }

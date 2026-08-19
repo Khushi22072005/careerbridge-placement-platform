@@ -159,17 +159,7 @@ const Sidebar = () => {
                     <span>Resume Analyzer</span>
                 </NavLink>
 
-                <NavLink
-                    to="/portfolio"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link active"
-                            : "sidebar-link"
-                    }
-                >
-                    <span className="sidebar-icon"></span>
-                    <span>Portfolio</span>
-                </NavLink>
+             
 
 
                 {/* ================= PLACEMENT ================= */}
@@ -178,17 +168,7 @@ const Sidebar = () => {
                     PLACEMENT
                 </p>
 
-                <NavLink
-                    to="/companies"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link active"
-                            : "sidebar-link"
-                    }
-                >
-                    <span className="sidebar-icon"></span>
-                    <span>Companies</span>
-                </NavLink>
+               
 
                 <NavLink
                     to="/interview"

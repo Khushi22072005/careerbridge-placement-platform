@@ -22,7 +22,17 @@ const ResumeAnalyzer = () => {
             "application/msword",
         ];
 
-        if (!allowedTypes.includes(file.type)) {
+        const fileExtension = file.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+        const allowedExtensions = ["pdf", "doc", "docx"];
+
+        if (
+            !allowedTypes.includes(file.type) &&
+            !allowedExtensions.includes(fileExtension)
+        ) {
             alert("Please upload a PDF or DOC/DOCX file.");
             return;
         }
@@ -43,20 +53,42 @@ const ResumeAnalyzer = () => {
     // =====================================================
 
     const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        handleFile(file);
+        const file = event.target.files?.[0];
+
+        if (file) {
+            handleFile(file);
+        }
+
+        event.target.value = "";
     };
 
     // =====================================================
     // DRAG & DROP
     // =====================================================
 
+    const handleDragOver = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsDragging(false);
+    };
+
     const handleDrop = (event) => {
         event.preventDefault();
+        event.stopPropagation();
+
         setIsDragging(false);
 
-        const file = event.dataTransfer.files[0];
-        handleFile(file);
+        const file = event.dataTransfer.files?.[0];
+
+        if (file) {
+            handleFile(file);
+        }
     };
 
     // =====================================================
@@ -69,65 +101,98 @@ const ResumeAnalyzer = () => {
             return;
         }
 
-        try {
-            setIsAnalyzing(true);
+        setIsAnalyzing(true);
+        setAnalyzed(false);
+        setAnalysis(null);
+        setResumeScore(0);
 
+        try {
             const token = localStorage.getItem("token");
 
             if (!token) {
-                alert("Please login again.");
+                alert("Login session expired. Please login again.");
+                setIsAnalyzing(false);
                 return;
             }
 
             const formData = new FormData();
 
             // IMPORTANT:
-            // This name must match upload.single("resume")
-            // in resumeRoutes.js
+            // This must match upload.single("resume")
+            // in your backend route.
             formData.append("resume", selectedFile);
+
+            console.log("Uploading resume:", selectedFile.name);
+            console.log("Token exists:", !!token);
 
             const response = await fetch(
                 "http://localhost:5000/api/resume/analyze",
                 {
                     method: "POST",
-
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-
                     body: formData,
                 }
             );
 
-            const data = await response.json();
+            const contentType =
+                response.headers.get("content-type") || "";
 
-            console.log("Resume analysis result:", data);
+            let data;
 
-            if (!response.ok) {
+            if (contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+
+                console.error(
+                    "Server returned non-JSON response:",
+                    text
+                );
+
                 throw new Error(
-                    data.message || "Failed to analyze resume"
+                    `Server error (${response.status}). Please check your backend server.`
                 );
             }
 
+            console.log(
+                "Resume analysis response:",
+                data
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    `Analysis failed with status ${response.status}`
+                );
+            }
+
+            const score = Number(data.resumeScore);
+
             setResumeScore(
-                Number(data.resumeScore) || 0
+                Number.isFinite(score)
+                    ? Math.max(0, Math.min(100, score))
+                    : 0
             );
 
             setAnalysis(
-                data.analysis || null
+                data.analysis || {}
             );
 
             setAnalyzed(true);
 
         } catch (error) {
+
             console.error(
-                "Resume analysis error:",
+                "RESUME ANALYZER ERROR:",
                 error
             );
 
             alert(
                 error.message ||
-                "Failed to analyze resume."
+                "Failed to analyze resume. Please make sure the backend server is running."
             );
 
         } finally {
@@ -216,6 +281,47 @@ const ResumeAnalyzer = () => {
         return "Your resume needs significant improvements before it is placement ready.";
     };
 
+    // =====================================================
+    // SCORE COLOR
+    // =====================================================
+
+    const getScoreClass = () => {
+        if (resumeScore >= 85) {
+            return "excellent";
+        }
+
+        if (resumeScore >= 70) {
+            return "good";
+        }
+
+        if (resumeScore >= 50) {
+            return "average";
+        }
+
+        return "poor";
+    };
+
+    // =====================================================
+    // SCORE CIRCLE
+    // =====================================================
+
+    const scoreDegree =
+        Math.round((resumeScore / 100) * 360);
+
+    // =====================================================
+    // SAFE ANALYSIS VALUES
+    // =====================================================
+
+    const sectionsFound =
+        Array.isArray(analysis?.sectionsFound)
+            ? analysis.sectionsFound
+            : [];
+
+    const skillsFound =
+        Array.isArray(analysis?.skillsFound)
+            ? analysis.skillsFound
+            : [];
+
     return (
         <div className="resume-analyzer-page">
 
@@ -232,7 +338,13 @@ const ResumeAnalyzer = () => {
                     </div>
 
                     <div>
-                        <h1>Resume Analyzer</h1>
+                        <span className="analyzer-eyebrow">
+                            CAREER TOOLS
+                        </span>
+
+                        <h1>
+                            Resume Analyzer
+                        </h1>
 
                         <p>
                             Analyze your resume and improve your
@@ -259,6 +371,10 @@ const ResumeAnalyzer = () => {
 
                     <div className="card-heading">
 
+                        <div className="heading-icon">
+                            ✨
+                        </div>
+
                         <div>
                             <h2>
                                 Analyze Your Resume
@@ -267,7 +383,7 @@ const ResumeAnalyzer = () => {
                             <p>
                                 Upload your resume to check its ATS
                                 compatibility, content quality and
-                                overall readiness.
+                                overall placement readiness.
                             </p>
                         </div>
 
@@ -280,15 +396,16 @@ const ResumeAnalyzer = () => {
 
                     <div
                         className={`resume-upload-box ${
-                            isDragging ? "dragging" : ""
+                            isDragging
+                                ? "dragging"
+                                : ""
+                        } ${
+                            selectedFile
+                                ? "has-file"
+                                : ""
                         }`}
-                        onDragOver={(event) => {
-                            event.preventDefault();
-                            setIsDragging(true);
-                        }}
-                        onDragLeave={() =>
-                            setIsDragging(false)
-                        }
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
                     >
 
@@ -310,6 +427,10 @@ const ResumeAnalyzer = () => {
 
                                 <label className="browse-button">
 
+                                    <span>
+                                        📁
+                                    </span>
+
                                     Browse Files
 
                                     <input
@@ -321,7 +442,10 @@ const ResumeAnalyzer = () => {
                                 </label>
 
                                 <span className="upload-note">
-                                    Supported formats: PDF, DOC, DOCX ·
+                                    Supported formats: PDF, DOC, DOCX
+                                    <span className="dot-separator">
+                                        •
+                                    </span>
                                     Maximum size: 5 MB
                                 </span>
 
@@ -337,23 +461,37 @@ const ResumeAnalyzer = () => {
 
                                 <div className="file-information">
 
-                                    <h3>
-                                        {selectedFile.name}
-                                    </h3>
+                                    <div className="file-name-row">
+
+                                        <h3>
+                                            {selectedFile.name}
+                                        </h3>
+
+                                        <span className="ready-badge">
+                                            Ready
+                                        </span>
+
+                                    </div>
 
                                     <p>
                                         {(
                                             selectedFile.size /
                                             (1024 * 1024)
                                         ).toFixed(2)}{" "}
-                                        MB · Ready to analyze
+                                        MB
+                                        <span>
+                                            •
+                                        </span>
+                                        Ready to analyze
                                     </p>
 
                                 </div>
 
                                 <button
+                                    type="button"
                                     className="remove-file-button"
                                     onClick={removeFile}
+                                    aria-label="Remove file"
                                 >
                                     ×
                                 </button>
@@ -372,6 +510,7 @@ const ResumeAnalyzer = () => {
                     <div className="upload-actions">
 
                         <button
+                            type="button"
                             className="analyze-button"
                             onClick={handleAnalyze}
                             disabled={
@@ -387,7 +526,7 @@ const ResumeAnalyzer = () => {
                             </span>
 
                             {isAnalyzing
-                                ? "Analyzing..."
+                                ? "Analyzing Resume..."
                                 : "Analyze Resume"}
 
                         </button>
@@ -405,7 +544,7 @@ const ResumeAnalyzer = () => {
 
                     <div className="quick-check">
 
-                        <div className="quick-icon">
+                        <div className="quick-icon blue">
                             🎯
                         </div>
 
@@ -416,7 +555,7 @@ const ResumeAnalyzer = () => {
 
                             <p>
                                 Check whether your resume is easy
-                                for ATS systems to read.
+                                for Applicant Tracking Systems to read.
                             </p>
                         </div>
 
@@ -425,7 +564,7 @@ const ResumeAnalyzer = () => {
 
                     <div className="quick-check">
 
-                        <div className="quick-icon">
+                        <div className="quick-icon purple">
                             🔑
                         </div>
 
@@ -436,7 +575,7 @@ const ResumeAnalyzer = () => {
 
                             <p>
                                 Identify important skills and
-                                keywords in your resume.
+                                keywords recruiters look for.
                             </p>
                         </div>
 
@@ -445,7 +584,7 @@ const ResumeAnalyzer = () => {
 
                     <div className="quick-check">
 
-                        <div className="quick-icon">
+                        <div className="quick-icon green">
                             📊
                         </div>
 
@@ -456,7 +595,7 @@ const ResumeAnalyzer = () => {
 
                             <p>
                                 Review your resume structure,
-                                content and formatting.
+                                content and overall quality.
                             </p>
                         </div>
 
@@ -476,6 +615,9 @@ const ResumeAnalyzer = () => {
                         <div className="results-header">
 
                             <div>
+                                <span className="results-eyebrow">
+                                    ANALYSIS REPORT
+                                </span>
 
                                 <h2>
                                     Resume Analysis
@@ -485,10 +627,12 @@ const ResumeAnalyzer = () => {
                                     Here's how your resume performs
                                     across important hiring criteria.
                                 </p>
-
                             </div>
 
                             <span className="analysis-status">
+                                <span>
+                                    ✓
+                                </span>
                                 Analysis Complete
                             </span>
 
@@ -503,11 +647,19 @@ const ResumeAnalyzer = () => {
 
                             {/* MAIN SCORE */}
 
-                            <div className="score-card main-score">
+                            <div
+                                className={`score-card main-score ${getScoreClass()}`}
+                            >
 
-                                <div className="score-circle">
+                                <div
+                                    className="score-circle"
+                                    style={{
+                                        "--score-degree":
+                                            `${scoreDegree}deg`
+                                    }}
+                                >
 
-                                    <div>
+                                    <div className="score-circle-content">
 
                                         <strong>
                                             {resumeScore}
@@ -524,6 +676,10 @@ const ResumeAnalyzer = () => {
 
                                 <div className="score-details">
 
+                                    <span className="score-small-label">
+                                        OVERALL SCORE
+                                    </span>
+
                                     <h3>
                                         {getResumeTitle()}
                                     </h3>
@@ -532,10 +688,6 @@ const ResumeAnalyzer = () => {
                                         {getResumeDescription()}
                                     </p>
 
-                                    <span className="score-label">
-                                        Overall Resume Score
-                                    </span>
-
                                 </div>
 
                             </div>
@@ -543,13 +695,13 @@ const ResumeAnalyzer = () => {
 
                             {/* ATS SCORE */}
 
-                            <div className="score-card">
+                            <div className="score-card metric-card">
 
-                                <div className="mini-score-icon">
+                                <div className="mini-score-icon blue">
                                     🎯
                                 </div>
 
-                                <div>
+                                <div className="metric-content">
 
                                     <span className="metric-label">
                                         ATS Compatibility
@@ -578,13 +730,13 @@ const ResumeAnalyzer = () => {
 
                             {/* KEYWORD SCORE */}
 
-                            <div className="score-card">
+                            <div className="score-card metric-card">
 
-                                <div className="mini-score-icon">
+                                <div className="mini-score-icon purple">
                                     🔑
                                 </div>
 
-                                <div>
+                                <div className="metric-content">
 
                                     <span className="metric-label">
                                         Keyword Match
@@ -630,7 +782,6 @@ const ResumeAnalyzer = () => {
                                     </div>
 
                                     <div>
-
                                         <h3>
                                             What's Working
                                         </h3>
@@ -638,7 +789,6 @@ const ResumeAnalyzer = () => {
                                         <p>
                                             Your resume's strengths
                                         </p>
-
                                     </div>
 
                                 </div>
@@ -646,44 +796,61 @@ const ResumeAnalyzer = () => {
 
                                 <ul className="feedback-list">
 
-                                    {analysis?.sectionsFound?.length > 0 && (
+                                    {sectionsFound.length > 0 && (
                                         <li>
-                                            <span>✓</span>
+                                            <span className="feedback-icon">
+                                                ✓
+                                            </span>
+
                                             Strong resume structure with{" "}
-                                            {analysis.sectionsFound.length}{" "}
+                                            {sectionsFound.length}{" "}
                                             sections detected
                                         </li>
                                     )}
 
-                                    {analysis?.skillsFound?.length > 0 && (
+                                    {skillsFound.length > 0 && (
                                         <li>
-                                            <span>✓</span>
-                                            {analysis.skillsFound.length}{" "}
-                                            relevant technical skills detected
+                                            <span className="feedback-icon">
+                                                ✓
+                                            </span>
+
+                                            {skillsFound.length}{" "}
+                                            relevant technical skills
+                                            detected
                                         </li>
                                     )}
 
-                                    {analysis?.wordCount >= 200 && (
+                                    {Number(analysis?.wordCount || 0) >= 200 && (
                                         <li>
-                                            <span>✓</span>
+                                            <span className="feedback-icon">
+                                                ✓
+                                            </span>
+
                                             Good amount of resume content
                                         </li>
                                     )}
 
-                                    {analysis?.contactScore >= 10 && (
+                                    {Number(analysis?.contactScore || 0) >= 10 && (
                                         <li>
-                                            <span>✓</span>
+                                            <span className="feedback-icon">
+                                                ✓
+                                            </span>
+
                                             Email and phone number detected
                                         </li>
                                     )}
 
-                                    {analysis?.sectionsFound?.length === 0 && (
-                                        <li>
-                                            <span>!</span>
-                                            Resume sections could not be
-                                            detected clearly
-                                        </li>
-                                    )}
+                                    {sectionsFound.length === 0 &&
+                                        skillsFound.length === 0 && (
+                                            <li>
+                                                <span className="feedback-icon neutral">
+                                                    !
+                                                </span>
+
+                                                Resume sections could not
+                                                be detected clearly
+                                            </li>
+                                        )}
 
                                 </ul>
 
@@ -701,7 +868,6 @@ const ResumeAnalyzer = () => {
                                     </div>
 
                                     <div>
-
                                         <h3>
                                             Needs Improvement
                                         </h3>
@@ -709,7 +875,6 @@ const ResumeAnalyzer = () => {
                                         <p>
                                             Areas you should work on
                                         </p>
-
                                     </div>
 
                                 </div>
@@ -717,53 +882,91 @@ const ResumeAnalyzer = () => {
 
                                 <ul className="feedback-list warning-list">
 
-                                    {analysis?.achievementScore < 10 && (
+                                    {Number(
+                                        analysis?.achievementScore || 0
+                                    ) < 10 && (
                                         <li>
-                                            <span>!</span>
+                                            <span className="feedback-icon warning">
+                                                !
+                                            </span>
+
                                             Add more measurable achievements
                                             and numbers
                                         </li>
                                     )}
 
-                                    {analysis?.skillScore < 10 && (
+                                    {Number(
+                                        analysis?.skillScore || 0
+                                    ) < 10 && (
                                         <li>
-                                            <span>!</span>
+                                            <span className="feedback-icon warning">
+                                                !
+                                            </span>
+
                                             Include more relevant technical
                                             skills
                                         </li>
                                     )}
 
-                                    {analysis?.projectScore < 10 && (
+                                    {Number(
+                                        analysis?.projectScore || 0
+                                    ) < 10 && (
                                         <li>
-                                            <span>!</span>
+                                            <span className="feedback-icon warning">
+                                                !
+                                            </span>
+
                                             Add stronger project descriptions
                                             and outcomes
                                         </li>
                                     )}
 
-                                    {analysis?.contentScore < 10 && (
+                                    {Number(
+                                        analysis?.contentScore || 0
+                                    ) < 10 && (
                                         <li>
-                                            <span>!</span>
+                                            <span className="feedback-icon warning">
+                                                !
+                                            </span>
+
                                             Add more relevant resume content
                                         </li>
                                     )}
 
-                                    {analysis?.sectionScore < 15 && (
+                                    {Number(
+                                        analysis?.sectionScore || 0
+                                    ) < 15 && (
                                         <li>
-                                            <span>!</span>
+                                            <span className="feedback-icon warning">
+                                                !
+                                            </span>
+
                                             Improve your resume section
                                             structure
                                         </li>
                                     )}
 
                                     {analysis &&
-                                        analysis.achievementScore >= 10 &&
-                                        analysis.skillScore >= 10 &&
-                                        analysis.projectScore >= 10 &&
-                                        analysis.contentScore >= 10 &&
-                                        analysis.sectionScore >= 15 && (
+                                        Number(
+                                            analysis.achievementScore || 0
+                                        ) >= 10 &&
+                                        Number(
+                                            analysis.skillScore || 0
+                                        ) >= 10 &&
+                                        Number(
+                                            analysis.projectScore || 0
+                                        ) >= 10 &&
+                                        Number(
+                                            analysis.contentScore || 0
+                                        ) >= 10 &&
+                                        Number(
+                                            analysis.sectionScore || 0
+                                        ) >= 15 && (
                                             <li>
-                                                <span>✓</span>
+                                                <span className="feedback-icon">
+                                                    ✓
+                                                </span>
+
                                                 No major issues detected.
                                                 Your resume is well structured.
                                             </li>
@@ -789,7 +992,6 @@ const ResumeAnalyzer = () => {
                                 </div>
 
                                 <div>
-
                                     <h3>
                                         Detected Skills
                                     </h3>
@@ -797,7 +999,6 @@ const ResumeAnalyzer = () => {
                                     <p>
                                         Technical skills found in your resume
                                     </p>
-
                                 </div>
 
                             </div>
@@ -805,9 +1006,9 @@ const ResumeAnalyzer = () => {
 
                             <div className="keyword-list">
 
-                                {analysis?.skillsFound?.length > 0 ? (
+                                {skillsFound.length > 0 ? (
 
-                                    analysis.skillsFound.map(
+                                    skillsFound.map(
                                         (skill, index) => (
                                             <span key={index}>
                                                 {skill}
@@ -817,7 +1018,7 @@ const ResumeAnalyzer = () => {
 
                                 ) : (
 
-                                    <span>
+                                    <span className="no-keywords">
                                         No technical skills detected
                                     </span>
 
@@ -834,7 +1035,11 @@ const ResumeAnalyzer = () => {
 
                         <div className="improvement-card">
 
-                            <div>
+                            <div className="improvement-icon">
+                                🚀
+                            </div>
+
+                            <div className="improvement-content">
 
                                 <h3>
                                     Ready to improve your resume?
@@ -850,13 +1055,17 @@ const ResumeAnalyzer = () => {
 
 
                             <button
+                                type="button"
                                 className="builder-button"
                                 onClick={() =>
                                     window.location.href =
                                         "/resume-builder"
                                 }
                             >
-                                Open Resume Builder →
+                                Open Resume Builder
+                                <span>
+                                    →
+                                </span>
                             </button>
 
                         </div>

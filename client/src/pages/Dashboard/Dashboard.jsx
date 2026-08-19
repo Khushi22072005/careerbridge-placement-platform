@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
+
+const REQUIRED_QUESTIONS = 20;
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [user, setUser] = useState(null);
   const [dashboard, setDashboard] = useState(null);
@@ -17,11 +20,7 @@ const Dashboard = () => {
   // FETCH DASHBOARD
   // =====================================================
 
-  useEffect(() => {
-    fetchDashboard();
-  }, []);
-
-  const fetchDashboard = async () => {
+  const fetchDashboard = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -37,10 +36,20 @@ const Dashboard = () => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/dashboard/${encodeURIComponent(email)}`
+        `http://localhost:5000/api/dashboard/${encodeURIComponent(
+          email
+        )}`
       );
 
-      const data = await response.json();
+      let data;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          "Server returned an invalid dashboard response."
+        );
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -48,10 +57,18 @@ const Dashboard = () => {
         );
       }
 
+      console.log("=================================");
+      console.log("DASHBOARD DATA");
+      console.log(data);
+      console.log("ASSESSMENT DATA");
+      console.log(data.assessment);
+      console.log("=================================");
+
       setUser(data.user || null);
       setProfile(data.profile || null);
       setAssessment(data.assessment || null);
       setDashboard(data.dashboard || null);
+
     } catch (err) {
       console.error("Dashboard Error:", err);
 
@@ -62,7 +79,25 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // =====================================================
+  // INITIAL LOAD
+  // =====================================================
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  // =====================================================
+  // REFRESH WHEN RETURNING TO DASHBOARD
+  // =====================================================
+
+  useEffect(() => {
+    if (location.pathname === "/dashboard") {
+      fetchDashboard();
+    }
+  }, [location.pathname, fetchDashboard]);
 
   // =====================================================
   // LOADING
@@ -71,13 +106,17 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="dashboard-loading">
+
         <div className="loading-spinner"></div>
 
-        <h3>Loading your CareerBridge dashboard...</h3>
+        <h3>
+          Loading your CareerBridge dashboard...
+        </h3>
 
         <p>
           Preparing your personalized career journey
         </p>
+
       </div>
     );
   }
@@ -89,15 +128,23 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="dashboard-error">
-        <div className="error-icon">⚠️</div>
 
-        <h2>Unable to load dashboard</h2>
+        <div className="error-icon">
+          ⚠️
+        </div>
 
-        <p>{error}</p>
+        <h2>
+          Unable to load dashboard
+        </h2>
+
+        <p>
+          {error}
+        </p>
 
         <button onClick={fetchDashboard}>
           Try Again
         </button>
+
       </div>
     );
   }
@@ -107,46 +154,232 @@ const Dashboard = () => {
   // =====================================================
 
   const placementReadiness =
-    Number(dashboard?.placementReadiness) || 0;
+    Number(
+      dashboard?.placementReadiness ??
+      dashboard?.placement_readiness ??
+      0
+    ) || 0;
 
   const roadmapProgress =
-    Number(dashboard?.roadmapProgress) || 0;
+    Number(
+      dashboard?.roadmapProgress ??
+      dashboard?.roadmap_progress ??
+      0
+    ) || 0;
 
   const resumeScore =
-    Number(dashboard?.resumeScore) || 0;
+    Number(
+      dashboard?.resumeScore ??
+      dashboard?.resume_score ??
+      0
+    ) || 0;
 
   const profileCompletion =
-    Number(dashboard?.profileCompletion) || 0;
+    Number(
+      dashboard?.profileCompletion ??
+      dashboard?.profile_completion ??
+      0
+    ) || 0;
 
   // =====================================================
   // CAREER DATA
   // =====================================================
 
-  const roadmap = dashboard?.roadmap || [];
-  const tasks = dashboard?.tasks || [];
+  const roadmap =
+    Array.isArray(dashboard?.roadmap)
+      ? dashboard.roadmap
+      : [];
+
+  const tasks =
+    Array.isArray(dashboard?.tasks)
+      ? dashboard.tasks
+      : [];
 
   // =====================================================
   // ASSESSMENT DATA
   // =====================================================
 
-  const assessmentCompleted = Boolean(
-    assessment?.completed ||
-      assessment?.is_completed ||
-      assessment?.completed_at
+  const backendAssessment = assessment || {};
+
+  // =====================================================
+  // GET STORED ASSESSMENT RESULT
+  // =====================================================
+
+  let storedAssessmentResult = null;
+
+  try {
+    const storedResult =
+      sessionStorage.getItem("assessmentResult");
+
+    if (storedResult) {
+      storedAssessmentResult =
+        JSON.parse(storedResult);
+
+      console.log(
+        "Stored Assessment Result:",
+        storedAssessmentResult
+      );
+    }
+  } catch (storageError) {
+    console.error(
+      "Assessment session storage error:",
+      storageError
+    );
+  }
+
+  // =====================================================
+  // ACTUAL ASSESSMENT SCORE
+  // =====================================================
+
+  /*
+   * We check multiple possible names because
+   * the backend/result page may use different names.
+   */
+
+  const possibleScores = [
+    backendAssessment.score,
+    backendAssessment.total_score,
+    backendAssessment.totalScore,
+    backendAssessment.correct_answers,
+    backendAssessment.correctAnswers,
+    backendAssessment.correct_count,
+    backendAssessment.correctCount,
+
+    storedAssessmentResult?.score,
+    storedAssessmentResult?.total_score,
+    storedAssessmentResult?.totalScore,
+    storedAssessmentResult?.correct_answers,
+    storedAssessmentResult?.correctAnswers,
+    storedAssessmentResult?.correct_count,
+    storedAssessmentResult?.correctCount,
+  ];
+
+  let actualScore = null;
+
+  for (const value of possibleScores) {
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      !isNaN(Number(value))
+    ) {
+      actualScore = Number(value);
+      break;
+    }
+  }
+
+  // =====================================================
+  // ANSWERED QUESTIONS
+  // =====================================================
+
+  const possibleAnsweredCounts = [
+    backendAssessment.answered_questions,
+    backendAssessment.questions_answered,
+    backendAssessment.answeredQuestions,
+    backendAssessment.questionsAnswered,
+    backendAssessment.total_answered,
+    backendAssessment.totalAnswered,
+
+    dashboard?.assessmentAnsweredQuestions,
+    dashboard?.assessment_answered_questions,
+
+    storedAssessmentResult?.answered_questions,
+    storedAssessmentResult?.questions_answered,
+    storedAssessmentResult?.answeredQuestions,
+    storedAssessmentResult?.questionsAnswered,
+  ];
+
+  let answeredQuestions = null;
+
+  for (const value of possibleAnsweredCounts) {
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      !isNaN(Number(value))
+    ) {
+      answeredQuestions = Number(value);
+      break;
+    }
+  }
+
+  // =====================================================
+  // IMPORTANT SCORE LOGIC
+  // =====================================================
+
+  /*
+   * If your assessment result is 12/20,
+   * actualScore will be 12.
+   *
+   * Therefore Dashboard will show:
+   *
+   * 12/20
+   *
+   * NOT 20/20.
+   */
+
+  if (actualScore !== null) {
+    answeredQuestions = actualScore;
+  }
+
+  /*
+   * If there is no score but answered questions
+   * are available, use those.
+   */
+
+  if (answeredQuestions === null) {
+    answeredQuestions = 0;
+  }
+
+  /*
+   * Keep value between 0 and 20.
+   */
+
+  answeredQuestions = Math.max(
+    0,
+    Math.min(
+      Number(answeredQuestions) || 0,
+      REQUIRED_QUESTIONS
+    )
   );
 
-  const totalQuestions = Number(
-    assessment?.total_questions ||
-      assessment?.question_count ||
-      dashboard?.assessmentTotalQuestions ||
-      30
-  );
+  // =====================================================
+  // ASSESSMENT COMPLETED
+  // =====================================================
 
-  const answeredQuestions = Number(
-    assessment?.answered_questions ||
-      assessment?.questions_answered ||
-      0
-  );
+  const assessmentCompleted =
+    Boolean(
+      backendAssessment.completed === true ||
+      backendAssessment.is_completed === true ||
+      backendAssessment.completed_at ||
+      backendAssessment.status === "completed" ||
+      backendAssessment.status === "Completed" ||
+      storedAssessmentResult
+    );
+
+  /*
+   * IMPORTANT:
+   *
+   * Completion does NOT mean 20/20.
+   *
+   * A student can complete all 20 questions
+   * and score 12/20.
+   *
+   * Therefore we DO NOT change answeredQuestions
+   * to 20 when completed.
+   */
+
+  const finalAssessmentCompleted =
+    assessmentCompleted;
+
+  // =====================================================
+  // ASSESSMENT PROGRESS
+  // =====================================================
+
+  const assessmentProgress =
+    Math.round(
+      (answeredQuestions / REQUIRED_QUESTIONS) * 100
+    );
 
   // =====================================================
   // USER NAME
@@ -162,16 +395,21 @@ const Dashboard = () => {
   // =====================================================
 
   const completedTasks =
-    tasks.filter((task) => task.completed).length;
+    tasks.filter(
+      (task) => task.completed
+    ).length;
 
   const totalTasks =
-    tasks.length > 0 ? tasks.length : 4;
+    tasks.length > 0
+      ? tasks.length
+      : 4;
 
   // =====================================================
   // READINESS TITLE
   // =====================================================
 
   const getReadinessTitle = () => {
+
     if (placementReadiness >= 80) {
       return "You're career ready!";
     }
@@ -192,6 +430,7 @@ const Dashboard = () => {
   // =====================================================
 
   const getReadinessDescription = () => {
+
     if (placementReadiness >= 80) {
       return "Great work! Continue improving your skills and preparing for your target career.";
     }
@@ -208,7 +447,8 @@ const Dashboard = () => {
   // =====================================================
 
   const getReadinessButton = () => {
-    if (!assessmentCompleted) {
+
+    if (!finalAssessmentCompleted) {
       return "Take Career Assessment";
     }
 
@@ -227,8 +467,13 @@ const Dashboard = () => {
     return "View Career Progress";
   };
 
+  // =====================================================
+  // READINESS BUTTON ACTION
+  // =====================================================
+
   const handleReadinessButton = () => {
-    if (!assessmentCompleted) {
+
+    if (!finalAssessmentCompleted) {
       navigate("/career-assessment");
       return;
     }
@@ -255,32 +500,36 @@ const Dashboard = () => {
   // PROFILE CHECKLIST
   // =====================================================
 
-  const hasBasicInformation = Boolean(
-    profile?.phone &&
+  const hasBasicInformation =
+    Boolean(
+      profile?.phone &&
       user?.fullname &&
       user?.email
-  );
+    );
 
-  const hasEducationDetails = Boolean(
-    profile?.college &&
+  const hasEducationDetails =
+    Boolean(
+      profile?.college &&
       profile?.degree &&
       profile?.branch &&
       profile?.graduation_year
-  );
+    );
 
-  const hasSkillsAndInterests = Boolean(
-    Array.isArray(profile?.skills) &&
+  const hasSkillsAndInterests =
+    Boolean(
+      Array.isArray(profile?.skills) &&
       profile.skills.length > 0 &&
       Array.isArray(profile?.interests) &&
       profile.interests.length > 0
-  );
+    );
 
-  const hasCareerPreferences = Boolean(
-    Array.isArray(profile?.preferred_roles) &&
+  const hasCareerPreferences =
+    Boolean(
+      Array.isArray(profile?.preferred_roles) &&
       profile.preferred_roles.length > 0 &&
       Array.isArray(profile?.preferred_locations) &&
       profile.preferred_locations.length > 0
-  );
+    );
 
   const profileChecklist = [
     {
@@ -321,7 +570,7 @@ const Dashboard = () => {
           </p>
 
           <h1>
-            Welcome back, {firstName} 
+            Welcome back, {firstName}
           </h1>
 
           <p className="dashboard-subtitle">
@@ -334,7 +583,9 @@ const Dashboard = () => {
         <div className="header-profile">
 
           <div className="profile-avatar">
-            {firstName.charAt(0).toUpperCase()}
+            {firstName
+              .charAt(0)
+              .toUpperCase()}
           </div>
 
           <div className="profile-details">
@@ -396,7 +647,8 @@ const Dashboard = () => {
           <div
             className="progress-circle"
             style={{
-              "--progress": `${placementReadiness}%`,
+              "--progress":
+                `${placementReadiness}%`,
             }}
           >
 
@@ -425,8 +677,6 @@ const Dashboard = () => {
 
       {/* =================================================
           MAIN STATISTICS
-          
-          CAREER MATCH REMOVED
       ================================================= */}
 
       <section className="stats-grid">
@@ -450,16 +700,22 @@ const Dashboard = () => {
         <StatCard
           icon="🧠"
           title="Assessment"
-          value={
-            assessmentCompleted
-              ? "Completed"
-              : `${answeredQuestions}/${totalQuestions}`
-          }
+
+          /*
+           * THIS IS THE IMPORTANT PART
+           *
+           * If score = 12
+           * Dashboard shows 12/20
+           */
+
+          value={`${answeredQuestions}/${REQUIRED_QUESTIONS}`}
+
           subtitle={
-            assessmentCompleted
-              ? "Career assessment"
-              : "Questions answered"
+            finalAssessmentCompleted
+              ? `Assessment completed • Score: ${answeredQuestions}/${REQUIRED_QUESTIONS}`
+              : `${assessmentProgress}% completed`
           }
+
           iconClass="green"
         />
 
@@ -490,20 +746,22 @@ const Dashboard = () => {
 
           <button
             className="edit-button"
-            onClick={() => navigate("/profile")}
+            onClick={() =>
+              navigate("/profile")
+            }
           >
             ✎
           </button>
 
         </div>
 
-
         <div className="profile-progress">
 
           <div
             className="profile-circle"
             style={{
-              "--progress": `${profileCompletion}%`,
+              "--progress":
+                `${profileCompletion}%`,
             }}
           >
 
@@ -531,31 +789,32 @@ const Dashboard = () => {
 
         </div>
 
-
-        {/* PROFILE CHECKLIST */}
-
         <div className="profile-checklist">
 
-          {profileChecklist.map((item, index) => (
+          {profileChecklist.map(
+            (item, index) => (
 
-            <div
-              key={index}
-              className={`check-item ${
-                item.completed
-                  ? "completed"
-                  : ""
-              }`}
-            >
+              <div
+                key={index}
+                className={`check-item ${
+                  item.completed
+                    ? "completed"
+                    : ""
+                }`}
+              >
 
-              <span className="check-symbol">
-                {item.completed ? "✓" : "○"}
-              </span>
+                <span className="check-symbol">
+                  {item.completed
+                    ? "✓"
+                    : "○"}
+                </span>
 
-              {item.label}
+                {item.label}
 
-            </div>
+              </div>
 
-          ))}
+            )
+          )}
 
         </div>
 
@@ -593,7 +852,6 @@ const Dashboard = () => {
 
         </div>
 
-
         <div className="roadmap">
 
           <div className="roadmap-line"></div>
@@ -621,22 +879,22 @@ const Dashboard = () => {
                 number="1"
                 title="Career Assessment"
                 status={
-                  assessmentCompleted
+                  finalAssessmentCompleted
                     ? "Completed"
                     : "Pending"
                 }
-                active={!assessmentCompleted}
-                completed={assessmentCompleted}
+                active={
+                  !finalAssessmentCompleted
+                }
+                completed={
+                  finalAssessmentCompleted
+                }
               />
 
               <RoadmapStep
                 number="2"
                 title="Skill Gap Analysis"
-                status={
-                  assessmentCompleted
-                    ? "Upcoming"
-                    : "Upcoming"
-                }
+                status="Upcoming"
                 active={false}
                 completed={false}
               />
@@ -644,11 +902,7 @@ const Dashboard = () => {
               <RoadmapStep
                 number="3"
                 title="Learning Path"
-                status={
-                  assessmentCompleted
-                    ? "Upcoming"
-                    : "Upcoming"
-                }
+                status="Upcoming"
                 active={false}
                 completed={false}
               />
@@ -662,10 +916,12 @@ const Dashboard = () => {
                     : "Upcoming"
                 }
                 active={
-                  assessmentCompleted &&
+                  finalAssessmentCompleted &&
                   resumeScore < 100
                 }
-                completed={resumeScore >= 100}
+                completed={
+                  resumeScore >= 100
+                }
               />
 
             </>
@@ -675,9 +931,6 @@ const Dashboard = () => {
         </div>
 
       </section>
-
-
-     
 
 
       {/* =================================================
@@ -698,13 +951,12 @@ const Dashboard = () => {
 
         </div>
 
-
         <div className="quick-actions">
 
           <QuickAction
             icon="🧭"
             title="Career Assessment"
-            description={`${totalQuestions} questions to discover your career`}
+            description={`${REQUIRED_QUESTIONS} questions to discover your career`}
             onClick={() =>
               navigate("/career-assessment")
             }
@@ -753,7 +1005,8 @@ const Dashboard = () => {
         </span>
 
         <span>
-          Personalized career guidance & placement readiness
+          Personalized career guidance &
+          placement readiness
         </span>
 
       </footer>
@@ -839,7 +1092,8 @@ const RoadmapStep = ({
       </div>
 
       <span className="step-number">
-        STEP {String(number).padStart(2, "0")}
+        STEP{" "}
+        {String(number).padStart(2, "0")}
       </span>
 
       <h4>
@@ -869,10 +1123,14 @@ const Task = ({
 
       <span
         className={`task-checkbox ${
-          completed ? "checked" : ""
+          completed
+            ? "checked"
+            : ""
         }`}
       >
-        {completed ? "✓" : ""}
+        {completed
+          ? "✓"
+          : ""}
       </span>
 
       <span
@@ -888,6 +1146,7 @@ const Task = ({
     </div>
   );
 };
+
 
 // ======================================================
 // QUICK ACTION
@@ -929,4 +1188,6 @@ const QuickAction = ({
     </button>
   );
 };
+
+
 export default Dashboard;
