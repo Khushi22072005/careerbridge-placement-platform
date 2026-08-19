@@ -48,6 +48,7 @@ const Sidebar = () => {
 
             <nav className="sidebar-nav">
 
+
                 {/* ================= MAIN ================= */}
 
                 <p className="sidebar-section-title">
@@ -116,6 +117,7 @@ const Sidebar = () => {
                     <span>Learning Hub</span>
                 </NavLink>
 
+
                 <NavLink
                     to="/career-development"
                     className={({ isActive }) =>
@@ -147,6 +149,7 @@ const Sidebar = () => {
                     <span>Resume Builder</span>
                 </NavLink>
 
+
                 <NavLink
                     to="/resume-analyzer"
                     className={({ isActive }) =>
@@ -159,16 +162,12 @@ const Sidebar = () => {
                     <span>Resume Analyzer</span>
                 </NavLink>
 
-             
-
 
                 {/* ================= PLACEMENT ================= */}
 
                 <p className="sidebar-section-title">
                     PLACEMENT
                 </p>
-
-               
 
                 <NavLink
                     to="/interview"
@@ -179,7 +178,7 @@ const Sidebar = () => {
                     }
                 >
                     <span className="sidebar-icon"></span>
-                    <span>Mock Interview</span>
+                    <span>Mock Interviews</span>
                 </NavLink>
 
 
@@ -200,6 +199,7 @@ const Sidebar = () => {
                     <span className="sidebar-icon"></span>
                     <span>My Profile</span>
                 </NavLink>
+
 
                 <NavLink
                     to="/settings"
