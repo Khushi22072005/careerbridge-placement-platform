@@ -5,6 +5,13 @@ const ResumeAnalyzer = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const [analyzed, setAnalyzed] = useState(false);
+    const [resumeScore, setResumeScore] = useState(0);
+    const [analysis, setAnalysis] = useState(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+    // =====================================================
+    // HANDLE FILE
+    // =====================================================
 
     const handleFile = (file) => {
         if (!file) return;
@@ -20,14 +27,29 @@ const ResumeAnalyzer = () => {
             return;
         }
 
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Resume file must be smaller than 5 MB.");
+            return;
+        }
+
         setSelectedFile(file);
         setAnalyzed(false);
+        setResumeScore(0);
+        setAnalysis(null);
     };
+
+    // =====================================================
+    // FILE INPUT
+    // =====================================================
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         handleFile(file);
     };
+
+    // =====================================================
+    // DRAG & DROP
+    // =====================================================
 
     const handleDrop = (event) => {
         event.preventDefault();
@@ -37,62 +59,224 @@ const ResumeAnalyzer = () => {
         handleFile(file);
     };
 
-    const handleAnalyze = () => {
+    // =====================================================
+    // ANALYZE RESUME
+    // =====================================================
+
+    const handleAnalyze = async () => {
         if (!selectedFile) {
             alert("Please upload your resume first.");
             return;
         }
 
-        setAnalyzed(true);
+        try {
+            setIsAnalyzing(true);
+
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                alert("Please login again.");
+                return;
+            }
+
+            const formData = new FormData();
+
+            // IMPORTANT:
+            // This name must match upload.single("resume")
+            // in resumeRoutes.js
+            formData.append("resume", selectedFile);
+
+            const response = await fetch(
+                "http://localhost:5000/api/resume/analyze",
+                {
+                    method: "POST",
+
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+
+                    body: formData,
+                }
+            );
+
+            const data = await response.json();
+
+            console.log("Resume analysis result:", data);
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Failed to analyze resume"
+                );
+            }
+
+            setResumeScore(
+                Number(data.resumeScore) || 0
+            );
+
+            setAnalysis(
+                data.analysis || null
+            );
+
+            setAnalyzed(true);
+
+        } catch (error) {
+            console.error(
+                "Resume analysis error:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Failed to analyze resume."
+            );
+
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
+
+    // =====================================================
+    // REMOVE FILE
+    // =====================================================
 
     const removeFile = () => {
         setSelectedFile(null);
         setAnalyzed(false);
+        setResumeScore(0);
+        setAnalysis(null);
+    };
+
+    // =====================================================
+    // ATS SCORE
+    // =====================================================
+
+    const atsScore = analysis
+        ? Math.min(
+            100,
+            Math.round(
+                (
+                    Number(analysis.contactScore || 0) +
+                    Number(analysis.sectionScore || 0) +
+                    Number(analysis.contentScore || 0)
+                ) / 40 * 100
+            )
+        )
+        : 0;
+
+    // =====================================================
+    // KEYWORD SCORE
+    // =====================================================
+
+    const keywordScore = analysis
+        ? Math.min(
+            100,
+            Math.round(
+                Number(analysis.skillScore || 0) / 20 * 100
+            )
+        )
+        : 0;
+
+    // =====================================================
+    // RESUME TITLE
+    // =====================================================
+
+    const getResumeTitle = () => {
+        if (resumeScore >= 85) {
+            return "Excellent Resume";
+        }
+
+        if (resumeScore >= 70) {
+            return "Good Resume";
+        }
+
+        if (resumeScore >= 50) {
+            return "Average Resume";
+        }
+
+        return "Needs Improvement";
+    };
+
+    // =====================================================
+    // RESUME DESCRIPTION
+    // =====================================================
+
+    const getResumeDescription = () => {
+        if (resumeScore >= 85) {
+            return "Your resume has strong structure, relevant skills and good overall content.";
+        }
+
+        if (resumeScore >= 70) {
+            return "Your resume has a solid foundation. A few improvements can make it more competitive.";
+        }
+
+        if (resumeScore >= 50) {
+            return "Your resume has some good elements, but several areas should be improved.";
+        }
+
+        return "Your resume needs significant improvements before it is placement ready.";
     };
 
     return (
         <div className="resume-analyzer-page">
 
-            {/* ================= HEADER ================= */}
+            {/* =================================================
+                HEADER
+            ================================================= */}
 
             <div className="analyzer-header">
-                <div>
-                    <div className="analyzer-title-row">
-                        <div className="analyzer-title-icon">
-                            🔍
-                        </div>
 
-                        <div>
-                            <h1>Resume Analyzer</h1>
-                            <p>
-                                Analyze your resume and improve your chances of
-                                getting shortlisted.
-                            </p>
-                        </div>
+                <div className="analyzer-title-row">
+
+                    <div className="analyzer-title-icon">
+                        🔍
                     </div>
+
+                    <div>
+                        <h1>Resume Analyzer</h1>
+
+                        <p>
+                            Analyze your resume and improve your
+                            chances of getting shortlisted.
+                        </p>
+                    </div>
+
                 </div>
+
             </div>
 
 
-            {/* ================= MAIN CONTENT ================= */}
+            {/* =================================================
+                MAIN CONTENT
+            ================================================= */}
 
             <div className="analyzer-content">
 
-                {/* ================= UPLOAD CARD ================= */}
+                {/* =================================================
+                    UPLOAD CARD
+                ================================================= */}
 
                 <section className="analyzer-card upload-card">
 
                     <div className="card-heading">
+
                         <div>
-                            <h2>Analyze Your Resume</h2>
+                            <h2>
+                                Analyze Your Resume
+                            </h2>
+
                             <p>
-                                Upload your resume to check its ATS compatibility,
-                                content quality and overall readiness.
+                                Upload your resume to check its ATS
+                                compatibility, content quality and
+                                overall readiness.
                             </p>
                         </div>
+
                     </div>
 
+
+                    {/* =================================================
+                        UPLOAD BOX
+                    ================================================= */}
 
                     <div
                         className={`resume-upload-box ${
@@ -102,38 +286,49 @@ const ResumeAnalyzer = () => {
                             event.preventDefault();
                             setIsDragging(true);
                         }}
-                        onDragLeave={() => setIsDragging(false)}
+                        onDragLeave={() =>
+                            setIsDragging(false)
+                        }
                         onDrop={handleDrop}
                     >
 
                         {!selectedFile ? (
+
                             <>
                                 <div className="upload-icon">
                                     📄
                                 </div>
 
-                                <h3>Upload your resume</h3>
+                                <h3>
+                                    Upload your resume
+                                </h3>
 
                                 <p>
-                                    Drag and drop your resume here or browse
-                                    from your computer
+                                    Drag and drop your resume here
+                                    or browse from your computer
                                 </p>
 
                                 <label className="browse-button">
+
                                     Browse Files
+
                                     <input
                                         type="file"
                                         accept=".pdf,.doc,.docx"
                                         onChange={handleFileChange}
                                     />
+
                                 </label>
 
                                 <span className="upload-note">
-                                    Supported formats: PDF, DOC, DOCX · Maximum
-                                    size: 5 MB
+                                    Supported formats: PDF, DOC, DOCX ·
+                                    Maximum size: 5 MB
                                 </span>
+
                             </>
+
                         ) : (
+
                             <div className="uploaded-file">
 
                                 <div className="file-icon">
@@ -141,7 +336,10 @@ const ResumeAnalyzer = () => {
                                 </div>
 
                                 <div className="file-information">
-                                    <h3>{selectedFile.name}</h3>
+
+                                    <h3>
+                                        {selectedFile.name}
+                                    </h3>
 
                                     <p>
                                         {(
@@ -150,6 +348,7 @@ const ResumeAnalyzer = () => {
                                         ).toFixed(2)}{" "}
                                         MB · Ready to analyze
                                     </p>
+
                                 </div>
 
                                 <button
@@ -160,113 +359,189 @@ const ResumeAnalyzer = () => {
                                 </button>
 
                             </div>
+
                         )}
 
                     </div>
 
 
+                    {/* =================================================
+                        ANALYZE BUTTON
+                    ================================================= */}
+
                     <div className="upload-actions">
+
                         <button
                             className="analyze-button"
                             onClick={handleAnalyze}
-                            disabled={!selectedFile}
+                            disabled={
+                                !selectedFile ||
+                                isAnalyzing
+                            }
                         >
-                            <span>✨</span>
-                            Analyze Resume
+
+                            <span>
+                                {isAnalyzing
+                                    ? "⏳"
+                                    : "✨"}
+                            </span>
+
+                            {isAnalyzing
+                                ? "Analyzing..."
+                                : "Analyze Resume"}
+
                         </button>
+
                     </div>
 
                 </section>
 
 
-                {/* ================= QUICK CHECKS ================= */}
+                {/* =================================================
+                    QUICK CHECKS
+                ================================================= */}
 
                 <section className="quick-checks">
 
                     <div className="quick-check">
-                        <div className="quick-icon">🎯</div>
+
+                        <div className="quick-icon">
+                            🎯
+                        </div>
+
                         <div>
-                            <h3>ATS Compatibility</h3>
+                            <h3>
+                                ATS Compatibility
+                            </h3>
+
                             <p>
-                                Check whether your resume is easy for ATS systems
-                                to read.
+                                Check whether your resume is easy
+                                for ATS systems to read.
                             </p>
                         </div>
+
                     </div>
 
-                    <div className="quick-check">
-                        <div className="quick-icon">🔑</div>
-                        <div>
-                            <h3>Keyword Match</h3>
-                            <p>
-                                Identify important skills and keywords missing
-                                from your resume.
-                            </p>
-                        </div>
-                    </div>
 
                     <div className="quick-check">
-                        <div className="quick-icon">📊</div>
+
+                        <div className="quick-icon">
+                            🔑
+                        </div>
+
                         <div>
-                            <h3>Resume Quality</h3>
+                            <h3>
+                                Keyword Match
+                            </h3>
+
                             <p>
-                                Review your resume structure, content and
-                                formatting.
+                                Identify important skills and
+                                keywords in your resume.
                             </p>
                         </div>
+
+                    </div>
+
+
+                    <div className="quick-check">
+
+                        <div className="quick-icon">
+                            📊
+                        </div>
+
+                        <div>
+                            <h3>
+                                Resume Quality
+                            </h3>
+
+                            <p>
+                                Review your resume structure,
+                                content and formatting.
+                            </p>
+                        </div>
+
                     </div>
 
                 </section>
 
 
-                {/* ================= RESULTS ================= */}
+                {/* =================================================
+                    RESULTS
+                ================================================= */}
 
                 {analyzed && (
+
                     <section className="results-section">
 
                         <div className="results-header">
+
                             <div>
-                                <h2>Resume Analysis</h2>
+
+                                <h2>
+                                    Resume Analysis
+                                </h2>
+
                                 <p>
-                                    Here's how your resume performs across
-                                    important hiring criteria.
+                                    Here's how your resume performs
+                                    across important hiring criteria.
                                 </p>
+
                             </div>
 
                             <span className="analysis-status">
                                 Analysis Complete
                             </span>
+
                         </div>
 
 
-                        {/* ================= SCORE ================= */}
+                        {/* =================================================
+                            SCORE OVERVIEW
+                        ================================================= */}
 
                         <div className="score-overview">
+
+                            {/* MAIN SCORE */}
 
                             <div className="score-card main-score">
 
                                 <div className="score-circle">
+
                                     <div>
-                                        <strong>78</strong>
-                                        <span>/100</span>
+
+                                        <strong>
+                                            {resumeScore}
+                                        </strong>
+
+                                        <span>
+                                            /100
+                                        </span>
+
                                     </div>
+
                                 </div>
 
+
                                 <div className="score-details">
-                                    <h3>Good Resume</h3>
+
+                                    <h3>
+                                        {getResumeTitle()}
+                                    </h3>
+
                                     <p>
-                                        Your resume has a solid foundation.
-                                        A few improvements can make it more
-                                        competitive.
+                                        {getResumeDescription()}
                                     </p>
 
                                     <span className="score-label">
                                         Overall Resume Score
                                     </span>
+
                                 </div>
 
                             </div>
 
+
+                            {/* ATS SCORE */}
 
                             <div className="score-card">
 
@@ -275,21 +550,33 @@ const ResumeAnalyzer = () => {
                                 </div>
 
                                 <div>
+
                                     <span className="metric-label">
                                         ATS Compatibility
                                     </span>
 
                                     <strong className="metric-score">
-                                        82%
+                                        {atsScore}%
                                     </strong>
 
-                                    <span className="metric-status good">
-                                        Good
+                                    <span
+                                        className={`metric-status ${
+                                            atsScore >= 70
+                                                ? "good"
+                                                : "average"
+                                        }`}
+                                    >
+                                        {atsScore >= 70
+                                            ? "Good"
+                                            : "Needs Work"}
                                     </span>
+
                                 </div>
 
                             </div>
 
+
+                            {/* KEYWORD SCORE */}
 
                             <div className="score-card">
 
@@ -298,17 +585,27 @@ const ResumeAnalyzer = () => {
                                 </div>
 
                                 <div>
+
                                     <span className="metric-label">
                                         Keyword Match
                                     </span>
 
                                     <strong className="metric-score">
-                                        74%
+                                        {keywordScore}%
                                     </strong>
 
-                                    <span className="metric-status average">
-                                        Needs Work
+                                    <span
+                                        className={`metric-status ${
+                                            keywordScore >= 70
+                                                ? "good"
+                                                : "average"
+                                        }`}
+                                    >
+                                        {keywordScore >= 70
+                                            ? "Good"
+                                            : "Needs Work"}
                                     </span>
+
                                 </div>
 
                             </div>
@@ -316,81 +613,162 @@ const ResumeAnalyzer = () => {
                         </div>
 
 
-                        {/* ================= DETAILED ANALYSIS ================= */}
+                        {/* =================================================
+                            DETAILED ANALYSIS
+                        ================================================= */}
 
                         <div className="analysis-grid">
+
+                            {/* WHAT'S WORKING */}
 
                             <div className="analysis-card">
 
                                 <div className="analysis-card-header">
+
                                     <div className="analysis-card-icon positive">
                                         ✓
                                     </div>
 
                                     <div>
-                                        <h3>What's Working</h3>
-                                        <p>Your resume's strengths</p>
+
+                                        <h3>
+                                            What's Working
+                                        </h3>
+
+                                        <p>
+                                            Your resume's strengths
+                                        </p>
+
                                     </div>
+
                                 </div>
 
+
                                 <ul className="feedback-list">
-                                    <li>
-                                        <span>✓</span>
-                                        Clear resume structure and sections
-                                    </li>
 
-                                    <li>
-                                        <span>✓</span>
-                                        Professional and readable formatting
-                                    </li>
+                                    {analysis?.sectionsFound?.length > 0 && (
+                                        <li>
+                                            <span>✓</span>
+                                            Strong resume structure with{" "}
+                                            {analysis.sectionsFound.length}{" "}
+                                            sections detected
+                                        </li>
+                                    )}
 
-                                    <li>
-                                        <span>✓</span>
-                                        Relevant technical skills included
-                                    </li>
+                                    {analysis?.skillsFound?.length > 0 && (
+                                        <li>
+                                            <span>✓</span>
+                                            {analysis.skillsFound.length}{" "}
+                                            relevant technical skills detected
+                                        </li>
+                                    )}
 
-                                    <li>
-                                        <span>✓</span>
-                                        Contact information is easy to find
-                                    </li>
+                                    {analysis?.wordCount >= 200 && (
+                                        <li>
+                                            <span>✓</span>
+                                            Good amount of resume content
+                                        </li>
+                                    )}
+
+                                    {analysis?.contactScore >= 10 && (
+                                        <li>
+                                            <span>✓</span>
+                                            Email and phone number detected
+                                        </li>
+                                    )}
+
+                                    {analysis?.sectionsFound?.length === 0 && (
+                                        <li>
+                                            <span>!</span>
+                                            Resume sections could not be
+                                            detected clearly
+                                        </li>
+                                    )}
+
                                 </ul>
 
                             </div>
 
 
+                            {/* NEEDS IMPROVEMENT */}
+
                             <div className="analysis-card">
 
                                 <div className="analysis-card-header">
+
                                     <div className="analysis-card-icon warning">
                                         !
                                     </div>
 
                                     <div>
-                                        <h3>Needs Improvement</h3>
-                                        <p>Areas you should work on</p>
+
+                                        <h3>
+                                            Needs Improvement
+                                        </h3>
+
+                                        <p>
+                                            Areas you should work on
+                                        </p>
+
                                     </div>
+
                                 </div>
 
+
                                 <ul className="feedback-list warning-list">
-                                    <li>
-                                        <span>!</span>
-                                        Add more measurable achievements
-                                    </li>
 
-                                    <li>
-                                        <span>!</span>
-                                        Include more job-specific keywords
-                                    </li>
+                                    {analysis?.achievementScore < 10 && (
+                                        <li>
+                                            <span>!</span>
+                                            Add more measurable achievements
+                                            and numbers
+                                        </li>
+                                    )}
 
-                                    <li>
-                                        <span>!</span>
-                                        Strengthen your professional summary
-                                    </li>
+                                    {analysis?.skillScore < 10 && (
+                                        <li>
+                                            <span>!</span>
+                                            Include more relevant technical
+                                            skills
+                                        </li>
+                                    )}
 
-                                    <li>
-                                        <span>!</span>
-                                        Add relevant project outcomes
-                                    </li>
+                                    {analysis?.projectScore < 10 && (
+                                        <li>
+                                            <span>!</span>
+                                            Add stronger project descriptions
+                                            and outcomes
+                                        </li>
+                                    )}
+
+                                    {analysis?.contentScore < 10 && (
+                                        <li>
+                                            <span>!</span>
+                                            Add more relevant resume content
+                                        </li>
+                                    )}
+
+                                    {analysis?.sectionScore < 15 && (
+                                        <li>
+                                            <span>!</span>
+                                            Improve your resume section
+                                            structure
+                                        </li>
+                                    )}
+
+                                    {analysis &&
+                                        analysis.achievementScore >= 10 &&
+                                        analysis.skillScore >= 10 &&
+                                        analysis.projectScore >= 10 &&
+                                        analysis.contentScore >= 10 &&
+                                        analysis.sectionScore >= 15 && (
+                                            <li>
+                                                <span>✓</span>
+                                                No major issues detected.
+                                                Your resume is well structured.
+                                            </li>
+                                        )}
+
                                 </ul>
 
                             </div>
@@ -398,53 +776,84 @@ const ResumeAnalyzer = () => {
                         </div>
 
 
-                        {/* ================= KEYWORDS ================= */}
+                        {/* =================================================
+                            DETECTED SKILLS
+                        ================================================= */}
 
                         <div className="keywords-card">
 
                             <div className="analysis-card-header">
+
                                 <div className="analysis-card-icon keyword">
                                     🔑
                                 </div>
 
                                 <div>
-                                    <h3>Recommended Keywords</h3>
+
+                                    <h3>
+                                        Detected Skills
+                                    </h3>
+
                                     <p>
-                                        Skills that could strengthen your resume
+                                        Technical skills found in your resume
                                     </p>
+
                                 </div>
+
                             </div>
 
+
                             <div className="keyword-list">
-                                <span>SQL</span>
-                                <span>Power BI</span>
-                                <span>Data Analysis</span>
-                                <span>Excel</span>
-                                <span>Python</span>
-                                <span>Dashboard</span>
-                                <span>Data Visualization</span>
+
+                                {analysis?.skillsFound?.length > 0 ? (
+
+                                    analysis.skillsFound.map(
+                                        (skill, index) => (
+                                            <span key={index}>
+                                                {skill}
+                                            </span>
+                                        )
+                                    )
+
+                                ) : (
+
+                                    <span>
+                                        No technical skills detected
+                                    </span>
+
+                                )}
+
                             </div>
 
                         </div>
 
 
-                        {/* ================= ACTIONS ================= */}
+                        {/* =================================================
+                            ACTION
+                        ================================================= */}
 
                         <div className="improvement-card">
 
                             <div>
-                                <h3>Ready to improve your resume?</h3>
+
+                                <h3>
+                                    Ready to improve your resume?
+                                </h3>
+
                                 <p>
                                     Use our Resume Builder to apply these
                                     recommendations and create a stronger,
                                     placement-ready resume.
                                 </p>
+
                             </div>
+
 
                             <button
                                 className="builder-button"
                                 onClick={() =>
-                                    window.location.href = "/resume-builder"
+                                    window.location.href =
+                                        "/resume-builder"
                                 }
                             >
                                 Open Resume Builder →
@@ -453,6 +862,7 @@ const ResumeAnalyzer = () => {
                         </div>
 
                     </section>
+
                 )}
 
             </div>

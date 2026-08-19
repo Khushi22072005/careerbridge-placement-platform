@@ -1,4 +1,5 @@
 const express = require("express");
+
 const router = express.Router();
 
 const pool = require("../src/config/db");
@@ -53,7 +54,8 @@ router.get("/:email", async (req, res) => {
                 skills,
                 interests,
                 preferred_roles,
-                preferred_locations
+                preferred_locations,
+                resume_score
             FROM profiles
             WHERE user_id = $1
             `,
@@ -121,7 +123,6 @@ router.get("/:email", async (req, res) => {
         let roadmapProgress = 0;
 
         if (roadmapProgressData) {
-
             const roadmapSteps = [
                 roadmapProgressData.career_assessment_completed,
                 roadmapProgressData.skill_gap_completed,
@@ -141,24 +142,9 @@ router.get("/:email", async (req, res) => {
         // 6. GET RESUME SCORE
         // =====================================================
 
-        const resumeResult = await pool.query(
-            `
-            SELECT
-                resume_score
-            FROM resumes
-            WHERE user_id = $1
-            ORDER BY updated_at DESC
-            LIMIT 1
-            `,
-            [user.id]
-        );
-
+        // Resume Analyzer saves resume_score in profiles table
         const resumeScore =
-            resumeResult.rows.length > 0
-                ? Number(
-                    resumeResult.rows[0].resume_score
-                ) || 0
-                : 0;
+            Number(profile?.resume_score) || 0;
 
         // =====================================================
         // 7. GET USER TASKS
@@ -191,7 +177,6 @@ router.get("/:email", async (req, res) => {
         let profileCompletion = 0;
 
         if (profile) {
-
             const profileFields = [
                 profile.phone,
                 profile.college,
@@ -206,7 +191,6 @@ router.get("/:email", async (req, res) => {
 
             const completedFields =
                 profileFields.filter((field) => {
-
                     if (
                         field === null ||
                         field === undefined ||
@@ -267,7 +251,6 @@ router.get("/:email", async (req, res) => {
         let recommendation;
 
         if (!assessment) {
-
             recommendation = {
                 title:
                     "Complete your career assessment",
@@ -284,7 +267,6 @@ router.get("/:email", async (req, res) => {
                 assessment.problem_solving_score
             ) < 60
         ) {
-
             recommendation = {
                 title:
                     "Strengthen your problem-solving skills",
@@ -301,7 +283,6 @@ router.get("/:email", async (req, res) => {
                 assessment.technical_score
             ) < 60
         ) {
-
             recommendation = {
                 title:
                     "Improve your technical skills",
@@ -318,7 +299,6 @@ router.get("/:email", async (req, res) => {
                 assessment.communication_score
             ) < 60
         ) {
-
             recommendation = {
                 title:
                     "Improve your communication skills",
@@ -331,7 +311,6 @@ router.get("/:email", async (req, res) => {
             };
 
         } else {
-
             recommendation = {
                 title:
                     "Continue your placement preparation",
@@ -367,7 +346,6 @@ router.get("/:email", async (req, res) => {
         // =====================================================
 
         const roadmap = [
-
             {
                 number: "01",
 
@@ -473,7 +451,6 @@ router.get("/:email", async (req, res) => {
         // =====================================================
 
         const dashboard = {
-
             placementReadiness,
 
             careerMatch,
@@ -500,7 +477,6 @@ router.get("/:email", async (req, res) => {
         // =====================================================
 
         return res.status(200).json({
-
             user,
 
             profile,
@@ -508,24 +484,20 @@ router.get("/:email", async (req, res) => {
             assessment,
 
             dashboard,
-
         });
 
     } catch (error) {
-
         console.error(
             "Dashboard API Error:",
             error
         );
 
         return res.status(500).json({
-
             message:
                 "Failed to load dashboard",
 
             error:
                 error.message,
-
         });
     }
 });

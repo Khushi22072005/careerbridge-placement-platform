@@ -16,6 +16,7 @@ import ResumeAnalyzer from "./pages/ResumeAnalyzer";
 import MockInterview from "./pages/MockInterview/MockInterview";
 import Settings from "./pages/Settings";
 import LearningHub from "./pages/LearningHub";
+import CareerDevelopment from "./pages/CareerDevelopment";
 
 function App() {
   return (
@@ -65,7 +66,6 @@ function App() {
         element={<AssessmentResult />}
       />
 
-
       {/* =======================
           DASHBOARD PAGES
       ======================= */}
@@ -106,6 +106,12 @@ function App() {
         <Route
           path="/learning-hub"
           element={<LearningHub />}
+        />
+
+        {/* Career Development */}
+        <Route
+          path="/career-development"
+          element={<CareerDevelopment />}
         />
 
       </Route>
