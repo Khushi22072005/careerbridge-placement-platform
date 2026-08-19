@@ -3,13 +3,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 import logoImg from "../assets/images/logo.jpeg";
 
-
 const Sidebar = () => {
     const navigate = useNavigate();
-
-    // ======================================
-    // LOGOUT
-    // ======================================
 
     const handleLogout = () => {
         localStorage.removeItem("userEmail");
@@ -28,20 +23,16 @@ const Sidebar = () => {
 
             <div className="sidebar-logo">
 
-                {/* <div className="logo-icon">
-                    C
-                </div> */}
-                <img 
-  src={logoImg} 
-  alt="CareerBridge Logo" 
-  style={{ 
-    width: '45px', 
-    height: '45px', 
-    objectFit: 'contain', 
-    borderRadius: '8px' 
-  }} 
-/>
-
+                <img
+                    src={logoImg}
+                    alt="CareerBridge Logo"
+                    style={{
+                        width: "45px",
+                        height: "45px",
+                        objectFit: "contain",
+                        borderRadius: "8px"
+                    }}
+                />
 
                 <div className="logo-text">
                     <h2>CareerBridge</h2>
@@ -102,7 +93,6 @@ const Sidebar = () => {
                             : "sidebar-link"
                     }
                 >
-                    
                     <span className="sidebar-icon"></span>
                     <span>Career Roadmap</span>
                 </NavLink>
@@ -127,7 +117,7 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink
-                    to="/skills"
+                    to="/career-development"
                     className={({ isActive }) =>
                         isActive
                             ? "sidebar-link active"
@@ -135,7 +125,7 @@ const Sidebar = () => {
                     }
                 >
                     <span className="sidebar-icon"></span>
-                    <span>My Skills</span>
+                    <span>Career Development</span>
                 </NavLink>
 
 

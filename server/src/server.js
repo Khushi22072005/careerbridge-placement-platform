@@ -12,6 +12,9 @@ const dashboardRoutes =
 const profileRoutes =
     require("../routes/profileRoutes");
 
+const resumeRoutes =
+    require("../routes/resumeRoutes");
+
 const mockInterviewRoutes =
     require("../routes/mockInterviewRoutes");
 
@@ -66,6 +69,13 @@ app.use(
 app.use(
     "/api/profile",
     profileRoutes
+);
+
+
+// RESUME
+app.use(
+    "/api/resume",
+    resumeRoutes
 );
 
 
