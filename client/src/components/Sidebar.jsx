@@ -115,7 +115,7 @@ const Sidebar = () => {
                 </p>
 
                 <NavLink
-                    to="/learning"
+                    to="/learning-hub"
                     className={({ isActive }) =>
                         isActive
                             ? "sidebar-link active"

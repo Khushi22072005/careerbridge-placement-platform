@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import "./LearningHub.css";
 
 const courses = [
@@ -12,7 +11,6 @@ const courses = [
         rating: "4.8",
         skill: "SQL",
         reason: "Your SQL level is Intermediate.",
-        type: "Course",
         icon: "SQL",
         iconClass: "sql-icon",
         url: "https://www.udemy.com/courses/search/?q=advanced%20sql"
@@ -26,7 +24,6 @@ const courses = [
         rating: "4.7",
         skill: "Power BI",
         reason: "You need to improve your Power BI skills.",
-        type: "Course",
         icon: "BI",
         iconClass: "powerbi-icon",
         url: "https://www.udemy.com/courses/search/?q=power%20bi"
@@ -40,7 +37,6 @@ const courses = [
         rating: "4.6",
         skill: "Statistics",
         reason: "Statistics is important for your Data Analyst goal.",
-        type: "Certificate",
         icon: "ƒx",
         iconClass: "statistics-icon",
         url: "https://www.coursera.org/search?query=statistics%20for%20data%20science"
@@ -93,75 +89,103 @@ const practice = [
 ];
 
 function LearningHub() {
-
-    // =====================================================
-    // USER'S ENROLLED COURSES
-    // =====================================================
-
     const [myCourses, setMyCourses] = useState([]);
     const [loadingCourses, setLoadingCourses] = useState(true);
 
-    useEffect(() => {
+    // =====================================================
+    // ENROLL IN COURSE
+    // =====================================================
 
-        const fetchMyCourses = async () => {
+    const enrollCourse = async (course) => {
+        try {
+            const token = localStorage.getItem("token");
 
-            try {
-
-                const token = localStorage.getItem("token");
-
-                if (!token) {
-                    console.log("No authentication token found");
-                    setLoadingCourses(false);
-                    return;
-                }
-
-                const response = await fetch(
-                    "http://localhost:5000/api/learning/my-courses",
-                    {
-                        method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json"
-                        }
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error(
-                        "Failed to fetch learning courses"
-                    );
-                }
-
-                const data = await response.json();
-
-                console.log(
-                    "My learning courses:",
-                    data
-                );
-
-                setMyCourses(data);
-
-            } catch (error) {
-
-                console.error(
-                    "Error loading learning courses:",
-                    error
-                );
-
-            } finally {
-
-                setLoadingCourses(false);
-
+            if (!token) {
+                alert("Please login first.");
+                return;
             }
-        };
 
-        fetchMyCourses();
+            const response = await fetch(
+                "http://localhost:5000/api/learning/enroll",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        courseId: String(course.id),
+                        courseTitle: course.title,
+                        provider: course.provider,
+                        courseUrl: course.url,
+                        skill: course.skill
+                    })
+                }
+            );
 
-    }, []);
+            const data = await response.json();
 
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to enroll");
+            }
+
+            alert(data.message);
+
+            await fetchMyCourses();
+
+        } catch (error) {
+            console.error("Enrollment error:", error);
+            alert(error.message);
+        }
+    };
 
     // =====================================================
-    // CALCULATED LEARNING STATS
+    // FETCH USER COURSES
+    // =====================================================
+
+    const fetchMyCourses = async () => {
+        try {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                setLoadingCourses(false);
+                return;
+            }
+
+            const response = await fetch(
+                "http://localhost:5000/api/learning/my-courses",
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch learning courses");
+            }
+
+            const data = await response.json();
+
+            console.log("My learning courses:", data);
+
+            setMyCourses(data);
+
+        } catch (error) {
+            console.error("Error loading learning courses:", error);
+        } finally {
+            setLoadingCourses(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchMyCourses();
+    }, []);
+
+    // =====================================================
+    // LEARNING STATS
     // =====================================================
 
     const totalCourses = myCourses.length;
@@ -175,14 +199,13 @@ function LearningHub() {
     const overallProgress =
         totalCourses > 0
             ? Math.round(
-                myCourses.reduce(
-                    (total, course) =>
-                        total + Number(course.progress || 0),
-                    0
-                ) / totalCourses
-            )
+                  myCourses.reduce(
+                      (total, course) =>
+                          total + Number(course.progress || 0),
+                      0
+                  ) / totalCourses
+              )
             : 0;
-
 
     return (
         <div className="learning-page">
@@ -198,7 +221,6 @@ function LearningHub() {
                     </div>
 
                     <div>
-
                         <span className="section-label">
                             LEARNING HUB
                         </span>
@@ -210,36 +232,24 @@ function LearningHub() {
                         <p>
                             Discover the best learning resources recommended for your career goals.
                         </p>
-
                     </div>
 
                 </div>
 
-
                 <div className="learning-actions">
 
                     <div className="course-search">
-
-                        <span>
-                            ⌕
-                        </span>
+                        <span>⌕</span>
 
                         <input
                             type="text"
                             placeholder="Search for skills, courses or topics..."
                         />
-
                     </div>
 
-
                     <button className="filter-button">
-
-                        <span>
-                            ⚱
-                        </span>
-
+                        <span>⚱</span>
                         Filters
-
                     </button>
 
                 </div>
@@ -256,7 +266,6 @@ function LearningHub() {
                     <h2>
                         Your Learning Progress
                     </h2>
-
 
                     <div className="progress-content">
 
@@ -275,7 +284,6 @@ function LearningHub() {
                             </div>
 
                         </div>
-
 
                         <div className="skill-progress-list">
 
@@ -325,7 +333,6 @@ function LearningHub() {
                             </div>
 
                             <div>
-
                                 <strong>
                                     {totalCourses}
                                 </strong>
@@ -333,7 +340,6 @@ function LearningHub() {
                                 <span>
                                     Courses Enrolled
                                 </span>
-
                             </div>
 
                         </div>
@@ -346,7 +352,6 @@ function LearningHub() {
                             </div>
 
                             <div>
-
                                 <strong>
                                     {completedCourses}
                                 </strong>
@@ -354,7 +359,6 @@ function LearningHub() {
                                 <span>
                                     Completed
                                 </span>
-
                             </div>
 
                         </div>
@@ -367,7 +371,6 @@ function LearningHub() {
                             </div>
 
                             <div>
-
                                 <strong>
                                     36h
                                 </strong>
@@ -375,7 +378,6 @@ function LearningHub() {
                                 <span>
                                     Time Spent
                                 </span>
-
                             </div>
 
                         </div>
@@ -412,7 +414,7 @@ function LearningHub() {
             </section>
 
 
-            {/* MAIN CONTENT GRID */}
+            {/* MAIN CONTENT */}
 
             <div className="learning-main-grid">
 
@@ -467,6 +469,8 @@ function LearningHub() {
                                                     ? "python-icon"
                                                     : course.skill === "Excel"
                                                     ? "excel-icon"
+                                                    : course.skill === "Statistics"
+                                                    ? "statistics-icon"
                                                     : "sql-icon"
                                             }`}
                                         >
@@ -480,19 +484,14 @@ function LearningHub() {
                                                 {course.course_title}
                                             </h3>
 
-
                                             <p>
-
-                                                {course.provider ||
-                                                    "Learning Platform"}
+                                                {course.provider || "Learning Platform"}
 
                                                 <span>
                                                     •
                                                 </span>
 
-                                                {course.skill ||
-                                                    "General"}
-
+                                                {course.skill || "General"}
                                             </p>
 
 
@@ -502,17 +501,16 @@ function LearningHub() {
 
                                                     <div
                                                         style={{
-                                                            width: `${
+                                                            width: `${Number(
                                                                 course.progress || 0
-                                                            }%`
+                                                            )}%`
                                                         }}
                                                     />
 
                                                 </div>
 
-
                                                 <span>
-                                                    {course.progress || 0}%
+                                                    {Number(course.progress || 0)}%
                                                 </span>
 
                                             </div>
@@ -523,18 +521,13 @@ function LearningHub() {
                                         <button
                                             className="continue-button"
                                             onClick={() => {
-
-                                                if (
-                                                    course.course_url
-                                                ) {
-
+                                                if (course.course_url) {
                                                     window.open(
                                                         course.course_url,
-                                                        "_blank"
+                                                        "_blank",
+                                                        "noopener,noreferrer"
                                                     );
-
                                                 }
-
                                             }}
                                         >
                                             ▶ Continue
@@ -569,7 +562,6 @@ function LearningHub() {
 
                             </div>
 
-
                             <button>
                                 View all
                             </button>
@@ -599,26 +591,19 @@ function LearningHub() {
                                             {course.title}
                                         </h3>
 
-
                                         <p className="course-meta">
 
                                             {course.provider}
 
-                                            <span>
-                                                •
-                                            </span>
+                                            <span>•</span>
 
                                             {course.level}
 
-                                            <span>
-                                                •
-                                            </span>
+                                            <span>•</span>
 
                                             {course.duration}
 
-                                            <span>
-                                                •
-                                            </span>
+                                            <span>•</span>
 
                                             ⭐ {course.rating}
 
@@ -641,15 +626,12 @@ function LearningHub() {
                                             ♡
                                         </button>
 
-
-                                        <a
-                                            href={course.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
+                                        <button
                                             className="view-course-button"
+                                            onClick={() => enrollCourse(course)}
                                         >
-                                            View Course ↗
-                                        </a>
+                                            Enroll Course ↗
+                                        </button>
 
                                     </div>
 
@@ -693,7 +675,6 @@ function LearningHub() {
                                     >
                                         {skill.icon}
                                     </div>
-
 
                                     <div>
 
@@ -768,7 +749,6 @@ function LearningHub() {
                                     >
                                         {item.icon}
                                     </div>
-
 
                                     <div>
 
@@ -847,54 +827,23 @@ function LearningHub() {
 
 
                         <div className="platform-row">
-
-                            <strong>
-                                Udemy
-                            </strong>
-
-                            <span>
-                                18 Courses
-                            </span>
-
+                            <strong>Udemy</strong>
+                            <span>18 Courses</span>
                         </div>
 
-
                         <div className="platform-row">
-
-                            <strong>
-                                Coursera
-                            </strong>
-
-                            <span>
-                                4 Courses
-                            </span>
-
+                            <strong>Coursera</strong>
+                            <span>4 Courses</span>
                         </div>
 
-
                         <div className="platform-row">
-
-                            <strong>
-                                YouTube
-                            </strong>
-
-                            <span>
-                                12 Courses
-                            </span>
-
+                            <strong>YouTube</strong>
+                            <span>12 Courses</span>
                         </div>
 
-
                         <div className="platform-row">
-
-                            <strong>
-                                edX
-                            </strong>
-
-                            <span>
-                                2 Courses
-                            </span>
-
+                            <strong>edX</strong>
+                            <span>2 Courses</span>
                         </div>
 
 
@@ -973,9 +922,7 @@ function SkillProgress({
     icon,
     iconClass
 }) {
-
     return (
-
         <div className="skill-progress">
 
             <div
@@ -984,11 +931,9 @@ function SkillProgress({
                 {icon}
             </div>
 
-
             <strong>
                 {name}
             </strong>
-
 
             <div className="skill-progress-bar">
 
@@ -1000,13 +945,11 @@ function SkillProgress({
 
             </div>
 
-
             <span>
                 {progress}%
             </span>
 
         </div>
-
     );
 }
 
@@ -1019,9 +962,7 @@ function LearningGoal({
     title,
     progress
 }) {
-
     return (
-
         <div className="learning-goal">
 
             <div className="goal-title">
@@ -1049,7 +990,6 @@ function LearningGoal({
 
                 </div>
 
-
                 <small>
                     {progress}%
                 </small>
@@ -1057,7 +997,6 @@ function LearningGoal({
             </div>
 
         </div>
-
     );
 }
 

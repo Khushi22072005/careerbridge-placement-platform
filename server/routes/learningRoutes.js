@@ -5,10 +5,22 @@ const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
 
 const {
+    getCourses,
     enrollCourse,
     getMyCourses,
     updateProgress
 } = require("../controllers/learningController");
+
+
+// =====================================================
+// GET ALL COURSES
+// GET /api/learning/courses
+// =====================================================
+
+router.get(
+    "/courses",
+    getCourses
+);
 
 
 // =====================================================

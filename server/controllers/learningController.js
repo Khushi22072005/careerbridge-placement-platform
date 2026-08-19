@@ -2,7 +2,35 @@ const pool = require("../src/config/db");
 
 
 // =====================================================
-// 1. ENROLL IN A COURSE
+// 1. GET ALL COURSES
+// GET /api/learning/courses
+// =====================================================
+
+const getCourses = async (req, res) => {
+    try {
+        const result = await pool.query(
+            `
+            SELECT *
+            FROM learning_courses
+            ORDER BY started_at DESC
+            `
+        );
+
+        return res.status(200).json(result.rows);
+
+    } catch (error) {
+        console.error("Get all courses error:", error);
+
+        return res.status(500).json({
+            message: "Failed to fetch courses"
+        });
+    }
+};
+
+
+// =====================================================
+// 2. ENROLL IN A COURSE
+// POST /api/learning/enroll
 // =====================================================
 
 const enrollCourse = async (req, res) => {
@@ -17,14 +45,12 @@ const enrollCourse = async (req, res) => {
             skill
         } = req.body;
 
-        // Validate required fields
         if (!courseId || !courseTitle) {
             return res.status(400).json({
                 message: "Course ID and course title are required"
             });
         }
 
-        // Check whether the user already enrolled
         const existingCourse = await pool.query(
             `
             SELECT *
@@ -42,7 +68,6 @@ const enrollCourse = async (req, res) => {
             });
         }
 
-        // Insert new course
         const result = await pool.query(
             `
             INSERT INTO learning_courses
@@ -73,7 +98,6 @@ const enrollCourse = async (req, res) => {
         });
 
     } catch (error) {
-
         console.error("Enroll course error:", error);
 
         return res.status(500).json({
@@ -83,14 +107,13 @@ const enrollCourse = async (req, res) => {
 };
 
 
-
 // =====================================================
-// 2. GET USER'S COURSES
+// 3. GET USER'S COURSES
+// GET /api/learning/my-courses
 // =====================================================
 
 const getMyCourses = async (req, res) => {
     try {
-
         const userId = req.user.id;
 
         const result = await pool.query(
@@ -106,7 +129,6 @@ const getMyCourses = async (req, res) => {
         return res.status(200).json(result.rows);
 
     } catch (error) {
-
         console.error("Get learning courses error:", error);
 
         return res.status(500).json({
@@ -116,23 +138,17 @@ const getMyCourses = async (req, res) => {
 };
 
 
-
 // =====================================================
-// 3. UPDATE COURSE PROGRESS
+// 4. UPDATE COURSE PROGRESS
+// PATCH /api/learning/:id/progress
 // =====================================================
 
 const updateProgress = async (req, res) => {
-
     try {
-
         const userId = req.user.id;
-
         const { id } = req.params;
-
         const { progress } = req.body;
 
-
-        // Validate progress
         if (
             progress === undefined ||
             Number(progress) < 0 ||
@@ -143,27 +159,22 @@ const updateProgress = async (req, res) => {
             });
         }
 
-
         const numericProgress = Number(progress);
 
-
-        // Determine course status
         const status =
             numericProgress === 100
                 ? "completed"
                 : "in-progress";
 
-
-        // Update database
         const result = await pool.query(
             `
             UPDATE learning_courses
             SET
                 progress = $1,
-                status = $2,
+                status = $2::varchar,
                 completed_at =
                     CASE
-                        WHEN $2 = 'completed'
+                        WHEN $1 = 100
                         THEN CURRENT_TIMESTAMP
                         ELSE NULL
                     END
@@ -179,34 +190,25 @@ const updateProgress = async (req, res) => {
             ]
         );
 
-
-        // Course doesn't exist
         if (result.rows.length === 0) {
-
             return res.status(404).json({
                 message: "Course not found"
             });
-
         }
-
 
         return res.status(200).json({
             message: "Progress updated successfully",
             course: result.rows[0]
         });
 
-
     } catch (error) {
-
         console.error("Update progress error:", error);
 
         return res.status(500).json({
             message: "Failed to update course progress"
         });
-
     }
 };
-
 
 
 // =====================================================
@@ -214,6 +216,7 @@ const updateProgress = async (req, res) => {
 // =====================================================
 
 module.exports = {
+    getCourses,
     enrollCourse,
     getMyCourses,
     updateProgress
