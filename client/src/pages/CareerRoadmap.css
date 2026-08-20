@@ -20,42 +20,55 @@
     min-height: 100vh;
     position: sticky;
     top: 0;
+
     display: flex;
     flex-direction: column;
+
     background: #ffffff;
     border-right: 1px solid #e4deef;
+
     padding: 26px 18px;
     box-sizing: border-box;
+
+    overflow-y: auto;
 }
 
+
+/* =========================================================
+   SIDEBAR BRAND
+========================================================= */
 
 .roadmap-sidebar-brand {
     display: flex;
     align-items: center;
     gap: 12px;
+
     padding: 4px 8px 30px;
 }
-
 
 .roadmap-brand-logo {
     width: 42px;
     height: 42px;
+
     border-radius: 13px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     background: #6c4ab6;
     color: #ffffff;
+
     font-size: 20px;
     font-weight: 800;
-}
 
+    flex-shrink: 0;
+}
 
 .roadmap-brand-text {
     display: flex;
     flex-direction: column;
 }
-
 
 .roadmap-brand-text strong {
     font-size: 16px;
@@ -63,9 +76,9 @@
     color: #24213a;
 }
 
-
 .roadmap-brand-text span {
     margin-top: 3px;
+
     font-size: 10px;
     color: #8f88a3;
 }
@@ -81,41 +94,48 @@
     gap: 7px;
 }
 
-
 .roadmap-nav-item {
     width: 100%;
+
     border: none;
     background: transparent;
+
     color: #756e87;
+
     padding: 13px 14px;
+
     border-radius: 11px;
+
     display: flex;
     align-items: center;
     gap: 12px;
+
     font-size: 13px;
     font-weight: 600;
+
     cursor: pointer;
     text-align: left;
+
     transition:
         background 0.2s ease,
         color 0.2s ease,
         transform 0.2s ease;
 }
 
-
 .roadmap-nav-item span {
     width: 22px;
+
     text-align: center;
+
     font-size: 16px;
 }
-
 
 .roadmap-nav-item:hover {
     background: #f1ecfa;
     color: #6c4ab6;
+
     transform: translateX(2px);
 }
-
 
 .roadmap-nav-item.active {
     background: #6c4ab6;
@@ -123,45 +143,166 @@
 }
 
 
+/* =========================================================
+   SIDEBAR BOTTOM
+   IMPORTANT:
+   No margin-top:auto here.
+   This keeps career roadmap selection directly
+   below the navigation.
+========================================================= */
+
 .roadmap-sidebar-bottom {
-    margin-top: auto;
+    margin-top: 28px;
 }
 
+
+/* =========================================================
+   CURRENT CAREER ROLE
+========================================================= */
 
 .roadmap-role-box {
     border: 1px solid #e4deef;
-    border-radius: 14px;
-    padding: 15px;
-    background: #faf9fd;
-}
 
+    border-radius: 14px;
+
+    padding: 15px;
+
+    background: #faf9fd;
+
+    margin-bottom: 18px;
+}
 
 .roadmap-role-box span {
     display: block;
+
     font-size: 9px;
     font-weight: 800;
+
     letter-spacing: 1px;
+
     color: #968fa7;
 }
 
-
 .roadmap-role-box strong {
     display: block;
+
     margin-top: 7px;
+
     font-size: 13px;
+
     color: #24213a;
 }
 
 
 /* =========================================================
-   MAIN
+   CAREER ROADMAP SELECTOR
+========================================================= */
+
+.roadmap-selector {
+    border-top: 1px solid #eeeaf4;
+
+    padding-top: 18px;
+}
+
+.roadmap-selector-title {
+    display: block;
+
+    margin: 0 8px 12px;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: 1.3px;
+
+    color: #968fa7;
+}
+
+
+/* =========================================================
+   ROADMAP OPTIONS
+========================================================= */
+
+.roadmap-option {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 11px;
+
+    margin-bottom: 4px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: transparent;
+
+    color: #756e87;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.roadmap-option:hover {
+    background: #f5f1fb;
+
+    color: #6c4ab6;
+
+    transform: translateX(2px);
+}
+
+.roadmap-option.selected {
+    background: #f1ecfa;
+
+    color: #6c4ab6;
+
+    font-weight: 800;
+}
+
+.roadmap-option-dot {
+    width: 18px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 10px;
+
+    color: #9a92aa;
+}
+
+.roadmap-option.selected .roadmap-option-dot {
+    color: #6c4ab6;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
 ========================================================= */
 
 .career-roadmap-main {
     flex: 1;
+
+    width: 100%;
+
     max-width: 1180px;
+
     margin: 0 auto;
+
     padding: 48px 58px 70px;
+
     box-sizing: border-box;
 }
 
@@ -172,63 +313,85 @@
 
 .roadmap-page-header {
     display: flex;
+
     justify-content: space-between;
+
     align-items: flex-start;
+
     gap: 30px;
+
     margin-bottom: 32px;
 }
 
-
 .roadmap-eyebrow {
     margin: 0 0 10px;
+
     font-size: 10px;
+
     font-weight: 800;
+
     letter-spacing: 1.8px;
+
     color: #6c4ab6;
 }
 
-
 .roadmap-page-header h1 {
     margin: 0;
+
     font-size: 40px;
+
     line-height: 1.12;
+
     letter-spacing: -1.5px;
+
     color: #24213a;
 }
 
-
 .roadmap-page-header h1 span {
     font-weight: 400;
+
     color: #817990;
 }
 
-
 .roadmap-subtitle {
     max-width: 690px;
+
     margin: 14px 0 0;
+
     color: #756e87;
+
     font-size: 14px;
+
     line-height: 1.7;
 }
 
-
 .roadmap-back-button {
     flex-shrink: 0;
+
     border: 1px solid #e0d9eb;
+
     background: #ffffff;
+
     color: #403a52;
+
     border-radius: 10px;
+
     padding: 11px 15px;
+
     font-size: 12px;
+
     font-weight: 700;
+
     cursor: pointer;
+
     transition: 0.2s ease;
 }
 
-
 .roadmap-back-button:hover {
     background: #6c4ab6;
+
     color: #ffffff;
+
     border-color: #6c4ab6;
 }
 
@@ -239,102 +402,122 @@
 
 .roadmap-progress-card {
     position: relative;
+
     background: #ffffff;
+
     border: 1px solid #e4deef;
+
     border-radius: 18px;
+
     padding: 22px 24px;
+
     box-shadow: 0 10px 35px rgba(76, 55, 110, 0.04);
+
     margin-bottom: 50px;
 }
 
-
 .progress-main {
     display: flex;
+
     align-items: center;
+
     gap: 13px;
 }
-
 
 .progress-icon {
     width: 38px;
     height: 38px;
+
     border-radius: 11px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     background: #6c4ab6;
+
     color: #ffffff;
+
     font-size: 14px;
 }
-
 
 .progress-text {
     display: flex;
     flex-direction: column;
 }
 
-
 .progress-text span {
     font-size: 9px;
+
     font-weight: 800;
+
     letter-spacing: 1.3px;
+
     color: #968fa7;
 }
-
 
 .progress-text strong {
     margin-top: 4px;
+
     font-size: 14px;
+
     color: #24213a;
 }
 
-
 .progress-stats {
     position: absolute;
+
     right: 24px;
     top: 21px;
+
     display: flex;
+
     gap: 30px;
 }
 
-
 .progress-stats div {
     display: flex;
+
     flex-direction: column;
+
     align-items: flex-end;
 }
 
-
 .progress-stats strong {
     font-size: 16px;
+
     color: #6c4ab6;
 }
 
-
 .progress-stats span {
     margin-top: 3px;
+
     font-size: 9px;
+
     color: #968fa7;
 }
-
 
 .progress-bar-wrapper {
     margin-top: 20px;
 }
 
-
 .progress-bar {
     height: 6px;
+
     background: #eeeaf4;
+
     border-radius: 20px;
+
     overflow: hidden;
 }
 
-
 .progress-bar-fill {
     height: 100%;
+
     background: #6c4ab6;
+
     border-radius: inherit;
+
     transition: width 0.5s ease;
 }
 
@@ -347,28 +530,35 @@
     margin-bottom: 36px;
 }
 
-
 .journey-heading p {
     margin: 0 0 8px;
+
     font-size: 9px;
+
     font-weight: 800;
+
     letter-spacing: 1.5px;
+
     color: #6c4ab6;
 }
 
-
 .journey-heading h2 {
     margin: 0;
+
     font-size: 25px;
+
     letter-spacing: -0.7px;
+
     color: #24213a;
 }
 
-
 .journey-heading span {
     display: block;
+
     margin-top: 8px;
+
     color: #817990;
+
     font-size: 13px;
 }
 
@@ -379,25 +569,33 @@
 
 .roadmap-journey {
     position: relative;
+
     padding-bottom: 20px;
 }
 
-
 .journey-line {
     position: absolute;
+
     left: 29px;
+
     top: 30px;
+
     bottom: 30px;
+
     width: 2px;
+
     background: #ddd6e8;
 }
 
-
 .journey-stage {
     position: relative;
+
     display: grid;
+
     grid-template-columns: 60px 1fr;
+
     gap: 22px;
+
     z-index: 2;
 }
 
@@ -409,34 +607,48 @@
 .journey-node {
     width: 58px;
     height: 58px;
+
     border-radius: 50%;
+
     background: #ffffff;
+
     border: 2px solid #ddd6e8;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     font-size: 12px;
+
     font-weight: 800;
+
     color: #938ba3;
+
     box-sizing: border-box;
+
     z-index: 3;
+
     transition: 0.25s ease;
 }
 
-
 .current-stage .journey-node {
     background: #6c4ab6;
+
     border-color: #6c4ab6;
+
     color: #ffffff;
+
     box-shadow:
         0 0 0 7px #f1ecfa,
         0 8px 20px rgba(108, 74, 182, 0.14);
 }
 
-
 .completed-stage .journey-node {
     background: #f1ecfa;
+
     border-color: #6c4ab6;
+
     color: #6c4ab6;
 }
 
@@ -447,27 +659,34 @@
 
 .journey-card {
     background: #ffffff;
+
     border: 1px solid #e4deef;
+
     border-radius: 18px;
+
     padding: 25px;
+
     margin-bottom: 0;
+
     box-shadow: 0 8px 30px rgba(76, 55, 110, 0.035);
+
     transition:
         transform 0.25s ease,
         box-shadow 0.25s ease,
         border-color 0.25s ease;
 }
 
-
 .journey-card:hover {
     transform: translateY(-3px);
+
     box-shadow: 0 15px 38px rgba(76, 55, 110, 0.07);
+
     border-color: #cfc4df;
 }
 
-
 .current-stage .journey-card {
     border-color: #c3b4da;
+
     box-shadow: 0 14px 42px rgba(108, 74, 182, 0.07);
 }
 
@@ -478,40 +697,57 @@
 
 .journey-card-top {
     display: flex;
+
     justify-content: space-between;
+
     align-items: flex-start;
+
     gap: 20px;
 }
 
-
 .stage-category {
     display: inline-block;
+
     font-size: 8px;
+
     font-weight: 900;
+
     letter-spacing: 1.3px;
+
     color: #6c4ab6;
+
     background: #f1ecfa;
+
     border-radius: 5px;
+
     padding: 5px 7px;
 }
 
-
 .journey-card h3 {
     margin: 9px 0 0;
+
     font-size: 20px;
+
     letter-spacing: -0.4px;
+
     color: #29233d;
 }
 
-
 .stage-time {
     white-space: nowrap;
+
     font-size: 10px;
+
     font-weight: 700;
+
     color: #756e87;
+
     background: #faf9fc;
+
     border: 1px solid #ebe6f1;
+
     border-radius: 7px;
+
     padding: 7px 9px;
 }
 
@@ -522,27 +758,38 @@
 
 .you-are-here {
     display: inline-flex;
+
     align-items: center;
+
     gap: 7px;
+
     margin-top: 14px;
+
     padding: 6px 9px;
+
     background: #f1ecfa;
+
     color: #6c4ab6;
+
     border-radius: 6px;
+
     font-size: 8px;
+
     font-weight: 900;
+
     letter-spacing: 1px;
 }
-
 
 .you-are-here span {
     width: 6px;
     height: 6px;
+
     border-radius: 50%;
+
     background: #6c4ab6;
+
     animation: roadmapPulse 1.7s infinite;
 }
-
 
 @keyframes roadmapPulse {
     0% {
@@ -565,37 +812,48 @@
 
 .journey-description {
     margin: 17px 0 21px;
+
     max-width: 800px;
+
     color: #756e87;
+
     font-size: 13px;
+
     line-height: 1.7;
 }
 
 
 /* =========================================================
-   SECTION LABEL
+   SECTION
 ========================================================= */
 
 .journey-section {
     border-top: 1px solid #eeeaf4;
+
     padding-top: 17px;
 }
 
-
 .journey-section-label {
     display: flex;
+
     align-items: center;
+
     gap: 7px;
+
     margin-bottom: 11px;
+
     font-size: 9px;
+
     font-weight: 900;
+
     letter-spacing: 1.1px;
+
     color: #8f88a0;
 }
 
-
 .journey-section-label span {
     font-size: 11px;
+
     color: #6c4ab6;
 }
 
@@ -606,18 +864,25 @@
 
 .journey-skills {
     display: flex;
+
     flex-wrap: wrap;
+
     gap: 7px;
 }
 
-
 .journey-skills span {
     padding: 7px 10px;
+
     background: #faf9fc;
+
     border: 1px solid #e8e2f0;
+
     border-radius: 7px;
+
     color: #5e576d;
+
     font-size: 10px;
+
     font-weight: 600;
 }
 
@@ -628,45 +893,63 @@
 
 .journey-milestone {
     display: flex;
+
     gap: 11px;
+
     align-items: flex-start;
+
     margin-top: 19px;
+
     padding: 14px;
+
     background: #faf8fd;
+
     border: 1px solid #ece6f3;
+
     border-radius: 11px;
 }
-
 
 .milestone-icon {
     width: 28px;
     height: 28px;
+
     flex-shrink: 0;
+
     border-radius: 8px;
+
     background: #6c4ab6;
+
     color: #ffffff;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     font-size: 9px;
 }
-
 
 .journey-milestone span,
 .journey-project span,
 .journey-outcome > span {
     display: block;
+
     font-size: 8px;
+
     font-weight: 900;
+
     letter-spacing: 1.1px;
+
     color: #91899f;
 }
 
-
 .journey-milestone p {
     margin: 5px 0 0;
+
     font-size: 11px;
+
     line-height: 1.5;
+
     color: #514a5f;
 }
 
@@ -677,33 +960,47 @@
 
 .journey-project {
     display: flex;
+
     align-items: center;
+
     gap: 11px;
+
     margin-top: 10px;
+
     padding: 13px 14px;
+
     border-radius: 11px;
+
     background: #f5f1fb;
 }
-
 
 .project-icon {
     width: 28px;
     height: 28px;
+
     flex-shrink: 0;
+
     border-radius: 8px;
+
     background: #ffffff;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     color: #6c4ab6;
+
     font-weight: 800;
 }
 
-
 .journey-project strong {
     display: block;
+
     margin-top: 4px;
+
     font-size: 11px;
+
     color: #40394f;
 }
 
@@ -714,15 +1011,19 @@
 
 .journey-outcome {
     margin-top: 17px;
+
     padding-top: 16px;
+
     border-top: 1px dashed #ddd6e8;
 }
 
-
 .journey-outcome p {
     margin: 5px 0 0;
+
     color: #756e87;
+
     font-size: 11px;
+
     line-height: 1.6;
 }
 
@@ -733,26 +1034,39 @@
 
 .journey-connector {
     position: relative;
+
     height: 42px;
+
     margin-left: 0;
+
     display: flex;
+
     align-items: center;
+
     justify-content: flex-start;
+
     z-index: 3;
 }
 
-
 .journey-connector span {
     margin-left: 18px;
+
     width: 23px;
     height: 23px;
+
     border-radius: 50%;
+
     background: #ffffff;
+
     border: 1px solid #ddd6e8;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     color: #9b93aa;
+
     font-size: 12px;
 }
 
@@ -763,81 +1077,105 @@
 
 .roadmap-finish {
     margin-top: 45px;
+
     display: flex;
+
     align-items: center;
+
     gap: 18px;
+
     padding: 24px;
+
     border-radius: 18px;
+
     background: #4b2e83;
+
     color: #ffffff;
+
     box-shadow: 0 15px 40px rgba(75, 46, 131, 0.13);
 }
-
 
 .finish-icon {
     width: 50px;
     height: 50px;
+
     flex-shrink: 0;
+
     border-radius: 14px;
+
     background: #ffffff;
+
     color: #4b2e83;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     font-size: 21px;
+
     font-weight: 900;
 }
-
 
 .finish-content {
     flex: 1;
 }
 
-
 .finish-content > span {
     font-size: 8px;
+
     font-weight: 900;
+
     letter-spacing: 1.5px;
+
     opacity: 0.6;
 }
 
-
 .finish-content h2 {
     margin: 5px 0 5px;
+
     font-size: 21px;
 }
 
-
 .finish-content p {
     margin: 0;
+
     max-width: 700px;
+
     color: #ddd4f0;
+
     font-size: 11px;
+
     line-height: 1.6;
 }
-
 
 .finish-badge {
     width: 70px;
     height: 70px;
+
     border-radius: 50%;
+
     border: 1px solid rgba(255, 255, 255, 0.2);
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
     justify-content: center;
 }
 
-
 .finish-badge span {
     font-size: 7px;
+
     letter-spacing: 1px;
+
     opacity: 0.55;
 }
 
-
 .finish-badge strong {
     margin-top: 3px;
+
     font-size: 11px;
 }
 
@@ -848,20 +1186,25 @@
 
 .roadmap-footer-note {
     display: flex;
+
     justify-content: center;
+
     align-items: center;
+
     gap: 8px;
+
     margin-top: 35px;
+
     color: #9b93aa;
+
     font-size: 10px;
 }
 
-
 .roadmap-footer-note span {
     color: #6c4ab6;
+
     font-weight: 800;
 }
-
 
 .roadmap-footer-note p {
     margin: 0;
@@ -869,7 +1212,7 @@
 
 
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE - TABLET
 ========================================================= */
 
 @media (max-width: 1000px) {
@@ -884,7 +1227,9 @@
 
     .progress-stats {
         position: static;
+
         margin-top: 18px;
+
         justify-content: flex-start;
     }
 
@@ -894,6 +1239,10 @@
 }
 
 
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
 @media (max-width: 760px) {
 
     .career-roadmap-page {
@@ -902,11 +1251,18 @@
 
     .roadmap-sidebar {
         position: relative;
+
         width: 100%;
+
         min-height: auto;
+
         border-right: none;
+
         border-bottom: 1px solid #e4deef;
+
         padding: 16px;
+
+        overflow: visible;
     }
 
     .roadmap-sidebar-brand {
@@ -919,7 +1275,9 @@
 
     .roadmap-nav-item {
         justify-content: center;
+
         padding: 10px 8px;
+
         font-size: 11px;
     }
 
@@ -927,8 +1285,29 @@
         display: none;
     }
 
+    /* Show selector below navigation on mobile */
     .roadmap-sidebar-bottom {
-        display: none;
+        display: block;
+
+        margin-top: 18px;
+    }
+
+    .roadmap-role-box {
+        margin-bottom: 12px;
+    }
+
+    .roadmap-selector {
+        padding-top: 14px;
+    }
+
+    .roadmap-option {
+        display: inline-flex;
+
+        width: auto;
+
+        margin-right: 5px;
+
+        padding: 8px 10px;
     }
 
     .career-roadmap-main {
@@ -949,6 +1328,7 @@
 
     .journey-stage {
         grid-template-columns: 42px 1fr;
+
         gap: 14px;
     }
 
@@ -959,6 +1339,7 @@
     .journey-node {
         width: 42px;
         height: 42px;
+
         font-size: 10px;
     }
 
@@ -989,6 +1370,10 @@
     }
 }
 
+
+/* =========================================================
+   RESPONSIVE - SMALL MOBILE
+========================================================= */
 
 @media (max-width: 480px) {
 

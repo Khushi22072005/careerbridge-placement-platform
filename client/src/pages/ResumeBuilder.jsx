@@ -184,37 +184,37 @@ const ResumeBuilder = () => {
         {
             id: "personal",
             title: "Personal Information",
-            icon: "👤"
+           
         },
         {
             id: "summary",
             title: "Professional Summary",
-            icon: "📝"
+            
         },
         {
             id: "education",
             title: "Education",
-            icon: "🎓"
+           
         },
         {
             id: "experience",
             title: "Experience",
-            icon: "💼"
+            
         },
         {
             id: "skills",
             title: "Skills",
-            icon: "⚡"
+            
         },
         {
             id: "projects",
             title: "Projects",
-            icon: "🚀"
+            
         },
         {
             id: "certifications",
             title: "Certifications",
-            icon: "🏆"
+            
         }
     ];
 

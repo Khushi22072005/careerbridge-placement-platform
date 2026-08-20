@@ -12,7 +12,6 @@ const ROADMAPS = {
         shortTitle: "Data Analyst",
         subtitle:
             "A structured journey from data fundamentals to SQL, Python, visualization, real-world projects and placement readiness.",
-
         totalDuration: "24–30 weeks",
 
         stages: [
@@ -21,10 +20,8 @@ const ROADMAPS = {
                 title: "Data & Excel Foundations",
                 category: "FOUNDATION",
                 duration: "2–3 weeks",
-
                 description:
                     "Build the foundation required to understand, clean and summarize business data.",
-
                 skills: [
                     "Data types",
                     "Excel formulas",
@@ -32,13 +29,10 @@ const ROADMAPS = {
                     "Pivot tables",
                     "Data cleaning",
                 ],
-
                 milestone:
                     "Clean and summarize a real-world dataset.",
-
                 project:
                     "Build an Excel Sales Performance Dashboard",
-
                 outcome:
                     "You can confidently inspect, clean and summarize structured datasets.",
             },
@@ -48,10 +42,8 @@ const ROADMAPS = {
                 title: "SQL & Databases",
                 category: "CORE SKILL",
                 duration: "4–5 weeks",
-
                 description:
                     "Learn to extract meaningful information from relational databases using SQL.",
-
                 skills: [
                     "SELECT",
                     "WHERE",
@@ -61,13 +53,10 @@ const ROADMAPS = {
                     "CTEs",
                     "Window functions",
                 ],
-
                 milestone:
                     "Solve business questions using SQL queries.",
-
                 project:
                     "Analyze Customer & Sales Data using SQL",
-
                 outcome:
                     "You can retrieve, transform and analyze data stored in relational databases.",
             },
@@ -77,10 +66,8 @@ const ROADMAPS = {
                 title: "Statistics & Analytical Thinking",
                 category: "ANALYTICS",
                 duration: "3–4 weeks",
-
                 description:
                     "Develop the statistical reasoning required to interpret data and identify meaningful patterns.",
-
                 skills: [
                     "Mean & median",
                     "Variance",
@@ -89,13 +76,10 @@ const ROADMAPS = {
                     "Correlation",
                     "Hypothesis testing",
                 ],
-
                 milestone:
                     "Interpret statistical patterns and relationships.",
-
                 project:
                     "Customer Behaviour Statistical Analysis",
-
                 outcome:
                     "You can explain patterns in data and support conclusions with statistical reasoning.",
             },
@@ -105,10 +89,8 @@ const ROADMAPS = {
                 title: "Python for Data Analysis",
                 category: "TECHNICAL SKILL",
                 duration: "4–5 weeks",
-
                 description:
                     "Use Python to automate data preparation, exploration and analysis.",
-
                 skills: [
                     "Python",
                     "NumPy",
@@ -117,13 +99,10 @@ const ROADMAPS = {
                     "Data transformation",
                     "Exploratory Data Analysis",
                 ],
-
                 milestone:
                     "Perform an end-to-end analysis using Python.",
-
                 project:
                     "Python EDA on a Real-World Dataset",
-
                 outcome:
                     "You can perform repeatable data analysis using Python and Pandas.",
             },
@@ -133,10 +112,8 @@ const ROADMAPS = {
                 title: "Data Visualization & Power BI",
                 category: "VISUALIZATION",
                 duration: "3–4 weeks",
-
                 description:
                     "Transform analytical results into dashboards that communicate insights clearly.",
-
                 skills: [
                     "Chart selection",
                     "Power BI",
@@ -144,13 +121,10 @@ const ROADMAPS = {
                     "Dashboard design",
                     "Data storytelling",
                 ],
-
                 milestone:
                     "Create an interactive decision-making dashboard.",
-
                 project:
                     "Power BI Business Intelligence Dashboard",
-
                 outcome:
                     "You can communicate analytical findings through clear and interactive dashboards.",
             },
@@ -160,10 +134,8 @@ const ROADMAPS = {
                 title: "End-to-End Analytics Projects",
                 category: "PROJECT",
                 duration: "4–6 weeks",
-
                 description:
                     "Combine SQL, Python, Excel and visualization skills to solve realistic analytical problems.",
-
                 skills: [
                     "Business problem",
                     "Data extraction",
@@ -172,13 +144,10 @@ const ROADMAPS = {
                     "Visualization",
                     "Recommendations",
                 ],
-
                 milestone:
                     "Complete a complete analytics workflow from raw data to business recommendations.",
-
                 project:
                     "Healthcare / Sales / Customer Analytics Project",
-
                 outcome:
                     "You have portfolio-ready evidence of practical Data Analyst skills.",
             },
@@ -188,10 +157,8 @@ const ROADMAPS = {
                 title: "Portfolio & Job Readiness",
                 category: "JOB READY",
                 duration: "Ongoing",
-
                 description:
                     "Convert your technical skills and projects into a professional profile for analyst opportunities.",
-
                 skills: [
                     "SQL interview questions",
                     "Case studies",
@@ -200,25 +167,25 @@ const ROADMAPS = {
                     "Business communication",
                     "Mock interviews",
                 ],
-
                 milestone:
                     "Successfully complete a simulated Data Analyst interview.",
-
                 project:
                     "Professional Data Analyst Portfolio",
-
                 outcome:
                     "You are prepared for Data Analyst internships and entry-level opportunities.",
             },
         ],
     },
 
+    /* =========================================================
+       SOFTWARE DEVELOPER
+    ========================================================= */
+
     "software-developer": {
         title: "Software Developer",
         shortTitle: "Software Developer",
         subtitle:
             "A structured progression from programming fundamentals to application development, engineering practices and job-ready projects.",
-
         totalDuration: "26–32 weeks",
 
         stages: [
@@ -363,12 +330,15 @@ const ROADMAPS = {
         ],
     },
 
+    /* =========================================================
+       UI / UX
+    ========================================================= */
+
     "ui-ux": {
         title: "UI/UX Designer",
         shortTitle: "UI/UX",
         subtitle:
             "A practical progression from design fundamentals to UX research, product design and professional portfolio readiness.",
-
         totalDuration: "20–26 weeks",
 
         stages: [
@@ -506,12 +476,15 @@ const ROADMAPS = {
         ],
     },
 
+    /* =========================================================
+       CYBERSECURITY
+    ========================================================= */
+
     cybersecurity: {
         title: "Cybersecurity",
         shortTitle: "Cybersecurity",
         subtitle:
             "A structured security journey from networking and systems fundamentals to defensive security, hands-on labs and job readiness.",
-
         totalDuration: "25–32 weeks",
 
         stages: [
@@ -651,12 +624,15 @@ const ROADMAPS = {
         ],
     },
 
+    /* =========================================================
+       CLOUD / DEVOPS
+    ========================================================= */
+
     "cloud-devops": {
         title: "Cloud / DevOps",
         shortTitle: "Cloud / DevOps",
         subtitle:
             "A practical progression from Linux and networking to cloud infrastructure, automation, containers, CI/CD and production practices.",
-
         totalDuration: "26–34 weeks",
 
         stages: [
@@ -814,10 +790,17 @@ const DEFAULT_ROLE = "data-analyst";
 function CareerRoadmap() {
     const navigate = useNavigate();
 
+    /*
+     * Read the selected role from localStorage.
+     * If nothing exists, Data Analyst is used.
+     */
     const role =
         localStorage.getItem("selectedRole") ||
         DEFAULT_ROLE;
 
+    /*
+     * Select the roadmap based on the selected role.
+     */
     const roadmap = useMemo(() => {
         return (
             ROADMAPS[role] ||
@@ -834,8 +817,29 @@ function CareerRoadmap() {
         navigate("/dashboard");
     };
 
+
     const handleAssessment = () => {
         navigate("/assessment-result");
+    };
+
+
+    /*
+     * CHANGE CAREER ROADMAP
+     *
+     * IMPORTANT:
+     * This is the function that changes the roadmap.
+     */
+    const handleRoadmapChange = (selectedRole) => {
+        localStorage.setItem(
+            "selectedRole",
+            selectedRole
+        );
+
+        /*
+         * Reload the page so the new localStorage
+         * value is read by the component.
+         */
+        window.location.reload();
     };
 
 
@@ -843,18 +847,15 @@ function CareerRoadmap() {
        PROGRESS
     ===================================================== */
 
-    // Initial stage shown as current.
-    // Later this can be connected to backend progress tracking.
     const currentStage = 0;
 
     const completedStages = currentStage;
 
-    const progress =
-        Math.round(
-            (completedStages /
-                roadmap.stages.length) *
-                100
-        );
+    const progress = Math.round(
+        (completedStages /
+            roadmap.stages.length) *
+            100
+    );
 
 
     return (
@@ -866,6 +867,8 @@ function CareerRoadmap() {
 
             <aside className="roadmap-sidebar">
 
+                {/* BRAND */}
+
                 <div className="roadmap-sidebar-brand">
 
                     <div className="roadmap-brand-logo">
@@ -873,6 +876,7 @@ function CareerRoadmap() {
                     </div>
 
                     <div className="roadmap-brand-text">
+
                         <strong>
                             CareerBridge
                         </strong>
@@ -880,10 +884,13 @@ function CareerRoadmap() {
                         <span>
                             Career Development
                         </span>
+
                     </div>
 
                 </div>
 
+
+                {/* NAVIGATION */}
 
                 <nav className="roadmap-navigation">
 
@@ -918,7 +925,13 @@ function CareerRoadmap() {
                 </nav>
 
 
+                {/* =================================================
+                    CAREER PATH SELECTOR
+                ================================================= */}
+
                 <div className="roadmap-sidebar-bottom">
+
+                    {/* CURRENT CAREER */}
 
                     <div className="roadmap-role-box">
 
@@ -929,6 +942,51 @@ function CareerRoadmap() {
                         <strong>
                             {roadmap.shortTitle}
                         </strong>
+
+                    </div>
+
+
+                    {/* ALL CAREER ROADMAPS */}
+
+                    <div className="roadmap-selector">
+
+                        <span className="roadmap-selector-title">
+                            CAREER ROADMAPS
+                        </span>
+
+
+                        {Object.entries(ROADMAPS).map(
+                            ([roadmapKey, roadmapData]) => (
+
+                                <button
+                                    key={roadmapKey}
+                                    type="button"
+                                    className={`roadmap-option ${
+                                        role === roadmapKey
+                                            ? "selected"
+                                            : ""
+                                    }`}
+                                    onClick={() =>
+                                        handleRoadmapChange(
+                                            roadmapKey
+                                        )
+                                    }
+                                >
+
+                                    <span className="roadmap-option-dot">
+                                        {role === roadmapKey
+                                            ? "●"
+                                            : "○"}
+                                    </span>
+
+                                    <span>
+                                        {roadmapData.shortTitle}
+                                    </span>
+
+                                </button>
+
+                            )
+                        )}
 
                     </div>
 
@@ -955,12 +1013,17 @@ function CareerRoadmap() {
                             PERSONALIZED CAREER PATH
                         </p>
 
+
                         <h1>
+
                             {roadmap.title}
+
                             <span>
                                 {" "}Roadmap
                             </span>
+
                         </h1>
+
 
                         <p className="roadmap-subtitle">
                             {roadmap.subtitle}
@@ -978,12 +1041,6 @@ function CareerRoadmap() {
                     </button>
 
                 </header>
-
-
-                
-
-
-              
 
 
                 {/* =================================================
@@ -1004,10 +1061,15 @@ function CareerRoadmap() {
                             const isCompleted =
                                 index < currentStage;
 
+
                             return (
                                 <React.Fragment
                                     key={stage.number}
                                 >
+
+                                    {/* =================================================
+                                        STAGE
+                                    ================================================= */}
 
                                     <article
                                         className={`journey-stage ${
@@ -1021,54 +1083,59 @@ function CareerRoadmap() {
                                         }`}
                                     >
 
-                                        {/* =================================================
-                                            TIMELINE NODE
-                                        ================================================= */}
+                                        {/* TIMELINE NODE */}
 
                                         <div className="journey-node">
 
-                                            {isCompleted ? (
-                                                "✓"
-                                            ) : (
-                                                stage.number
-                                            )}
+                                            {isCompleted
+                                                ? "✓"
+                                                : stage.number}
 
                                         </div>
 
 
-                                        {/* =================================================
-                                            STAGE CARD
-                                        ================================================= */}
+                                        {/* STAGE CARD */}
 
                                         <div className="journey-card">
+
+                                            {/* CARD TOP */}
 
                                             <div className="journey-card-top">
 
                                                 <div>
 
                                                     <span className="stage-category">
-                                                        {stage.category}
+                                                        {
+                                                            stage.category
+                                                        }
                                                     </span>
 
+
                                                     <h3>
-                                                        {stage.title}
+                                                        {
+                                                            stage.title
+                                                        }
                                                     </h3>
 
                                                 </div>
 
 
                                                 <span className="stage-time">
-                                                    ⏱ {stage.duration}
+                                                    ⏱{" "}
+                                                    {
+                                                        stage.duration
+                                                    }
                                                 </span>
 
                                             </div>
 
 
-                                            
-
+                                            {/* DESCRIPTION */}
 
                                             <p className="journey-description">
-                                                {stage.description}
+                                                {
+                                                    stage.description
+                                                }
                                             </p>
 
 
@@ -1079,10 +1146,13 @@ function CareerRoadmap() {
                                             <div className="journey-section">
 
                                                 <div className="journey-section-label">
+
                                                     <span>
                                                         ✦
                                                     </span>
+
                                                     SKILLS TO DEVELOP
+
                                                 </div>
 
 
@@ -1090,22 +1160,23 @@ function CareerRoadmap() {
 
                                                     {stage.skills.map(
                                                         (skill) => (
+
                                                             <span
                                                                 key={
                                                                     skill
                                                                 }
                                                             >
-                                                                {skill}
+                                                                {
+                                                                    skill
+                                                                }
                                                             </span>
+
                                                         )
                                                     )}
 
                                                 </div>
 
                                             </div>
-
-
-                                          
 
 
                                             {/* =================================================
@@ -1118,11 +1189,13 @@ function CareerRoadmap() {
                                                     ↗
                                                 </div>
 
+
                                                 <div>
 
                                                     <span>
                                                         PRACTICAL PROJECT
                                                     </span>
+
 
                                                     <strong>
                                                         {
@@ -1145,8 +1218,11 @@ function CareerRoadmap() {
                                                     OUTCOME
                                                 </span>
 
+
                                                 <p>
-                                                    {stage.outcome}
+                                                    {
+                                                        stage.outcome
+                                                    }
                                                 </p>
 
                                             </div>
@@ -1163,11 +1239,15 @@ function CareerRoadmap() {
                                     {index <
                                         roadmap.stages.length -
                                             1 && (
+
                                         <div className="journey-connector">
+
                                             <span>
                                                 ↓
                                             </span>
+
                                         </div>
+
                                     )}
 
                                 </React.Fragment>
@@ -1188,25 +1268,31 @@ function CareerRoadmap() {
                         ✓
                     </div>
 
+
                     <div className="finish-content">
 
                         <span>
                             FINAL DESTINATION
                         </span>
 
+
                         <h2>
                             Job Ready
                         </h2>
 
+
                         <p>
-                            Complete the roadmap, build your portfolio,
-                            strengthen your resume and practice interviews
-                            to become ready for {roadmap.title} opportunities.
+                            Complete the roadmap, build your
+                            portfolio, strengthen your resume
+                            and practice interviews to become
+                            ready for {roadmap.title} opportunities.
                         </p>
 
                     </div>
 
+
                     <div className="finish-badge">
+
                         <span>
                             CAREER
                         </span>
@@ -1214,6 +1300,7 @@ function CareerRoadmap() {
                         <strong>
                             READY
                         </strong>
+
                     </div>
 
                 </section>
@@ -1229,6 +1316,7 @@ function CareerRoadmap() {
                         CareerBridge
                     </span>
 
+
                     <p>
                         Your career path is a journey.
                         Build one skill at a time.
@@ -1241,5 +1329,6 @@ function CareerRoadmap() {
         </div>
     );
 }
+
 
 export default CareerRoadmap;

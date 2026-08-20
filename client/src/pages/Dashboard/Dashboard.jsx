@@ -156,29 +156,29 @@ const Dashboard = () => {
   const placementReadiness =
     Number(
       dashboard?.placementReadiness ??
-      dashboard?.placement_readiness ??
-      0
+        dashboard?.placement_readiness ??
+        0
     ) || 0;
 
   const roadmapProgress =
     Number(
       dashboard?.roadmapProgress ??
-      dashboard?.roadmap_progress ??
-      0
+        dashboard?.roadmap_progress ??
+        0
     ) || 0;
 
   const resumeScore =
     Number(
       dashboard?.resumeScore ??
-      dashboard?.resume_score ??
-      0
+        dashboard?.resume_score ??
+        0
     ) || 0;
 
   const profileCompletion =
     Number(
       dashboard?.profileCompletion ??
-      dashboard?.profile_completion ??
-      0
+        dashboard?.profile_completion ??
+        0
     ) || 0;
 
   // =====================================================
@@ -212,8 +212,7 @@ const Dashboard = () => {
       sessionStorage.getItem("assessmentResult");
 
     if (storedResult) {
-      storedAssessmentResult =
-        JSON.parse(storedResult);
+      storedAssessmentResult = JSON.parse(storedResult);
 
       console.log(
         "Stored Assessment Result:",
@@ -228,120 +227,242 @@ const Dashboard = () => {
   }
 
   // =====================================================
-  // ACTUAL ASSESSMENT SCORE
+  // ASSESSMENT TOTAL
+  // =====================================================
+
+  const getAssessmentTotal = () => {
+    const possibleTotals = [
+      backendAssessment.totalQuestions,
+      backendAssessment.total_questions,
+      backendAssessment.total,
+      storedAssessmentResult?.totalQuestions,
+      storedAssessmentResult?.total_questions,
+      storedAssessmentResult?.total,
+    ];
+
+    for (const value of possibleTotals) {
+      const number = Number(value);
+
+      if (
+        Number.isFinite(number) &&
+        number > 0
+      ) {
+        return number;
+      }
+    }
+
+    return REQUIRED_QUESTIONS;
+  };
+
+  const assessmentTotal = getAssessmentTotal();
+
+  // =====================================================
+  // ACTUAL CORRECT ANSWERS
   // =====================================================
 
   /*
-   * We check multiple possible names because
-   * the backend/result page may use different names.
+   * IMPORTANT
+   *
+   * We specifically look for the NUMBER OF CORRECT
+   * ANSWERS first.
+   *
+   * Example:
+   *
+   * correctAnswers = 12
+   * totalQuestions = 20
+   *
+   * Dashboard = 12/20
+   *
+   * We DO NOT treat a percentage such as 60
+   * as 60 correct answers.
    */
 
-  const possibleScores = [
-    backendAssessment.score,
-    backendAssessment.total_score,
-    backendAssessment.totalScore,
-    backendAssessment.correct_answers,
+  const possibleCorrectAnswers = [
+
+    // Backend
     backendAssessment.correctAnswers,
-    backendAssessment.correct_count,
+    backendAssessment.correct_answers,
     backendAssessment.correctCount,
+    backendAssessment.correct_count,
+    backendAssessment.correct,
 
-    storedAssessmentResult?.score,
-    storedAssessmentResult?.total_score,
-    storedAssessmentResult?.totalScore,
-    storedAssessmentResult?.correct_answers,
+    // Stored assessment result
     storedAssessmentResult?.correctAnswers,
-    storedAssessmentResult?.correct_count,
+    storedAssessmentResult?.correct_answers,
     storedAssessmentResult?.correctCount,
+    storedAssessmentResult?.correct_count,
+    storedAssessmentResult?.correct,
   ];
 
-  let actualScore = null;
+  let actualCorrectAnswers = null;
 
-  for (const value of possibleScores) {
+  for (const value of possibleCorrectAnswers) {
+
     if (
       value !== undefined &&
       value !== null &&
       value !== "" &&
       !isNaN(Number(value))
     ) {
-      actualScore = Number(value);
-      break;
+
+      const number = Number(value);
+
+      if (
+        Number.isFinite(number) &&
+        number >= 0 &&
+        number <= assessmentTotal
+      ) {
+        actualCorrectAnswers = number;
+        break;
+      }
     }
   }
 
   // =====================================================
-  // ANSWERED QUESTIONS
+  // DERIVE CORRECT ANSWERS FROM PERCENTAGE
   // =====================================================
 
-  const possibleAnsweredCounts = [
-    backendAssessment.answered_questions,
-    backendAssessment.questions_answered,
-    backendAssessment.answeredQuestions,
-    backendAssessment.questionsAnswered,
-    backendAssessment.total_answered,
-    backendAssessment.totalAnswered,
+  /*
+   * If backend doesn't directly give correct answers,
+   * use percentage.
+   *
+   * Example:
+   *
+   * 60% of 20 = 12 correct
+   */
 
-    dashboard?.assessmentAnsweredQuestions,
-    dashboard?.assessment_answered_questions,
+  if (actualCorrectAnswers === null) {
 
-    storedAssessmentResult?.answered_questions,
-    storedAssessmentResult?.questions_answered,
-    storedAssessmentResult?.answeredQuestions,
-    storedAssessmentResult?.questionsAnswered,
-  ];
+    const possiblePercentages = [
 
-  let answeredQuestions = null;
+      // Backend
+      backendAssessment.percentage,
+      backendAssessment.overallPercentage,
+      backendAssessment.scorePercentage,
+      backendAssessment.accuracy,
 
-  for (const value of possibleAnsweredCounts) {
-    if (
-      value !== undefined &&
-      value !== null &&
-      value !== "" &&
-      !isNaN(Number(value))
-    ) {
-      answeredQuestions = Number(value);
-      break;
+      // Stored result
+      storedAssessmentResult?.percentage,
+      storedAssessmentResult?.overallPercentage,
+      storedAssessmentResult?.scorePercentage,
+      storedAssessmentResult?.accuracy,
+    ];
+
+    let percentage = null;
+
+    for (const value of possiblePercentages) {
+
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        !isNaN(Number(value))
+      ) {
+
+        const number = Number(value);
+
+        if (
+          Number.isFinite(number) &&
+          number >= 0 &&
+          number <= 100
+        ) {
+          percentage = number;
+          break;
+        }
+      }
+    }
+
+    if (percentage !== null) {
+
+      actualCorrectAnswers = Math.round(
+        (percentage / 100) * assessmentTotal
+      );
     }
   }
 
   // =====================================================
-  // IMPORTANT SCORE LOGIC
+  // FALLBACK TO SCORE
   // =====================================================
 
   /*
-   * If your assessment result is 12/20,
-   * actualScore will be 12.
+   * Only use "score" as a fallback.
    *
-   * Therefore Dashboard will show:
-   *
-   * 12/20
-   *
-   * NOT 20/20.
+   * If score is 12 and total is 20,
+   * we assume it means 12 correct.
    */
 
-  if (actualScore !== null) {
-    answeredQuestions = actualScore;
+  if (actualCorrectAnswers === null) {
+
+    const possibleScores = [
+
+      backendAssessment.score,
+      backendAssessment.total_score,
+      backendAssessment.totalScore,
+
+      storedAssessmentResult?.score,
+      storedAssessmentResult?.total_score,
+      storedAssessmentResult?.totalScore,
+    ];
+
+    for (const value of possibleScores) {
+
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        !isNaN(Number(value))
+      ) {
+
+        const number = Number(value);
+
+        if (
+          Number.isFinite(number) &&
+          number >= 0 &&
+          number <= assessmentTotal
+        ) {
+          actualCorrectAnswers = number;
+          break;
+        }
+      }
+    }
   }
 
-  /*
-   * If there is no score but answered questions
-   * are available, use those.
-   */
+  // =====================================================
+  // FINAL CORRECT ANSWERS
+  // =====================================================
 
-  if (answeredQuestions === null) {
-    answeredQuestions = 0;
+  if (actualCorrectAnswers === null) {
+    actualCorrectAnswers = 0;
   }
 
-  /*
-   * Keep value between 0 and 20.
-   */
-
-  answeredQuestions = Math.max(
+  actualCorrectAnswers = Math.max(
     0,
     Math.min(
-      Number(answeredQuestions) || 0,
-      REQUIRED_QUESTIONS
+      Math.round(Number(actualCorrectAnswers) || 0),
+      assessmentTotal
     )
   );
+
+  // =====================================================
+  // ASSESSMENT ANSWERED QUESTIONS
+  // =====================================================
+
+  /*
+   * IMPORTANT:
+   *
+   * Correct answers != answered questions.
+   *
+   * But for this dashboard card we are intentionally
+   * showing the SCORE as:
+   *
+   * correct / total
+   *
+   * Example:
+   *
+   * 12/20
+   */
+
+  const answeredQuestions = actualCorrectAnswers;
 
   // =====================================================
   // ASSESSMENT COMPLETED
@@ -357,29 +478,21 @@ const Dashboard = () => {
       storedAssessmentResult
     );
 
-  /*
-   * IMPORTANT:
-   *
-   * Completion does NOT mean 20/20.
-   *
-   * A student can complete all 20 questions
-   * and score 12/20.
-   *
-   * Therefore we DO NOT change answeredQuestions
-   * to 20 when completed.
-   */
-
   const finalAssessmentCompleted =
     assessmentCompleted;
 
   // =====================================================
-  // ASSESSMENT PROGRESS
+  // ASSESSMENT SCORE PERCENTAGE
   // =====================================================
 
-  const assessmentProgress =
-    Math.round(
-      (answeredQuestions / REQUIRED_QUESTIONS) * 100
-    );
+  const assessmentScorePercentage =
+    assessmentTotal > 0
+      ? Math.round(
+          (actualCorrectAnswers /
+            assessmentTotal) *
+            100
+        )
+      : 0;
 
   // =====================================================
   // USER NAME
@@ -419,7 +532,7 @@ const Dashboard = () => {
     }
 
     if (placementReadiness >= 40) {
-      return "You're building your career!";
+      return "";
     }
 
     return "Let's build your career readiness!";
@@ -702,18 +815,22 @@ const Dashboard = () => {
           title="Assessment"
 
           /*
-           * THIS IS THE IMPORTANT PART
+           * IMPORTANT:
            *
-           * If score = 12
-           * Dashboard shows 12/20
+           * This now displays the actual score.
+           *
+           * Example:
+           * 12 correct out of 20
+           *
+           * => 12/20
            */
 
-          value={`${answeredQuestions}/${REQUIRED_QUESTIONS}`}
+          value={`${actualCorrectAnswers}/${assessmentTotal}`}
 
           subtitle={
             finalAssessmentCompleted
-              ? `Assessment completed • Score: ${answeredQuestions}/${REQUIRED_QUESTIONS}`
-              : `${assessmentProgress}% completed`
+              ? `Assessment completed • Score: ${actualCorrectAnswers}/${assessmentTotal}`
+              : `${assessmentScorePercentage}% completed`
           }
 
           iconClass="green"
@@ -821,116 +938,7 @@ const Dashboard = () => {
       </section>
 
 
-      {/* =================================================
-          CAREER ROADMAP
-      ================================================= */}
-
-      <section className="dashboard-card roadmap-card">
-
-        <div className="roadmap-header">
-
-          <div>
-
-            <p className="small-label">
-              YOUR JOURNEY
-            </p>
-
-            <h2>
-              Career Roadmap
-            </h2>
-
-          </div>
-
-          <button
-            className="text-button"
-            onClick={() =>
-              navigate("/career-roadmap")
-            }
-          >
-            View Full Roadmap →
-          </button>
-
-        </div>
-
-        <div className="roadmap">
-
-          <div className="roadmap-line"></div>
-
-          {roadmap.length > 0 ? (
-
-            roadmap.map((step) => (
-
-              <RoadmapStep
-                key={step.number}
-                number={step.number}
-                title={step.title}
-                status={step.status}
-                active={step.active}
-                completed={step.completed}
-              />
-
-            ))
-
-          ) : (
-
-            <>
-
-              <RoadmapStep
-                number="1"
-                title="Career Assessment"
-                status={
-                  finalAssessmentCompleted
-                    ? "Completed"
-                    : "Pending"
-                }
-                active={
-                  !finalAssessmentCompleted
-                }
-                completed={
-                  finalAssessmentCompleted
-                }
-              />
-
-              <RoadmapStep
-                number="2"
-                title="Skill Gap Analysis"
-                status="Upcoming"
-                active={false}
-                completed={false}
-              />
-
-              <RoadmapStep
-                number="3"
-                title="Learning Path"
-                status="Upcoming"
-                active={false}
-                completed={false}
-              />
-
-              <RoadmapStep
-                number="4"
-                title="Placement Preparation"
-                status={
-                  resumeScore >= 70
-                    ? "In Progress"
-                    : "Upcoming"
-                }
-                active={
-                  finalAssessmentCompleted &&
-                  resumeScore < 100
-                }
-                completed={
-                  resumeScore >= 100
-                }
-              />
-
-            </>
-
-          )}
-
-        </div>
-
-      </section>
+    
 
 
       {/* =================================================
