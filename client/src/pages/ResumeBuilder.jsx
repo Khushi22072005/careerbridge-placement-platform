@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import "./ResumeBuilder.css";
 
@@ -183,38 +184,31 @@ const ResumeBuilder = () => {
     const sections = [
         {
             id: "personal",
-            title: "Personal Information",
-           
+            title: "Personal Information"
         },
         {
             id: "summary",
-            title: "Professional Summary",
-            
+            title: "Professional Summary"
         },
         {
             id: "education",
-            title: "Education",
-           
+            title: "Education"
         },
         {
             id: "experience",
-            title: "Experience",
-            
+            title: "Experience"
         },
         {
             id: "skills",
-            title: "Skills",
-            
+            title: "Skills"
         },
         {
             id: "projects",
-            title: "Projects",
-            
+            title: "Projects"
         },
         {
             id: "certifications",
-            title: "Certifications",
-            
+            title: "Certifications"
         }
     ];
 
@@ -230,13 +224,11 @@ const ResumeBuilder = () => {
                 "--template-color": currentTemplate.color
             }}
         >
-
             {/* =========================================
                 HEADER
             ========================================= */}
 
             <div className="resume-builder-header">
-
                 <div>
                     <p className="resume-breadcrumb">
                         Career Tools / Resume Builder
@@ -250,7 +242,6 @@ const ResumeBuilder = () => {
                 </div>
 
                 <div className="resume-header-actions">
-
                     <button
                         className="resume-secondary-button"
                         onClick={() => window.print()}
@@ -264,11 +255,8 @@ const ResumeBuilder = () => {
                     >
                         ↓ Download Resume
                     </button>
-
                 </div>
-
             </div>
-
 
             {/* =========================================
                 BUILDER
@@ -283,7 +271,6 @@ const ResumeBuilder = () => {
                 <div className="resume-form-panel">
 
                     <div className="form-panel-header">
-
                         <div>
                             <h2>Build Your Resume</h2>
                             <p>Fill in your details below</p>
@@ -292,16 +279,12 @@ const ResumeBuilder = () => {
                         <div className="completion-badge">
                             85% Complete
                         </div>
-
                     </div>
-
 
                     {/* SECTION NAVIGATION */}
 
                     <div className="resume-section-tabs">
-
                         {sections.map((section) => (
-
                             <button
                                 key={section.id}
                                 className={
@@ -313,32 +296,25 @@ const ResumeBuilder = () => {
                                     setActiveSection(section.id)
                                 }
                             >
-                                <span>{section.icon}</span>
                                 {section.title}
                             </button>
-
                         ))}
-
                     </div>
-
 
                     {/* =================================
                         PERSONAL
                     ================================= */}
 
                     {activeSection === "personal" && (
-
                         <div className="resume-form-content">
 
                             <div className="form-section-title">
-
                                 <h3>Personal Information</h3>
 
                                 <p>
                                     Add your contact information and
                                     professional title.
                                 </p>
-
                             </div>
 
                             <div className="form-grid">
@@ -408,33 +384,26 @@ const ResumeBuilder = () => {
                                 />
 
                             </div>
-
                         </div>
-
                     )}
-
 
                     {/* =================================
                         SUMMARY
                     ================================= */}
 
                     {activeSection === "summary" && (
-
                         <div className="resume-form-content">
 
                             <div className="form-section-title">
-
                                 <h3>Professional Summary</h3>
 
                                 <p>
                                     Write a short summary that highlights
                                     your strengths and career goals.
                                 </p>
-
                             </div>
 
                             <div className="form-group">
-
                                 <label>Summary</label>
 
                                 <textarea
@@ -451,20 +420,16 @@ const ResumeBuilder = () => {
                                 <span className="character-count">
                                     {resume.summary.length} characters
                                 </span>
-
                             </div>
 
                         </div>
-
                     )}
-
 
                     {/* =================================
                         EDUCATION
                     ================================= */}
 
                     {activeSection === "education" && (
-
                         <div className="resume-form-content">
 
                             <SectionHeader
@@ -482,7 +447,6 @@ const ResumeBuilder = () => {
                             />
 
                             {resume.education.map((item, index) => (
-
                                 <RepeatableCard
                                     key={index}
                                     title={`Education ${index + 1}`}
@@ -549,20 +513,16 @@ const ResumeBuilder = () => {
                                     />
 
                                 </RepeatableCard>
-
                             ))}
 
                         </div>
-
                     )}
-
 
                     {/* =================================
                         EXPERIENCE
                     ================================= */}
 
                     {activeSection === "experience" && (
-
                         <div className="resume-form-content">
 
                             <SectionHeader
@@ -580,7 +540,6 @@ const ResumeBuilder = () => {
                             />
 
                             {resume.experience.map((item, index) => (
-
                                 <RepeatableCard
                                     key={index}
                                     title={`Experience ${index + 1}`}
@@ -647,36 +606,29 @@ const ResumeBuilder = () => {
                                     />
 
                                 </RepeatableCard>
-
                             ))}
 
                         </div>
-
                     )}
-
 
                     {/* =================================
                         SKILLS
                     ================================= */}
 
                     {activeSection === "skills" && (
-
                         <div className="resume-form-content">
 
                             <div className="form-section-title">
-
                                 <h3>Skills</h3>
 
                                 <p>
                                     Add technical and professional skills.
                                 </p>
-
                             </div>
 
                             <div className="skills-editor">
 
                                 {resume.skills.map((skill, index) => (
-
                                     <div
                                         className="skill-input-row"
                                         key={index}
@@ -685,7 +637,6 @@ const ResumeBuilder = () => {
                                         <input
                                             value={skill}
                                             onChange={(e) => {
-
                                                 const updated = [
                                                     ...resume.skills
                                                 ];
@@ -697,11 +648,11 @@ const ResumeBuilder = () => {
                                                     ...prev,
                                                     skills: updated
                                                 }));
-
                                             }}
                                         />
 
                                         <button
+                                            type="button"
                                             className="skill-delete"
                                             onClick={() =>
                                                 removeItem(
@@ -714,10 +665,10 @@ const ResumeBuilder = () => {
                                         </button>
 
                                     </div>
-
                                 ))}
 
                                 <button
+                                    type="button"
                                     className="add-button"
                                     onClick={() =>
                                         setResume((prev) => ({
@@ -735,16 +686,13 @@ const ResumeBuilder = () => {
                             </div>
 
                         </div>
-
                     )}
-
 
                     {/* =================================
                         PROJECTS
                     ================================= */}
 
                     {activeSection === "projects" && (
-
                         <div className="resume-form-content">
 
                             <SectionHeader
@@ -761,7 +709,6 @@ const ResumeBuilder = () => {
                             />
 
                             {resume.projects.map((item, index) => (
-
                                 <RepeatableCard
                                     key={index}
                                     title={`Project ${index + 1}`}
@@ -814,20 +761,16 @@ const ResumeBuilder = () => {
                                     />
 
                                 </RepeatableCard>
-
                             ))}
 
                         </div>
-
                     )}
-
 
                     {/* =================================
                         CERTIFICATIONS
                     ================================= */}
 
                     {activeSection === "certifications" && (
-
                         <div className="resume-form-content">
 
                             <SectionHeader
@@ -844,7 +787,6 @@ const ResumeBuilder = () => {
                             />
 
                             {resume.certifications.map((item, index) => (
-
                                 <RepeatableCard
                                     key={index}
                                     title={`Certification ${index + 1}`}
@@ -899,15 +841,12 @@ const ResumeBuilder = () => {
                                     />
 
                                 </RepeatableCard>
-
                             ))}
 
                         </div>
-
                     )}
 
                 </div>
-
 
                 {/* =====================================
                     RIGHT PREVIEW
@@ -921,17 +860,16 @@ const ResumeBuilder = () => {
                             <h2>Live Preview</h2>
 
                             <span>
-                                {currentTemplate.name} Template •
-                                ATS-Friendly
+                                {currentTemplate.name} Template • ATS-Friendly
                             </span>
                         </div>
-
 
                         {/* TEMPLATE DROPDOWN */}
 
                         <div className="template-selector">
 
                             <button
+                                type="button"
                                 className="template-button"
                                 onClick={() =>
                                     setShowTemplates(!showTemplates)
@@ -948,9 +886,7 @@ const ResumeBuilder = () => {
                                 </span>
                             </button>
 
-
                             {showTemplates && (
-
                                 <div className="template-dropdown">
 
                                     <div className="template-dropdown-title">
@@ -960,8 +896,8 @@ const ResumeBuilder = () => {
                                     <div className="template-grid">
 
                                         {templates.map((template) => (
-
                                             <button
+                                                type="button"
                                                 key={template.id}
                                                 className={
                                                     selectedTemplate ===
@@ -1007,19 +943,16 @@ const ResumeBuilder = () => {
                                                 )}
 
                                             </button>
-
                                         ))}
 
                                     </div>
 
                                 </div>
-
                             )}
 
                         </div>
 
                     </div>
-
 
                     {/* =================================
                         ACTUAL RESUME
@@ -1054,7 +987,6 @@ const ResumeBuilder = () => {
 
                         </div>
 
-
                         <ResumePreviewSection title="PROFESSIONAL SUMMARY">
 
                             <p className="preview-summary">
@@ -1063,11 +995,9 @@ const ResumeBuilder = () => {
 
                         </ResumePreviewSection>
 
-
                         <ResumePreviewSection title="EXPERIENCE">
 
                             {resume.experience.map((item, index) => (
-
                                 <div
                                     className="preview-entry"
                                     key={index}
@@ -1088,16 +1018,13 @@ const ResumeBuilder = () => {
                                     <p>{item.description}</p>
 
                                 </div>
-
                             ))}
 
                         </ResumePreviewSection>
 
-
                         <ResumePreviewSection title="EDUCATION">
 
                             {resume.education.map((item, index) => (
-
                                 <div
                                     className="preview-entry"
                                     key={index}
@@ -1118,42 +1045,34 @@ const ResumeBuilder = () => {
                                     <p>{item.description}</p>
 
                                 </div>
-
                             ))}
 
                         </ResumePreviewSection>
-
 
                         <ResumePreviewSection title="SKILLS">
 
                             <div className="preview-skills">
 
                                 {resume.skills.map((skill, index) => (
-
                                     <span key={index}>
                                         {skill}
                                     </span>
-
                                 ))}
 
                             </div>
 
                         </ResumePreviewSection>
 
-
                         <ResumePreviewSection title="PROJECTS">
 
                             {resume.projects.map((item, index) => (
-
                                 <div
                                     className="preview-entry"
                                     key={index}
                                 >
 
                                     <div className="preview-entry-heading">
-
                                         <strong>{item.name}</strong>
-
                                     </div>
 
                                     <div className="preview-company">
@@ -1163,16 +1082,13 @@ const ResumeBuilder = () => {
                                     <p>{item.description}</p>
 
                                 </div>
-
                             ))}
 
                         </ResumePreviewSection>
 
-
                         <ResumePreviewSection title="CERTIFICATIONS">
 
                             {resume.certifications.map((item, index) => (
-
                                 <div
                                     className="preview-entry"
                                     key={index}
@@ -1191,7 +1107,6 @@ const ResumeBuilder = () => {
                                     </div>
 
                                 </div>
-
                             ))}
 
                         </ResumePreviewSection>
@@ -1208,7 +1123,7 @@ const ResumeBuilder = () => {
 
 
 /* =========================================
-   SMALL COMPONENTS
+   FORM INPUT
 ========================================= */
 
 const FormInput = ({
@@ -1218,7 +1133,6 @@ const FormInput = ({
     placeholder,
     fullWidth = false
 }) => {
-
     return (
         <div
             className={
@@ -1241,13 +1155,16 @@ const FormInput = ({
 };
 
 
+/* =========================================
+   FORM TEXTAREA
+========================================= */
+
 const FormTextarea = ({
     label,
     value,
     onChange,
     fullWidth = false
 }) => {
-
     return (
         <div
             className={
@@ -1270,13 +1187,16 @@ const FormTextarea = ({
 };
 
 
+/* =========================================
+   SECTION HEADER
+========================================= */
+
 const SectionHeader = ({
     title,
     description,
     button,
     onClick
 }) => {
-
     return (
         <div className="form-section-title-row">
 
@@ -1286,6 +1206,7 @@ const SectionHeader = ({
             </div>
 
             <button
+                type="button"
                 className="add-button"
                 onClick={onClick}
             >
@@ -1297,13 +1218,16 @@ const SectionHeader = ({
 };
 
 
+/* =========================================
+   REPEATABLE CARD
+========================================= */
+
 const RepeatableCard = ({
     title,
     showDelete,
     onDelete,
     children
 }) => {
-
     return (
         <div className="repeatable-form-card">
 
@@ -1313,6 +1237,7 @@ const RepeatableCard = ({
 
                 {showDelete && (
                     <button
+                        type="button"
                         className="delete-button"
                         onClick={onDelete}
                     >
@@ -1331,11 +1256,14 @@ const RepeatableCard = ({
 };
 
 
+/* =========================================
+   RESUME PREVIEW SECTION
+========================================= */
+
 const ResumePreviewSection = ({
     title,
     children
 }) => {
-
     return (
         <section className="resume-preview-section">
 
@@ -1351,3 +1279,4 @@ const ResumePreviewSection = ({
 
 
 export default ResumeBuilder;
+
