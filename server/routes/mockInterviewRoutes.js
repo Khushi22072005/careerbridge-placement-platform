@@ -174,6 +174,11 @@ const normalizeScore = (value) => {
    GENERATE CONTENT WITH GEMINI
 ========================================================= */
 
+/* =========================================================
+   GENERATE CONTENT WITH GEMINI
+   WITH RETRY FOR TEMPORARY FAILURES
+========================================================= */
+
 const generateWithGemini = async (prompt) => {
     if (!process.env.GEMINI_API_KEY) {
         throw new Error(
@@ -181,40 +186,130 @@ const generateWithGemini = async (prompt) => {
         );
     }
 
-    console.log(
-        "🤖 Sending request to Gemini..."
-    );
+    const MAX_RETRIES = 3;
 
-    console.log(
-        "Gemini model:",
-        GEMINI_MODEL
-    );
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+            console.log(
+                `🤖 Sending request to Gemini... (Attempt ${attempt}/${MAX_RETRIES})`
+            );
 
-    const response =
-        await gemini.models.generateContent({
-            model: GEMINI_MODEL,
-            contents: prompt,
-        });
+            console.log(
+                "Gemini model:",
+                GEMINI_MODEL
+            );
 
-    const text =
-        response.text;
+            const response =
+                await gemini.models.generateContent({
+                    model: GEMINI_MODEL,
+                    contents: prompt,
+                });
 
-    if (!text) {
-        throw new Error(
-            "Gemini returned an empty response."
-        );
+            const text =
+                response.text;
+
+            if (!text) {
+                throw new Error(
+                    "Gemini returned an empty response."
+                );
+            }
+
+            console.log(
+                "✅ Gemini response received."
+            );
+
+            console.log(
+                "Gemini output:",
+                text
+            );
+
+            return text;
+
+        } catch (error) {
+
+            const status =
+                error?.status ||
+                error?.code ||
+                error?.cause?.code;
+
+            const message =
+                error?.message ||
+                "";
+
+            const isTemporaryError =
+                status === 503 ||
+                status === 429 ||
+                status === 500 ||
+                status === 502 ||
+                status === 504 ||
+                message.includes(
+                    "Headers Timeout"
+                ) ||
+                message.includes(
+                    "fetch failed"
+                ) ||
+                message.includes(
+                    "UNAVAILABLE"
+                ) ||
+                message.includes(
+                    "overloaded"
+                );
+
+            console.error(
+                `❌ Gemini attempt ${attempt} failed.`
+            );
+
+            console.error(
+                "Error:",
+                message
+            );
+
+            console.error(
+                "Status:",
+                status
+            );
+
+            /* -----------------------------------------
+               DO NOT RETRY PERMANENT ERRORS
+            ----------------------------------------- */
+
+            if (
+                !isTemporaryError ||
+                attempt === MAX_RETRIES
+            ) {
+                throw error;
+            }
+
+            /* -----------------------------------------
+               EXPONENTIAL BACKOFF
+               Attempt 1 → 1 second
+               Attempt 2 → 2 seconds
+               Attempt 3 → 4 seconds
+            ----------------------------------------- */
+
+            const delay =
+                1000 * Math.pow(
+                    2,
+                    attempt - 1
+                );
+
+            console.log(
+                `⏳ Gemini temporarily unavailable. Retrying in ${delay / 1000} second(s)...`
+            );
+
+            await new Promise(
+                (resolve) =>
+                    setTimeout(
+                        resolve,
+                        delay
+                    )
+            );
+        }
     }
 
-    console.log(
-        "✅ Gemini response received."
+    throw new Error(
+        "Gemini request failed after multiple attempts."
     );
-
-    console.log(
-        "Gemini output:",
-        text
-    );
-
-    return text;
 };
 
 /* =========================================================
@@ -603,14 +698,22 @@ Use exactly this structure:
                 "========================================\n"
             );
 
-            return res.status(500).json({
-                message:
-                    "Unable to evaluate the interview answer.",
+            const statusCode =
+    error?.status === 429 ||
+    error?.status === 503 ||
+    error?.status === 502 ||
+    error?.status === 504
+        ? error.status
+        : 500;
 
-                error:
-                    error.message ||
-                    "Unknown Gemini error.",
-            });
+return res.status(statusCode).json({
+    message:
+        "Unable to evaluate the interview answer.",
+
+    error:
+        error.message ||
+        "Unknown Gemini error.",
+});
         }
     }
 );
@@ -640,10 +743,22 @@ router.post(
             ----------------------------------------- */
 
             if (!process.env.GEMINI_API_KEY) {
-                return res.status(500).json({
-                    message:
-                        "Gemini API key is missing. Check server/.env.",
-                });
+               const statusCode =
+    error?.status === 429 ||
+    error?.status === 503 ||
+    error?.status === 502 ||
+    error?.status === 504
+        ? error.status
+        : 500;
+
+return res.status(statusCode).json({
+    message:
+        "Unable to evaluate the interview answer.",
+
+    error:
+        error.message ||
+        "Unknown Gemini error.",
+});
             }
 
             /* -----------------------------------------
