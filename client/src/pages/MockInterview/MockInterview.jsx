@@ -32,74 +32,76 @@ const ROLE_NAMES = {
 
 
 /* =========================================================
-   INITIAL QUESTIONS
+   ROLE-SPECIFIC TECHNICAL SKILLS
 ========================================================= */
 
-const INITIAL_QUESTIONS = {
-    "software-developer": {
-        question:
-            "Tell me about yourself and your background in software development.",
+const SKILLS_BY_ROLE = {
+    "software-developer": [
+        "Java",
+        "Python",
+        "JavaScript",
+        "C++",
+        "C#",
+        "TypeScript",
+    ],
 
-        type: "intro",
+    "data-analyst": [
+        "SQL",
+        "Python",
+        "Excel",
+        "Power BI",
+        "Tableau",
+        "R",
+    ],
 
-        focus:
-            "Introduction & Communication",
+    cybersecurity: [
+        "Python",
+        "Linux",
+        "Networking",
+        "SQL",
+        "Bash / Shell Scripting",
+        "PowerShell",
+    ],
 
-        difficulty:
-            "easy",
-    },
+    "cloud-devops": [
+        "Linux",
+        "AWS",
+        "Azure",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "Python",
+        "Bash / Shell Scripting",
+    ],
 
-    "data-analyst": {
-        question:
-            "Tell me about yourself and why you are interested in becoming a Data Analyst.",
+    "ui-ux": [
+        "Figma",
+        "UI Design",
+        "UX Design",
+        "User Research",
+        "Prototyping",
+        "HTML/CSS",
+        "Design Systems",
+    ],
+};
 
-        type: "intro",
 
-        focus:
-            "Introduction & Communication",
+/* =========================================================
+   FIXED FIRST QUESTION
+========================================================= */
 
-        difficulty:
-            "easy",
-    },
+const FIRST_QUESTION = {
+    question:
+        "Tell me about yourself.",
 
-    cybersecurity: {
-        question:
-            "Tell me about yourself and why you are interested in cybersecurity.",
+    type:
+        "intro",
 
-        type: "intro",
+    focus:
+        "Introduction",
 
-        focus:
-            "Introduction & Communication",
-
-        difficulty:
-            "easy",
-    },
-
-    "cloud-devops": {
-        question:
-            "Tell me about yourself and your interest in Cloud and DevOps.",
-
-        type: "intro",
-
-        focus:
-            "Introduction & Communication",
-
-        difficulty:
-            "easy",
-    },
-
-    "ui-ux": {
-        question:
-            "Tell me about yourself and what interests you about UI/UX design.",
-
-        type: "intro",
-
-        focus:
-            "Introduction & Communication",
-
-        difficulty:
-            "easy",
-    },
+    difficulty:
+        "easy",
 };
 
 
@@ -108,8 +110,11 @@ const INITIAL_QUESTIONS = {
 ========================================================= */
 
 const AI_INTERVIEWER = {
-    
-    role: "AI Interviewer",
+    role:
+        "AI Interviewer",
+
+    fullName:
+        "AI Interviewer",
 };
 
 
@@ -120,6 +125,14 @@ const AI_INTERVIEWER = {
 const API_BASE_URL =
     import.meta.env.VITE_API_URL ||
     "http://localhost:5000";
+
+
+/* =========================================================
+   MAX QUESTIONS
+========================================================= */
+
+const MAX_QUESTIONS =
+    25;
 
 
 /* =========================================================
@@ -211,6 +224,7 @@ const speakText = (
         window.speechSynthesis.speak(
             utterance
         );
+
     } catch (error) {
         console.error(
             "Speech synthesis error:",
@@ -249,12 +263,13 @@ const stopAI = (
 ========================================================= */
 
 const MockInterview = () => {
+
     const navigate =
         useNavigate();
 
 
     /* =====================================================
-       STATE
+       ROLE
     ===================================================== */
 
     const [
@@ -264,9 +279,59 @@ const MockInterview = () => {
         localStorage.getItem(
             "selectedRole"
         ) ||
-            "data-analyst"
+        "data-analyst"
     );
 
+
+    /* =====================================================
+       TECHNICAL SKILL
+    ===================================================== */
+
+    const getInitialSkill = () => {
+
+        const savedRole =
+            localStorage.getItem(
+                "selectedRole"
+            ) ||
+            "data-analyst";
+
+        const savedSkill =
+            localStorage.getItem(
+                "selectedSkill"
+            );
+
+        const availableSkills =
+            SKILLS_BY_ROLE[
+                savedRole
+            ] ||
+            SKILLS_BY_ROLE[
+                "data-analyst"
+            ];
+
+        if (
+            savedSkill &&
+            availableSkills.includes(
+                savedSkill
+            )
+        ) {
+            return savedSkill;
+        }
+
+        return availableSkills[0];
+    };
+
+
+    const [
+        selectedSkill,
+        setSelectedSkill,
+    ] = useState(
+        getInitialSkill()
+    );
+
+
+    /* =====================================================
+       INTERVIEW STATE
+    ===================================================== */
 
     const [
         interviewStarted,
@@ -278,15 +343,7 @@ const MockInterview = () => {
         currentQuestion,
         setCurrentQuestion,
     ] = useState(
-        INITIAL_QUESTIONS[
-            localStorage.getItem(
-                "selectedRole"
-            ) ||
-                "data-analyst"
-        ] ||
-            INITIAL_QUESTIONS[
-                "data-analyst"
-            ]
+        FIRST_QUESTION
     );
 
 
@@ -384,10 +441,12 @@ const MockInterview = () => {
     ===================================================== */
 
     useEffect(() => {
+
         isMountedRef.current =
             true;
 
         return () => {
+
             isMountedRef.current =
                 false;
 
@@ -399,6 +458,7 @@ const MockInterview = () => {
                 setIsSpeaking
             );
         };
+
     }, []);
 
 
@@ -407,11 +467,13 @@ const MockInterview = () => {
     ===================================================== */
 
     useEffect(() => {
+
         const SpeechRecognition =
             window.SpeechRecognition ||
             window.webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
+
             setSpeechSupported(
                 false
             );
@@ -420,6 +482,7 @@ const MockInterview = () => {
                 "Speech recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge."
             );
         }
+
     }, []);
 
 
@@ -428,6 +491,7 @@ const MockInterview = () => {
     ===================================================== */
 
     useEffect(() => {
+
         if (
             !interviewStarted ||
             interviewFinished
@@ -437,16 +501,19 @@ const MockInterview = () => {
 
         const interval =
             setInterval(() => {
+
                 setElapsedTime(
                     (previous) =>
                         previous + 1
                 );
+
             }, 1000);
 
         return () =>
             clearInterval(
                 interval
             );
+
     }, [
         interviewStarted,
         interviewFinished,
@@ -458,6 +525,7 @@ const MockInterview = () => {
     ===================================================== */
 
     useEffect(() => {
+
         if (
             !interviewStarted ||
             interviewFinished ||
@@ -468,13 +536,16 @@ const MockInterview = () => {
 
         const timer =
             setTimeout(() => {
+
                 speakText(
                     currentQuestion.question,
                     setIsSpeaking
                 );
+
             }, 600);
 
         return () => {
+
             clearTimeout(
                 timer
             );
@@ -483,6 +554,7 @@ const MockInterview = () => {
                 setIsSpeaking
             );
         };
+
     }, [
         interviewStarted,
         interviewFinished,
@@ -497,6 +569,7 @@ const MockInterview = () => {
     const formatTime = (
         seconds
     ) => {
+
         const minutes =
             Math.floor(
                 seconds / 60
@@ -520,18 +593,95 @@ const MockInterview = () => {
 
 
     /* =====================================================
+       HANDLE ROLE CHANGE
+    ===================================================== */
+
+    const handleRoleChange = (
+        role
+    ) => {
+
+        setSelectedRole(
+            role
+        );
+
+        localStorage.setItem(
+            "selectedRole",
+            role
+        );
+
+        const roleSkills =
+            SKILLS_BY_ROLE[
+                role
+            ] ||
+            [];
+
+        const firstSkill =
+            roleSkills[0] ||
+            "";
+
+        setSelectedSkill(
+            firstSkill
+        );
+
+        localStorage.setItem(
+            "selectedSkill",
+            firstSkill
+        );
+    };
+
+
+    /* =====================================================
+       HANDLE SKILL CHANGE
+    ===================================================== */
+
+    const handleSkillChange = (
+        skill
+    ) => {
+
+        setSelectedSkill(
+            skill
+        );
+
+        localStorage.setItem(
+            "selectedSkill",
+            skill
+        );
+    };
+
+
+    /* =====================================================
        START INTERVIEW
     ===================================================== */
 
     const startInterview =
         () => {
-            const firstQuestion =
-                INITIAL_QUESTIONS[
+
+            const roleSkills =
+                SKILLS_BY_ROLE[
                     selectedRole
                 ] ||
-                INITIAL_QUESTIONS[
-                    "data-analyst"
-                ];
+                [];
+
+            const validSkill =
+                roleSkills.includes(
+                    selectedSkill
+                )
+                    ? selectedSkill
+                    : roleSkills[0];
+
+            setSelectedSkill(
+                validSkill
+            );
+
+            localStorage.setItem(
+                "selectedRole",
+                selectedRole
+            );
+
+            localStorage.setItem(
+                "selectedSkill",
+                validSkill
+            );
 
             stopAI(
                 setIsSpeaking
@@ -542,7 +692,7 @@ const MockInterview = () => {
             );
 
             setCurrentQuestion(
-                firstQuestion
+                FIRST_QUESTION
             );
 
             setQuestionNumber(
@@ -556,7 +706,9 @@ const MockInterview = () => {
             finalTranscriptRef.current =
                 "";
 
-            setAnswers([]);
+            setAnswers(
+                []
+            );
 
             setInterviewFinished(
                 false
@@ -584,6 +736,7 @@ const MockInterview = () => {
 
     const startListening =
         () => {
+
             setSpeechError("");
 
             const SpeechRecognition =
@@ -591,6 +744,7 @@ const MockInterview = () => {
                 window.webkitSpeechRecognition;
 
             if (!SpeechRecognition) {
+
                 setSpeechSupported(
                     false
                 );
@@ -633,6 +787,7 @@ const MockInterview = () => {
 
             recognition.onstart =
                 () => {
+
                     recognitionRunningRef.current =
                         true;
 
@@ -652,6 +807,7 @@ const MockInterview = () => {
 
             recognition.onresult =
                 (event) => {
+
                     let finalText =
                         finalTranscriptRef.current;
 
@@ -665,6 +821,7 @@ const MockInterview = () => {
                         event.results.length;
                         i++
                     ) {
+
                         const result =
                             event
                                 .results[
@@ -681,12 +838,15 @@ const MockInterview = () => {
                         if (
                             result.isFinal
                         ) {
+
                             finalText =
                                 `${finalText} ${text}`.trim();
 
                             finalTranscriptRef.current =
                                 finalText;
+
                         } else {
+
                             interimText +=
                                 text;
                         }
@@ -698,6 +858,7 @@ const MockInterview = () => {
                     if (
                         isMountedRef.current
                     ) {
+
                         setTranscript(
                             combined
                         );
@@ -707,6 +868,7 @@ const MockInterview = () => {
 
             recognition.onerror =
                 (event) => {
+
                     console.error(
                         "Speech recognition error:",
                         event.error
@@ -725,34 +887,43 @@ const MockInterview = () => {
                         event.error ===
                             "permission-denied"
                     ) {
+
                         setSpeechError(
                             "Microphone permission was denied. Allow microphone access for this site."
                         );
+
                     } else if (
                         event.error ===
                         "audio-capture"
                     ) {
+
                         setSpeechError(
                             "Microphone could not be accessed. Check your microphone."
                         );
+
                     } else if (
                         event.error ===
                         "network"
                     ) {
+
                         setSpeechError(
                             "Speech recognition could not connect to the browser speech service. Check your internet connection and try again."
                         );
+
                     } else if (
                         event.error ===
                         "no-speech"
                     ) {
+
                         setSpeechError(
                             "No speech was detected. Please speak clearly and try again."
                         );
+
                     } else if (
                         event.error !==
                         "aborted"
                     ) {
+
                         setSpeechError(
                             `Speech recognition error: ${event.error}`
                         );
@@ -762,6 +933,7 @@ const MockInterview = () => {
 
             recognition.onend =
                 () => {
+
                     recognitionRunningRef.current =
                         false;
 
@@ -779,8 +951,11 @@ const MockInterview = () => {
                 recognition;
 
             try {
+
                 recognition.start();
+
             } catch (error) {
+
                 console.error(
                     "Could not start recognition:",
                     error
@@ -806,6 +981,7 @@ const MockInterview = () => {
 
     const stopListening =
         () => {
+
             try {
                 recognitionRef.current?.stop();
             } catch (error) {}
@@ -825,6 +1001,7 @@ const MockInterview = () => {
 
     const submitAnswer =
         async () => {
+
             stopListening();
 
             stopAI(
@@ -835,6 +1012,7 @@ const MockInterview = () => {
                 transcript.trim();
 
             if (!cleanAnswer) {
+
                 setSpeechError(
                     "Please speak or type an answer before submitting."
                 );
@@ -849,6 +1027,7 @@ const MockInterview = () => {
             );
 
             try {
+
                 const response =
                     await fetch(
                         `${API_BASE_URL}/api/mock-interview/evaluate`,
@@ -861,10 +1040,13 @@ const MockInterview = () => {
                                     "application/json",
                             },
 
-                            body: JSON.stringify(
-                                {
+                            body:
+                                JSON.stringify({
                                     role:
                                         selectedRole,
+
+                                    skill:
+                                        selectedSkill,
 
                                     question:
                                         currentQuestion.question,
@@ -877,8 +1059,7 @@ const MockInterview = () => {
 
                                     previousAnswers:
                                         answers,
-                                }
-                            ),
+                                }),
                         }
                     );
 
@@ -888,6 +1069,7 @@ const MockInterview = () => {
                 if (
                     !response.ok
                 ) {
+
                     throw new Error(
                         data.message ||
                             "AI evaluation failed."
@@ -926,7 +1108,9 @@ const MockInterview = () => {
                 setAnswerSubmitted(
                     true
                 );
+
             } catch (error) {
+
                 console.error(
                     "AI evaluation error:",
                     error
@@ -935,7 +1119,9 @@ const MockInterview = () => {
                 setSpeechError(
                     `AI evaluation failed: ${error.message}`
                 );
+
             } finally {
+
                 setIsThinking(
                     false
                 );
@@ -949,6 +1135,7 @@ const MockInterview = () => {
 
     const nextQuestion =
         async () => {
+
             stopListening();
 
             stopAI(
@@ -961,11 +1148,31 @@ const MockInterview = () => {
                 return;
             }
 
+            /* -----------------------------------------
+               Q25 SHOULD NEVER GENERATE Q26
+            ----------------------------------------- */
+
+            if (
+                questionNumber >=
+                MAX_QUESTIONS
+            ) {
+
+                finishInterview();
+
+                return;
+            }
+
             setIsThinking(
                 true
             );
 
             try {
+
+                /*
+                 * IMPORTANT:
+                 * Use the evaluated latest answer.
+                 */
+
                 const latestAnswer =
                     {
                         question:
@@ -973,6 +1180,15 @@ const MockInterview = () => {
 
                         answer:
                             transcript.trim(),
+
+                        type:
+                            currentQuestion.type,
+
+                        focus:
+                            currentQuestion.focus,
+
+                        evaluation:
+                            currentEvaluation,
                     };
 
                 const response =
@@ -987,10 +1203,13 @@ const MockInterview = () => {
                                     "application/json",
                             },
 
-                            body: JSON.stringify(
-                                {
+                            body:
+                                JSON.stringify({
                                     role:
                                         selectedRole,
+
+                                    skill:
+                                        selectedSkill,
 
                                     previousAnswers:
                                         [
@@ -1007,8 +1226,7 @@ const MockInterview = () => {
                                     questionNumber:
                                         questionNumber +
                                         1,
-                                }
-                            ),
+                                }),
                         }
                     );
 
@@ -1018,9 +1236,19 @@ const MockInterview = () => {
                 if (
                     !response.ok
                 ) {
+
                     throw new Error(
                         data.message ||
                             "Could not generate next question."
+                    );
+                }
+
+                if (
+                    !data.question
+                ) {
+
+                    throw new Error(
+                        "AI did not return a valid next question."
                     );
                 }
 
@@ -1049,7 +1277,9 @@ const MockInterview = () => {
                 );
 
                 setSpeechError("");
+
             } catch (error) {
+
                 console.error(
                     "Next question error:",
                     error
@@ -1058,7 +1288,9 @@ const MockInterview = () => {
                 setSpeechError(
                     `Could not generate next question: ${error.message}`
                 );
+
             } finally {
+
                 setIsThinking(
                     false
                 );
@@ -1072,6 +1304,7 @@ const MockInterview = () => {
 
     const finishInterview =
         () => {
+
             stopListening();
 
             stopAI(
@@ -1090,6 +1323,7 @@ const MockInterview = () => {
 
     const exitInterview =
         () => {
+
             stopListening();
 
             stopAI(
@@ -1106,13 +1340,9 @@ const MockInterview = () => {
        PROGRESS
     ===================================================== */
 
-    const MAX_QUESTIONS =
-        8;
-
     const progress =
         Math.min(
-            ((questionNumber -
-                1) /
+            (questionNumber /
                 MAX_QUESTIONS) *
                 100,
             100
@@ -1126,6 +1356,13 @@ const MockInterview = () => {
     if (
         !interviewStarted
     ) {
+
+        const availableSkills =
+            SKILLS_BY_ROLE[
+                selectedRole
+            ] ||
+            [];
+
         return (
             <div className="mock-interview-page">
 
@@ -1162,6 +1399,7 @@ const MockInterview = () => {
                         </p>
 
                     </div>
+
                 </div>
 
 
@@ -1171,13 +1409,16 @@ const MockInterview = () => {
                         🎙️
                     </div>
 
+
                     <p className="interview-label">
                         SELECT YOUR TARGET ROLE
                     </p>
 
+
                     <h2>
                         AI Mock Interview
                     </h2>
+
 
                     <p className="start-description">
                         Your interview adapts to
@@ -1188,6 +1429,10 @@ const MockInterview = () => {
                     </p>
 
 
+                    {/* =====================================
+                        ROLE SELECTION
+                    ===================================== */}
+
                     <div className="role-selector">
 
                         {Object.entries(
@@ -1197,6 +1442,7 @@ const MockInterview = () => {
                                 value,
                                 label,
                             ]) => (
+
                                 <button
                                     key={
                                         value
@@ -1207,21 +1453,95 @@ const MockInterview = () => {
                                             ? "role-option selected"
                                             : "role-option"
                                     }
-                                    onClick={() => {
-                                        setSelectedRole(
+                                    onClick={() =>
+                                        handleRoleChange(
                                             value
-                                        );
-
-                                        localStorage.setItem(
-                                            "selectedRole",
-                                            value
-                                        );
-                                    }}
+                                        )
+                                    }
                                 >
                                     {label}
                                 </button>
+
                             )
                         )}
+
+                    </div>
+
+
+                    {/* =====================================
+                        TECHNICAL SKILL SELECTION
+                    ===================================== */}
+
+                    <p
+                        className="interview-label"
+                        style={{
+                            marginTop:
+                                "28px",
+                        }}
+                    >
+                        SELECT TECHNICAL SKILL / TECHNOLOGY
+                    </p>
+
+
+                    <div className="skill-selector">
+
+                        {availableSkills.map(
+                            (
+                                skill
+                            ) => (
+
+                                <button
+                                    key={
+                                        skill
+                                    }
+                                    className={
+                                        selectedSkill ===
+                                        skill
+                                            ? "skill-option selected"
+                                            : "skill-option"
+                                    }
+                                    onClick={() =>
+                                        handleSkillChange(
+                                            skill
+                                        )
+                                    }
+                                >
+                                    {skill}
+                                </button>
+
+                            )
+                        )}
+
+                    </div>
+
+
+                    {/* =====================================
+                        SELECTED ROLE + SKILL
+                    ===================================== */}
+
+                    <div className="selected-interview-info">
+
+                        <span>
+                            Role:
+                        </span>
+
+                        <strong>
+                            {
+                                ROLE_NAMES[
+                                    selectedRole
+                                ]
+                            }
+                        </strong>
+
+                        <span>
+                            Skill:
+                        </span>
+
+                        <strong>
+                            {
+                                selectedSkill
+                            }
+                        </strong>
 
                     </div>
 
@@ -1229,6 +1549,7 @@ const MockInterview = () => {
                     <div className="interview-features">
 
                         <div>
+
                             <span>
                                 🔊
                             </span>
@@ -1241,9 +1562,12 @@ const MockInterview = () => {
                                 Hear interview
                                 questions naturally.
                             </p>
+
                         </div>
 
+
                         <div>
+
                             <span>
                                 🎙
                             </span>
@@ -1256,9 +1580,12 @@ const MockInterview = () => {
                                 Speak and edit
                                 your answer.
                             </p>
+
                         </div>
 
+
                         <div>
+
                             <span>
                                 📊
                             </span>
@@ -1271,6 +1598,7 @@ const MockInterview = () => {
                                 Receive personalized
                                 evaluation.
                             </p>
+
                         </div>
 
                     </div>
@@ -1287,6 +1615,7 @@ const MockInterview = () => {
 
 
                     <span className="interview-note">
+                        25 adaptive questions •
                         Use Google Chrome or
                         Microsoft Edge and allow
                         microphone access.
@@ -1306,6 +1635,7 @@ const MockInterview = () => {
     if (
         interviewFinished
     ) {
+
         const overallScore =
             answers.length
                 ? Math.round(
@@ -1417,7 +1747,10 @@ const MockInterview = () => {
                 ...new Set(
                     allStrengths
                 ),
-            ].slice(0, 6);
+            ].slice(
+                0,
+                6
+            );
 
 
         const uniqueImprovements =
@@ -1425,7 +1758,10 @@ const MockInterview = () => {
                 ...new Set(
                     allImprovements
                 ),
-            ].slice(0, 6);
+            ].slice(
+                0,
+                6
+            );
 
 
         return (
@@ -1437,19 +1773,24 @@ const MockInterview = () => {
                         ✓
                     </div>
 
+
                     <p className="interview-label">
                         INTERVIEW COMPLETE
                     </p>
+
 
                     <h1>
                         Your interview
                         performance report
                     </h1>
 
+
                     <p>
-                        You completed an
-                        adaptive AI interview
-                        for the{" "}
+                        You completed a
+                        <strong>
+                            {" "}25-question adaptive
+                        </strong>{" "}
+                        AI interview for the{" "}
                         <strong>
                             {
                                 ROLE_NAMES[
@@ -1457,8 +1798,42 @@ const MockInterview = () => {
                                 ]
                             }
                         </strong>{" "}
-                        role.
+                        role using{" "}
+                        <strong>
+                            {selectedSkill}
+                        </strong>.
                     </p>
+
+
+                    {/* =================================
+                        ROLE + SKILL
+                    ================================= */}
+
+                    <div className="selected-interview-info">
+
+                        <span>
+                            Target Role
+                        </span>
+
+                        <strong>
+                            {
+                                ROLE_NAMES[
+                                    selectedRole
+                                ]
+                            }
+                        </strong>
+
+                        <span>
+                            Technical Skill
+                        </span>
+
+                        <strong>
+                            {
+                                selectedSkill
+                            }
+                        </strong>
+
+                    </div>
 
 
                     <div className="final-score">
@@ -1479,6 +1854,7 @@ const MockInterview = () => {
                     <div className="complete-stats">
 
                         <div>
+
                             <strong>
                                 {
                                     answers.length
@@ -1488,9 +1864,12 @@ const MockInterview = () => {
                             <span>
                                 Questions
                             </span>
+
                         </div>
 
+
                         <div>
+
                             <strong>
                                 {
                                     communicationScore
@@ -1500,9 +1879,12 @@ const MockInterview = () => {
                             <span>
                                 Communication
                             </span>
+
                         </div>
 
+
                         <div>
+
                             <strong>
                                 {
                                     relevanceScore
@@ -1512,9 +1894,12 @@ const MockInterview = () => {
                             <span>
                                 Relevance
                             </span>
+
                         </div>
 
+
                         <div>
+
                             <strong>
                                 {
                                     technicalScore
@@ -1524,6 +1909,7 @@ const MockInterview = () => {
                             <span>
                                 Technical
                             </span>
+
                         </div>
 
                     </div>
@@ -1531,6 +1917,7 @@ const MockInterview = () => {
 
                     {uniqueStrengths.length >
                         0 && (
+
                         <div className="final-feedback">
 
                             <h3>
@@ -1538,11 +1925,13 @@ const MockInterview = () => {
                             </h3>
 
                             <ul>
+
                                 {uniqueStrengths.map(
                                     (
                                         strength,
                                         index
                                     ) => (
+
                                         <li
                                             key={
                                                 index
@@ -1552,16 +1941,20 @@ const MockInterview = () => {
                                                 strength
                                             }
                                         </li>
+
                                     )
                                 )}
+
                             </ul>
 
                         </div>
+
                     )}
 
 
                     {uniqueImprovements.length >
                         0 && (
+
                         <div className="final-feedback">
 
                             <h3>
@@ -1569,11 +1962,13 @@ const MockInterview = () => {
                             </h3>
 
                             <ul>
+
                                 {uniqueImprovements.map(
                                     (
                                         improvement,
                                         index
                                     ) => (
+
                                         <li
                                             key={
                                                 index
@@ -1583,11 +1978,14 @@ const MockInterview = () => {
                                                 improvement
                                             }
                                         </li>
+
                                     )
                                 )}
+
                             </ul>
 
                         </div>
+
                     )}
 
 
@@ -1618,6 +2016,11 @@ const MockInterview = () => {
                         <button
                             className="secondary-interview-button"
                             onClick={() => {
+
+                                stopAI(
+                                    setIsSpeaking
+                                );
+
                                 setInterviewStarted(
                                     false
                                 );
@@ -1631,9 +2034,7 @@ const MockInterview = () => {
                                 );
 
                                 setCurrentQuestion(
-                                    INITIAL_QUESTIONS[
-                                        selectedRole
-                                    ]
+                                    FIRST_QUESTION
                                 );
 
                                 setQuestionNumber(
@@ -1657,6 +2058,10 @@ const MockInterview = () => {
 
                                 setAnswerSubmitted(
                                     false
+                                );
+
+                                setSpeechError(
+                                    ""
                                 );
                             }}
                         >
@@ -1707,23 +2112,38 @@ const MockInterview = () => {
 
 
                 <div className="interview-role">
+
                     {
                         ROLE_NAMES[
                             selectedRole
                         ]
-                    }{" "}
-                    AI Interview
+                    }
+
+                    {" • "}
+
+                    {
+                        selectedSkill
+                    }
+
+                    {" AI Interview"}
+
                 </div>
 
 
                 <div className="interview-header-right">
 
                     <div className="interview-timer">
+
                         ⏱{" "}
-                        {formatTime(
-                            elapsedTime
-                        )}
+
+                        {
+                            formatTime(
+                                elapsedTime
+                            )
+                        }
+
                     </div>
+
 
                     <button
                         className="exit-interview"
@@ -1750,19 +2170,29 @@ const MockInterview = () => {
                     <div className="progress-header">
 
                         <span>
+
                             Question{" "}
                             {
                                 questionNumber
                             }{" "}
+
                             of{" "}
-                            {MAX_QUESTIONS}
+
+                            {
+                                MAX_QUESTIONS
+                            }
+
                         </span>
 
+
                         <span>
+
                             {Math.round(
                                 progress
                             )}
+
                             %
+
                         </span>
 
                     </div>
@@ -1772,7 +2202,8 @@ const MockInterview = () => {
 
                         <div
                             style={{
-                                width: `${progress}%`,
+                                width:
+                                    `${progress}%`,
                             }}
                         />
 
@@ -1796,6 +2227,7 @@ const MockInterview = () => {
                             ).toUpperCase()}
                         </span>
 
+
                         <span>
                             {
                                 currentQuestion.focus ||
@@ -1803,13 +2235,19 @@ const MockInterview = () => {
                             }
                         </span>
 
+
                         {currentQuestion.difficulty && (
+
                             <span>
+
                                 Difficulty:{" "}
+
                                 {
                                     currentQuestion.difficulty
                                 }
+
                             </span>
+
                         )}
 
                     </div>
@@ -1829,6 +2267,7 @@ const MockInterview = () => {
 
                                 <div className="ai-face-hair" />
 
+
                                 <div className="ai-face">
 
                                     <span className="ai-eye left" />
@@ -1836,6 +2275,7 @@ const MockInterview = () => {
                                     <span className="ai-eye right" />
 
                                     <span className="ai-nose" />
+
 
                                     <span
                                         className={
@@ -1849,6 +2289,7 @@ const MockInterview = () => {
 
                             </div>
 
+
                             <span className="ai-online-dot" />
 
                         </div>
@@ -1860,11 +2301,15 @@ const MockInterview = () => {
                                 CAREERBRIDGE AI INTERVIEWER
                             </p>
 
+
                             <div className="ai-interviewer-name">
+
                                 {
                                     AI_INTERVIEWER.fullName
                                 }
+
                             </div>
+
 
                             <div className="ai-speaking-status">
 
@@ -1877,6 +2322,7 @@ const MockInterview = () => {
                                 >
                                     ●
                                 </span>
+
 
                                 {isSpeaking
                                     ? "Speaking..."
@@ -1894,18 +2340,22 @@ const MockInterview = () => {
 
 
                     <h1>
+
                         {
                             currentQuestion.question
                         }
+
                     </h1>
 
 
                     <p className="question-hint">
+
                         Take a moment to think,
                         then answer naturally.
                         You can speak or type your
                         answer and edit the transcript
                         before submitting.
+
                     </p>
 
 
@@ -1942,18 +2392,22 @@ const MockInterview = () => {
                                 YOUR ANSWER
                             </p>
 
+
                             <span>
+
                                 Speak naturally or
                                 type your answer.
                                 You can edit the
                                 transcript before
                                 submitting.
+
                             </span>
 
                         </div>
 
 
                         {isListening && (
+
                             <div className="listening-status">
 
                                 <span className="pulse-dot" />
@@ -1961,19 +2415,24 @@ const MockInterview = () => {
                                 Listening...
 
                             </div>
+
                         )}
 
                     </div>
 
 
                     {speechError && (
+
                         <div
                             className="speech-error"
                             role="alert"
                         >
                             ⚠️{" "}
-                            {speechError}
+                            {
+                                speechError
+                            }
                         </div>
+
                     )}
 
 
@@ -1992,9 +2451,11 @@ const MockInterview = () => {
                         <div className="transcript-editor-container">
 
                             <div className="live-transcript-label">
+
                                 {isListening
                                     ? "LIVE TRANSCRIPT"
                                     : "YOUR EDITABLE ANSWER"}
+
                             </div>
 
 
@@ -2006,6 +2467,7 @@ const MockInterview = () => {
                                 onChange={(
                                     event
                                 ) => {
+
                                     const value =
                                         event
                                             .target
@@ -2017,6 +2479,7 @@ const MockInterview = () => {
 
                                     finalTranscriptRef.current =
                                         value;
+
                                 }}
                                 placeholder="Start speaking or type your answer here..."
                                 rows={8}
@@ -2028,10 +2491,12 @@ const MockInterview = () => {
 
 
                             <div className="transcript-help">
+
                                 ✏️ You can correct
                                 speech-to-text
                                 mistakes before
                                 submitting.
+
                             </div>
 
                         </div>
@@ -2064,10 +2529,13 @@ const MockInterview = () => {
                         >
 
                             <span>
+
                                 {isListening
                                     ? "■"
                                     : "🎙"}
+
                             </span>
+
 
                             {isListening
                                 ? "Stop Recording"
@@ -2107,6 +2575,7 @@ const MockInterview = () => {
 
                 {answerSubmitted &&
                     currentEvaluation && (
+
                         <section className="answer-feedback">
 
                             <div className="feedback-icon">
@@ -2184,17 +2653,22 @@ const MockInterview = () => {
 
                                 {currentEvaluation.strengths?.length >
                                     0 && (
+
                                     <div>
+
                                         <strong>
                                             💪 Strengths
                                         </strong>
 
+
                                         <ul>
+
                                             {currentEvaluation.strengths.map(
                                                 (
                                                     item,
                                                     index
                                                 ) => (
+
                                                     <li
                                                         key={
                                                             index
@@ -2204,26 +2678,35 @@ const MockInterview = () => {
                                                             item
                                                         }
                                                     </li>
+
                                                 )
                                             )}
+
                                         </ul>
+
                                     </div>
+
                                 )}
 
 
                                 {currentEvaluation.improvements?.length >
                                     0 && (
+
                                     <div>
+
                                         <strong>
                                             📌 Improve
                                         </strong>
 
+
                                         <ul>
+
                                             {currentEvaluation.improvements.map(
                                                 (
                                                     item,
                                                     index
                                                 ) => (
+
                                                     <li
                                                         key={
                                                             index
@@ -2233,10 +2716,14 @@ const MockInterview = () => {
                                                             item
                                                         }
                                                     </li>
+
                                                 )
                                             )}
+
                                         </ul>
+
                                     </div>
+
                                 )}
 
                             </div>
@@ -2249,14 +2736,20 @@ const MockInterview = () => {
                                         ? finishInterview
                                         : nextQuestion
                                 }
+                                disabled={
+                                    isThinking
+                                }
                             >
+
                                 {questionNumber >=
                                 MAX_QUESTIONS
                                     ? "Finish Interview"
                                     : "Next Question →"}
+
                             </button>
 
                         </section>
+
                     )}
 
             </main>

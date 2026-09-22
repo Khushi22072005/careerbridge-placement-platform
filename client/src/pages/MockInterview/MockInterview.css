@@ -320,6 +320,66 @@
 
 
 /* =====================================================
+   TECHNICAL SKILL / TECHNOLOGY SELECTOR
+===================================================== */
+
+.skill-selector {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 9px;
+
+    margin-top: -18px;
+
+    margin-bottom: 30px;
+}
+
+.skill-option {
+    padding:
+        12px 8px;
+
+    border:
+        1px solid #e6dff0;
+
+    border-radius: 10px;
+
+    background: white;
+
+    color: #756b86;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.skill-option:hover {
+    border-color: #b794f6;
+
+    color: #7c3aed;
+
+    background: #fcfaff;
+}
+
+.skill-option.selected {
+    border-color: #7c3aed;
+
+    background: #f3e8ff;
+
+    color: #7c3aed;
+
+    box-shadow:
+        0 5px 15px
+        rgba(124,58,237,0.10);
+}
+
+
+/* =====================================================
    FEATURES
 ===================================================== */
 
@@ -410,6 +470,16 @@
     box-shadow:
         0 14px 30px
         rgba(124,58,237,0.28);
+}
+
+.start-interview-button:disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
 }
 
 .interview-note {
@@ -1083,7 +1153,7 @@
    ANSWER
 ===================================================== */
 
-answer-area {
+.answer-area {
     margin-top: 18px;
 
     padding:
@@ -1681,6 +1751,13 @@ answer-area {
             repeat(2, 1fr);
     }
 
+    .skill-selector {
+        grid-template-columns:
+            repeat(2, 1fr);
+
+        margin-top: -18px;
+    }
+
     .interview-features {
         grid-template-columns: 1fr;
     }
@@ -1775,6 +1852,12 @@ answer-area {
     .ai-online-dot {
         width: 11px;
         height: 11px;
+    }
+
+    .skill-selector {
+        grid-template-columns: 1fr;
+
+        margin-top: -18px;
     }
 
     .answer-controls {

@@ -37,6 +37,84 @@ const ROLE_NAMES = {
 };
 
 /* =========================================================
+   ROLE-SPECIFIC TECHNICAL SKILLS
+========================================================= */
+
+const SKILLS_BY_ROLE = {
+    "software-developer": [
+        "Java",
+        "Python",
+        "JavaScript",
+        "C++",
+        "C#",
+        "TypeScript",
+    ],
+
+    "data-analyst": [
+        "SQL",
+        "Python",
+        "Excel",
+        "Power BI",
+        "Tableau",
+        "R",
+    ],
+
+    cybersecurity: [
+        "Python",
+        "Linux",
+        "Networking",
+        "SQL",
+        "Bash / Shell Scripting",
+        "PowerShell",
+    ],
+
+    "cloud-devops": [
+        "Linux",
+        "AWS",
+        "Azure",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "Python",
+        "Bash / Shell Scripting",
+    ],
+
+    "ui-ux": [
+        "Figma",
+        "UI Design",
+        "UX Design",
+        "User Research",
+        "Prototyping",
+        "HTML/CSS",
+        "Design Systems",
+    ],
+};
+
+/* =========================================================
+   GET VALID TECHNICAL SKILL
+========================================================= */
+
+const getTechnicalSkill = (role, skill) => {
+    const roleSkills = SKILLS_BY_ROLE[role];
+
+    if (
+        Array.isArray(roleSkills) &&
+        roleSkills.includes(skill)
+    ) {
+        return skill;
+    }
+
+    if (
+        Array.isArray(roleSkills) &&
+        roleSkills.length > 0
+    ) {
+        return roleSkills[0];
+    }
+
+    return "General Technical Skills";
+};
+
+/* =========================================================
    SAFE JSON PARSER
 ========================================================= */
 
@@ -176,6 +254,7 @@ router.post(
 
             const {
                 role,
+                skill,
                 question,
                 questionType,
                 answer,
@@ -201,6 +280,12 @@ router.post(
                 role ||
                 "Technology Professional";
 
+            const technicalSkill =
+                getTechnicalSkill(
+                    role,
+                    skill
+                );
+
             /* -----------------------------------------
                PREVIOUS ANSWERS
             ----------------------------------------- */
@@ -213,10 +298,12 @@ router.post(
                               (
                                   item,
                                   index
-                              ) =>
-                                  `Previous Answer ${
-                                      index + 1
-                                  }:
+                              ) => {
+                                  const evaluation =
+                                      item.evaluation;
+
+                                  return `
+Previous Answer ${index + 1}:
 
 Question:
 ${
@@ -228,9 +315,20 @@ Answer:
 ${
                                       item.answer ||
                                       ""
-                                  }`
+                                  }
+
+Evaluation:
+${
+                                      evaluation
+                                          ? JSON.stringify(
+                                                evaluation
+                                            )
+                                          : "Not available"
+                                  }
+`;
+                              }
                           )
-                          .join("\n\n")
+                          .join("\n")
                     : "No previous answers.";
 
             /* -----------------------------------------
@@ -244,6 +342,9 @@ a realistic placement interview.
 Candidate target role:
 ${roleName}
 
+Candidate's selected technical skill / technology:
+${technicalSkill}
+
 Question type:
 ${questionType || "general"}
 
@@ -256,12 +357,46 @@ ${answer}
 Previous interview context:
 ${previousContext}
 
+=========================================================
+EVALUATION TASK
+=========================================================
+
 Evaluate ONLY the candidate's actual answer.
 
+Do not generate the next interview question.
+
 Do not automatically give a high score.
+
 Do not give a low score simply because the answer is short.
 
-Judge the actual content.
+Judge the actual content of the candidate's answer.
+
+The selected technical skill/technology is an important
+focus of this interview.
+
+Evaluate the candidate's answer according to the
+selected role and selected technical skill.
+
+Do not evaluate the candidate using unrelated technologies.
+
+If the selected skill is a programming language or
+query language, consider the candidate's:
+
+- understanding
+- logic
+- syntax
+- problem-solving ability
+- practical usage
+
+when relevant to the question.
+
+If the selected skill is a tool, platform, design technology,
+or technical area, evaluate the candidate according to
+that specific technology or area.
+
+=========================================================
+EVALUATION CRITERIA
+=========================================================
 
 Evaluate:
 
@@ -273,7 +408,8 @@ Evaluate:
 
 Give each score from 0 to 100.
 
-Calculate a meaningful overall score.
+Calculate a meaningful overall score based on the
+quality of the candidate's actual answer.
 
 Also provide:
 
@@ -282,45 +418,36 @@ Also provide:
 - improvements
 - understanding
 
-IMPORTANT:
+The feedback must explain what was correct,
+what was missing, and how the candidate can improve.
 
-The nextQuestion field must be based on the
-candidate's ACTUAL answer.
+=========================================================
+IMPORTANT
+=========================================================
 
-Identify something meaningful from the answer such as:
+Evaluate the answer that was actually given.
 
-- technology
-- tool
-- project
-- concept
-- skill
-- experience
-- decision
-- problem
-- weakness
-- claim
+Do not assume knowledge that the candidate did not
+demonstrate.
 
-Then generate a natural follow-up question.
+Do not penalize the candidate for not mentioning
+unrelated technologies.
 
-Do NOT generate a random unrelated question.
+For coding or SQL questions, evaluate correctness,
+logic, approach, and explanation when applicable.
 
-Do NOT repeat the current question.
+For project questions, evaluate the candidate's actual
+understanding of the project rather than expecting
+a predefined answer.
 
-If the candidate mentioned a project,
-ask something deeper about that project.
-
-If the candidate mentioned a technology,
-ask about that technology.
-
-If the candidate gave a weak answer,
-ask a simpler clarification question.
-
-If the candidate gave a strong answer,
-gradually increase difficulty.
+=========================================================
+OUTPUT
+=========================================================
 
 Return ONLY valid JSON.
 
 Do not use markdown.
+
 Do not use code fences.
 
 Use exactly this structure:
@@ -335,10 +462,7 @@ Use exactly this structure:
     "feedback": "",
     "strengths": [],
     "improvements": [],
-    "understanding": "",
-    "nextQuestion": "",
-    "nextQuestionType": "",
-    "nextDifficulty": ""
+    "understanding": ""
 }
 `;
 
@@ -424,17 +548,6 @@ Use exactly this structure:
             result.understanding =
                 result.understanding || "";
 
-            result.nextQuestion =
-                result.nextQuestion || "";
-
-            result.nextQuestionType =
-                result.nextQuestionType ||
-                "follow-up";
-
-            result.nextDifficulty =
-                result.nextDifficulty ||
-                "medium";
-
             /* -----------------------------------------
                RESPONSE
             ----------------------------------------- */
@@ -446,11 +559,6 @@ Use exactly this structure:
             console.log(
                 "Overall Score:",
                 result.overall
-            );
-
-            console.log(
-                "Personalized Next Question:",
-                result.nextQuestion
             );
 
             console.log(
@@ -544,6 +652,7 @@ router.post(
 
             const {
                 role,
+                skill,
                 previousAnswers = [],
                 currentQuestion = null,
                 currentAnswer = null,
@@ -555,6 +664,12 @@ router.post(
                 role ||
                 "Technology Professional";
 
+            const technicalSkill =
+                getTechnicalSkill(
+                    role,
+                    skill
+                );
+
             /* =================================================
                FIRST QUESTION
             ================================================= */
@@ -563,20 +678,19 @@ router.post(
                 !currentQuestion ||
                 !currentAnswer
             ) {
-
                 console.log(
-                    "🟢 Generating first interview question..."
+                    "🟢 Returning first interview question..."
                 );
 
                 return res.json({
                     question:
-                        `Tell me about yourself and why you are interested in becoming a ${roleName}.`,
+                        "Tell me about yourself.",
 
                     type:
                         "intro",
 
                     focus:
-                        "Introduction and Career Interest",
+                        "Introduction",
 
                     difficulty:
                         "easy",
@@ -592,13 +706,16 @@ router.post(
                     previousAnswers
                 )
                     ? previousAnswers
-                          .slice(-5)
+                          .slice(-10)
                           .map(
                               (
                                   item,
                                   index
-                              ) =>
-                                  `
+                              ) => {
+                                  const evaluation =
+                                      item.evaluation;
+
+                                  return `
 Question ${index + 1}:
 ${
                                       item.question ||
@@ -610,7 +727,39 @@ ${
                                       item.answer ||
                                       ""
                                   }
+
+Previous Evaluation:
+${
+                                      evaluation
+                                          ? `
+Overall Score:
+${
+                                              evaluation.overall ??
+                                              "N/A"
+                                          }
+
+Technical Accuracy:
+${
+                                              evaluation.technicalAccuracy ??
+                                              "N/A"
+                                          }
+
+Feedback:
+${
+                                              evaluation.feedback ||
+                                              "N/A"
+                                          }
+
+Understanding:
+${
+                                              evaluation.understanding ||
+                                              "N/A"
+                                          }
 `
+                                          : "Not available"
+                                  }
+`;
+                              }
                           )
                           .join("\n")
                     : "No previous interview history.";
@@ -625,6 +774,9 @@ interview for a final-year B.Tech student.
 
 Candidate role:
 ${roleName}
+
+Selected technical skill / technology:
+${technicalSkill}
 
 Question number:
 ${questionNumber}
@@ -647,6 +799,14 @@ Generate ONLY ONE personalized next interview question.
 The next question MUST primarily depend on the
 candidate's latest answer.
 
+The question must remain relevant to BOTH:
+
+1. The candidate's selected role
+2. The candidate's selected technical skill / technology
+
+The candidate's previous answer should determine
+the direction, depth, and difficulty of the next question.
+
 Analyze the candidate's answer and identify
 something meaningful.
 
@@ -668,6 +828,182 @@ For example:
 Then ask a natural follow-up question about it.
 
 =========================================================
+25-QUESTION INTERVIEW
+=========================================================
+
+The complete interview contains a maximum of 25 questions.
+
+Question 1 is always:
+
+"Tell me about yourself."
+
+You are generating questions only for Question 2 onward.
+
+Across the interview, assess the candidate using an
+appropriate mixture of:
+
+- fundamental concepts
+- technical concepts
+- practical application
+- coding questions
+- SQL/query questions where applicable
+- algorithm and problem-solving questions where applicable
+- debugging questions where applicable
+- scenario-based questions
+- project-related questions
+- advanced technical questions
+
+Do not force a question type that is irrelevant to the
+selected role or selected technical skill.
+
+=========================================================
+ADAPTIVE DIFFICULTY
+=========================================================
+
+If the candidate demonstrates strong understanding:
+
+- gradually increase difficulty
+- ask deeper technical questions
+- ask practical implementation questions
+- ask coding, query, or algorithm questions when relevant
+- ask optimization or reasoning questions when relevant
+
+If the candidate demonstrates average understanding:
+
+- maintain a similar difficulty
+- test the same concept from another angle
+- gradually move toward practical application
+
+If the candidate demonstrates weak understanding:
+
+- reduce the difficulty
+- ask a simpler clarification question
+- test the underlying fundamental concept again
+
+Do not suddenly move from a basic question to an
+extremely advanced question without evidence that
+the candidate is ready.
+
+=========================================================
+CODING, QUERY AND PROBLEM-SOLVING
+=========================================================
+
+When the selected technical skill supports programming,
+SQL, scripting, algorithms, or problem solving, include
+practical questions when appropriate.
+
+For SQL, questions may include:
+
+- SQL queries
+- JOINs
+- aggregation
+- subqueries
+- CTEs
+- window functions
+- query optimization
+- scenario-based SQL problems
+
+For programming languages, questions may include:
+
+- coding problems
+- debugging
+- algorithms
+- data structures
+- time complexity
+- space complexity
+- optimization
+
+For Python/Data Analytics, questions may include:
+
+- Python coding
+- Pandas
+- NumPy
+- data cleaning
+- data manipulation
+- analytical problem solving
+
+For Power BI, questions may include:
+
+- data modelling
+- DAX
+- calculated columns
+- measures
+- dashboards
+- KPIs
+- visualization decisions
+
+For Cloud/DevOps, questions may include:
+
+- Linux
+- cloud concepts
+- Docker
+- Kubernetes
+- Terraform
+- scripting
+- deployment
+- troubleshooting
+
+For UI/UX, questions may include:
+
+- Figma
+- design systems
+- wireframes
+- prototypes
+- user research
+- usability
+- design decisions
+- developer handoff
+
+Only ask questions relevant to the selected technology.
+
+=========================================================
+ANSWER-DRIVEN FOLLOW-UP
+=========================================================
+
+Carefully analyze the latest candidate answer.
+
+Identify:
+
+- what the candidate knows
+- what the candidate claims to know
+- technologies mentioned
+- concepts mentioned
+- areas of confidence
+- areas of uncertainty
+- mistakes
+- missing information
+- practical experience
+- projects mentioned
+- specific interests
+
+If the candidate demonstrates strong interest or
+experience in a particular area of the selected
+technical skill, explore that area more deeply.
+
+Example:
+
+Candidate answer:
+"I am very interested in SQL queries and I have
+practiced joins and subqueries."
+
+Possible next question:
+"Write an SQL query to find the second-highest
+salary from an employee table."
+
+If the candidate answers correctly, the next question
+may increase in difficulty.
+
+For example:
+"Write a query to find the highest-paid employee
+in each department."
+
+If the candidate struggles, return to a simpler
+conceptual or guided question.
+
+The next question must feel like a natural continuation
+of the interview conversation.
+
+=========================================================
 IMPORTANT RULES
 =========================================================
 
@@ -679,6 +1015,9 @@ DO NOT use a predefined fixed sequence.
 
 RULE 3:
 DO NOT repeat the previous question.
+
+Also avoid asking substantially the same question
+that has already been asked earlier in the interview.
 
 RULE 4:
 The candidate's latest answer should determine
@@ -696,17 +1035,17 @@ of that technology.
 RULE 7:
 If the candidate mentions SQL,
 you may ask about joins, queries, aggregation,
-subqueries, optimization, etc.
+subqueries, optimization, CTEs, or window functions.
 
 RULE 8:
 If the candidate mentions Python,
 you may ask about Pandas, NumPy, functions,
-data cleaning, analysis, etc.
+data cleaning, analysis, algorithms, or coding.
 
 RULE 9:
 If the candidate mentions Power BI,
 you may ask about dashboards, KPIs,
-data modelling, DAX, visualization, etc.
+data modelling, DAX, visualization, or reporting.
 
 RULE 10:
 If the candidate gives a weak answer,
@@ -721,6 +1060,28 @@ Keep the interview realistic for placements.
 
 RULE 13:
 Do not jump randomly between unrelated topics.
+
+RULE 14:
+Do not ask about a technology that is unrelated
+to the selected technical skill.
+
+RULE 15:
+Use the candidate's previous interview history to
+avoid repeating topics and questions unnecessarily.
+
+The interview should feel like one continuous conversation,
+not a collection of unrelated questions.
+
+RULE 16:
+If the latest answer contains a specific claim,
+experience, project, technology, or concept,
+prefer exploring that information before introducing
+a completely new topic.
+
+RULE 17:
+Use the previous evaluation information when available
+to understand whether the candidate's previous answer
+was strong, average, or weak.
 
 =========================================================
 EXAMPLES
@@ -782,6 +1143,31 @@ follow-up
 problem-solving
 behavioral
 scenario
+coding
+query
+debugging
+
+Choose the type that is appropriate for the selected
+role, selected technical skill, and candidate's latest answer.
+
+=========================================================
+FINAL QUESTION GENERATION RULE
+=========================================================
+
+Before generating the question, internally determine:
+
+1. What did the candidate say?
+2. What technical concept or experience did they reveal?
+3. Was their understanding strong, average, or weak?
+4. What should be explored next?
+5. What difficulty is appropriate?
+6. Has this topic or question already been covered?
+7. Is the question relevant to the selected role?
+8. Is the question relevant to the selected technical skill?
+
+Then generate ONE natural interview question.
+
+Do not output this reasoning.
 
 =========================================================
 OUTPUT
@@ -790,6 +1176,7 @@ OUTPUT
 Return ONLY valid JSON.
 
 Do not use markdown.
+
 Do not use code fences.
 
 Use exactly:
