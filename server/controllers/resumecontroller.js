@@ -2,8 +2,292 @@ const pool = require("../src/config/db");
 
 console.log("🔥 NEW RESUME CONTROLLER LOADED");
 
-const pdfParse = require("pdf-parse");
+const { PDFParse } = require("pdf-parse");
 const mammoth = require("mammoth");
+const { createWorker } = require("tesseract.js");
+const { createCanvas } = require("@napi-rs/canvas");
+
+// =====================================================
+// PDF.JS LOADER
+// =====================================================
+
+let pdfjsLib = null;
+
+async function loadPdfJs() {
+    if (!pdfjsLib) {
+        pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    }
+
+    return pdfjsLib;
+}
+
+// =====================================================
+// PDF PAGE → PNG BUFFER
+// =====================================================
+
+async function renderPdfPageToPng(pdfPage, scale = 2.0) {
+    const viewport = pdfPage.getViewport({
+        scale,
+    });
+
+    const width = Math.ceil(viewport.width);
+    const height = Math.ceil(viewport.height);
+
+    console.log(
+        `🖼️ Rendering page: ${width} x ${height}`
+    );
+
+    const canvas = createCanvas(
+        width,
+        height
+    );
+
+    const context = canvas.getContext("2d");
+
+    await pdfPage.render({
+        canvasContext: context,
+        viewport,
+    }).promise;
+
+    const pngBuffer =
+        canvas.toBuffer("image/png");
+
+    console.log(
+        "🖼️ PNG buffer created:",
+        pngBuffer.length,
+        "bytes"
+    );
+
+    return pngBuffer;
+}
+
+// =====================================================
+// PDF OCR
+// =====================================================
+
+async function extractPdfWithOCR(buffer, totalPages) {
+    console.log(
+        "========================================"
+    );
+
+    console.log(
+        "🔎 STARTING PDF OCR"
+    );
+
+    console.log(
+        "========================================"
+    );
+
+    const pdfjs = await loadPdfJs();
+
+    console.log(
+        "📚 PDF.js loaded successfully."
+    );
+
+    // -------------------------------------------------
+    // LOAD PDF
+    // -------------------------------------------------
+
+    const loadingTask =
+        pdfjs.getDocument({
+            data: new Uint8Array(buffer),
+            disableWorker: true,
+        });
+
+    const pdf =
+        await loadingTask.promise;
+
+    console.log(
+        "📄 PDF.js pages:",
+        pdf.numPages
+    );
+
+    const pagesToProcess =
+        Math.min(
+            pdf.numPages,
+            10
+        );
+
+    console.log(
+        "📄 Pages to OCR:",
+        pagesToProcess
+    );
+
+    // -------------------------------------------------
+    // CREATE TESSERACT WORKER
+    // -------------------------------------------------
+
+    let worker = null;
+
+    try {
+        console.log(
+            "🤖 Initializing Tesseract..."
+        );
+
+        worker =
+            await createWorker(
+                "eng"
+            );
+
+        console.log(
+            "🤖 Tesseract OCR worker initialized."
+        );
+
+        let completeText = "";
+
+        // -------------------------------------------------
+        // PROCESS EACH PDF PAGE
+        // -------------------------------------------------
+
+        for (
+            let pageNumber = 1;
+            pageNumber <= pagesToProcess;
+            pageNumber++
+        ) {
+            console.log(
+                "----------------------------------------"
+            );
+
+            console.log(
+                `🔎 OCR processing page ${pageNumber}/${pagesToProcess}...`
+            );
+
+            try {
+                const page =
+                    await pdf.getPage(
+                        pageNumber
+                    );
+
+                // Render PDF page directly to memory
+                const pngBuffer =
+                    await renderPdfPageToPng(
+                        page,
+                        2.0
+                    );
+
+                console.log(
+                    `🤖 Sending page ${pageNumber} to Tesseract...`
+                );
+
+                const result =
+                    await worker.recognize(
+                        pngBuffer
+                    );
+
+                const pageText =
+                    result?.data?.text ||
+                    "";
+
+                console.log(
+                    `📝 Page ${pageNumber} OCR characters:`,
+                    pageText.length
+                );
+
+                console.log(
+                    `📝 Page ${pageNumber} preview:`,
+                    JSON.stringify(
+                        pageText.substring(
+                            0,
+                            300
+                        )
+                    )
+                );
+
+                completeText +=
+                    "\n" +
+                    pageText;
+
+                // Release page resources
+                page.cleanup();
+
+            } catch (pageError) {
+                console.error(
+                    `❌ OCR error on page ${pageNumber}:`,
+                    pageError.message
+                );
+
+                console.error(
+                    pageError.stack
+                );
+            }
+        }
+
+        // -------------------------------------------------
+        // CLEAN OCR TEXT
+        // -------------------------------------------------
+
+        const cleanedText =
+            completeText
+                .replace(
+                    /\u0000/g,
+                    " "
+                )
+                .replace(
+                    /\r/g,
+                    " "
+                )
+                .replace(
+                    /\n+/g,
+                    " "
+                )
+                .replace(
+                    /\s+/g,
+                    " "
+                )
+                .trim();
+
+        console.log(
+            "========================================"
+        );
+
+        console.log(
+            "🤖 OCR COMPLETE"
+        );
+
+        console.log(
+            "OCR text length:",
+            cleanedText.length
+        );
+
+        console.log(
+            "OCR preview:"
+        );
+
+        console.log(
+            cleanedText.substring(
+                0,
+                2000
+            )
+        );
+
+        console.log(
+            "========================================"
+        );
+
+        return cleanedText;
+
+    } finally {
+        if (worker) {
+            try {
+                await worker.terminate();
+
+                console.log(
+                    "🧹 OCR worker terminated."
+                );
+
+            } catch (workerError) {
+                console.error(
+                    "⚠️ OCR worker cleanup error:",
+                    workerError.message
+                );
+            }
+        }
+    }
+}
+
+// =====================================================
+// MAIN RESUME ANALYZER
+// =====================================================
 
 exports.analyzeResume = async (req, res) => {
     try {
@@ -18,63 +302,231 @@ exports.analyzeResume = async (req, res) => {
         // =====================================================
 
         if (!req.file) {
-            console.log("❌ No resume file received");
+            console.log(
+                "❌ No resume file received"
+            );
 
             return res.status(400).json({
-                message: "Please upload a resume file.",
+                message:
+                    "Please upload a resume file.",
             });
         }
 
         const file = req.file;
 
-        console.log("📁 File name:", file.originalname);
-        console.log("📦 File type:", file.mimetype);
+        console.log(
+            "📁 File name:",
+            file.originalname
+        );
+
+        console.log(
+            "📦 File type:",
+            file.mimetype
+        );
+
         console.log(
             "📏 File size:",
-            (file.size / 1024 / 1024).toFixed(2),
+            (
+                file.size /
+                1024 /
+                1024
+            ).toFixed(2),
             "MB"
         );
 
+        console.log(
+            "🔍 Buffer exists:",
+            !!file.buffer
+        );
+
+        console.log(
+            "🔍 Buffer size:",
+            file.buffer
+                ? file.buffer.length
+                : 0
+        );
+
         let resumeText = "";
+        let extractionMethod = "none";
 
         // =====================================================
-        // 2. EXTRACT PDF TEXT
+        // 2. PDF
         // =====================================================
 
-        if (file.mimetype === "application/pdf") {
-            console.log("📕 Processing PDF...");
+        if (
+            file.mimetype ===
+            "application/pdf"
+        ) {
+            console.log(
+                "📕 Processing PDF..."
+            );
+
+            let parser = null;
 
             try {
-                const pdfData = await pdfParse(file.buffer);
+                if (
+                    !file.buffer ||
+                    !Buffer.isBuffer(
+                        file.buffer
+                    )
+                ) {
+                    throw new Error(
+                        "Uploaded PDF buffer is missing or invalid."
+                    );
+                }
 
                 console.log(
-                    "📊 PDF pages:",
-                    pdfData.numpages
+                    "🔍 PDF buffer size:",
+                    file.buffer.length,
+                    "bytes"
+                );
+
+                // -------------------------------------------------
+                // FIRST ATTEMPT: NORMAL TEXT EXTRACTION
+                // -------------------------------------------------
+
+                parser =
+                    new PDFParse({
+                        data: file.buffer,
+                    });
+
+                const pdfData =
+                    await parser.getText();
+
+                console.log(
+                    "========================================"
                 );
 
                 console.log(
-                    "📝 Extracted raw text length:",
+                    "PDF TEXT EXTRACTION DEBUG"
+                );
+
+                console.log(
+                    "Pages:",
+                    pdfData.total || 0
+                );
+
+                console.log(
+                    "Text length:",
                     pdfData.text
                         ? pdfData.text.length
                         : 0
                 );
 
                 console.log(
-                    "📝 Extracted PDF text preview:"
+                    "Text preview:",
+                    JSON.stringify(
+                        pdfData.text
+                            ? pdfData.text.substring(
+                                  0,
+                                  500
+                              )
+                            : ""
+                    )
                 );
 
                 console.log(
-                    pdfData.text
-                        ? pdfData.text.substring(0, 1000)
-                        : "NO TEXT EXTRACTED"
+                    "========================================"
                 );
 
-                resumeText = pdfData.text || "";
+                resumeText =
+                    pdfData.text || "";
+
+                const cleanedPdfText =
+                    resumeText
+                        .replace(
+                            /\u0000/g,
+                            " "
+                        )
+                        .replace(
+                            /\s+/g,
+                            " "
+                        )
+                        .trim();
+
+                // -------------------------------------------------
+                // NORMAL TEXT SUCCESS
+                // -------------------------------------------------
+
+                if (
+                    cleanedPdfText.length >=
+                    50
+                ) {
+                    console.log(
+                        "✅ Normal PDF text extraction successful."
+                    );
+
+                    resumeText =
+                        cleanedPdfText;
+
+                    extractionMethod =
+                        "pdf-text";
+                }
+
+                // -------------------------------------------------
+                // OCR FALLBACK
+                // -------------------------------------------------
+
+                else {
+                    console.log(
+                        "⚠️ Very little PDF text found."
+                    );
+
+                    console.log(
+                        "🔎 Starting PDF.js → Canvas → Tesseract OCR..."
+                    );
+
+                    // Destroy parser before OCR
+                    try {
+                        await parser.destroy();
+                    } catch (error) {
+                        console.log(
+                            "⚠️ Parser cleanup warning:",
+                            error.message
+                        );
+                    }
+
+                    parser = null;
+
+                    resumeText =
+                        await extractPdfWithOCR(
+                            file.buffer,
+                            pdfData.total || 1
+                        );
+
+                    extractionMethod =
+                        "ocr";
+                }
 
             } catch (pdfError) {
                 console.error(
-                    "❌ PDF parsing error:",
+                    "========================================"
+                );
+
+                console.error(
+                    "❌ PDF PROCESSING ERROR"
+                );
+
+                console.error(
+                    "========================================"
+                );
+
+                console.error(
                     pdfError
+                );
+
+                console.error(
+                    "Message:",
+                    pdfError.message
+                );
+
+                console.error(
+                    "Stack:",
+                    pdfError.stack
+                );
+
+                console.error(
+                    "========================================"
                 );
 
                 return res.status(400).json({
@@ -83,34 +535,58 @@ exports.analyzeResume = async (req, res) => {
                     error:
                         pdfError.message,
                 });
+
+            } finally {
+                if (parser) {
+                    try {
+                        await parser.destroy();
+                    } catch (
+                        destroyError
+                    ) {
+                        console.error(
+                            "⚠️ PDF parser cleanup error:",
+                            destroyError.message
+                        );
+                    }
+                }
             }
         }
 
         // =====================================================
-        // 3. EXTRACT DOCX TEXT
+        // 3. DOCX
         // =====================================================
 
         else if (
             file.mimetype ===
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ) {
-            console.log("📘 Processing DOCX...");
+            console.log(
+                "📘 Processing DOCX..."
+            );
 
             try {
                 const result =
-                    await mammoth.extractRawText({
-                        buffer: file.buffer,
-                    });
+                    await mammoth.extractRawText(
+                        {
+                            buffer:
+                                file.buffer,
+                        }
+                    );
 
                 resumeText =
                     result.value || "";
+
+                extractionMethod =
+                    "docx";
 
                 console.log(
                     "📝 DOCX text length:",
                     resumeText.length
                 );
 
-            } catch (docxError) {
+            } catch (
+                docxError
+            ) {
                 console.error(
                     "❌ DOCX parsing error:",
                     docxError
@@ -126,7 +602,7 @@ exports.analyzeResume = async (req, res) => {
         }
 
         // =====================================================
-        // 4. DOC NOT SUPPORTED
+        // 4. OLD DOC
         // =====================================================
 
         else if (
@@ -140,7 +616,7 @@ exports.analyzeResume = async (req, res) => {
         }
 
         // =====================================================
-        // 5. OTHER FILE TYPES
+        // 5. UNSUPPORTED FILE
         // =====================================================
 
         else {
@@ -151,34 +627,72 @@ exports.analyzeResume = async (req, res) => {
         }
 
         // =====================================================
-        // 6. CLEAN EXTRACTED TEXT
+        // 6. FINAL TEXT CLEANING
         // =====================================================
 
-        const text = resumeText
-            .replace(/\u0000/g, " ")
-            .replace(/\r/g, " ")
-            .replace(/\n+/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
+        const text =
+            resumeText
+                .replace(
+                    /\u0000/g,
+                    " "
+                )
+                .replace(
+                    /\r/g,
+                    " "
+                )
+                .replace(
+                    /\n+/g,
+                    " "
+                )
+                .replace(
+                    /\s+/g,
+                    " "
+                )
+                .trim();
 
         console.log(
-            "🧹 Cleaned text length:",
+            "========================================"
+        );
+
+        console.log(
+            "🧹 FINAL TEXT EXTRACTION"
+        );
+
+        console.log(
+            "Extraction method:",
+            extractionMethod
+        );
+
+        console.log(
+            "Final text length:",
             text.length
         );
 
         console.log(
-            "📄 FINAL EXTRACTED TEXT:"
+            "Final text preview:"
         );
 
-        console.log(text.substring(0, 2000));
+        console.log(
+            text.substring(
+                0,
+                2000
+            )
+        );
+
+        console.log(
+            "========================================"
+        );
 
         // =====================================================
-        // 7. CHECK EXTRACTED TEXT
+        // 7. CHECK TEXT
         // =====================================================
 
-        if (!text || text.length < 20) {
+        if (
+            !text ||
+            text.length < 50
+        ) {
             console.log(
-                "❌ PDF contains insufficient extractable text."
+                "❌ Still insufficient text after extraction/OCR."
             );
 
             return res.status(400).json({
@@ -186,8 +700,9 @@ exports.analyzeResume = async (req, res) => {
                     "Could not extract enough text from the resume.",
                 extractedCharacters:
                     text.length,
+                extractionMethod,
                 suggestion:
-                    "The uploaded PDF may contain image-based content or text that cannot be extracted.",
+                    "Please upload a clearer PDF or DOCX resume.",
             });
         }
 
@@ -196,7 +711,7 @@ exports.analyzeResume = async (req, res) => {
         );
 
         // =====================================================
-        // 8. LOWERCASE TEXT
+        // 8. LOWERCASE
         // =====================================================
 
         const lowerText =
@@ -206,10 +721,11 @@ exports.analyzeResume = async (req, res) => {
         // 9. WORD COUNT
         // =====================================================
 
-        const wordCount = text
-            .split(/\s+/)
-            .filter(Boolean)
-            .length;
+        const wordCount =
+            text
+                .split(/\s+/)
+                .filter(Boolean)
+                .length;
 
         console.log(
             "🔢 Word count:",
@@ -233,15 +749,26 @@ exports.analyzeResume = async (req, res) => {
             );
 
         const hasLinkedIn =
-            lowerText.includes("linkedin");
+            lowerText.includes(
+                "linkedin"
+            );
 
         const hasGithub =
-            lowerText.includes("github");
+            lowerText.includes(
+                "github"
+            );
 
-        if (hasEmail) contactScore += 3;
-        if (hasPhone) contactScore += 3;
-        if (hasLinkedIn) contactScore += 2;
-        if (hasGithub) contactScore += 2;
+        if (hasEmail)
+            contactScore += 3;
+
+        if (hasPhone)
+            contactScore += 3;
+
+        if (hasLinkedIn)
+            contactScore += 2;
+
+        if (hasGithub)
+            contactScore += 2;
 
         // =====================================================
         // 11. SECTION SCORE - 20
@@ -310,13 +837,15 @@ exports.analyzeResume = async (req, res) => {
             }
         );
 
-        const sectionScore = Math.min(
-            Math.round(
-                (foundSections.length / 7) *
-                    20
-            ),
-            20
-        );
+        const sectionScore =
+            Math.min(
+                Math.round(
+                    (foundSections.length /
+                        7) *
+                        20
+                ),
+                20
+            );
 
         // =====================================================
         // 12. TECHNICAL SKILLS - 20
@@ -364,13 +893,15 @@ exports.analyzeResume = async (req, res) => {
                     )
             );
 
-        const skillScore = Math.min(
-            Math.round(
-                (foundSkills.length / 10) *
-                    20
-            ),
-            20
-        );
+        const skillScore =
+            Math.min(
+                Math.round(
+                    (foundSkills.length /
+                        10) *
+                        20
+                ),
+                20
+            );
 
         // =====================================================
         // 13. PROJECT SCORE - 15
@@ -379,8 +910,12 @@ exports.analyzeResume = async (req, res) => {
         let projectScore = 0;
 
         const hasProjects =
-            lowerText.includes("project") ||
-            lowerText.includes("projects");
+            lowerText.includes(
+                "project"
+            ) ||
+            lowerText.includes(
+                "projects"
+            );
 
         const actionWords = [
             "developed",
@@ -416,17 +951,24 @@ exports.analyzeResume = async (req, res) => {
         }
 
         if (
-            lowerText.includes("github") ||
-            lowerText.includes("deployed") ||
-            lowerText.includes("live")
+            lowerText.includes(
+                "github"
+            ) ||
+            lowerText.includes(
+                "deployed"
+            ) ||
+            lowerText.includes(
+                "live"
+            )
         ) {
             projectScore += 3;
         }
 
-        projectScore = Math.min(
-            projectScore,
-            15
-        );
+        projectScore =
+            Math.min(
+                projectScore,
+                15
+            );
 
         // =====================================================
         // 14. EXPERIENCE SCORE - 10
@@ -467,21 +1009,26 @@ exports.analyzeResume = async (req, res) => {
             lowerText.includes(
                 "developed"
             ) ||
-            lowerText.includes("led")
+            lowerText.includes(
+                "led"
+            )
         ) {
             experienceScore += 3;
         }
 
         if (
-            /\b20\d{2}\b/.test(text)
+            /\b20\d{2}\b/.test(
+                text
+            )
         ) {
             experienceScore += 2;
         }
 
-        experienceScore = Math.min(
-            experienceScore,
-            10
-        );
+        experienceScore =
+            Math.min(
+                experienceScore,
+                10
+            );
 
         // =====================================================
         // 15. ACHIEVEMENT SCORE - 10
@@ -500,7 +1047,8 @@ exports.analyzeResume = async (req, res) => {
             ) || [];
 
         if (
-            percentageMatches.length >= 1
+            percentageMatches.length >=
+            1
         ) {
             achievementScore += 4;
         }
@@ -531,10 +1079,11 @@ exports.analyzeResume = async (req, res) => {
             achievementScore += 4;
         }
 
-        achievementScore = Math.min(
-            achievementScore,
-            10
-        );
+        achievementScore =
+            Math.min(
+                achievementScore,
+                10
+            );
 
         // =====================================================
         // 16. CONTENT QUALITY SCORE - 10
@@ -542,24 +1091,22 @@ exports.analyzeResume = async (req, res) => {
 
         let contentScore = 0;
 
-        if (wordCount >= 100) {
+        if (wordCount >= 100)
             contentScore += 2;
-        }
 
-        if (wordCount >= 250) {
+        if (wordCount >= 250)
             contentScore += 2;
-        }
 
-        if (wordCount >= 400) {
+        if (wordCount >= 400)
             contentScore += 2;
-        }
 
-        if (wordCount >= 550) {
+        if (wordCount >= 550)
             contentScore += 2;
-        }
 
         if (
-            lowerText.includes("resume") ||
+            lowerText.includes(
+                "resume"
+            ) ||
             lowerText.includes(
                 "curriculum vitae"
             )
@@ -568,7 +1115,9 @@ exports.analyzeResume = async (req, res) => {
         }
 
         if (
-            lowerText.includes("skills") &&
+            lowerText.includes(
+                "skills"
+            ) &&
             lowerText.includes(
                 "education"
             )
@@ -576,10 +1125,11 @@ exports.analyzeResume = async (req, res) => {
             contentScore += 1;
         }
 
-        contentScore = Math.min(
-            contentScore,
-            10
-        );
+        contentScore =
+            Math.min(
+                contentScore,
+                10
+            );
 
         // =====================================================
         // 17. OVERALL SCORE
@@ -594,13 +1144,16 @@ exports.analyzeResume = async (req, res) => {
             achievementScore +
             contentScore;
 
-        const resumeScore = Math.min(
-            Math.max(
-                Math.round(rawScore),
-                0
-            ),
-            100
-        );
+        const resumeScore =
+            Math.min(
+                Math.max(
+                    Math.round(
+                        rawScore
+                    ),
+                    0
+                ),
+                100
+            );
 
         // =====================================================
         // 18. ATS SCORE
@@ -617,30 +1170,33 @@ exports.analyzeResume = async (req, res) => {
         atsScore +=
             contentScore * 2;
 
-        if (wordCount >= 200) {
+        if (wordCount >= 200)
             atsScore += 5;
-        }
 
-        if (wordCount >= 400) {
+        if (wordCount >= 400)
             atsScore += 5;
-        }
 
-        atsScore = Math.min(
-            Math.round(atsScore),
-            100
-        );
+        atsScore =
+            Math.min(
+                Math.round(
+                    atsScore
+                ),
+                100
+            );
 
         // =====================================================
         // 19. KEYWORD SCORE
         // =====================================================
 
-        const keywordScore = Math.min(
-            Math.round(
-                (foundSkills.length / 12) *
-                    100
-            ),
-            100
-        );
+        const keywordScore =
+            Math.min(
+                Math.round(
+                    (foundSkills.length /
+                        12) *
+                        100
+                ),
+                100
+            );
 
         // =====================================================
         // 20. DATABASE UPDATE
@@ -666,7 +1222,8 @@ exports.analyzeResume = async (req, res) => {
             );
 
         if (
-            updateResult.rowCount === 0
+            updateResult.rowCount ===
+            0
         ) {
             console.log(
                 "❌ Profile not found."
@@ -679,7 +1236,7 @@ exports.analyzeResume = async (req, res) => {
         }
 
         // =====================================================
-        // 21. SUCCESS RESPONSE
+        // 21. SUCCESS
         // =====================================================
 
         console.log(
@@ -711,6 +1268,21 @@ exports.analyzeResume = async (req, res) => {
         );
 
         console.log(
+            "🛠 Skills Found:",
+            foundSkills
+        );
+
+        console.log(
+            "📚 Sections Found:",
+            foundSections
+        );
+
+        console.log(
+            "📖 Extraction Method:",
+            extractionMethod
+        );
+
+        console.log(
             "========================================\n"
         );
 
@@ -739,6 +1311,8 @@ exports.analyzeResume = async (req, res) => {
 
                 sectionsFound:
                     foundSections,
+
+                extractionMethod,
             },
         });
 

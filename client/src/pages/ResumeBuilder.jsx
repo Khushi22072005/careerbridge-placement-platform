@@ -1,11 +1,37 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./ResumeBuilder.css";
 
 const ResumeBuilder = () => {
     const [activeSection, setActiveSection] = useState("personal");
     const [selectedTemplate, setSelectedTemplate] = useState("modern");
     const [showTemplates, setShowTemplates] = useState(false);
+
+    /* =========================================
+       EDITABLE RESUME SECTION HEADINGS
+    ========================================= */
+
+    const defaultSectionTitles = {
+    summary: "PROFESSIONAL SUMMARY",
+    experience: "EXPERIENCE",
+    education: "EDUCATION",
+    skills: "SKILLS",
+    projects: "PROJECTS",
+    certifications: "CERTIFICATIONS"
+};
+
+const [sectionTitles, setSectionTitles] = useState(() => {
+    const savedTitles = localStorage.getItem("careerBridgeSectionTitles");
+
+    if (savedTitles) {
+        try {
+            return JSON.parse(savedTitles);
+        } catch {
+            return defaultSectionTitles;
+        }
+    }
+
+    return defaultSectionTitles;
+});
 
     const [resume, setResume] = useState({
         fullName: "Your Name",
@@ -140,6 +166,13 @@ const ResumeBuilder = () => {
         }));
     };
 
+    useEffect(() => {
+    localStorage.setItem(
+        "careerBridgeSectionTitles",
+        JSON.stringify(sectionTitles)
+    );
+}, [sectionTitles]);
+
     const updateArrayItem = (section, index, field, value) => {
         setResume((prev) => {
             const updated = [...prev[section]];
@@ -175,6 +208,17 @@ const ResumeBuilder = () => {
     const selectTemplate = (templateId) => {
         setSelectedTemplate(templateId);
         setShowTemplates(false);
+    };
+
+    /* =========================================
+       UPDATE SECTION HEADING
+    ========================================= */
+
+    const updateSectionTitle = (section, value) => {
+        setSectionTitles((prev) => ({
+            ...prev,
+            [section]: value
+        }));
     };
 
     /* =========================================
@@ -987,7 +1031,15 @@ const ResumeBuilder = () => {
 
                         </div>
 
-                        <ResumePreviewSection title="PROFESSIONAL SUMMARY">
+                        {/* =================================
+                            EDITABLE PROFESSIONAL SUMMARY
+                        ================================= */}
+
+                        <ResumePreviewSection
+                            title={sectionTitles.summary}
+                            sectionId="summary"
+                            onTitleChange={updateSectionTitle}
+                        >
 
                             <p className="preview-summary">
                                 {resume.summary}
@@ -995,7 +1047,15 @@ const ResumeBuilder = () => {
 
                         </ResumePreviewSection>
 
-                        <ResumePreviewSection title="EXPERIENCE">
+                        {/* =================================
+                            EDITABLE EXPERIENCE
+                        ================================= */}
+
+                        <ResumePreviewSection
+                            title={sectionTitles.experience}
+                            sectionId="experience"
+                            onTitleChange={updateSectionTitle}
+                        >
 
                             {resume.experience.map((item, index) => (
                                 <div
@@ -1022,7 +1082,15 @@ const ResumeBuilder = () => {
 
                         </ResumePreviewSection>
 
-                        <ResumePreviewSection title="EDUCATION">
+                        {/* =================================
+                            EDITABLE EDUCATION
+                        ================================= */}
+
+                        <ResumePreviewSection
+                            title={sectionTitles.education}
+                            sectionId="education"
+                            onTitleChange={updateSectionTitle}
+                        >
 
                             {resume.education.map((item, index) => (
                                 <div
@@ -1049,7 +1117,15 @@ const ResumeBuilder = () => {
 
                         </ResumePreviewSection>
 
-                        <ResumePreviewSection title="SKILLS">
+                        {/* =================================
+                            EDITABLE SKILLS
+                        ================================= */}
+
+                        <ResumePreviewSection
+                            title={sectionTitles.skills}
+                            sectionId="skills"
+                            onTitleChange={updateSectionTitle}
+                        >
 
                             <div className="preview-skills">
 
@@ -1063,7 +1139,15 @@ const ResumeBuilder = () => {
 
                         </ResumePreviewSection>
 
-                        <ResumePreviewSection title="PROJECTS">
+                        {/* =================================
+                            EDITABLE PROJECTS
+                        ================================= */}
+
+                        <ResumePreviewSection
+                            title={sectionTitles.projects}
+                            sectionId="projects"
+                            onTitleChange={updateSectionTitle}
+                        >
 
                             {resume.projects.map((item, index) => (
                                 <div
@@ -1086,7 +1170,15 @@ const ResumeBuilder = () => {
 
                         </ResumePreviewSection>
 
-                        <ResumePreviewSection title="CERTIFICATIONS">
+                        {/* =================================
+                            EDITABLE CERTIFICATIONS
+                        ================================= */}
+
+                        <ResumePreviewSection
+                            title={sectionTitles.certifications}
+                            sectionId="certifications"
+                            onTitleChange={updateSectionTitle}
+                        >
 
                             {resume.certifications.map((item, index) => (
                                 <div
@@ -1258,16 +1350,27 @@ const RepeatableCard = ({
 
 /* =========================================
    RESUME PREVIEW SECTION
+   EDITABLE HEADINGS
 ========================================= */
 
 const ResumePreviewSection = ({
     title,
+    sectionId,
+    onTitleChange,
     children
 }) => {
     return (
         <section className="resume-preview-section">
 
-            <h3>{title}</h3>
+            <input
+                type="text"
+                value={title}
+                onChange={(e) =>
+                    onTitleChange(sectionId, e.target.value)
+                }
+                className="editable-resume-heading"
+                aria-label={`Edit ${title} heading`}
+            />
 
             <div className="section-line"></div>
 
@@ -1279,4 +1382,3 @@ const ResumePreviewSection = ({
 
 
 export default ResumeBuilder;
-

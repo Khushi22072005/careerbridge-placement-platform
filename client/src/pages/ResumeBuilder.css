@@ -1486,3 +1486,38 @@
         min-height: auto;
     }
 }
+
+/* =========================================
+   EDITABLE RESUME SECTION HEADINGS
+========================================= */
+
+.editable-resume-heading {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+
+    color: #7c3aed;
+
+    padding: 0;
+    margin: 0;
+
+    cursor: text;
+    box-sizing: border-box;
+}
+
+.editable-resume-heading:hover {
+    background: rgba(124, 58, 237, 0.05);
+}
+
+.editable-resume-heading:focus {
+    background: rgba(124, 58, 237, 0.08);
+    outline: 1px dashed #7c3aed;
+    padding: 4px;
+}
