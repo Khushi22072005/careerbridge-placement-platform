@@ -1521,3 +1521,263 @@
     outline: 1px dashed #7c3aed;
     padding: 4px;
 }
+/* =====================================================
+   FULLY EDITABLE RESUME PREVIEW
+===================================================== */
+
+.preview-editable-input,
+.preview-inline-input,
+.preview-editable-textarea,
+.editable-resume-heading {
+    border: 1px solid transparent;
+    background: transparent;
+    outline: none;
+    font-family: inherit;
+    color: inherit;
+    box-sizing: border-box;
+}
+
+.preview-editable-input:hover,
+.preview-inline-input:hover,
+.preview-editable-textarea:hover,
+.editable-resume-heading:hover {
+    border-color: rgba(124, 58, 237, 0.25);
+    background: rgba(124, 58, 237, 0.03);
+}
+
+.preview-editable-input:focus,
+.preview-inline-input:focus,
+.preview-editable-textarea:focus,
+.editable-resume-heading:focus {
+    border-color: #7c3aed;
+    background: rgba(124, 58, 237, 0.06);
+}
+
+/* NAME */
+
+.preview-name-input {
+    width: 100%;
+    border: none;
+    text-align: center;
+    font-size: inherit;
+    font-weight: 700;
+}
+
+/* JOB TITLE */
+
+.preview-job-title-input {
+    width: 100%;
+    border: none;
+    text-align: center;
+    font-size: inherit;
+}
+
+/* CONTACT */
+
+.preview-inline-input {
+    width: auto;
+    min-width: 40px;
+    max-width: 220px;
+    text-align: center;
+    padding: 2px 4px;
+}
+
+/* SECTION HEADING */
+
+.editable-resume-heading {
+    width: 100%;
+    padding: 2px 4px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #7c3aed;
+}
+
+/* ENTRY TITLE */
+
+.preview-entry-title-input {
+    width: 70%;
+    font-weight: 700;
+    padding: 2px 4px;
+}
+
+/* DATE */
+
+.preview-date-input {
+    width: 30%;
+    text-align: right;
+    padding: 2px 4px;
+}
+
+/* COMPANY */
+
+.preview-company-input {
+    width: 100%;
+    padding: 2px 4px;
+    font-size: inherit;
+}
+
+/* DESCRIPTION */
+
+.preview-editable-textarea {
+    width: 100%;
+    min-height: 45px;
+    resize: vertical;
+    padding: 4px;
+    line-height: 1.5;
+}
+
+/* SUMMARY */
+
+.preview-summary {
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* SECTION CONTROLS */
+
+.preview-section-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-bottom: 3px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.resume-preview-section:hover
+.preview-section-controls {
+    opacity: 1;
+}
+
+.preview-section-controls button {
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    width: 26px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.preview-section-controls button:hover {
+    background: #f3f0ff;
+    border-color: #7c3aed;
+}
+
+.preview-section-controls button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ADD ENTRY */
+
+.preview-add-entry {
+    margin-top: 8px;
+    padding: 5px 10px;
+    border: 1px dashed #7c3aed;
+    background: transparent;
+    color: #7c3aed;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.preview-add-entry:hover {
+    background: #f5f3ff;
+}
+
+/* DELETE ENTRY */
+
+.preview-delete-entry {
+    margin-top: 4px;
+    padding: 3px 8px;
+    border: none;
+    background: transparent;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 11px;
+    opacity: 0;
+}
+
+.preview-entry:hover
+.preview-delete-entry {
+    opacity: 1;
+}
+
+/* SKILLS */
+
+.preview-skill-edit {
+    display: inline-flex;
+    align-items: center;
+    margin: 3px;
+}
+
+.preview-skill-edit input {
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 3px 6px;
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+}
+
+.preview-skill-edit input:focus {
+    border-color: #7c3aed;
+    background: #f5f3ff;
+}
+
+.preview-skill-edit button {
+    border: none;
+    background: transparent;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* ADD SECTION */
+
+.add-preview-section-button {
+    width: 100%;
+    margin-top: 15px;
+    padding: 9px;
+    border: 1px dashed #7c3aed;
+    background: transparent;
+    color: #7c3aed;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.add-preview-section-button:hover {
+    background: #f5f3ff;
+}
+
+/* CUSTOM SECTION */
+
+.resume-preview-section textarea {
+    font-family: inherit;
+}
+
+/* PRINT */
+
+@media print {
+
+    .preview-section-controls,
+    .preview-add-entry,
+    .preview-delete-entry,
+    .add-preview-section-button {
+        display: none !important;
+    }
+
+    .preview-editable-input,
+    .preview-inline-input,
+    .preview-editable-textarea,
+    .editable-resume-heading {
+        border: none !important;
+        background: transparent !important;
+    }
+}

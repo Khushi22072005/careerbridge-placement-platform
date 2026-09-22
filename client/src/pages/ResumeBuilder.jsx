@@ -1,162 +1,226 @@
 import React, { useEffect, useState } from "react";
 import "./ResumeBuilder.css";
 
-const ResumeBuilder = () => {
-    const [activeSection, setActiveSection] = useState("personal");
-    const [selectedTemplate, setSelectedTemplate] = useState("modern");
-    const [showTemplates, setShowTemplates] = useState(false);
+const defaultResume = {
+    fullName: "Your Name",
+    jobTitle: "Aspiring Data Analyst",
+    email: "your.email@example.com",
+    phone: "+91 98765 43210",
+    location: "Mumbai, India",
+    linkedin: "linkedin.com/in/yourname",
+    github: "github.com/yourname",
 
-    /* =========================================
-       EDITABLE RESUME SECTION HEADINGS
-    ========================================= */
+    summary:
+        "Motivated student with a strong interest in data analytics, technology and problem solving. Looking to apply technical and analytical skills in a professional environment.",
 
-    const defaultSectionTitles = {
-    summary: "PROFESSIONAL SUMMARY",
-    experience: "EXPERIENCE",
-    education: "EDUCATION",
-    skills: "SKILLS",
-    projects: "PROJECTS",
-    certifications: "CERTIFICATIONS"
+    education: [
+        {
+            degree: "Bachelor of Engineering in Information Technology",
+            institution: "Your College Name",
+            year: "2023 - 2027",
+            description:
+                "Relevant coursework: Data Structures, DBMS, Computer Networks, Data Analytics"
+        }
+    ],
+
+    experience: [
+        {
+            role: "Project / Internship Role",
+            company: "Company Name",
+            duration: "2025 - Present",
+            description:
+                "Worked on projects involving data analysis, research, reporting and technology. Collaborated with team members to deliver project objectives."
+        }
+    ],
+
+    skills: [
+        "Python",
+        "SQL",
+        "Excel",
+        "Power BI",
+        "Pandas",
+        "Data Analysis"
+    ],
+
+    projects: [
+        {
+            name: "Project Name",
+            technologies: "Python, Pandas, SQL",
+            description:
+                "Built a project that solved a practical problem using data analysis and technology."
+        }
+    ],
+
+    certifications: [
+        {
+            name: "Certification Name",
+            issuer: "Issuing Organization",
+            year: "2026"
+        }
+    ],
+
+    customSections: []
 };
 
-const [sectionTitles, setSectionTitles] = useState(() => {
-    const savedTitles = localStorage.getItem("careerBridgeSectionTitles");
-
-    if (savedTitles) {
-        try {
-            return JSON.parse(savedTitles);
-        } catch {
-            return defaultSectionTitles;
-        }
+const defaultSections = [
+    {
+        id: "summary",
+        type: "summary",
+        title: "PROFESSIONAL SUMMARY"
+    },
+    {
+        id: "experience",
+        type: "experience",
+        title: "EXPERIENCE"
+    },
+    {
+        id: "education",
+        type: "education",
+        title: "EDUCATION"
+    },
+    {
+        id: "skills",
+        type: "skills",
+        title: "SKILLS"
+    },
+    {
+        id: "projects",
+        type: "projects",
+        title: "PROJECTS"
+    },
+    {
+        id: "certifications",
+        type: "certifications",
+        title: "CERTIFICATIONS"
     }
+];
 
-    return defaultSectionTitles;
-});
+const templates = [
+    {
+        id: "modern",
+        name: "Modern",
+        icon: "✨",
+        description: "Clean professional design",
+        color: "#7c3aed"
+    },
+    {
+        id: "classic",
+        name: "Classic",
+        icon: "◼",
+        description: "Traditional ATS layout",
+        color: "#303030"
+    },
+    {
+        id: "minimal",
+        name: "Minimal",
+        icon: "○",
+        description: "Simple and elegant",
+        color: "#555555"
+    },
+    {
+        id: "executive",
+        name: "Executive",
+        icon: "◆",
+        description: "Premium professional",
+        color: "#312e81"
+    },
+    {
+        id: "tech",
+        name: "Tech",
+        icon: "💻",
+        description: "Designed for IT roles",
+        color: "#0f766e"
+    },
+    {
+        id: "fresher",
+        name: "Fresher",
+        icon: "🎓",
+        description: "Perfect for students",
+        color: "#8b5cf6"
+    },
+    {
+        id: "creative",
+        name: "Creative",
+        icon: "🎨",
+        description: "Modern creative style",
+        color: "#c026d3"
+    },
+    {
+        id: "academic",
+        name: "Academic",
+        icon: "📚",
+        description: "Education focused",
+        color: "#92400e"
+    }
+];
 
-    const [resume, setResume] = useState({
-        fullName: "Your Name",
-        jobTitle: "Aspiring Data Analyst",
-        email: "your.email@example.com",
-        phone: "+91 98765 43210",
-        location: "Mumbai, India",
-        linkedin: "linkedin.com/in/yourname",
-        github: "github.com/yourname",
+const ResumeBuilder = () => {
+    const [activeSection, setActiveSection] = useState("personal");
 
-        summary:
-            "Motivated student with a strong interest in data analytics, technology and problem solving. Looking to apply technical and analytical skills in a professional environment.",
+    const [selectedTemplate, setSelectedTemplate] = useState(() => {
+        return localStorage.getItem("careerBridgeResumeTemplate") || "modern";
+    });
 
-        education: [
-            {
-                degree: "Bachelor of Engineering in Information Technology",
-                institution: "Your College Name",
-                year: "2023 - 2027",
-                description:
-                    "Relevant coursework: Data Structures, DBMS, Computer Networks, Data Analytics"
+    const [showTemplates, setShowTemplates] = useState(false);
+
+    const [resume, setResume] = useState(() => {
+        const saved = localStorage.getItem("careerBridgeResume");
+
+        if (saved) {
+            try {
+                return {
+                    ...defaultResume,
+                    ...JSON.parse(saved)
+                };
+            } catch {
+                return defaultResume;
             }
-        ],
+        }
 
-        experience: [
-            {
-                role: "Project / Internship Role",
-                company: "Company Name",
-                duration: "2025 - Present",
-                description:
-                    "Worked on projects involving data analysis, research, reporting and technology. Collaborated with team members to deliver project objectives."
+        return defaultResume;
+    });
+
+    const [resumeSections, setResumeSections] = useState(() => {
+        const saved = localStorage.getItem("careerBridgeResumeSections");
+
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch {
+                return defaultSections;
             }
-        ],
+        }
 
-        skills: [
-            "Python",
-            "SQL",
-            "Excel",
-            "Power BI",
-            "Pandas",
-            "Data Analysis"
-        ],
-
-        projects: [
-            {
-                name: "Project Name",
-                technologies: "Python, Pandas, SQL",
-                description:
-                    "Built a project that solved a practical problem using data analysis and technology."
-            }
-        ],
-
-        certifications: [
-            {
-                name: "Certification Name",
-                issuer: "Issuing Organization",
-                year: "2026"
-            }
-        ]
+        return defaultSections;
     });
 
     /* =========================================
-       TEMPLATES
+       SAVE EVERYTHING
     ========================================= */
 
-    const templates = [
-        {
-            id: "modern",
-            name: "Modern",
-            icon: "✨",
-            description: "Clean professional design",
-            color: "#7c3aed"
-        },
-        {
-            id: "classic",
-            name: "Classic",
-            icon: "◼",
-            description: "Traditional ATS layout",
-            color: "#303030"
-        },
-        {
-            id: "minimal",
-            name: "Minimal",
-            icon: "○",
-            description: "Simple and elegant",
-            color: "#555555"
-        },
-        {
-            id: "executive",
-            name: "Executive",
-            icon: "◆",
-            description: "Premium professional",
-            color: "#312e81"
-        },
-        {
-            id: "tech",
-            name: "Tech",
-            icon: "💻",
-            description: "Designed for IT roles",
-            color: "#0f766e"
-        },
-        {
-            id: "fresher",
-            name: "Fresher",
-            icon: "🎓",
-            description: "Perfect for students",
-            color: "#8b5cf6"
-        },
-        {
-            id: "creative",
-            name: "Creative",
-            icon: "🎨",
-            description: "Modern creative style",
-            color: "#c026d3"
-        },
-        {
-            id: "academic",
-            name: "Academic",
-            icon: "📚",
-            description: "Education focused",
-            color: "#92400e"
-        }
-    ];
+    useEffect(() => {
+        localStorage.setItem(
+            "careerBridgeResume",
+            JSON.stringify(resume)
+        );
+    }, [resume]);
+
+    useEffect(() => {
+        localStorage.setItem(
+            "careerBridgeResumeSections",
+            JSON.stringify(resumeSections)
+        );
+    }, [resumeSections]);
+
+    useEffect(() => {
+        localStorage.setItem(
+            "careerBridgeResumeTemplate",
+            selectedTemplate
+        );
+    }, [selectedTemplate]);
 
     /* =========================================
-       UPDATE FUNCTIONS
+       GENERAL UPDATE
     ========================================= */
 
     const updateField = (field, value) => {
@@ -166,14 +230,12 @@ const [sectionTitles, setSectionTitles] = useState(() => {
         }));
     };
 
-    useEffect(() => {
-    localStorage.setItem(
-        "careerBridgeSectionTitles",
-        JSON.stringify(sectionTitles)
-    );
-}, [sectionTitles]);
-
-    const updateArrayItem = (section, index, field, value) => {
+    const updateArrayItem = (
+        section,
+        index,
+        field,
+        value
+    ) => {
         setResume((prev) => {
             const updated = [...prev[section]];
 
@@ -192,7 +254,10 @@ const [sectionTitles, setSectionTitles] = useState(() => {
     const addItem = (section, newItem) => {
         setResume((prev) => ({
             ...prev,
-            [section]: [...prev[section], newItem]
+            [section]: [
+                ...prev[section],
+                newItem
+            ]
         }));
     };
 
@@ -205,24 +270,156 @@ const [sectionTitles, setSectionTitles] = useState(() => {
         }));
     };
 
+    /* =========================================
+       SECTION UPDATE
+    ========================================= */
+
+    const updateSectionTitle = (sectionId, value) => {
+        setResumeSections((prev) =>
+            prev.map((section) =>
+                section.id === sectionId
+                    ? {
+                          ...section,
+                          title: value
+                      }
+                    : section
+            )
+        );
+    };
+
+    /* =========================================
+       MOVE SECTION
+    ========================================= */
+
+    const moveSection = (index, direction) => {
+        setResumeSections((prev) => {
+            const updated = [...prev];
+
+            const newIndex =
+                direction === "up"
+                    ? index - 1
+                    : index + 1;
+
+            if (
+                newIndex < 0 ||
+                newIndex >= updated.length
+            ) {
+                return prev;
+            }
+
+            const temp = updated[index];
+
+            updated[index] = updated[newIndex];
+            updated[newIndex] = temp;
+
+            return updated;
+        });
+    };
+
+    /* =========================================
+       DELETE SECTION
+    ========================================= */
+
+    const deleteSection = (sectionId) => {
+        setResumeSections((prev) =>
+            prev.filter(
+                (section) => section.id !== sectionId
+            )
+        );
+    };
+
+    /* =========================================
+       ADD CUSTOM SECTION
+    ========================================= */
+
+    const addCustomSection = () => {
+        const id =
+            "custom-" +
+            Date.now();
+
+        setResume((prev) => ({
+            ...prev,
+            customSections: [
+                ...(prev.customSections || []),
+                {
+                    id,
+                    content: "Add your content here..."
+                }
+            ]
+        }));
+
+        setResumeSections((prev) => [
+            ...prev,
+            {
+                id,
+                type: "custom",
+                title: "NEW SECTION"
+            }
+        ]);
+    };
+
+    /* =========================================
+       UPDATE CUSTOM SECTION
+    ========================================= */
+
+    const updateCustomSection = (
+        sectionId,
+        value
+    ) => {
+        setResume((prev) => ({
+            ...prev,
+            customSections: (
+                prev.customSections || []
+            ).map((section) =>
+                section.id === sectionId
+                    ? {
+                          ...section,
+                          content: value
+                      }
+                    : section
+            )
+        }));
+    };
+
+    /* =========================================
+       DELETE CUSTOM SECTION DATA
+    ========================================= */
+
+    const deleteSectionCompletely = (
+        section
+    ) => {
+        deleteSection(section.id);
+
+        if (section.type === "custom") {
+            setResume((prev) => ({
+                ...prev,
+                customSections: (
+                    prev.customSections || []
+                ).filter(
+                    (item) =>
+                        item.id !== section.id
+                )
+            }));
+        }
+    };
+
+    /* =========================================
+       TEMPLATE
+    ========================================= */
+
     const selectTemplate = (templateId) => {
         setSelectedTemplate(templateId);
         setShowTemplates(false);
     };
 
-    /* =========================================
-       UPDATE SECTION HEADING
-    ========================================= */
-
-    const updateSectionTitle = (section, value) => {
-        setSectionTitles((prev) => ({
-            ...prev,
-            [section]: value
-        }));
-    };
+    const currentTemplate =
+        templates.find(
+            (template) =>
+                template.id === selectedTemplate
+        ) || templates[0];
 
     /* =========================================
-       SECTIONS
+       LEFT NAVIGATION
     ========================================= */
 
     const sections = [
@@ -256,23 +453,21 @@ const [sectionTitles, setSectionTitles] = useState(() => {
         }
     ];
 
-    const currentTemplate =
-        templates.find(
-            (template) => template.id === selectedTemplate
-        ) || templates[0];
-
     return (
         <div
             className="resume-builder-page"
             style={{
-                "--template-color": currentTemplate.color
+                "--template-color":
+                    currentTemplate.color
             }}
         >
+
             {/* =========================================
                 HEADER
             ========================================= */}
 
             <div className="resume-builder-header">
+
                 <div>
                     <p className="resume-breadcrumb">
                         Career Tools / Resume Builder
@@ -281,29 +476,37 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                     <h1>Resume Builder</h1>
 
                     <p className="resume-subtitle">
-                        Build a professional, ATS-friendly resume in minutes.
+                        Build a professional,
+                        ATS-friendly resume in minutes.
                     </p>
                 </div>
 
                 <div className="resume-header-actions">
+
                     <button
                         className="resume-secondary-button"
-                        onClick={() => window.print()}
+                        onClick={() =>
+                            window.print()
+                        }
                     >
                         🖨 Print
                     </button>
 
                     <button
                         className="resume-primary-button"
-                        onClick={() => window.print()}
+                        onClick={() =>
+                            window.print()
+                        }
                     >
                         ↓ Download Resume
                     </button>
+
                 </div>
+
             </div>
 
             {/* =========================================
-                BUILDER
+                MAIN BUILDER
             ========================================= */}
 
             <div className="resume-builder-container">
@@ -315,119 +518,182 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                 <div className="resume-form-panel">
 
                     <div className="form-panel-header">
+
                         <div>
-                            <h2>Build Your Resume</h2>
-                            <p>Fill in your details below</p>
+                            <h2>
+                                Build Your Resume
+                            </h2>
+
+                            <p>
+                                Fill in your details below
+                            </p>
                         </div>
 
                         <div className="completion-badge">
                             85% Complete
                         </div>
+
                     </div>
 
-                    {/* SECTION NAVIGATION */}
+                    {/* NAVIGATION */}
 
                     <div className="resume-section-tabs">
-                        {sections.map((section) => (
-                            <button
-                                key={section.id}
-                                className={
-                                    activeSection === section.id
-                                        ? "resume-section-tab active"
-                                        : "resume-section-tab"
-                                }
-                                onClick={() =>
-                                    setActiveSection(section.id)
-                                }
-                            >
-                                {section.title}
-                            </button>
-                        ))}
+
+                        {sections.map(
+                            (section) => (
+                                <button
+                                    key={section.id}
+                                    className={
+                                        activeSection ===
+                                        section.id
+                                            ? "resume-section-tab active"
+                                            : "resume-section-tab"
+                                    }
+                                    onClick={() =>
+                                        setActiveSection(
+                                            section.id
+                                        )
+                                    }
+                                >
+                                    {section.title}
+                                </button>
+                            )
+                        )}
+
                     </div>
 
                     {/* =================================
                         PERSONAL
                     ================================= */}
 
-                    {activeSection === "personal" && (
+                    {activeSection ===
+                        "personal" && (
                         <div className="resume-form-content">
 
                             <div className="form-section-title">
-                                <h3>Personal Information</h3>
+
+                                <h3>
+                                    Personal Information
+                                </h3>
 
                                 <p>
-                                    Add your contact information and
+                                    Add your contact
+                                    information and
                                     professional title.
                                 </p>
+
                             </div>
 
                             <div className="form-grid">
 
                                 <FormInput
                                     label="Full Name"
-                                    value={resume.fullName}
-                                    onChange={(value) =>
-                                        updateField("fullName", value)
+                                    value={
+                                        resume.fullName
                                     }
-                                    placeholder="John Doe"
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateField(
+                                            "fullName",
+                                            value
+                                        )
+                                    }
                                 />
 
                                 <FormInput
                                     label="Professional Title"
-                                    value={resume.jobTitle}
-                                    onChange={(value) =>
-                                        updateField("jobTitle", value)
+                                    value={
+                                        resume.jobTitle
                                     }
-                                    placeholder="Data Analyst"
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateField(
+                                            "jobTitle",
+                                            value
+                                        )
+                                    }
                                 />
 
                                 <FormInput
                                     label="Email"
-                                    value={resume.email}
-                                    onChange={(value) =>
-                                        updateField("email", value)
+                                    value={
+                                        resume.email
                                     }
-                                    placeholder="your@email.com"
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateField(
+                                            "email",
+                                            value
+                                        )
+                                    }
                                 />
 
                                 <FormInput
                                     label="Phone"
-                                    value={resume.phone}
-                                    onChange={(value) =>
-                                        updateField("phone", value)
+                                    value={
+                                        resume.phone
                                     }
-                                    placeholder="+91 98765 43210"
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateField(
+                                            "phone",
+                                            value
+                                        )
+                                    }
                                 />
 
                                 <FormInput
                                     label="Location"
-                                    value={resume.location}
-                                    onChange={(value) =>
-                                        updateField("location", value)
+                                    value={
+                                        resume.location
                                     }
-                                    placeholder="Mumbai, India"
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateField(
+                                            "location",
+                                            value
+                                        )
+                                    }
                                 />
 
                                 <FormInput
                                     label="LinkedIn"
-                                    value={resume.linkedin}
-                                    onChange={(value) =>
-                                        updateField("linkedin", value)
+                                    value={
+                                        resume.linkedin
                                     }
-                                    placeholder="linkedin.com/in/yourname"
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateField(
+                                            "linkedin",
+                                            value
+                                        )
+                                    }
                                 />
 
                                 <FormInput
                                     label="GitHub"
-                                    value={resume.github}
-                                    onChange={(value) =>
-                                        updateField("github", value)
+                                    value={
+                                        resume.github
                                     }
-                                    placeholder="github.com/yourname"
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateField(
+                                            "github",
+                                            value
+                                        )
+                                    }
                                     fullWidth
                                 />
 
                             </div>
+
                         </div>
                     )}
 
@@ -435,24 +701,35 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                         SUMMARY
                     ================================= */}
 
-                    {activeSection === "summary" && (
+                    {activeSection ===
+                        "summary" && (
                         <div className="resume-form-content">
 
                             <div className="form-section-title">
-                                <h3>Professional Summary</h3>
+
+                                <h3>
+                                    Professional Summary
+                                </h3>
 
                                 <p>
-                                    Write a short summary that highlights
-                                    your strengths and career goals.
+                                    Write a short summary
+                                    that highlights your
+                                    strengths.
                                 </p>
+
                             </div>
 
                             <div className="form-group">
-                                <label>Summary</label>
+
+                                <label>
+                                    Summary
+                                </label>
 
                                 <textarea
                                     rows="8"
-                                    value={resume.summary}
+                                    value={
+                                        resume.summary
+                                    }
                                     onChange={(e) =>
                                         updateField(
                                             "summary",
@@ -461,9 +738,6 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                                     }
                                 />
 
-                                <span className="character-count">
-                                    {resume.summary.length} characters
-                                </span>
                             </div>
 
                         </div>
@@ -473,7 +747,8 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                         EDUCATION
                     ================================= */}
 
-                    {activeSection === "education" && (
+                    {activeSection ===
+                        "education" && (
                         <div className="resume-form-content">
 
                             <SectionHeader
@@ -481,83 +756,117 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                                 description="Add your academic background."
                                 button="+ Add Education"
                                 onClick={() =>
-                                    addItem("education", {
-                                        degree: "",
-                                        institution: "",
-                                        year: "",
-                                        description: ""
-                                    })
+                                    addItem(
+                                        "education",
+                                        {
+                                            degree: "",
+                                            institution:
+                                                "",
+                                            year: "",
+                                            description:
+                                                ""
+                                        }
+                                    )
                                 }
                             />
 
-                            {resume.education.map((item, index) => (
-                                <RepeatableCard
-                                    key={index}
-                                    title={`Education ${index + 1}`}
-                                    showDelete={
-                                        resume.education.length > 1
-                                    }
-                                    onDelete={() =>
-                                        removeItem("education", index)
-                                    }
-                                >
-
-                                    <FormInput
-                                        label="Degree / Course"
-                                        value={item.degree}
-                                        onChange={(value) =>
-                                            updateArrayItem(
+                            {resume.education.map(
+                                (
+                                    item,
+                                    index
+                                ) => (
+                                    <RepeatableCard
+                                        key={index}
+                                        title={`Education ${
+                                            index + 1
+                                        }`}
+                                        showDelete={
+                                            resume
+                                                .education
+                                                .length >
+                                            1
+                                        }
+                                        onDelete={() =>
+                                            removeItem(
                                                 "education",
-                                                index,
-                                                "degree",
-                                                value
+                                                index
                                             )
                                         }
-                                        fullWidth
-                                    />
+                                    >
 
-                                    <FormInput
-                                        label="Institution"
-                                        value={item.institution}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "education",
-                                                index,
-                                                "institution",
+                                        <FormInput
+                                            label="Degree / Course"
+                                            value={
+                                                item.degree
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "education",
+                                                    index,
+                                                    "degree",
+                                                    value
+                                                )
+                                            }
+                                            fullWidth
+                                        />
 
-                                    <FormInput
-                                        label="Year"
-                                        value={item.year}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "education",
-                                                index,
-                                                "year",
+                                        <FormInput
+                                            label="Institution"
+                                            value={
+                                                item.institution
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "education",
+                                                    index,
+                                                    "institution",
+                                                    value
+                                                )
+                                            }
+                                        />
 
-                                    <FormTextarea
-                                        label="Description"
-                                        value={item.description}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "education",
-                                                index,
-                                                "description",
+                                        <FormInput
+                                            label="Year"
+                                            value={
+                                                item.year
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                        fullWidth
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "education",
+                                                    index,
+                                                    "year",
+                                                    value
+                                                )
+                                            }
+                                        />
 
-                                </RepeatableCard>
-                            ))}
+                                        <FormTextarea
+                                            label="Description"
+                                            value={
+                                                item.description
+                                            }
+                                            onChange={(
+                                                value
+                                            ) =>
+                                                updateArrayItem(
+                                                    "education",
+                                                    index,
+                                                    "description",
+                                                    value
+                                                )
+                                            }
+                                            fullWidth
+                                        />
+
+                                    </RepeatableCard>
+                                )
+                            )}
 
                         </div>
                     )}
@@ -566,7 +875,8 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                         EXPERIENCE
                     ================================= */}
 
-                    {activeSection === "experience" && (
+                    {activeSection ===
+                        "experience" && (
                         <div className="resume-form-content">
 
                             <SectionHeader
@@ -574,83 +884,118 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                                 description="Add internships, jobs or work experience."
                                 button="+ Add Experience"
                                 onClick={() =>
-                                    addItem("experience", {
-                                        role: "",
-                                        company: "",
-                                        duration: "",
-                                        description: ""
-                                    })
+                                    addItem(
+                                        "experience",
+                                        {
+                                            role: "",
+                                            company:
+                                                "",
+                                            duration:
+                                                "",
+                                            description:
+                                                ""
+                                        }
+                                    )
                                 }
                             />
 
-                            {resume.experience.map((item, index) => (
-                                <RepeatableCard
-                                    key={index}
-                                    title={`Experience ${index + 1}`}
-                                    showDelete={
-                                        resume.experience.length > 1
-                                    }
-                                    onDelete={() =>
-                                        removeItem("experience", index)
-                                    }
-                                >
-
-                                    <FormInput
-                                        label="Job Title"
-                                        value={item.role}
-                                        onChange={(value) =>
-                                            updateArrayItem(
+                            {resume.experience.map(
+                                (
+                                    item,
+                                    index
+                                ) => (
+                                    <RepeatableCard
+                                        key={index}
+                                        title={`Experience ${
+                                            index + 1
+                                        }`}
+                                        showDelete={
+                                            resume
+                                                .experience
+                                                .length >
+                                            1
+                                        }
+                                        onDelete={() =>
+                                            removeItem(
                                                 "experience",
-                                                index,
-                                                "role",
-                                                value
+                                                index
                                             )
                                         }
-                                    />
+                                    >
 
-                                    <FormInput
-                                        label="Company"
-                                        value={item.company}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "experience",
-                                                index,
-                                                "company",
+                                        <FormInput
+                                            label="Job Title"
+                                            value={
+                                                item.role
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "experience",
+                                                    index,
+                                                    "role",
+                                                    value
+                                                )
+                                            }
+                                        />
 
-                                    <FormInput
-                                        label="Duration"
-                                        value={item.duration}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "experience",
-                                                index,
-                                                "duration",
+                                        <FormInput
+                                            label="Company"
+                                            value={
+                                                item.company
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                        fullWidth
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "experience",
+                                                    index,
+                                                    "company",
+                                                    value
+                                                )
+                                            }
+                                        />
 
-                                    <FormTextarea
-                                        label="Description"
-                                        value={item.description}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "experience",
-                                                index,
-                                                "description",
+                                        <FormInput
+                                            label="Duration"
+                                            value={
+                                                item.duration
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                        fullWidth
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "experience",
+                                                    index,
+                                                    "duration",
+                                                    value
+                                                )
+                                            }
+                                            fullWidth
+                                        />
 
-                                </RepeatableCard>
-                            ))}
+                                        <FormTextarea
+                                            label="Description"
+                                            value={
+                                                item.description
+                                            }
+                                            onChange={(
+                                                value
+                                            ) =>
+                                                updateArrayItem(
+                                                    "experience",
+                                                    index,
+                                                    "description",
+                                                    value
+                                                )
+                                            }
+                                            fullWidth
+                                        />
+
+                                    </RepeatableCard>
+                                )
+                            )}
 
                         </div>
                     )}
@@ -659,69 +1004,93 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                         SKILLS
                     ================================= */}
 
-                    {activeSection === "skills" && (
+                    {activeSection ===
+                        "skills" && (
                         <div className="resume-form-content">
 
                             <div className="form-section-title">
+
                                 <h3>Skills</h3>
 
                                 <p>
-                                    Add technical and professional skills.
+                                    Add technical and
+                                    professional skills.
                                 </p>
+
                             </div>
 
                             <div className="skills-editor">
 
-                                {resume.skills.map((skill, index) => (
-                                    <div
-                                        className="skill-input-row"
-                                        key={index}
-                                    >
-
-                                        <input
-                                            value={skill}
-                                            onChange={(e) => {
-                                                const updated = [
-                                                    ...resume.skills
-                                                ];
-
-                                                updated[index] =
-                                                    e.target.value;
-
-                                                setResume((prev) => ({
-                                                    ...prev,
-                                                    skills: updated
-                                                }));
-                                            }}
-                                        />
-
-                                        <button
-                                            type="button"
-                                            className="skill-delete"
-                                            onClick={() =>
-                                                removeItem(
-                                                    "skills",
-                                                    index
-                                                )
-                                            }
+                                {resume.skills.map(
+                                    (
+                                        skill,
+                                        index
+                                    ) => (
+                                        <div
+                                            className="skill-input-row"
+                                            key={index}
                                         >
-                                            ×
-                                        </button>
 
-                                    </div>
-                                ))}
+                                            <input
+                                                value={
+                                                    skill
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) => {
+                                                    const updated =
+                                                        [
+                                                            ...resume.skills
+                                                        ];
+
+                                                    updated[
+                                                        index
+                                                    ] =
+                                                        e
+                                                            .target
+                                                            .value;
+
+                                                    setResume(
+                                                        (
+                                                            prev
+                                                        ) => ({
+                                                            ...prev,
+                                                            skills: updated
+                                                        })
+                                                    );
+                                                }}
+                                            />
+
+                                            <button
+                                                type="button"
+                                                className="skill-delete"
+                                                onClick={() =>
+                                                    removeItem(
+                                                        "skills",
+                                                        index
+                                                    )
+                                                }
+                                            >
+                                                ×
+                                            </button>
+
+                                        </div>
+                                    )
+                                )}
 
                                 <button
                                     type="button"
                                     className="add-button"
                                     onClick={() =>
-                                        setResume((prev) => ({
-                                            ...prev,
-                                            skills: [
-                                                ...prev.skills,
-                                                "New Skill"
-                                            ]
-                                        }))
+                                        setResume(
+                                            (prev) => ({
+                                                ...prev,
+                                                skills: [
+                                                    ...prev.skills,
+                                                    "New Skill"
+                                                ]
+                                            })
+                                        )
                                     }
                                 >
                                     + Add Skill
@@ -736,7 +1105,8 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                         PROJECTS
                     ================================= */}
 
-                    {activeSection === "projects" && (
+                    {activeSection ===
+                        "projects" && (
                         <div className="resume-form-content">
 
                             <SectionHeader
@@ -744,68 +1114,98 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                                 description="Showcase your strongest projects."
                                 button="+ Add Project"
                                 onClick={() =>
-                                    addItem("projects", {
-                                        name: "",
-                                        technologies: "",
-                                        description: ""
-                                    })
+                                    addItem(
+                                        "projects",
+                                        {
+                                            name: "",
+                                            technologies:
+                                                "",
+                                            description:
+                                                ""
+                                        }
+                                    )
                                 }
                             />
 
-                            {resume.projects.map((item, index) => (
-                                <RepeatableCard
-                                    key={index}
-                                    title={`Project ${index + 1}`}
-                                    showDelete={
-                                        resume.projects.length > 1
-                                    }
-                                    onDelete={() =>
-                                        removeItem("projects", index)
-                                    }
-                                >
-
-                                    <FormInput
-                                        label="Project Name"
-                                        value={item.name}
-                                        onChange={(value) =>
-                                            updateArrayItem(
+                            {resume.projects.map(
+                                (
+                                    item,
+                                    index
+                                ) => (
+                                    <RepeatableCard
+                                        key={index}
+                                        title={`Project ${
+                                            index + 1
+                                        }`}
+                                        showDelete={
+                                            resume
+                                                .projects
+                                                .length >
+                                            1
+                                        }
+                                        onDelete={() =>
+                                            removeItem(
                                                 "projects",
-                                                index,
-                                                "name",
-                                                value
+                                                index
                                             )
                                         }
-                                    />
+                                    >
 
-                                    <FormInput
-                                        label="Technologies"
-                                        value={item.technologies}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "projects",
-                                                index,
-                                                "technologies",
+                                        <FormInput
+                                            label="Project Name"
+                                            value={
+                                                item.name
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "projects",
+                                                    index,
+                                                    "name",
+                                                    value
+                                                )
+                                            }
+                                        />
 
-                                    <FormTextarea
-                                        label="Description"
-                                        value={item.description}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "projects",
-                                                index,
-                                                "description",
+                                        <FormInput
+                                            label="Technologies"
+                                            value={
+                                                item.technologies
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                        fullWidth
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "projects",
+                                                    index,
+                                                    "technologies",
+                                                    value
+                                                )
+                                            }
+                                        />
 
-                                </RepeatableCard>
-                            ))}
+                                        <FormTextarea
+                                            label="Description"
+                                            value={
+                                                item.description
+                                            }
+                                            onChange={(
+                                                value
+                                            ) =>
+                                                updateArrayItem(
+                                                    "projects",
+                                                    index,
+                                                    "description",
+                                                    value
+                                                )
+                                            }
+                                            fullWidth
+                                        />
+
+                                    </RepeatableCard>
+                                )
+                            )}
 
                         </div>
                     )}
@@ -814,7 +1214,8 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                         CERTIFICATIONS
                     ================================= */}
 
-                    {activeSection === "certifications" && (
+                    {activeSection ===
+                        "certifications" && (
                         <div className="resume-form-content">
 
                             <SectionHeader
@@ -822,70 +1223,95 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                                 description="Add relevant certifications."
                                 button="+ Add Certification"
                                 onClick={() =>
-                                    addItem("certifications", {
-                                        name: "",
-                                        issuer: "",
-                                        year: ""
-                                    })
+                                    addItem(
+                                        "certifications",
+                                        {
+                                            name: "",
+                                            issuer: "",
+                                            year: ""
+                                        }
+                                    )
                                 }
                             />
 
-                            {resume.certifications.map((item, index) => (
-                                <RepeatableCard
-                                    key={index}
-                                    title={`Certification ${index + 1}`}
-                                    showDelete={
-                                        resume.certifications.length > 1
-                                    }
-                                    onDelete={() =>
-                                        removeItem(
-                                            "certifications",
-                                            index
-                                        )
-                                    }
-                                >
-
-                                    <FormInput
-                                        label="Certification"
-                                        value={item.name}
-                                        onChange={(value) =>
-                                            updateArrayItem(
+                            {resume.certifications.map(
+                                (
+                                    item,
+                                    index
+                                ) => (
+                                    <RepeatableCard
+                                        key={index}
+                                        title={`Certification ${
+                                            index + 1
+                                        }`}
+                                        showDelete={
+                                            resume
+                                                .certifications
+                                                .length >
+                                            1
+                                        }
+                                        onDelete={() =>
+                                            removeItem(
                                                 "certifications",
-                                                index,
-                                                "name",
-                                                value
+                                                index
                                             )
                                         }
-                                    />
+                                    >
 
-                                    <FormInput
-                                        label="Issuer"
-                                        value={item.issuer}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "certifications",
-                                                index,
-                                                "issuer",
+                                        <FormInput
+                                            label="Certification"
+                                            value={
+                                                item.name
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "certifications",
+                                                    index,
+                                                    "name",
+                                                    value
+                                                )
+                                            }
+                                        />
 
-                                    <FormInput
-                                        label="Year"
-                                        value={item.year}
-                                        onChange={(value) =>
-                                            updateArrayItem(
-                                                "certifications",
-                                                index,
-                                                "year",
+                                        <FormInput
+                                            label="Issuer"
+                                            value={
+                                                item.issuer
+                                            }
+                                            onChange={(
                                                 value
-                                            )
-                                        }
-                                    />
+                                            ) =>
+                                                updateArrayItem(
+                                                    "certifications",
+                                                    index,
+                                                    "issuer",
+                                                    value
+                                                )
+                                            }
+                                        />
 
-                                </RepeatableCard>
-                            ))}
+                                        <FormInput
+                                            label="Year"
+                                            value={
+                                                item.year
+                                            }
+                                            onChange={(
+                                                value
+                                            ) =>
+                                                updateArrayItem(
+                                                    "certifications",
+                                                    index,
+                                                    "year",
+                                                    value
+                                                )
+                                            }
+                                        />
+
+                                    </RepeatableCard>
+                                )
+                            )}
 
                         </div>
                     )}
@@ -901,14 +1327,18 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                     <div className="preview-header">
 
                         <div>
-                            <h2>Live Preview</h2>
+                            <h2>
+                                Live Preview
+                            </h2>
 
                             <span>
-                                {currentTemplate.name} Template • ATS-Friendly
+                                {
+                                    currentTemplate.name
+                                }{" "}
+                                Template •
+                                ATS-Friendly
                             </span>
                         </div>
-
-                        {/* TEMPLATE DROPDOWN */}
 
                         <div className="template-selector">
 
@@ -916,78 +1346,100 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                                 type="button"
                                 className="template-button"
                                 onClick={() =>
-                                    setShowTemplates(!showTemplates)
+                                    setShowTemplates(
+                                        !showTemplates
+                                    )
                                 }
                             >
                                 <span>
-                                    {currentTemplate.icon}
+                                    {
+                                        currentTemplate.icon
+                                    }
                                 </span>
 
-                                {currentTemplate.name}
+                                {
+                                    currentTemplate.name
+                                }
 
                                 <span className="template-arrow">
-                                    {showTemplates ? "⌃" : "⌄"}
+                                    {showTemplates
+                                        ? "⌃"
+                                        : "⌄"}
                                 </span>
+
                             </button>
 
                             {showTemplates && (
                                 <div className="template-dropdown">
 
                                     <div className="template-dropdown-title">
-                                        Choose Resume Template
+                                        Choose Resume
+                                        Template
                                     </div>
 
                                     <div className="template-grid">
 
-                                        {templates.map((template) => (
-                                            <button
-                                                type="button"
-                                                key={template.id}
-                                                className={
-                                                    selectedTemplate ===
-                                                    template.id
-                                                        ? "template-option selected"
-                                                        : "template-option"
-                                                }
-                                                onClick={() =>
-                                                    selectTemplate(
+                                        {templates.map(
+                                            (
+                                                template
+                                            ) => (
+                                                <button
+                                                    type="button"
+                                                    key={
                                                         template.id
-                                                    )
-                                                }
-                                            >
-
-                                                <div
-                                                    className={`template-mini-preview mini-${template.id}`}
+                                                    }
+                                                    className={
+                                                        selectedTemplate ===
+                                                        template.id
+                                                            ? "template-option selected"
+                                                            : "template-option"
+                                                    }
+                                                    onClick={() =>
+                                                        selectTemplate(
+                                                            template.id
+                                                        )
+                                                    }
                                                 >
-                                                    <div className="mini-name"></div>
-                                                    <div className="mini-line"></div>
-                                                    <div className="mini-content"></div>
-                                                    <div className="mini-content short"></div>
-                                                    <div className="mini-content"></div>
-                                                </div>
 
-                                                <div className="template-option-info">
+                                                    <div
+                                                        className={`template-mini-preview mini-${template.id}`}
+                                                    >
+                                                        <div className="mini-name"></div>
+                                                        <div className="mini-line"></div>
+                                                        <div className="mini-content"></div>
+                                                        <div className="mini-content short"></div>
+                                                        <div className="mini-content"></div>
+                                                    </div>
 
-                                                    <strong>
-                                                        {template.icon}{" "}
-                                                        {template.name}
-                                                    </strong>
+                                                    <div className="template-option-info">
 
-                                                    <span>
-                                                        {template.description}
-                                                    </span>
+                                                        <strong>
+                                                            {
+                                                                template.icon
+                                                            }{" "}
+                                                            {
+                                                                template.name
+                                                            }
+                                                        </strong>
 
-                                                </div>
+                                                        <span>
+                                                            {
+                                                                template.description
+                                                            }
+                                                        </span>
 
-                                                {selectedTemplate ===
-                                                    template.id && (
-                                                    <span className="template-check">
-                                                        ✓
-                                                    </span>
-                                                )}
+                                                    </div>
 
-                                            </button>
-                                        ))}
+                                                    {selectedTemplate ===
+                                                        template.id && (
+                                                        <span className="template-check">
+                                                            ✓
+                                                        </span>
+                                                    )}
+
+                                                </button>
+                                            )
+                                        )}
 
                                     </div>
 
@@ -999,209 +1451,185 @@ const [sectionTitles, setSectionTitles] = useState(() => {
                     </div>
 
                     {/* =================================
-                        ACTUAL RESUME
+                        RESUME PAPER
                     ================================= */}
 
                     <div
                         className={`resume-paper resume-template-${selectedTemplate}`}
                     >
 
+                        {/* =================================
+                            PERSONAL HEADER
+                        ================================= */}
+
                         <div className="resume-paper-header">
 
-                            <h1>{resume.fullName}</h1>
+                            <EditablePreviewInput
+                                value={
+                                    resume.fullName
+                                }
+                                onChange={(value) =>
+                                    updateField(
+                                        "fullName",
+                                        value
+                                    )
+                                }
+                                className="preview-name-input"
+                            />
 
-                            <h2>{resume.jobTitle}</h2>
+                            <EditablePreviewInput
+                                value={
+                                    resume.jobTitle
+                                }
+                                onChange={(value) =>
+                                    updateField(
+                                        "jobTitle",
+                                        value
+                                    )
+                                }
+                                className="preview-job-title-input"
+                            />
 
                             <div className="resume-contact">
 
-                                <span>{resume.email}</span>
+                                <EditableInlineInput
+                                    value={
+                                        resume.email
+                                    }
+                                    onChange={(value) =>
+                                        updateField(
+                                            "email",
+                                            value
+                                        )
+                                    }
+                                />
+
                                 <span>•</span>
-                                <span>{resume.phone}</span>
+
+                                <EditableInlineInput
+                                    value={
+                                        resume.phone
+                                    }
+                                    onChange={(value) =>
+                                        updateField(
+                                            "phone",
+                                            value
+                                        )
+                                    }
+                                />
+
                                 <span>•</span>
-                                <span>{resume.location}</span>
+
+                                <EditableInlineInput
+                                    value={
+                                        resume.location
+                                    }
+                                    onChange={(value) =>
+                                        updateField(
+                                            "location",
+                                            value
+                                        )
+                                    }
+                                />
 
                             </div>
 
                             <div className="resume-links">
 
-                                <span>{resume.linkedin}</span>
-                                <span>{resume.github}</span>
+                                <EditableInlineInput
+                                    value={
+                                        resume.linkedin
+                                    }
+                                    onChange={(value) =>
+                                        updateField(
+                                            "linkedin",
+                                            value
+                                        )
+                                    }
+                                />
+
+                                <EditableInlineInput
+                                    value={
+                                        resume.github
+                                    }
+                                    onChange={(value) =>
+                                        updateField(
+                                            "github",
+                                            value
+                                        )
+                                    }
+                                />
 
                             </div>
 
                         </div>
 
                         {/* =================================
-                            EDITABLE PROFESSIONAL SUMMARY
+                            DYNAMIC SECTIONS
                         ================================= */}
 
-                        <ResumePreviewSection
-                            title={sectionTitles.summary}
-                            sectionId="summary"
-                            onTitleChange={updateSectionTitle}
-                        >
-
-                            <p className="preview-summary">
-                                {resume.summary}
-                            </p>
-
-                        </ResumePreviewSection>
+                        {resumeSections.map(
+                            (
+                                section,
+                                index
+                            ) => (
+                                <EditableResumeSection
+                                    key={section.id}
+                                    section={section}
+                                    index={index}
+                                    total={
+                                        resumeSections.length
+                                    }
+                                    onTitleChange={
+                                        updateSectionTitle
+                                    }
+                                    onMoveUp={() =>
+                                        moveSection(
+                                            index,
+                                            "up"
+                                        )
+                                    }
+                                    onMoveDown={() =>
+                                        moveSection(
+                                            index,
+                                            "down"
+                                        )
+                                    }
+                                    onDelete={() =>
+                                        deleteSectionCompletely(
+                                            section
+                                        )
+                                    }
+                                    onCustomChange={
+                                        updateCustomSection
+                                    }
+                                    resume={resume}
+                                    setResume={
+                                        setResume
+                                    }
+                                    updateArrayItem={
+                                        updateArrayItem
+                                    }
+                                    removeItem={
+                                        removeItem
+                                    }
+                                />
+                            )
+                        )}
 
                         {/* =================================
-                            EDITABLE EXPERIENCE
+                            ADD CUSTOM SECTION
                         ================================= */}
 
-                        <ResumePreviewSection
-                            title={sectionTitles.experience}
-                            sectionId="experience"
-                            onTitleChange={updateSectionTitle}
+                        <button
+                            type="button"
+                            className="add-preview-section-button"
+                            onClick={
+                                addCustomSection
+                            }
                         >
-
-                            {resume.experience.map((item, index) => (
-                                <div
-                                    className="preview-entry"
-                                    key={index}
-                                >
-
-                                    <div className="preview-entry-heading">
-
-                                        <strong>{item.role}</strong>
-
-                                        <span>{item.duration}</span>
-
-                                    </div>
-
-                                    <div className="preview-company">
-                                        {item.company}
-                                    </div>
-
-                                    <p>{item.description}</p>
-
-                                </div>
-                            ))}
-
-                        </ResumePreviewSection>
-
-                        {/* =================================
-                            EDITABLE EDUCATION
-                        ================================= */}
-
-                        <ResumePreviewSection
-                            title={sectionTitles.education}
-                            sectionId="education"
-                            onTitleChange={updateSectionTitle}
-                        >
-
-                            {resume.education.map((item, index) => (
-                                <div
-                                    className="preview-entry"
-                                    key={index}
-                                >
-
-                                    <div className="preview-entry-heading">
-
-                                        <strong>{item.degree}</strong>
-
-                                        <span>{item.year}</span>
-
-                                    </div>
-
-                                    <div className="preview-company">
-                                        {item.institution}
-                                    </div>
-
-                                    <p>{item.description}</p>
-
-                                </div>
-                            ))}
-
-                        </ResumePreviewSection>
-
-                        {/* =================================
-                            EDITABLE SKILLS
-                        ================================= */}
-
-                        <ResumePreviewSection
-                            title={sectionTitles.skills}
-                            sectionId="skills"
-                            onTitleChange={updateSectionTitle}
-                        >
-
-                            <div className="preview-skills">
-
-                                {resume.skills.map((skill, index) => (
-                                    <span key={index}>
-                                        {skill}
-                                    </span>
-                                ))}
-
-                            </div>
-
-                        </ResumePreviewSection>
-
-                        {/* =================================
-                            EDITABLE PROJECTS
-                        ================================= */}
-
-                        <ResumePreviewSection
-                            title={sectionTitles.projects}
-                            sectionId="projects"
-                            onTitleChange={updateSectionTitle}
-                        >
-
-                            {resume.projects.map((item, index) => (
-                                <div
-                                    className="preview-entry"
-                                    key={index}
-                                >
-
-                                    <div className="preview-entry-heading">
-                                        <strong>{item.name}</strong>
-                                    </div>
-
-                                    <div className="preview-company">
-                                        {item.technologies}
-                                    </div>
-
-                                    <p>{item.description}</p>
-
-                                </div>
-                            ))}
-
-                        </ResumePreviewSection>
-
-                        {/* =================================
-                            EDITABLE CERTIFICATIONS
-                        ================================= */}
-
-                        <ResumePreviewSection
-                            title={sectionTitles.certifications}
-                            sectionId="certifications"
-                            onTitleChange={updateSectionTitle}
-                        >
-
-                            {resume.certifications.map((item, index) => (
-                                <div
-                                    className="preview-entry"
-                                    key={index}
-                                >
-
-                                    <div className="preview-entry-heading">
-
-                                        <strong>{item.name}</strong>
-
-                                        <span>{item.year}</span>
-
-                                    </div>
-
-                                    <div className="preview-company">
-                                        {item.issuer}
-                                    </div>
-
-                                </div>
-                            ))}
-
-                        </ResumePreviewSection>
+                            + Add Resume Section
+                        </button>
 
                     </div>
 
@@ -1214,9 +1642,744 @@ const [sectionTitles, setSectionTitles] = useState(() => {
 };
 
 
-/* =========================================
+/* =====================================================
+   DYNAMIC PREVIEW SECTION
+===================================================== */
+
+const EditableResumeSection = ({
+    section,
+    index,
+    total,
+    onTitleChange,
+    onMoveUp,
+    onMoveDown,
+    onDelete,
+    onCustomChange,
+    resume,
+    setResume,
+    updateArrayItem,
+    removeItem
+}) => {
+    return (
+        <section className="resume-preview-section">
+
+            {/* SECTION CONTROLS */}
+
+            <div className="preview-section-controls">
+
+                <button
+                    type="button"
+                    onClick={onMoveUp}
+                    disabled={index === 0}
+                    title="Move section up"
+                >
+                    ↑
+                </button>
+
+                <button
+                    type="button"
+                    onClick={onMoveDown}
+                    disabled={
+                        index === total - 1
+                    }
+                    title="Move section down"
+                >
+                    ↓
+                </button>
+
+                <button
+                    type="button"
+                    onClick={onDelete}
+                    title="Delete section"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            {/* EDITABLE HEADING */}
+
+            <input
+                type="text"
+                value={section.title}
+                onChange={(e) =>
+                    onTitleChange(
+                        section.id,
+                        e.target.value
+                    )
+                }
+                className="editable-resume-heading"
+            />
+
+            <div className="section-line"></div>
+
+            {/* =================================
+                SUMMARY
+            ================================= */}
+
+            {section.type ===
+                "summary" && (
+                <textarea
+                    className="preview-editable-textarea preview-summary"
+                    value={resume.summary}
+                    onChange={(e) =>
+                        setResume(
+                            (prev) => ({
+                                ...prev,
+                                summary:
+                                    e.target.value
+                            })
+                        )
+                    }
+                />
+            )}
+
+            {/* =================================
+                EXPERIENCE
+            ================================= */}
+
+            {section.type ===
+                "experience" && (
+                <>
+                    {resume.experience.map(
+                        (
+                            item,
+                            itemIndex
+                        ) => (
+                            <div
+                                className="preview-entry"
+                                key={itemIndex}
+                            >
+
+                                <div className="preview-entry-heading">
+
+                                    <EditablePreviewInput
+                                        value={
+                                            item.role
+                                        }
+                                        onChange={(
+                                            value
+                                        ) =>
+                                            updateArrayItem(
+                                                "experience",
+                                                itemIndex,
+                                                "role",
+                                                value
+                                            )
+                                        }
+                                        className="preview-entry-title-input"
+                                    />
+
+                                    <EditablePreviewInput
+                                        value={
+                                            item.duration
+                                        }
+                                        onChange={(
+                                            value
+                                        ) =>
+                                            updateArrayItem(
+                                                "experience",
+                                                itemIndex,
+                                                "duration",
+                                                value
+                                            )
+                                        }
+                                        className="preview-date-input"
+                                    />
+
+                                </div>
+
+                                <EditablePreviewInput
+                                    value={
+                                        item.company
+                                    }
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateArrayItem(
+                                            "experience",
+                                            itemIndex,
+                                            "company",
+                                            value
+                                        )
+                                    }
+                                    className="preview-company-input"
+                                />
+
+                                <textarea
+                                    className="preview-editable-textarea"
+                                    value={
+                                        item.description
+                                    }
+                                    onChange={(e) =>
+                                        updateArrayItem(
+                                            "experience",
+                                            itemIndex,
+                                            "description",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+
+                                <button
+                                    type="button"
+                                    className="preview-delete-entry"
+                                    onClick={() =>
+                                        removeItem(
+                                            "experience",
+                                            itemIndex
+                                        )
+                                    }
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
+                        )
+                    )}
+
+                    <button
+                        type="button"
+                        className="preview-add-entry"
+                        onClick={() =>
+                            setResume(
+                                (prev) => ({
+                                    ...prev,
+                                    experience: [
+                                        ...prev.experience,
+                                        {
+                                            role: "",
+                                            company:
+                                                "",
+                                            duration:
+                                                "",
+                                            description:
+                                                ""
+                                        }
+                                    ]
+                                })
+                            )
+                        }
+                    >
+                        + Add Experience
+                    </button>
+                </>
+            )}
+
+            {/* =================================
+                EDUCATION
+            ================================= */}
+
+            {section.type ===
+                "education" && (
+                <>
+                    {resume.education.map(
+                        (
+                            item,
+                            itemIndex
+                        ) => (
+                            <div
+                                className="preview-entry"
+                                key={itemIndex}
+                            >
+
+                                <div className="preview-entry-heading">
+
+                                    <EditablePreviewInput
+                                        value={
+                                            item.degree
+                                        }
+                                        onChange={(
+                                            value
+                                        ) =>
+                                            updateArrayItem(
+                                                "education",
+                                                itemIndex,
+                                                "degree",
+                                                value
+                                            )
+                                        }
+                                        className="preview-entry-title-input"
+                                    />
+
+                                    <EditablePreviewInput
+                                        value={
+                                            item.year
+                                        }
+                                        onChange={(
+                                            value
+                                        ) =>
+                                            updateArrayItem(
+                                                "education",
+                                                itemIndex,
+                                                "year",
+                                                value
+                                            )
+                                        }
+                                        className="preview-date-input"
+                                    />
+
+                                </div>
+
+                                <EditablePreviewInput
+                                    value={
+                                        item.institution
+                                    }
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateArrayItem(
+                                            "education",
+                                            itemIndex,
+                                            "institution",
+                                            value
+                                        )
+                                    }
+                                    className="preview-company-input"
+                                />
+
+                                <textarea
+                                    className="preview-editable-textarea"
+                                    value={
+                                        item.description
+                                    }
+                                    onChange={(e) =>
+                                        updateArrayItem(
+                                            "education",
+                                            itemIndex,
+                                            "description",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+
+                                <button
+                                    type="button"
+                                    className="preview-delete-entry"
+                                    onClick={() =>
+                                        removeItem(
+                                            "education",
+                                            itemIndex
+                                        )
+                                    }
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
+                        )
+                    )}
+
+                    <button
+                        type="button"
+                        className="preview-add-entry"
+                        onClick={() =>
+                            setResume(
+                                (prev) => ({
+                                    ...prev,
+                                    education: [
+                                        ...prev.education,
+                                        {
+                                            degree: "",
+                                            institution:
+                                                "",
+                                            year: "",
+                                            description:
+                                                ""
+                                        }
+                                    ]
+                                })
+                            )
+                        }
+                    >
+                        + Add Education
+                    </button>
+                </>
+            )}
+
+            {/* =================================
+                SKILLS
+            ================================= */}
+
+            {section.type ===
+                "skills" && (
+                <>
+                    <div className="preview-skills">
+
+                        {resume.skills.map(
+                            (
+                                skill,
+                                skillIndex
+                            ) => (
+                                <div
+                                    className="preview-skill-edit"
+                                    key={skillIndex}
+                                >
+
+                                    <input
+                                        value={skill}
+                                        onChange={(e) => {
+                                            const updated =
+                                                [
+                                                    ...resume.skills
+                                                ];
+
+                                            updated[
+                                                skillIndex
+                                            ] =
+                                                e.target.value;
+
+                                            setResume(
+                                                (
+                                                    prev
+                                                ) => ({
+                                                    ...prev,
+                                                    skills:
+                                                        updated
+                                                })
+                                            );
+                                        }}
+                                    />
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            removeItem(
+                                                "skills",
+                                                skillIndex
+                                            )
+                                        }
+                                    >
+                                        ×
+                                    </button>
+
+                                </div>
+                            )
+                        )}
+
+                    </div>
+
+                    <button
+                        type="button"
+                        className="preview-add-entry"
+                        onClick={() =>
+                            setResume(
+                                (prev) => ({
+                                    ...prev,
+                                    skills: [
+                                        ...prev.skills,
+                                        "New Skill"
+                                    ]
+                                })
+                            )
+                        }
+                    >
+                        + Add Skill
+                    </button>
+                </>
+            )}
+
+            {/* =================================
+                PROJECTS
+            ================================= */}
+
+            {section.type ===
+                "projects" && (
+                <>
+                    {resume.projects.map(
+                        (
+                            item,
+                            itemIndex
+                        ) => (
+                            <div
+                                className="preview-entry"
+                                key={itemIndex}
+                            >
+
+                                <EditablePreviewInput
+                                    value={
+                                        item.name
+                                    }
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateArrayItem(
+                                            "projects",
+                                            itemIndex,
+                                            "name",
+                                            value
+                                        )
+                                    }
+                                    className="preview-entry-title-input"
+                                />
+
+                                <EditablePreviewInput
+                                    value={
+                                        item.technologies
+                                    }
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateArrayItem(
+                                            "projects",
+                                            itemIndex,
+                                            "technologies",
+                                            value
+                                        )
+                                    }
+                                    className="preview-company-input"
+                                />
+
+                                <textarea
+                                    className="preview-editable-textarea"
+                                    value={
+                                        item.description
+                                    }
+                                    onChange={(e) =>
+                                        updateArrayItem(
+                                            "projects",
+                                            itemIndex,
+                                            "description",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+
+                                <button
+                                    type="button"
+                                    className="preview-delete-entry"
+                                    onClick={() =>
+                                        removeItem(
+                                            "projects",
+                                            itemIndex
+                                        )
+                                    }
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
+                        )
+                    )}
+
+                    <button
+                        type="button"
+                        className="preview-add-entry"
+                        onClick={() =>
+                            setResume(
+                                (prev) => ({
+                                    ...prev,
+                                    projects: [
+                                        ...prev.projects,
+                                        {
+                                            name: "",
+                                            technologies:
+                                                "",
+                                            description:
+                                                ""
+                                        }
+                                    ]
+                                })
+                            )
+                        }
+                    >
+                        + Add Project
+                    </button>
+                </>
+            )}
+
+            {/* =================================
+                CERTIFICATIONS
+            ================================= */}
+
+            {section.type ===
+                "certifications" && (
+                <>
+                    {resume.certifications.map(
+                        (
+                            item,
+                            itemIndex
+                        ) => (
+                            <div
+                                className="preview-entry"
+                                key={itemIndex}
+                            >
+
+                                <div className="preview-entry-heading">
+
+                                    <EditablePreviewInput
+                                        value={
+                                            item.name
+                                        }
+                                        onChange={(
+                                            value
+                                        ) =>
+                                            updateArrayItem(
+                                                "certifications",
+                                                itemIndex,
+                                                "name",
+                                                value
+                                            )
+                                        }
+                                        className="preview-entry-title-input"
+                                    />
+
+                                    <EditablePreviewInput
+                                        value={
+                                            item.year
+                                        }
+                                        onChange={(
+                                            value
+                                        ) =>
+                                            updateArrayItem(
+                                                "certifications",
+                                                itemIndex,
+                                                "year",
+                                                value
+                                            )
+                                        }
+                                        className="preview-date-input"
+                                    />
+
+                                </div>
+
+                                <EditablePreviewInput
+                                    value={
+                                        item.issuer
+                                    }
+                                    onChange={(
+                                        value
+                                    ) =>
+                                        updateArrayItem(
+                                            "certifications",
+                                            itemIndex,
+                                            "issuer",
+                                            value
+                                        )
+                                    }
+                                    className="preview-company-input"
+                                />
+
+                                <button
+                                    type="button"
+                                    className="preview-delete-entry"
+                                    onClick={() =>
+                                        removeItem(
+                                            "certifications",
+                                            itemIndex
+                                        )
+                                    }
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
+                        )
+                    )}
+
+                    <button
+                        type="button"
+                        className="preview-add-entry"
+                        onClick={() =>
+                            setResume(
+                                (prev) => ({
+                                    ...prev,
+                                    certifications: [
+                                        ...prev.certifications,
+                                        {
+                                            name: "",
+                                            issuer:
+                                                "",
+                                            year: ""
+                                        }
+                                    ]
+                                })
+                            )
+                        }
+                    >
+                        + Add Certification
+                    </button>
+                </>
+            )}
+
+            {/* =================================
+                CUSTOM SECTION
+            ================================= */}
+
+            {section.type ===
+                "custom" && (
+                <textarea
+                    className="preview-editable-textarea"
+                    value={
+                        (
+                            resume.customSections ||
+                            []
+                        ).find(
+                            (item) =>
+                                item.id ===
+                                section.id
+                        )?.content || ""
+                    }
+                    onChange={(e) =>
+                        onCustomChange(
+                            section.id,
+                            e.target.value
+                        )
+                    }
+                />
+            )}
+
+        </section>
+    );
+};
+
+
+/* =====================================================
+   EDITABLE PREVIEW INPUT
+===================================================== */
+
+const EditablePreviewInput = ({
+    value,
+    onChange,
+    className = ""
+}) => {
+    return (
+        <input
+            type="text"
+            value={value}
+            onChange={(e) =>
+                onChange(e.target.value)
+            }
+            className={`preview-editable-input ${className}`}
+        />
+    );
+};
+
+
+/* =====================================================
+   INLINE PREVIEW INPUT
+===================================================== */
+
+const EditableInlineInput = ({
+    value,
+    onChange
+}) => {
+    return (
+        <input
+            type="text"
+            value={value}
+            onChange={(e) =>
+                onChange(e.target.value)
+            }
+            className="preview-inline-input"
+        />
+    );
+};
+
+
+/* =====================================================
    FORM INPUT
-========================================= */
+===================================================== */
 
 const FormInput = ({
     label,
@@ -1238,8 +2401,14 @@ const FormInput = ({
 
             <input
                 value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
+                onChange={(e) =>
+                    onChange(
+                        e.target.value
+                    )
+                }
+                placeholder={
+                    placeholder
+                }
             />
 
         </div>
@@ -1247,9 +2416,9 @@ const FormInput = ({
 };
 
 
-/* =========================================
+/* =====================================================
    FORM TEXTAREA
-========================================= */
+===================================================== */
 
 const FormTextarea = ({
     label,
@@ -1271,7 +2440,11 @@ const FormTextarea = ({
             <textarea
                 rows="5"
                 value={value}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) =>
+                    onChange(
+                        e.target.value
+                    )
+                }
             />
 
         </div>
@@ -1279,9 +2452,9 @@ const FormTextarea = ({
 };
 
 
-/* =========================================
+/* =====================================================
    SECTION HEADER
-========================================= */
+===================================================== */
 
 const SectionHeader = ({
     title,
@@ -1310,9 +2483,9 @@ const SectionHeader = ({
 };
 
 
-/* =========================================
+/* =====================================================
    REPEATABLE CARD
-========================================= */
+===================================================== */
 
 const RepeatableCard = ({
     title,
@@ -1344,39 +2517,6 @@ const RepeatableCard = ({
             </div>
 
         </div>
-    );
-};
-
-
-/* =========================================
-   RESUME PREVIEW SECTION
-   EDITABLE HEADINGS
-========================================= */
-
-const ResumePreviewSection = ({
-    title,
-    sectionId,
-    onTitleChange,
-    children
-}) => {
-    return (
-        <section className="resume-preview-section">
-
-            <input
-                type="text"
-                value={title}
-                onChange={(e) =>
-                    onTitleChange(sectionId, e.target.value)
-                }
-                className="editable-resume-heading"
-                aria-label={`Edit ${title} heading`}
-            />
-
-            <div className="section-line"></div>
-
-            {children}
-
-        </section>
     );
 };
 
