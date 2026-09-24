@@ -17,9 +17,7 @@ const defaultResume = {
         {
             degree: "Bachelor of Engineering in Information Technology",
             institution: "Your College Name",
-            year: "2023 - 2027",
-            description:
-                "Relevant coursework: Data Structures, DBMS, Computer Networks, Data Analytics"
+            year: "2023 - 2027"
         }
     ],
 
@@ -155,22 +153,42 @@ const templates = [
 ];
 
 const ResumeBuilder = () => {
-    const [activeSection, setActiveSection] = useState("personal");
+    const [activeSection, setActiveSection] =
+        useState("personal");
 
     const [selectedTemplate, setSelectedTemplate] = useState(() => {
-        return localStorage.getItem("careerBridgeResumeTemplate") || "modern";
+        return (
+            localStorage.getItem(
+                "careerBridgeResumeTemplate"
+            ) || "modern"
+        );
     });
 
-    const [showTemplates, setShowTemplates] = useState(false);
+    const [showTemplates, setShowTemplates] =
+        useState(false);
 
     const [resume, setResume] = useState(() => {
-        const saved = localStorage.getItem("careerBridgeResume");
+        const saved =
+            localStorage.getItem("careerBridgeResume");
 
         if (saved) {
             try {
+                const parsed = JSON.parse(saved);
+
                 return {
                     ...defaultResume,
-                    ...JSON.parse(saved)
+                    ...parsed,
+
+                    // Remove old Education descriptions
+                    education: (
+                        parsed.education ||
+                        defaultResume.education
+                    ).map((item) => ({
+                        degree: item.degree || "",
+                        institution:
+                            item.institution || "",
+                        year: item.year || ""
+                    }))
                 };
             } catch {
                 return defaultResume;
@@ -180,19 +198,22 @@ const ResumeBuilder = () => {
         return defaultResume;
     });
 
-    const [resumeSections, setResumeSections] = useState(() => {
-        const saved = localStorage.getItem("careerBridgeResumeSections");
+    const [resumeSections, setResumeSections] =
+        useState(() => {
+            const saved = localStorage.getItem(
+                "careerBridgeResumeSections"
+            );
 
-        if (saved) {
-            try {
-                return JSON.parse(saved);
-            } catch {
-                return defaultSections;
+            if (saved) {
+                try {
+                    return JSON.parse(saved);
+                } catch {
+                    return defaultSections;
+                }
             }
-        }
 
-        return defaultSections;
-    });
+            return defaultSections;
+        });
 
     /* =========================================
        SAVE EVERYTHING
@@ -265,7 +286,8 @@ const ResumeBuilder = () => {
         setResume((prev) => ({
             ...prev,
             [section]: prev[section].filter(
-                (_, itemIndex) => itemIndex !== index
+                (_, itemIndex) =>
+                    itemIndex !== index
             )
         }));
     };
@@ -274,7 +296,10 @@ const ResumeBuilder = () => {
        SECTION UPDATE
     ========================================= */
 
-    const updateSectionTitle = (sectionId, value) => {
+    const updateSectionTitle = (
+        sectionId,
+        value
+    ) => {
         setResumeSections((prev) =>
             prev.map((section) =>
                 section.id === sectionId
@@ -291,7 +316,10 @@ const ResumeBuilder = () => {
        MOVE SECTION
     ========================================= */
 
-    const moveSection = (index, direction) => {
+    const moveSection = (
+        index,
+        direction
+    ) => {
         setResumeSections((prev) => {
             const updated = [...prev];
 
@@ -309,7 +337,9 @@ const ResumeBuilder = () => {
 
             const temp = updated[index];
 
-            updated[index] = updated[newIndex];
+            updated[index] =
+                updated[newIndex];
+
             updated[newIndex] = temp;
 
             return updated;
@@ -323,7 +353,8 @@ const ResumeBuilder = () => {
     const deleteSection = (sectionId) => {
         setResumeSections((prev) =>
             prev.filter(
-                (section) => section.id !== sectionId
+                (section) =>
+                    section.id !== sectionId
             )
         );
     };
@@ -343,7 +374,8 @@ const ResumeBuilder = () => {
                 ...(prev.customSections || []),
                 {
                     id,
-                    content: "Add your content here..."
+                    content:
+                        "Add your content here..."
                 }
             ]
         }));
@@ -407,7 +439,9 @@ const ResumeBuilder = () => {
        TEMPLATE
     ========================================= */
 
-    const selectTemplate = (templateId) => {
+    const selectTemplate = (
+        templateId
+    ) => {
         setSelectedTemplate(templateId);
         setShowTemplates(false);
     };
@@ -415,7 +449,8 @@ const ResumeBuilder = () => {
     const currentTemplate =
         templates.find(
             (template) =>
-                template.id === selectedTemplate
+                template.id ===
+                selectedTemplate
         ) || templates[0];
 
     /* =========================================
@@ -473,7 +508,9 @@ const ResumeBuilder = () => {
                         Career Tools / Resume Builder
                     </p>
 
-                    <h1>Resume Builder</h1>
+                    <h1>
+                        Resume Builder
+                    </h1>
 
                     <p className="resume-subtitle">
                         Build a professional,
@@ -747,8 +784,7 @@ const ResumeBuilder = () => {
                         EDUCATION
                     ================================= */}
 
-                    {activeSection ===
-                        "education" && (
+                    {activeSection === "education" && (
                         <div className="resume-form-content">
 
                             <SectionHeader
@@ -760,11 +796,8 @@ const ResumeBuilder = () => {
                                         "education",
                                         {
                                             degree: "",
-                                            institution:
-                                                "",
-                                            year: "",
-                                            description:
-                                                ""
+                                            institution: "",
+                                            year: ""
                                         }
                                     )
                                 }
@@ -783,8 +816,7 @@ const ResumeBuilder = () => {
                                         showDelete={
                                             resume
                                                 .education
-                                                .length >
-                                            1
+                                                .length > 1
                                         }
                                         onDelete={() =>
                                             removeItem(
@@ -846,24 +878,6 @@ const ResumeBuilder = () => {
                                             }
                                         />
 
-                                        <FormTextarea
-                                            label="Description"
-                                            value={
-                                                item.description
-                                            }
-                                            onChange={(
-                                                value
-                                            ) =>
-                                                updateArrayItem(
-                                                    "education",
-                                                    index,
-                                                    "description",
-                                                    value
-                                                )
-                                            }
-                                            fullWidth
-                                        />
-
                                     </RepeatableCard>
                                 )
                             )}
@@ -888,12 +902,9 @@ const ResumeBuilder = () => {
                                         "experience",
                                         {
                                             role: "",
-                                            company:
-                                                "",
-                                            duration:
-                                                "",
-                                            description:
-                                                ""
+                                            company: "",
+                                            duration: "",
+                                            description: ""
                                         }
                                     )
                                 }
@@ -912,8 +923,7 @@ const ResumeBuilder = () => {
                                         showDelete={
                                             resume
                                                 .experience
-                                                .length >
-                                            1
+                                                .length > 1
                                         }
                                         onDelete={() =>
                                             removeItem(
@@ -1010,7 +1020,9 @@ const ResumeBuilder = () => {
 
                             <div className="form-section-title">
 
-                                <h3>Skills</h3>
+                                <h3>
+                                    Skills
+                                </h3>
 
                                 <p>
                                     Add technical and
@@ -1118,10 +1130,8 @@ const ResumeBuilder = () => {
                                         "projects",
                                         {
                                             name: "",
-                                            technologies:
-                                                "",
-                                            description:
-                                                ""
+                                            technologies: "",
+                                            description: ""
                                         }
                                     )
                                 }
@@ -1140,8 +1150,7 @@ const ResumeBuilder = () => {
                                         showDelete={
                                             resume
                                                 .projects
-                                                .length >
-                                            1
+                                                .length > 1
                                         }
                                         onDelete={() =>
                                             removeItem(
@@ -1247,8 +1256,7 @@ const ResumeBuilder = () => {
                                         showDelete={
                                             resume
                                                 .certifications
-                                                .length >
-                                            1
+                                                .length > 1
                                         }
                                         onDelete={() =>
                                             removeItem(
@@ -1849,12 +1857,9 @@ const EditableResumeSection = ({
                                         ...prev.experience,
                                         {
                                             role: "",
-                                            company:
-                                                "",
-                                            duration:
-                                                "",
-                                            description:
-                                                ""
+                                            company: "",
+                                            duration: "",
+                                            description: ""
                                         }
                                     ]
                                 })
@@ -1938,20 +1943,7 @@ const EditableResumeSection = ({
                                     className="preview-company-input"
                                 />
 
-                                <textarea
-                                    className="preview-editable-textarea"
-                                    value={
-                                        item.description
-                                    }
-                                    onChange={(e) =>
-                                        updateArrayItem(
-                                            "education",
-                                            itemIndex,
-                                            "description",
-                                            e.target.value
-                                        )
-                                    }
-                                />
+                                {/* EDUCATION DESCRIPTION REMOVED */}
 
                                 <button
                                     type="button"
@@ -1981,11 +1973,8 @@ const EditableResumeSection = ({
                                         ...prev.education,
                                         {
                                             degree: "",
-                                            institution:
-                                                "",
-                                            year: "",
-                                            description:
-                                                ""
+                                            institution: "",
+                                            year: ""
                                         }
                                     ]
                                 })
@@ -2027,7 +2016,9 @@ const EditableResumeSection = ({
                                             updated[
                                                 skillIndex
                                             ] =
-                                                e.target.value;
+                                                e
+                                                    .target
+                                                    .value;
 
                                             setResume(
                                                 (
@@ -2173,10 +2164,8 @@ const EditableResumeSection = ({
                                         ...prev.projects,
                                         {
                                             name: "",
-                                            technologies:
-                                                "",
-                                            description:
-                                                ""
+                                            technologies: "",
+                                            description: ""
                                         }
                                     ]
                                 })
@@ -2288,8 +2277,7 @@ const EditableResumeSection = ({
                                         ...prev.certifications,
                                         {
                                             name: "",
-                                            issuer:
-                                                "",
+                                            issuer: "",
                                             year: ""
                                         }
                                     ]
@@ -2397,7 +2385,9 @@ const FormInput = ({
             }
         >
 
-            <label>{label}</label>
+            <label>
+                {label}
+            </label>
 
             <input
                 value={value}
@@ -2435,7 +2425,9 @@ const FormTextarea = ({
             }
         >
 
-            <label>{label}</label>
+            <label>
+                {label}
+            </label>
 
             <textarea
                 rows="5"
@@ -2466,8 +2458,13 @@ const SectionHeader = ({
         <div className="form-section-title-row">
 
             <div>
-                <h3>{title}</h3>
-                <p>{description}</p>
+                <h3>
+                    {title}
+                </h3>
+
+                <p>
+                    {description}
+                </p>
             </div>
 
             <button
@@ -2498,7 +2495,9 @@ const RepeatableCard = ({
 
             <div className="repeatable-card-header">
 
-                <strong>{title}</strong>
+                <strong>
+                    {title}
+                </strong>
 
                 {showDelete && (
                     <button

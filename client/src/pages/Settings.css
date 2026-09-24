@@ -990,3 +990,386 @@
         display: none !important;
     }
 }
+
+/* =========================================================
+   FINAL RESUME SPACING
+   Compact like the reference resume
+   ========================================================= */
+
+/* Resume page */
+.resume-paper {
+    max-width: 720px !important;
+    min-height: 0 !important;
+    height: auto !important;
+
+    padding: 30px 38px !important;
+    box-sizing: border-box !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.resume-paper-header {
+    padding-bottom: 8px !important;
+    margin-bottom: 0 !important;
+}
+
+.preview-name-input {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    line-height: 1.05 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.preview-job-title-input {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 400 !important;
+    line-height: 1.15 !important;
+
+    margin: 2px 0 4px !important;
+    padding: 0 !important;
+}
+
+.resume-contact,
+.resume-links {
+    gap: 5px !important;
+    font-size: 8px !important;
+    line-height: 1.2 !important;
+}
+
+.resume-links {
+    margin-top: 2px !important;
+}
+
+.preview-inline-input {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 8px !important;
+    line-height: 1.2 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+/* =========================================================
+   SECTION SPACING
+   ========================================================= */
+
+.resume-preview-section {
+    margin-top: 9px !important;
+    margin-bottom: 0 !important;
+
+    padding: 0 !important;
+
+    /* IMPORTANT:
+       Don't prevent sections from flowing naturally.
+       This avoids unnecessary blank space. */
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+}
+
+
+/* Section heading */
+.editable-resume-heading,
+.resume-preview-section h3 {
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    line-height: 1.15 !important;
+
+    letter-spacing: 0.6px !important;
+}
+
+
+/* REMOVE THE BLUE LINE */
+.section-line {
+    display: none !important;
+}
+
+
+/* =========================================================
+   SUMMARY
+   ========================================================= */
+
+.preview-summary {
+    margin: 3px 0 0 !important;
+    padding: 0 !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 8.5px !important;
+    line-height: 1.35 !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+
+    resize: none !important;
+    overflow: hidden !important;
+}
+
+
+/* =========================================================
+   EXPERIENCE / EDUCATION / PROJECTS
+   ========================================================= */
+
+.preview-entry {
+    margin: 0 0 6px 0 !important;
+    padding: 0 !important;
+
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+}
+
+
+/* Last entry should not create unnecessary space */
+.preview-entry:last-child {
+    margin-bottom: 0 !important;
+}
+
+
+/* Entry heading */
+.preview-entry-heading {
+    display: flex !important;
+    align-items: baseline !important;
+
+    gap: 8px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+}
+
+
+/* Job / project / degree title */
+.preview-entry-title-input,
+.preview-entry-heading strong {
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+}
+
+
+/* Date */
+.preview-date-input,
+.preview-entry-heading span {
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-size: 8px !important;
+    line-height: 1.2 !important;
+}
+
+
+/* Company / institution */
+.preview-company-input,
+.preview-company {
+    margin: 1px 0 0 !important;
+    padding: 0 !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 8.5px !important;
+    line-height: 1.2 !important;
+}
+
+
+/* Description */
+.preview-editable-textarea,
+.preview-entry p {
+    margin: 2px 0 0 !important;
+    padding: 0 !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 8px !important;
+    line-height: 1.3 !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+
+    /* Do NOT use a small max-height.
+       It can cut off newly added text. */
+    max-height: none !important;
+
+    resize: none !important;
+    overflow: hidden !important;
+}
+
+
+/* Editable inputs */
+.preview-editable-input {
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 8.5px !important;
+    line-height: 1.2 !important;
+}
+
+
+/* =========================================================
+   SKILLS
+   ========================================================= */
+
+.preview-skills {
+    display: grid !important;
+
+    grid-template-columns: 1fr 1fr !important;
+
+    column-gap: 24px !important;
+    row-gap: 1px !important;
+
+    margin: 2px 0 0 !important;
+    padding: 0 !important;
+}
+
+.preview-skill-edit {
+    display: flex !important;
+    align-items: center !important;
+
+    height: 16px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.preview-skill-edit input {
+    width: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 8.5px !important;
+    line-height: 1.2 !important;
+}
+
+.preview-skill-edit button {
+    margin-left: 3px !important;
+    padding: 0 !important;
+
+    font-size: 8px !important;
+}
+
+
+/* =========================================================
+   CERTIFICATIONS
+   ========================================================= */
+
+.preview-entry {
+    margin-bottom: 5px !important;
+}
+
+.preview-entry:last-child {
+    margin-bottom: 0 !important;
+}
+
+
+/* =========================================================
+   ADD / DELETE CONTROLS
+   ========================================================= */
+
+.preview-add-entry {
+    margin: 3px 0 0 !important;
+    padding: 2px 5px !important;
+
+    font-size: 7px !important;
+}
+
+.preview-delete-entry {
+    margin: 1px 0 0 !important;
+    padding: 0 !important;
+
+    font-size: 7px !important;
+}
+
+
+/* =========================================================
+   SECTION CONTROLS
+   ========================================================= */
+
+.preview-section-controls {
+    opacity: 0 !important;
+}
+
+.resume-preview-section:hover .preview-section-controls {
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    .resume-paper {
+        width: 190mm !important;
+        max-width: 190mm !important;
+
+        min-height: 0 !important;
+        height: auto !important;
+
+        padding: 0 !important;
+        margin: 0 !important;
+
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+
+    .resume-preview-section {
+        margin-top: 8px !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+
+    .preview-entry {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .preview-section-controls,
+    .preview-add-entry,
+    .preview-delete-entry,
+    .add-preview-section-button {
+        display: none !important;
+    }
+
+    .preview-editable-input,
+    .preview-editable-textarea,
+    .editable-resume-heading {
+        border: none !important;
+        outline: none !important;
+        background: transparent !important;
+    }
+}
