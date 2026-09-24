@@ -107,11 +107,8 @@
 
 .resume-form-panel {
     background: #ffffff;
-
     border: 1px solid #e6e0ef;
-
     border-radius: 16px;
-
     overflow: hidden;
 
     box-shadow:
@@ -120,43 +117,30 @@
 
 .form-panel-header {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     padding: 24px;
-
     border-bottom: 1px solid #eee9f4;
 }
 
 .form-panel-header h2 {
     margin: 0;
-
     font-size: 19px;
-
     color: #24183a;
 }
 
 .form-panel-header p {
     margin: 5px 0 0;
-
     font-size: 13px;
-
     color: #91889f;
 }
 
 .completion-badge {
     padding: 7px 12px;
-
     border-radius: 20px;
-
     background: #f1eaff;
-
     color: #7c3aed;
-
     font-size: 12px;
-
     font-weight: 700;
 }
 
@@ -167,67 +151,48 @@
 
 .resume-section-tabs {
     padding: 14px;
-
     border-bottom: 1px solid #eee9f4;
 
     display: flex;
-
     flex-direction: column;
-
     gap: 4px;
 }
 
 .resume-section-tab {
     display: flex;
-
     align-items: center;
-
     gap: 11px;
-
     width: 100%;
-
     padding: 11px 13px;
 
     background: transparent;
-
     border: none;
-
     border-radius: 9px;
 
     color: #766d82;
-
     font-size: 13px;
-
     font-weight: 550;
-
     text-align: left;
 
     cursor: pointer;
-
     transition: all 0.2s ease;
 }
 
 .resume-section-tab span {
     width: 25px;
-
     text-align: center;
-
     font-size: 16px;
 }
 
 .resume-section-tab:hover {
     background: #f7f3ff;
-
     color: #7c3aed;
-
     transform: translateX(2px);
 }
 
 .resume-section-tab.active {
     background: #f0eaff;
-
     color: #7c3aed;
-
     font-weight: 700;
 
     box-shadow:
@@ -244,52 +209,40 @@
 }
 
 .form-section-title {
-    margin-bottom: 22px;
+    margin-bottom: 18px;
 }
 
 .form-section-title h3,
 .form-section-title-row h3 {
     margin: 0;
-
     font-size: 17px;
-
     color: #24183a;
 }
 
 .form-section-title p,
 .form-section-title-row p {
     margin: 5px 0 0;
-
     color: #91889f;
-
     font-size: 13px;
-
     line-height: 1.5;
 }
 
 .form-section-title-row {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
-    margin-bottom: 22px;
+    margin-bottom: 18px;
 }
 
 .form-grid {
     display: grid;
-
     grid-template-columns: 1fr 1fr;
-
-    gap: 17px;
+    gap: 15px;
 }
 
 .form-group {
     display: flex;
-
     flex-direction: column;
-
     gap: 7px;
 }
 
@@ -299,32 +252,25 @@
 
 .form-group label {
     font-size: 12px;
-
     font-weight: 650;
-
     color: #453b51;
 }
 
 .form-group input,
 .form-group textarea {
     width: 100%;
-
     box-sizing: border-box;
 
     border: 1px solid #ddd6e8;
-
     border-radius: 9px;
 
     padding: 11px 12px;
 
     font-family: inherit;
-
     font-size: 13px;
-
     color: #24183a;
 
     background: #ffffff;
-
     outline: none;
 
     transition: all 0.2s ease;
@@ -337,8 +283,7 @@
 
 .form-group textarea {
     resize: vertical;
-
-    line-height: 1.5;
+    line-height: 1.45;
 }
 
 .form-group input:focus,
@@ -351,13 +296,9 @@
 
 .character-count {
     display: block;
-
-    margin-top: 6px;
-
+    margin-top: 5px;
     text-align: right;
-
     color: #aaa2b4;
-
     font-size: 11px;
 }
 
@@ -368,29 +309,22 @@
 
 .add-button {
     border: 1px solid #d9c9ff;
-
     background: #f5efff;
-
     color: #7135d1;
 
     border-radius: 8px;
-
     padding: 9px 12px;
 
     font-size: 12px;
-
     font-weight: 700;
 
     cursor: pointer;
-
     transition: all 0.2s ease;
 }
 
 .add-button:hover {
     background: #eadfff;
-
     border-color: #c9b3ff;
-
     transform: translateY(-1px);
 }
 
@@ -401,15 +335,12 @@
 
 .repeatable-form-card {
     border: 1px solid #e5dff0;
-
     border-radius: 10px;
 
-    padding: 18px;
-
-    margin-bottom: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
 
     background: #fcfbfe;
-
     transition: all 0.2s ease;
 }
 
@@ -422,33 +353,25 @@
 
 .repeatable-card-header {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
-    margin-bottom: 17px;
+    margin-bottom: 14px;
 }
 
 .repeatable-card-header strong {
     font-size: 13px;
-
     color: #453b51;
 }
 
 .delete-button {
     border: none;
-
     background: transparent;
-
     color: #dc3d59;
 
     font-size: 12px;
-
     font-weight: 650;
 
     cursor: pointer;
-
     padding: 5px 7px;
 
     border-radius: 6px;
@@ -460,20 +383,17 @@
 
 
 /* =====================================================
-   SKILLS
+   SKILLS EDITOR
 ===================================================== */
 
 .skills-editor {
     display: flex;
-
     flex-direction: column;
-
-    gap: 10px;
+    gap: 9px;
 }
 
 .skill-input-row {
     display: flex;
-
     gap: 8px;
 }
 
@@ -481,13 +401,11 @@
     flex: 1;
 
     border: 1px solid #ddd6e8;
-
     border-radius: 8px;
 
     padding: 11px 12px;
 
     font-size: 13px;
-
     outline: none;
 
     transition: 0.2s ease;
@@ -504,15 +422,12 @@
     width: 40px;
 
     border: none;
-
     border-radius: 8px;
 
     background: #fff1f3;
-
     color: #df3d59;
 
     font-size: 20px;
-
     cursor: pointer;
 
     transition: 0.2s ease;
@@ -529,9 +444,7 @@
 
 .resume-preview-panel {
     background: #eeeaf6;
-
     border: 1px solid #ded6eb;
-
     border-radius: 16px;
 
     padding: 20px;
@@ -543,29 +456,22 @@
 
 .preview-header {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
 
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 }
 
 .preview-header h2 {
     margin: 0;
-
     font-size: 17px;
-
     color: #24183a;
 }
 
 .preview-header span {
     display: block;
-
     margin-top: 4px;
-
     font-size: 11px;
-
     color: #81778f;
 }
 
@@ -582,21 +488,16 @@
     min-width: 160px;
 
     background: #ffffff;
-
     border: 1px solid #dcd3e8;
-
     border-radius: 9px;
 
     padding: 10px 13px;
 
     color: #40364b;
-
     font-size: 12px;
-
     font-weight: 650;
 
     cursor: pointer;
-
     text-align: left;
 
     transition: all 0.2s ease;
@@ -604,7 +505,6 @@
 
 .template-button:hover {
     border-color: #7c3aed;
-
     color: #7c3aed;
 
     box-shadow:
@@ -613,7 +513,6 @@
 
 .template-arrow {
     float: right;
-
     margin-left: 10px;
 }
 
@@ -626,7 +525,6 @@
     position: absolute;
 
     top: calc(100% + 8px);
-
     right: 0;
 
     width: 380px;
@@ -634,9 +532,7 @@
     padding: 10px;
 
     background: #ffffff;
-
     border: 1px solid #e0d9e9;
-
     border-radius: 14px;
 
     box-shadow:
@@ -649,11 +545,9 @@
     padding: 9px 10px 12px;
 
     font-size: 11px;
-
     font-weight: 750;
 
     text-transform: uppercase;
-
     letter-spacing: 0.7px;
 
     color: #978da3;
@@ -661,9 +555,7 @@
 
 .template-grid {
     display: grid;
-
     grid-template-columns: 1fr 1fr;
-
     gap: 7px;
 }
 
@@ -671,21 +563,17 @@
     width: 100%;
 
     display: flex;
-
     align-items: center;
-
     gap: 9px;
 
     padding: 9px;
 
     border: 1px solid transparent;
-
     border-radius: 10px;
 
     background: transparent;
 
     cursor: pointer;
-
     text-align: left;
 
     transition: 0.2s ease;
@@ -693,43 +581,35 @@
 
 .template-option:hover {
     background: #f8f5fc;
-
     border-color: #e6ddf2;
 }
 
 .template-option.selected {
     background: #f2ebff;
-
     border-color: #cdb8ff;
 }
 
 .template-option-info {
     display: flex;
-
     flex-direction: column;
 
     flex: 1;
-
     gap: 3px;
 }
 
 .template-option-info strong {
     font-size: 11px;
-
     color: #3d3447;
 }
 
 .template-option-info span {
     font-size: 9px;
-
     color: #958b9e;
 }
 
 .template-check {
     color: #7c3aed;
-
     font-weight: 800;
-
     font-size: 14px;
 }
 
@@ -740,29 +620,23 @@
 
 .template-mini-preview {
     width: 43px;
-
     height: 57px;
 
     flex-shrink: 0;
 
     background: white;
-
     border: 1px solid #ddd;
-
     border-radius: 3px;
 
     padding: 5px;
-
     box-sizing: border-box;
 
     overflow: hidden;
-
     position: relative;
 }
 
 .mini-name {
     width: 65%;
-
     height: 4px;
 
     background: #333;
@@ -772,7 +646,6 @@
 
 .mini-line {
     width: 100%;
-
     height: 2px;
 
     background: #7c3aed;
@@ -782,7 +655,6 @@
 
 .mini-content {
     width: 90%;
-
     height: 2px;
 
     background: #bbb;
@@ -867,7 +739,6 @@
 
 .mini-creative {
     border-radius: 8px;
-
     border: 2px solid #c026d3;
 }
 
@@ -893,14 +764,13 @@
 
 .resume-paper {
     width: 100%;
-
     max-width: 720px;
 
     min-height: 980px;
 
     margin: 0 auto;
 
-    padding: 48px 52px;
+    padding: 42px 48px;
 
     box-sizing: border-box;
 
@@ -911,8 +781,7 @@
 
     color: #20252e;
 
-    transition:
-        all 0.3s ease;
+    transition: all 0.3s ease;
 
     position: relative;
 }
@@ -929,7 +798,7 @@
 .resume-template-modern .resume-paper-header {
     text-align: center;
 
-    padding-bottom: 20px;
+    padding-bottom: 12px;
 
     border-bottom: 1.5px solid #7c3aed;
 }
@@ -956,20 +825,18 @@
 .resume-template-classic .resume-paper-header {
     text-align: center;
 
-    padding-bottom: 18px;
+    padding-bottom: 12px;
 
     border-bottom: 2px solid #222;
 }
 
 .resume-template-classic .resume-paper-header h1 {
     font-family: Georgia, serif;
-
     letter-spacing: 1px;
 }
 
 .resume-template-classic .resume-preview-section h3 {
     color: #222;
-
     letter-spacing: 1.5px;
 }
 
@@ -983,42 +850,36 @@
 ===================================================== */
 
 .resume-template-minimal {
-    padding: 55px 60px;
+    padding: 45px 54px;
 }
 
 .resume-template-minimal .resume-paper-header {
     text-align: left;
 
-    padding-bottom: 24px;
+    padding-bottom: 15px;
 
     border-bottom: 1px solid #dddddd;
 }
 
 .resume-template-minimal .resume-paper-header h1 {
     font-size: 31px;
-
     font-weight: 500;
 }
 
 .resume-template-minimal .resume-paper-header h2 {
     font-weight: 400;
-
     color: #777;
 }
 
 .resume-template-minimal .resume-preview-section h3 {
     color: #555;
-
     font-weight: 600;
-
     letter-spacing: 1px;
 }
 
 .resume-template-minimal .section-line {
     background: #ddd;
-
     width: 35px;
-
     height: 2px;
 }
 
@@ -1036,14 +897,13 @@
 
     background: #f5f3ff;
 
-    margin: -48px -52px 25px;
+    margin: -42px -48px 16px;
 
-    padding: 35px 52px 25px;
+    padding: 30px 48px 18px;
 }
 
 .resume-template-executive .resume-paper-header h1 {
     color: #312e81;
-
     font-size: 30px;
 }
 
@@ -1062,14 +922,13 @@
 
 .resume-template-tech {
     border-left: 7px solid #0f766e;
-
     font-family: Arial, sans-serif;
 }
 
 .resume-template-tech .resume-paper-header {
     text-align: left;
 
-    padding-bottom: 20px;
+    padding-bottom: 13px;
 
     border-bottom: 3px solid #0f766e;
 }
@@ -1082,7 +941,6 @@
     color: #0f766e;
 
     font-family: monospace;
-
     letter-spacing: 1px;
 }
 
@@ -1102,7 +960,7 @@
 .resume-template-fresher .resume-paper-header {
     text-align: center;
 
-    padding-bottom: 20px;
+    padding-bottom: 13px;
 
     border-bottom: 1px dashed #8b5cf6;
 }
@@ -1126,7 +984,6 @@
 
 .resume-template-creative {
     border-radius: 14px;
-
     overflow: hidden;
 
     border: 2px solid #c026d3;
@@ -1141,9 +998,9 @@
         #fdf4ff
     );
 
-    margin: -48px -52px 25px;
+    margin: -42px -48px 16px;
 
-    padding: 38px 52px 28px;
+    padding: 32px 48px 19px;
 
     border-bottom: 3px solid #c026d3;
 }
@@ -1174,20 +1031,18 @@
 .resume-template-academic .resume-paper-header {
     text-align: center;
 
-    padding-bottom: 22px;
+    padding-bottom: 15px;
 
     border-bottom: 1px solid #92400e;
 }
 
 .resume-template-academic .resume-paper-header h1 {
     letter-spacing: 1.5px;
-
     font-weight: 600;
 }
 
 .resume-template-academic .resume-preview-section h3 {
     color: #78350f;
-
     letter-spacing: 1.5px;
 }
 
@@ -1204,17 +1059,15 @@
     margin: 0;
 
     font-size: 28px;
-
     font-weight: 750;
 
     letter-spacing: 0.3px;
 }
 
 .resume-paper-header h2 {
-    margin: 6px 0 12px;
+    margin: 4px 0 7px;
 
     font-size: 14px;
-
     font-weight: 500;
 
     color: #555e6d;
@@ -1225,18 +1078,16 @@
     display: flex;
 
     justify-content: center;
-
     flex-wrap: wrap;
 
-    gap: 8px;
+    gap: 6px;
 
     font-size: 9.5px;
-
     color: #4d5562;
 }
 
 .resume-links {
-    margin-top: 5px;
+    margin-top: 3px;
 }
 
 
@@ -1245,7 +1096,7 @@
 ===================================================== */
 
 .resume-preview-section {
-    margin-top: 20px;
+    margin-top: 13px;
 }
 
 .resume-preview-section h3 {
@@ -1263,15 +1114,23 @@
 
     background: #2d333b;
 
-    margin: 5px 0 10px;
+    margin: 4px 0 7px;
 }
 
 .preview-summary {
+    width: 100%;
+
+    min-height: 35px;
+
+    height: auto;
+
+    resize: vertical;
+
     margin: 0;
 
     font-size: 9.5px;
 
-    line-height: 1.55;
+    line-height: 1.4;
 
     color: #3e4651;
 }
@@ -1282,7 +1141,7 @@
 ===================================================== */
 
 .preview-entry {
-    margin-bottom: 12px;
+    margin-bottom: 7px;
 }
 
 .preview-entry-heading {
@@ -1290,7 +1149,7 @@
 
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 15px;
 
     font-size: 10px;
 }
@@ -1301,12 +1160,11 @@
 
 .preview-entry-heading span {
     white-space: nowrap;
-
     color: #555e6d;
 }
 
 .preview-company {
-    margin-top: 2px;
+    margin-top: 1px;
 
     font-size: 9.5px;
 
@@ -1316,11 +1174,11 @@
 }
 
 .preview-entry p {
-    margin: 5px 0 0;
+    margin: 3px 0 0;
 
     font-size: 9px;
 
-    line-height: 1.5;
+    line-height: 1.35;
 
     color: #4d5562;
 }
@@ -1335,19 +1193,18 @@
 
     flex-wrap: wrap;
 
-    gap: 5px 12px;
+    gap: 3px 9px;
 }
 
 .preview-skills span {
     font-size: 9.5px;
-
     color: #333a45;
 }
 
 .preview-skills span:not(:last-child)::after {
     content: " •";
 
-    margin-left: 8px;
+    margin-left: 6px;
 
     color: #9299a5;
 }
@@ -1420,9 +1277,7 @@
 
     .template-dropdown {
         right: auto;
-
         left: 0;
-
         width: 340px;
     }
 
@@ -1432,9 +1287,8 @@
 
     .resume-template-executive .resume-paper-header,
     .resume-template-creative .resume-paper-header {
-        margin: -30px -30px 25px;
-
-        padding: 30px;
+        margin: -30px -30px 16px;
+        padding: 27px 30px 17px;
     }
 }
 
@@ -1454,13 +1308,11 @@
 
     .dashboard-content {
         margin: 0 !important;
-
         padding: 0 !important;
     }
 
     .resume-builder-page {
         padding: 0;
-
         background: white;
     }
 
@@ -1470,42 +1322,41 @@
 
     .resume-preview-panel {
         padding: 0;
-
         background: white;
-
         border: none;
     }
 
     .resume-paper {
         box-shadow: none;
-
         max-width: none;
-
         width: 100%;
-
         min-height: auto;
     }
 }
 
-/* =========================================
+
+/* =====================================================
    EDITABLE RESUME SECTION HEADINGS
-========================================= */
+===================================================== */
 
 .editable-resume-heading {
     width: 100%;
-    border: none;
+
+    border: 1px solid transparent;
     outline: none;
+
     background: transparent;
 
     font-family: inherit;
     font-size: 13px;
     font-weight: 700;
+
     letter-spacing: 1px;
     text-transform: uppercase;
 
     color: #7c3aed;
 
-    padding: 0;
+    padding: 2px 4px;
     margin: 0;
 
     cursor: text;
@@ -1518,9 +1369,13 @@
 
 .editable-resume-heading:focus {
     background: rgba(124, 58, 237, 0.08);
+
     outline: 1px dashed #7c3aed;
+
     padding: 4px;
 }
+
+
 /* =====================================================
    FULLY EDITABLE RESUME PREVIEW
 ===================================================== */
@@ -1531,9 +1386,12 @@
 .editable-resume-heading {
     border: 1px solid transparent;
     background: transparent;
+
     outline: none;
+
     font-family: inherit;
     color: inherit;
+
     box-sizing: border-box;
 }
 
@@ -1542,6 +1400,7 @@
 .preview-editable-textarea:hover,
 .editable-resume-heading:hover {
     border-color: rgba(124, 58, 237, 0.25);
+
     background: rgba(124, 58, 237, 0.03);
 }
 
@@ -1550,116 +1409,190 @@
 .preview-editable-textarea:focus,
 .editable-resume-heading:focus {
     border-color: #7c3aed;
+
     background: rgba(124, 58, 237, 0.06);
 }
 
-/* NAME */
+
+/* =====================================================
+   NAME
+===================================================== */
 
 .preview-name-input {
     width: 100%;
+
     border: none;
+
     text-align: center;
+
     font-size: inherit;
     font-weight: 700;
 }
 
-/* JOB TITLE */
+
+/* =====================================================
+   JOB TITLE
+===================================================== */
 
 .preview-job-title-input {
     width: 100%;
+
     border: none;
+
     text-align: center;
+
     font-size: inherit;
 }
 
-/* CONTACT */
+
+/* =====================================================
+   CONTACT
+===================================================== */
 
 .preview-inline-input {
     width: auto;
+
     min-width: 40px;
     max-width: 220px;
+
     text-align: center;
+
     padding: 2px 4px;
 }
 
-/* SECTION HEADING */
+
+/* =====================================================
+   SECTION HEADING
+===================================================== */
 
 .editable-resume-heading {
     width: 100%;
+
     padding: 2px 4px;
+
     margin: 0;
+
     font-size: 13px;
+
     font-weight: 700;
+
     letter-spacing: 1px;
+
     text-transform: uppercase;
+
     color: #7c3aed;
 }
 
-/* ENTRY TITLE */
+
+/* =====================================================
+   ENTRY TITLE
+===================================================== */
 
 .preview-entry-title-input {
     width: 70%;
+
     font-weight: 700;
+
     padding: 2px 4px;
 }
 
-/* DATE */
+
+/* =====================================================
+   DATE
+===================================================== */
 
 .preview-date-input {
     width: 30%;
+
     text-align: right;
+
     padding: 2px 4px;
 }
 
-/* COMPANY */
+
+/* =====================================================
+   COMPANY
+===================================================== */
 
 .preview-company-input {
     width: 100%;
+
     padding: 2px 4px;
+
     font-size: inherit;
 }
 
-/* DESCRIPTION */
+
+/* =====================================================
+   DESCRIPTION
+===================================================== */
 
 .preview-editable-textarea {
     width: 100%;
-    min-height: 45px;
+
+    min-height: 30px;
+
     resize: vertical;
-    padding: 4px;
-    line-height: 1.5;
+
+    padding: 3px 4px;
+
+    line-height: 1.35;
 }
 
-/* SUMMARY */
+
+/* =====================================================
+   SUMMARY
+===================================================== */
 
 .preview-summary {
     width: 100%;
-    min-height: 80px;
+
+    min-height: 35px;
+
+    height: auto;
+
     resize: vertical;
+
+    padding: 3px 4px;
+
+    line-height: 1.4;
 }
 
-/* SECTION CONTROLS */
+
+/* =====================================================
+   SECTION CONTROLS
+===================================================== */
 
 .preview-section-controls {
     display: flex;
+
     justify-content: flex-end;
+
     gap: 4px;
-    margin-bottom: 3px;
+
+    margin-bottom: 2px;
+
     opacity: 0;
+
     transition: opacity 0.2s ease;
 }
 
-.resume-preview-section:hover
-.preview-section-controls {
+.resume-preview-section:hover .preview-section-controls {
     opacity: 1;
 }
 
 .preview-section-controls button {
     border: 1px solid #ddd;
+
     background: white;
+
     border-radius: 4px;
+
     width: 26px;
     height: 24px;
+
     cursor: pointer;
+
     font-size: 13px;
 }
 
@@ -1673,55 +1606,83 @@
     cursor: not-allowed;
 }
 
-/* ADD ENTRY */
+
+/* =====================================================
+   ADD ENTRY
+===================================================== */
 
 .preview-add-entry {
-    margin-top: 8px;
-    padding: 5px 10px;
+    margin-top: 5px;
+
+    padding: 4px 9px;
+
     border: 1px dashed #7c3aed;
+
     background: transparent;
+
     color: #7c3aed;
+
     border-radius: 5px;
+
     cursor: pointer;
-    font-size: 12px;
+
+    font-size: 11px;
 }
 
 .preview-add-entry:hover {
     background: #f5f3ff;
 }
 
-/* DELETE ENTRY */
+
+/* =====================================================
+   DELETE ENTRY
+===================================================== */
 
 .preview-delete-entry {
-    margin-top: 4px;
+    margin-top: 2px;
+
     padding: 3px 8px;
+
     border: none;
+
     background: transparent;
+
     color: #dc2626;
+
     cursor: pointer;
+
     font-size: 11px;
+
     opacity: 0;
 }
 
-.preview-entry:hover
-.preview-delete-entry {
+.preview-entry:hover .preview-delete-entry {
     opacity: 1;
 }
 
-/* SKILLS */
+
+/* =====================================================
+   SKILLS EDITOR
+===================================================== */
 
 .preview-skill-edit {
     display: inline-flex;
+
     align-items: center;
-    margin: 3px;
+
+    margin: 2px;
 }
 
 .preview-skill-edit input {
     border: 1px solid transparent;
+
     background: transparent;
-    padding: 3px 6px;
+
+    padding: 2px 5px;
+
     font-family: inherit;
     font-size: inherit;
+
     outline: none;
 }
 
@@ -1732,23 +1693,38 @@
 
 .preview-skill-edit button {
     border: none;
+
     background: transparent;
+
     color: #dc2626;
+
     cursor: pointer;
+
     font-size: 14px;
 }
 
-/* ADD SECTION */
+
+/* =====================================================
+   ADD SECTION
+===================================================== */
 
 .add-preview-section-button {
     width: 100%;
-    margin-top: 15px;
-    padding: 9px;
+
+    margin-top: 12px;
+
+    padding: 8px;
+
     border: 1px dashed #7c3aed;
+
     background: transparent;
+
     color: #7c3aed;
+
     border-radius: 6px;
+
     cursor: pointer;
+
     font-weight: 600;
 }
 
@@ -1756,13 +1732,19 @@
     background: #f5f3ff;
 }
 
-/* CUSTOM SECTION */
+
+/* =====================================================
+   CUSTOM SECTION
+===================================================== */
 
 .resume-preview-section textarea {
     font-family: inherit;
 }
 
-/* PRINT */
+
+/* =====================================================
+   PRINT — EDITABLE ELEMENTS
+===================================================== */
 
 @media print {
 
