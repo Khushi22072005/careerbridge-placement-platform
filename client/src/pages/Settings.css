@@ -408,3 +408,585 @@
     width: 100%;
   }
 }
+/* =====================================================
+   COMPACT RESUME - LESS EMPTY SPACE
+===================================================== */
+
+/* Resume paper */
+.resume-paper {
+    max-width: 720px !important;
+
+    min-height: 0 !important;
+
+    padding: 30px 38px !important;
+
+    box-sizing: border-box !important;
+
+    line-height: 1.3 !important;
+}
+
+
+/* Header */
+.resume-paper-header {
+    padding-bottom: 10px !important;
+    margin-bottom: 0 !important;
+}
+
+.resume-paper-header h1 {
+    margin: 0 !important;
+
+    font-size: 24px !important;
+
+    line-height: 1.1 !important;
+}
+
+.resume-paper-header h2 {
+    margin: 3px 0 6px !important;
+
+    font-size: 11px !important;
+
+    line-height: 1.2 !important;
+}
+
+.resume-contact,
+.resume-links {
+    gap: 5px !important;
+
+    font-size: 8.5px !important;
+
+    line-height: 1.2 !important;
+}
+
+.resume-links {
+    margin-top: 2px !important;
+}
+
+
+/* Sections */
+.resume-preview-section {
+    margin-top: 9px !important;
+
+    margin-bottom: 0 !important;
+
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
+.resume-preview-section h3 {
+    margin: 0 !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.2 !important;
+
+    letter-spacing: 1px !important;
+}
+
+.editable-resume-heading {
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.2 !important;
+
+    letter-spacing: 1px !important;
+}
+
+.section-line {
+    height: 1px !important;
+
+    margin: 2px 0 4px !important;
+}
+
+
+/* Summary */
+.preview-summary {
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    font-size: 8.5px !important;
+
+    line-height: 1.35 !important;
+
+    min-height: 0 !important;
+
+    height: auto !important;
+
+    max-height: 50px !important;
+
+    resize: none !important;
+}
+
+
+/* Experience / Education / Projects */
+.preview-entry {
+    margin-bottom: 6px !important;
+
+    padding: 0 !important;
+
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
+.preview-entry-heading {
+    gap: 10px !important;
+
+    font-size: 9px !important;
+
+    line-height: 1.2 !important;
+}
+
+.preview-entry-heading strong {
+    font-size: 9px !important;
+}
+
+.preview-entry-heading span {
+    font-size: 8px !important;
+}
+
+.preview-company {
+    margin-top: 1px !important;
+
+    font-size: 8.5px !important;
+
+    line-height: 1.2 !important;
+}
+
+.preview-entry p {
+    margin: 2px 0 0 !important;
+
+    font-size: 8px !important;
+
+    line-height: 1.3 !important;
+}
+
+
+/* Editable preview inputs */
+.preview-editable-input {
+    padding: 0 !important;
+
+    margin: 0 !important;
+
+    border: none !important;
+
+    outline: none !important;
+
+    background: transparent !important;
+
+    font-family: inherit !important;
+
+    font-size: 8.5px !important;
+
+    line-height: 1.25 !important;
+}
+
+
+/* Editable textareas */
+.preview-editable-textarea {
+    width: 100% !important;
+
+    min-height: 0 !important;
+
+    height: auto !important;
+
+    max-height: 42px !important;
+
+    padding: 0 !important;
+
+    margin: 1px 0 0 !important;
+
+    border: none !important;
+
+    outline: none !important;
+
+    background: transparent !important;
+
+    resize: none !important;
+
+    overflow: hidden !important;
+
+    font-family: inherit !important;
+
+    font-size: 8px !important;
+
+    line-height: 1.3 !important;
+}
+
+
+/* Project / experience title inputs */
+.preview-entry-title-input {
+    font-size: 9px !important;
+
+    line-height: 1.2 !important;
+}
+
+.preview-date-input {
+    width: 100px !important;
+
+    font-size: 8px !important;
+
+    line-height: 1.2 !important;
+}
+
+.preview-company-input {
+    font-size: 8.5px !important;
+
+    line-height: 1.2 !important;
+}
+
+
+/* Skills */
+.preview-skills {
+    gap: 2px 7px !important;
+
+    margin: 0 !important;
+
+    line-height: 1.2 !important;
+}
+
+.preview-skills span {
+    font-size: 8.5px !important;
+}
+
+
+/* Hide editing controls until hover */
+.preview-section-controls {
+    opacity: 0 !important;
+}
+
+.resume-preview-section:hover .preview-section-controls {
+    opacity: 1 !important;
+}
+
+
+/* Add / delete buttons */
+.preview-add-entry {
+    padding: 2px 5px !important;
+
+    margin: 2px 0 0 !important;
+
+    font-size: 7px !important;
+}
+
+.preview-delete-entry {
+    font-size: 7px !important;
+
+    margin: 1px 0 0 !important;
+}
+
+
+/* =====================================================
+   PRINT VERSION
+===================================================== */
+
+@media print {
+
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    .resume-paper {
+        width: 190mm !important;
+
+        max-width: 190mm !important;
+
+        min-height: 0 !important;
+
+        height: auto !important;
+
+        padding: 0 !important;
+
+        margin: 0 !important;
+
+        box-shadow: none !important;
+
+        overflow: visible !important;
+    }
+
+    .resume-preview-section {
+        margin-top: 8px !important;
+
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .preview-entry {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .preview-section-controls,
+    .preview-add-entry,
+    .preview-delete-entry,
+    .add-preview-section-button {
+        display: none !important;
+    }
+
+    .preview-editable-input,
+    .preview-editable-textarea,
+    .editable-resume-heading {
+        border: none !important;
+
+        outline: none !important;
+
+        background: transparent !important;
+    }
+}
+/* =========================================
+   FINAL RESUME FONT + SPACING FIX
+   ========================================= */
+
+/* Overall resume text */
+.resume-paper {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+}
+
+
+/* Section headings */
+.editable-resume-heading,
+.resume-preview-section h3 {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.7px !important;
+    margin: 0 !important;
+}
+
+
+/* Section spacing */
+.resume-preview-section {
+    margin-top: 7px !important;
+    margin-bottom: 0 !important;
+}
+
+.section-line {
+    margin: 2px 0 4px !important;
+}
+
+
+/* All normal resume text */
+.resume-preview-section,
+.resume-preview-section p,
+.resume-preview-section span,
+.resume-preview-section div {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
+
+/* Experience / Education / Project titles */
+.preview-entry-title-input,
+.preview-entry-heading strong {
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+}
+
+
+/* Company / institution / secondary text */
+.preview-company-input,
+.preview-company,
+.preview-entry-heading span {
+    font-size: 8.5px !important;
+    line-height: 1.2 !important;
+}
+
+
+/* Descriptions */
+.preview-editable-textarea,
+.preview-entry p {
+    font-size: 8px !important;
+    line-height: 1.3 !important;
+
+    margin-top: 2px !important;
+    margin-bottom: 0 !important;
+}
+
+
+/* =========================================
+   SKILLS - FIX THE BIG FONT
+   ========================================= */
+
+.preview-skills {
+    display: grid !important;
+
+    grid-template-columns: 1fr 1fr !important;
+
+    column-gap: 25px !important;
+    row-gap: 2px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+.preview-skill-edit {
+    display: flex !important;
+
+    align-items: center !important;
+
+    height: 17px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+.preview-skill-edit input {
+    width: 100% !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+
+    font-family: Arial, Helvetica, sans-serif !important;
+
+    font-size: 8.5px !important;
+    font-weight: 400 !important;
+
+    line-height: 1.2 !important;
+}
+
+
+/* Red X */
+.preview-skill-edit button {
+    font-size: 8px !important;
+
+    margin-left: 3px !important;
+
+    padding: 0 !important;
+}
+
+
+/* Certifications */
+.preview-entry {
+    margin-bottom: 5px !important;
+}
+
+
+/* Add buttons */
+.preview-add-entry {
+    font-size: 7px !important;
+
+    padding: 2px 5px !important;
+
+    margin-top: 2px !important;
+}
+
+
+/* =========================================
+   PERSONAL INFORMATION IN PREVIEW
+   ========================================= */
+
+.preview-name-input {
+    font-family: Arial, Helvetica, sans-serif !important;
+
+    font-size: 22px !important;
+    font-weight: 700 !important;
+
+    line-height: 1.1 !important;
+}
+
+.preview-job-title-input {
+    font-family: Arial, Helvetica, sans-serif !important;
+
+    font-size: 10px !important;
+    font-weight: 400 !important;
+
+    line-height: 1.2 !important;
+}
+
+
+/* Contact details */
+.preview-inline-input {
+    font-family: Arial, Helvetica, sans-serif !important;
+
+    font-size: 8px !important;
+
+    line-height: 1.2 !important;
+}
+
+
+/* =========================================
+   SUMMARY
+   ========================================= */
+
+.preview-summary {
+    font-family: Arial, Helvetica, sans-serif !important;
+
+    font-size: 8.5px !important;
+
+    line-height: 1.3 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+/* =========================================
+   REMOVE EXCESSIVE EMPTY SPACE
+   ========================================= */
+
+.preview-editable-textarea {
+    min-height: 0 !important;
+    height: auto !important;
+
+    max-height: 38px !important;
+
+    resize: none !important;
+
+    overflow: hidden !important;
+}
+
+
+/* Keep entries compact */
+.preview-entry-heading {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.preview-company-input {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+/* =========================================
+   PRINT
+   ========================================= */
+
+@media print {
+
+    .resume-paper {
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 9px !important;
+    }
+
+    .resume-preview-section {
+        margin-top: 7px !important;
+    }
+
+    .preview-entry {
+        margin-bottom: 5px !important;
+    }
+
+    .preview-skills {
+        row-gap: 2px !important;
+    }
+
+    .preview-section-controls,
+    .preview-add-entry,
+    .preview-delete-entry,
+    .add-preview-section-button {
+        display: none !important;
+    }
+}
