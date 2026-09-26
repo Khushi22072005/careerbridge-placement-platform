@@ -1,3 +1,4 @@
+
 /* =====================================================
    MOCK INTERVIEW
 ===================================================== */
@@ -39,8 +40,7 @@
 .interview-hero {
     min-height: 390px;
 
-    padding:
-        30px 7% 70px;
+    padding: 30px 7% 70px;
 
     background:
         linear-gradient(
@@ -105,8 +105,7 @@
 .interview-hero-content {
     max-width: 780px;
 
-    margin:
-        65px auto 0;
+    margin: 65px auto 0;
 
     text-align: center;
 
@@ -118,8 +117,7 @@
 .interview-badge {
     display: inline-flex;
 
-    padding:
-        7px 13px;
+    padding: 7px 13px;
 
     border:
         1px solid
@@ -140,8 +138,7 @@
 }
 
 .interview-hero h1 {
-    margin:
-        20px 0 14px;
+    margin: 20px 0 14px;
 
     font-size: 44px;
 
@@ -174,15 +171,13 @@
             calc(100% - 40px)
         );
 
-    margin:
-        -70px auto 60px;
+    margin: -70px auto 60px;
 
     position: relative;
 
     z-index: 5;
 
-    padding:
-        42px;
+    padding: 42px;
 
     background: white;
 
@@ -202,8 +197,7 @@
     width: 64px;
     height: 64px;
 
-    margin:
-        0 auto 18px;
+    margin: 0 auto 18px;
 
     display: flex;
 
@@ -241,8 +235,7 @@
 }
 
 .interview-start-card h2 {
-    margin:
-        0 0 10px;
+    margin: 0 0 10px;
 
     color: #32135f;
 
@@ -252,8 +245,7 @@
 .start-description {
     max-width: 540px;
 
-    margin:
-        0 auto 28px;
+    margin: 0 auto 28px;
 
     color: #81778f;
 
@@ -279,8 +271,7 @@
 }
 
 .role-option {
-    padding:
-        12px 8px;
+    padding: 12px 8px;
 
     border:
         1px solid #e6dff0;
@@ -331,14 +322,14 @@
 
     gap: 9px;
 
-    margin-top: -18px;
+    /* FIX: Keep the skill buttons below the label */
+    margin-top: 0;
 
     margin-bottom: 30px;
 }
 
 .skill-option {
-    padding:
-        12px 8px;
+    padding: 12px 8px;
 
     border:
         1px solid #e6dff0;
@@ -500,8 +491,7 @@
 .interview-topbar {
     height: 70px;
 
-    padding:
-        0 5%;
+    padding: 0 5%;
 
     display: flex;
 
@@ -587,8 +577,7 @@
 
     color: #756b86;
 
-    padding:
-        8px 14px;
+    padding: 8px 14px;
 
     border-radius: 8px;
 
@@ -617,11 +606,9 @@
             calc(100% - 30px)
         );
 
-    margin:
-        0 auto;
+    margin: 0 auto;
 
-    padding:
-        35px 0 70px;
+    padding: 35px 0 70px;
 }
 
 
@@ -665,8 +652,7 @@
             #a78bfa
         );
 
-    transition:
-        width 0.4s ease;
+    transition: width 0.4s ease;
 }
 
 
@@ -677,8 +663,7 @@
 .question-card {
     margin-top: 25px;
 
-    padding:
-        34px;
+    padding: 34px;
 
     background:
         linear-gradient(
@@ -706,8 +691,7 @@
 }
 
 .question-meta span {
-    padding:
-        6px 9px;
+    padding: 6px 9px;
 
     border-radius: 7px;
 
@@ -786,7 +770,6 @@
 }
 
 @keyframes ai-speaking-pulse {
-
     0%,
     100% {
         box-shadow:
@@ -1078,20 +1061,17 @@
 }
 
 @keyframes voice-dot-pulse {
-
     0%,
     100% {
         opacity: 0.35;
 
-        transform:
-            scale(0.8);
+        transform: scale(0.8);
     }
 
     50% {
         opacity: 1;
 
-        transform:
-            scale(1.25);
+        transform: scale(1.25);
     }
 }
 
@@ -1103,8 +1083,7 @@
 .question-card h1 {
     max-width: 690px;
 
-    margin:
-        0 0 12px;
+    margin: 0 0 12px;
 
     color: #24163d;
 
@@ -1128,8 +1107,7 @@
 .repeat-question-button {
     margin-top: 15px;
 
-    padding:
-        8px 11px;
+    padding: 8px 11px;
 
     border: none;
 
@@ -1156,8 +1134,7 @@
 .answer-area {
     margin-top: 18px;
 
-    padding:
-        24px;
+    padding: 24px;
 
     background: white;
 
@@ -1178,8 +1155,7 @@
 }
 
 .answer-header p {
-    margin:
-        0 0 3px;
+    margin: 0 0 3px;
 
     color: #403451;
 
@@ -1224,8 +1200,7 @@
     50% {
         opacity: 0.25;
 
-        transform:
-            scale(1.5);
+        transform: scale(1.5);
     }
 }
 
@@ -1341,8 +1316,7 @@
 
 .mic-button,
 .submit-answer-button {
-    padding:
-        11px 16px;
+    padding: 11px 16px;
 
     border-radius: 9px;
 
@@ -1389,8 +1363,7 @@
 .submit-answer-button:hover:not(:disabled) {
     background: #6d28d9;
 
-    transform:
-        translateY(-1px);
+    transform: translateY(-1px);
 }
 
 .submit-answer-button:disabled {
@@ -1407,8 +1380,7 @@
 .answer-feedback {
     margin-top: 15px;
 
-    padding:
-        15px 17px;
+    padding: 15px 17px;
 
     display: flex;
 
@@ -1457,8 +1429,7 @@
 }
 
 .answer-feedback p {
-    margin:
-        3px 0 0;
+    margin: 3px 0 0;
 
     color: #6c897b;
 
@@ -1466,8 +1437,7 @@
 }
 
 .answer-feedback button {
-    padding:
-        9px 13px;
+    padding: 9px 13px;
 
     border: none;
 
@@ -1521,11 +1491,9 @@
             calc(100% - 30px)
         );
 
-    margin:
-        80px auto;
+    margin: 80px auto;
 
-    padding:
-        55px 45px;
+    padding: 55px 45px;
 
     background: white;
 
@@ -1545,8 +1513,7 @@
     width: 70px;
     height: 70px;
 
-    margin:
-        0 auto 20px;
+    margin: 0 auto 20px;
 
     display: flex;
 
@@ -1565,8 +1532,7 @@
 }
 
 .interview-complete h1 {
-    margin:
-        0 0 12px;
+    margin: 0 0 12px;
 
     color: #24163d;
 
@@ -1582,8 +1548,7 @@
 }
 
 .final-score {
-    margin:
-        25px auto;
+    margin: 25px auto;
 
     display: flex;
 
@@ -1616,8 +1581,7 @@
     grid-template-columns:
         repeat(4, 1fr);
 
-    margin:
-        30px 0;
+    margin: 30px 0;
 
     border:
         1px solid #e8e1f0;
@@ -1657,8 +1621,7 @@
 }
 
 .final-feedback {
-    margin:
-        20px 0 25px;
+    margin: 20px 0 25px;
 
     padding: 18px;
 
@@ -1671,8 +1634,7 @@
 }
 
 .final-feedback h3 {
-    margin:
-        0 0 8px;
+    margin: 0 0 8px;
 
     color: #403451;
 
@@ -1699,8 +1661,7 @@
 
 .primary-interview-button,
 .secondary-interview-button {
-    padding:
-        11px 17px;
+    padding: 11px 17px;
 
     border-radius: 9px;
 
@@ -1738,8 +1699,7 @@
     .interview-hero {
         min-height: 350px;
 
-        padding:
-            25px 25px 60px;
+        padding: 25px 25px 60px;
     }
 
     .interview-hero h1 {
@@ -1755,7 +1715,8 @@
         grid-template-columns:
             repeat(2, 1fr);
 
-        margin-top: -18px;
+        /* FIX: Do not pull buttons over the label */
+        margin-top: 0;
     }
 
     .interview-features {
@@ -1787,8 +1748,7 @@
     }
 
     .interview-workspace {
-        width:
-            calc(100% - 20px);
+        width: calc(100% - 20px);
 
         padding-top: 20px;
     }
@@ -1857,7 +1817,8 @@
     .skill-selector {
         grid-template-columns: 1fr;
 
-        margin-top: -18px;
+        /* FIX: Keep spacing consistent on mobile */
+        margin-top: 0;
     }
 
     .answer-controls {
