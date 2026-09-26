@@ -132,7 +132,7 @@ const API_BASE_URL =
 ========================================================= */
 
 const MAX_QUESTIONS =
-    25;
+    15;
 
 
 /* =========================================================
@@ -1615,7 +1615,7 @@ const MockInterview = () => {
 
 
                     <span className="interview-note">
-                        25 adaptive questions •
+                        15 adaptive questions •
                         Use Google Chrome or
                         Microsoft Edge and allow
                         microphone access.
@@ -1788,7 +1788,7 @@ const MockInterview = () => {
                     <p>
                         You completed a
                         <strong>
-                            {" "}25-question adaptive
+                            {" "}15-question adaptive
                         </strong>{" "}
                         AI interview for the{" "}
                         <strong>
