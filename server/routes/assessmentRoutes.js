@@ -6,6 +6,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 // =====================================================
 // ROLE MAP
+// URL role key -> role name stored in the database
 // =====================================================
 
 const roleMap = {
@@ -16,527 +17,461 @@ const roleMap = {
     "ui-ux": "UI/UX Designer"
 };
 
+// =====================================================
+// SKILL MAP
+// Skill names must match the question table's category
+// values exactly.
+// =====================================================
+
+const skillMap = {
+    "Software Developer": [
+        "Java",
+        "Python",
+        "JavaScript",
+        "C++",
+        "C#",
+        "TypeScript"
+    ],
+
+    "Data Analyst": [
+        "SQL",
+        "Python",
+        "Excel",
+        "Power BI",
+        "Tableau",
+        "R"
+    ],
+
+    "Cybersecurity": [
+        "Python",
+        "Linux",
+        "Networking",
+        "SQL",
+        "Bash/Shell",
+        "PowerShell"
+    ],
+
+    "Cloud / DevOps": [
+        "Linux",
+        "AWS",
+        "Azure",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "Python",
+        "Bash/Shell"
+    ],
+
+    "UI/UX Designer": [
+        "Figma",
+        "UI Design",
+        "UX Design",
+        "User Research",
+        "Prototyping",
+        "HTML/CSS",
+        "Design Systems"
+    ]
+};
+
+const REQUIRED_QUESTIONS = 20;
+const VALID_OPTIONS = ["A", "B", "C", "D"];
 
 // =====================================================
-// GET QUESTIONS
-// GET /api/assessment/questions/:role
+// GET AVAILABLE SKILLS FOR A ROLE
+// GET /api/assessment/skills/:role
 // =====================================================
 
-router.get(
-    "/questions/:role",
-    async (req, res) => {
+router.get("/skills/:role", async (req, res) => {
+    try {
+        const { role } = req.params;
+        const selectedRole = roleMap[role];
 
-        try {
-
-            const { role } = req.params;
-
-            const selectedRole = roleMap[role];
-
-            if (!selectedRole) {
-                return res.status(400).json({
-                    message: "Invalid career role."
-                });
-            }
-
-            const result = await pool.query(
-                `
-                SELECT
-                    id,
-                    role,
-                    category,
-                    question,
-                    option_a,
-                    option_b,
-                    option_c,
-                    option_d,
-                    difficulty
-                FROM career_assessment_questions
-                WHERE role = $1
-                ORDER BY RANDOM()
-                LIMIT 20
-                `,
-                [selectedRole]
-            );
-
-            if (result.rows.length !== 20) {
-
-                return res.status(400).json({
-                    message:
-                        `This role has only ${result.rows.length} questions in the database. Exactly 20 questions are required.`,
-                    role,
-                    roleName: selectedRole,
-                    totalQuestions: result.rows.length
-                });
-            }
-
-            return res.status(200).json({
-
-                role,
-                roleName: selectedRole,
-                totalQuestions: result.rows.length,
-                questions: result.rows
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Career assessment questions error:",
-                error
-            );
-
-            return res.status(500).json({
-                message:
-                    "Failed to load career assessment questions."
+        if (!selectedRole) {
+            return res.status(400).json({
+                message: "Invalid career role."
             });
         }
-    }
-);
 
+        // Only return skills with at least 20 questions.
+        // The frontend can display these as selectable options.
+        const result = await pool.query(
+            `
+            SELECT
+                category,
+                COUNT(*)::int AS question_count
+            FROM career_assessment_questions
+            WHERE role = $1
+            GROUP BY category
+            `,
+            [selectedRole]
+        );
+
+        const countsBySkill = new Map(
+            result.rows.map(row => [
+                row.category,
+                Number(row.question_count)
+            ])
+        );
+
+        const availableSkills = (skillMap[selectedRole] || [])
+            .filter(skill =>
+                (countsBySkill.get(skill) || 0) >= REQUIRED_QUESTIONS
+            );
+
+        return res.status(200).json({
+            role,
+            roleName: selectedRole,
+            requiredQuestions: REQUIRED_QUESTIONS,
+            skills: availableSkills
+        });
+    } catch (error) {
+        console.error("Career assessment skills error:", error);
+
+        return res.status(500).json({
+            message: "Failed to load available assessment skills."
+        });
+    }
+});
+
+// =====================================================
+// GET QUESTIONS FOR A SELECTED ROLE AND SKILL
+// GET /api/assessment/questions/:role/:skill
+//
+// Example:
+// /api/assessment/questions/data-analyst/Python
+// =====================================================
+
+router.get("/questions/:role/:skill", async (req, res) => {
+    try {
+        const { role, skill } = req.params;
+        const selectedRole = roleMap[role];
+
+        if (!selectedRole) {
+            return res.status(400).json({
+                message: "Invalid career role."
+            });
+        }
+
+        if (!skillMap[selectedRole]?.includes(skill)) {
+            return res.status(400).json({
+                message: "Invalid skill selected for this role."
+            });
+        }
+
+        const result = await pool.query(
+            `
+            SELECT
+                id,
+                role,
+                category,
+                question,
+                option_a,
+                option_b,
+                option_c,
+                option_d,
+                difficulty
+            FROM career_assessment_questions
+            WHERE role = $1
+              AND category = $2
+            ORDER BY RANDOM()
+            LIMIT $3
+            `,
+            [selectedRole, skill, REQUIRED_QUESTIONS]
+        );
+
+        if (result.rows.length !== REQUIRED_QUESTIONS) {
+            return res.status(400).json({
+                message:
+                    `Only ${result.rows.length} questions are available for ${selectedRole} - ${skill}. Exactly ${REQUIRED_QUESTIONS} are required.`,
+                role,
+                roleName: selectedRole,
+                skill,
+                totalQuestions: result.rows.length
+            });
+        }
+
+        return res.status(200).json({
+            role,
+            roleName: selectedRole,
+            skill,
+            totalQuestions: result.rows.length,
+            questions: result.rows
+        });
+    } catch (error) {
+        console.error("Career assessment questions error:", error);
+
+        return res.status(500).json({
+            message: "Failed to load career assessment questions."
+        });
+    }
+});
 
 // =====================================================
 // SUBMIT CAREER ASSESSMENT
 // POST /api/assessment/submit
+//
+// Expected request body:
+// {
+//   "role": "data-analyst",
+//   "skill": "Python",
+//   "answers": [
+//     { "questionId": 1, "selectedOption": "A" }
+//   ]
+// }
 // =====================================================
 
-router.post(
-    "/submit",
-    authMiddleware,
-    async (req, res) => {
+router.post("/submit", authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { role, skill, answers } = req.body;
 
-        try {
+        // Validate role
+        if (!role) {
+            return res.status(400).json({
+                message: "Career role is required."
+            });
+        }
 
-            const userId = req.user.id;
+        const selectedRole = roleMap[role];
 
-            const {
+        if (!selectedRole) {
+            return res.status(400).json({
+                message: "Invalid career role."
+            });
+        }
+
+        // Validate skill
+        if (!skill) {
+            return res.status(400).json({
+                message: "Assessment skill is required."
+            });
+        }
+
+        if (!skillMap[selectedRole]?.includes(skill)) {
+            return res.status(400).json({
+                message: "Invalid skill selected for this role."
+            });
+        }
+
+        // Validate answers array
+        if (!Array.isArray(answers)) {
+            return res.status(400).json({
+                message: "Answers must be an array."
+            });
+        }
+
+        if (answers.length !== REQUIRED_QUESTIONS) {
+            return res.status(400).json({
+                message:
+                    `Assessment must contain exactly ${REQUIRED_QUESTIONS} answers. Received ${answers.length}.`
+            });
+        }
+
+        // Validate question IDs and selected options
+        for (const answer of answers) {
+            if (
+                !answer ||
+                answer.questionId === undefined ||
+                answer.questionId === null ||
+                answer.questionId === ""
+            ) {
+                return res.status(400).json({
+                    message: "Every answer must contain a questionId."
+                });
+            }
+
+            const questionId = Number(answer.questionId);
+
+            if (!Number.isInteger(questionId) || questionId <= 0) {
+                return res.status(400).json({
+                    message: "Every answer must contain a valid questionId."
+                });
+            }
+
+            if (!VALID_OPTIONS.includes(answer.selectedOption)) {
+                return res.status(400).json({
+                    message:
+                        "Every answer must contain a valid option: A, B, C, or D."
+                });
+            }
+        }
+
+        const questionIds = answers.map(answer =>
+            Number(answer.questionId)
+        );
+
+        const uniqueQuestionIds = new Set(questionIds);
+
+        if (uniqueQuestionIds.size !== REQUIRED_QUESTIONS) {
+            return res.status(400).json({
+                message: "Assessment contains duplicate questions."
+            });
+        }
+
+        // Fetch and verify submitted questions
+        const questionResult = await pool.query(
+            `
+            SELECT
+                id,
                 role,
-                answers
-            } = req.body;
+                category,
+                correct_option
+            FROM career_assessment_questions
+            WHERE id = ANY($1::integer[])
+              AND role = $2
+              AND category = $3
+            `,
+            [questionIds, selectedRole, skill]
+        );
 
-            // =================================================
-            // VALIDATE ROLE
-            // =================================================
+        if (questionResult.rows.length !== REQUIRED_QUESTIONS) {
+            return res.status(400).json({
+                message:
+                    "One or more questions do not belong to the selected role and skill."
+            });
+        }
 
-            if (!role) {
+        // Create question lookup map
+        const questionLookup = new Map();
 
+        questionResult.rows.forEach(question => {
+            questionLookup.set(Number(question.id), question);
+        });
+
+        // Calculate score
+        let correctAnswers = 0;
+        const categoryScores = {};
+
+        for (const answer of answers) {
+            const questionId = Number(answer.questionId);
+            const question = questionLookup.get(questionId);
+
+            if (!question) {
                 return res.status(400).json({
-                    message: "Career role is required."
+                    message: "Invalid question submitted."
                 });
-
             }
 
-            const selectedRole = roleMap[role];
+            const isCorrect =
+                question.correct_option === answer.selectedOption;
 
-            if (!selectedRole) {
-
-                return res.status(400).json({
-                    message: "Invalid career role."
-                });
-
+            if (isCorrect) {
+                correctAnswers++;
             }
 
-            // =================================================
-            // VALIDATE ANSWERS
-            // =================================================
+            const category = question.category || "General";
 
-            if (!Array.isArray(answers)) {
-
-                return res.status(400).json({
-                    message: "Answers must be an array."
-                });
-
+            if (!categoryScores[category]) {
+                categoryScores[category] = {
+                    total: 0,
+                    correct: 0
+                };
             }
 
-            if (answers.length !== 20) {
+            categoryScores[category].total++;
 
-                return res.status(400).json({
-                    message:
-                        `Assessment must contain exactly 20 answers. Received ${answers.length}.`
-                });
-
+            if (isCorrect) {
+                categoryScores[category].correct++;
             }
+        }
 
-            const questionIds = answers.map(
-                answer => Number(answer.questionId)
-            );
+        // Calculate overall score
+        const totalQuestions = answers.length;
+        const incorrectAnswers = totalQuestions - correctAnswers;
 
-            const uniqueQuestionIds =
-                new Set(questionIds);
+        const score = Math.round(
+            (correctAnswers / totalQuestions) * 100
+        );
 
-            if (uniqueQuestionIds.size !== 20) {
-
-                return res.status(400).json({
-                    message:
-                        "Assessment contains duplicate questions."
-                });
-
-            }
-
-            const validOptions = ["A", "B", "C", "D"];
-
-            for (const answer of answers) {
-
-                if (!answer.questionId) {
-
-                    return res.status(400).json({
-                        message:
-                            "Every answer must contain a questionId."
-                    });
-
-                }
-
-                if (
-                    !validOptions.includes(
-                        answer.selectedOption
-                    )
-                ) {
-
-                    return res.status(400).json({
-                        message:
-                            "Every answer must contain a valid option."
-                    });
-
-                }
-            }
-
-            // =================================================
-            // FETCH QUESTIONS
-            // =================================================
-
-            const questionResult =
-                await pool.query(
-                    `
-                    SELECT
-                        id,
-                        role,
-                        category,
-                        correct_option
-                    FROM career_assessment_questions
-                    WHERE id = ANY($1::integer[])
-                    AND role = $2
-                    `,
-                    [
-                        questionIds,
-                        selectedRole
-                    ]
+        // Build category results
+        const categoryResults = Object.entries(categoryScores)
+            .map(([category, data]) => {
+                const categoryScore = Math.round(
+                    (data.correct / data.total) * 100
                 );
 
-            if (questionResult.rows.length !== 20) {
-
-                return res.status(400).json({
-                    message:
-                        "One or more questions do not belong to the selected career role."
-                });
-
-            }
-
-            // =================================================
-            // QUESTION MAP
-            // =================================================
-
-            const questionMap = new Map();
-
-            questionResult.rows.forEach(question => {
-
-                questionMap.set(
-                    Number(question.id),
-                    question
-                );
-
+                return {
+                    category,
+                    correct: data.correct,
+                    total: data.total,
+                    score: categoryScore
+                };
             });
 
-            // =================================================
-            // SCORE
-            // =================================================
+        // Determine performance level
+        let performanceLevel;
 
-            let correctAnswers = 0;
+        if (score >= 85) {
+            performanceLevel = "Excellent";
+        } else if (score >= 70) {
+            performanceLevel = "Strong";
+        } else if (score >= 50) {
+            performanceLevel = "Moderate";
+        } else {
+            performanceLevel = "Needs Improvement";
+        }
 
-            const categoryScores = {};
-
-            for (const answer of answers) {
-
-                const questionId =
-                    Number(answer.questionId);
-
-                const question =
-                    questionMap.get(questionId);
-
-                if (!question) {
-
-                    return res.status(400).json({
-                        message:
-                            "Invalid question submitted."
-                    });
-
-                }
-
-                const isCorrect =
-                    question.correct_option ===
-                    answer.selectedOption;
-
-                if (isCorrect) {
-                    correctAnswers++;
-                }
-
-                const category =
-                    question.category || "General";
-
-                if (!categoryScores[category]) {
-
-                    categoryScores[category] = {
-                        total: 0,
-                        correct: 0
-                    };
-
-                }
-
-                categoryScores[category].total++;
-
-                if (isCorrect) {
-                    categoryScores[category].correct++;
-                }
-            }
-
-            // =================================================
-            // OVERALL SCORE
-            // =================================================
-
-            const totalQuestions = answers.length;
-
-            const score =
-                Math.round(
-                    (correctAnswers / totalQuestions) * 100
-                );
-
-            // =================================================
-            // CATEGORY RESULTS
-            // =================================================
-
-            const categoryResults =
-                Object.entries(categoryScores)
-                    .map(([category, data]) => {
-
-                        const categoryScore =
-                            Math.round(
-                                (data.correct / data.total) * 100
-                            );
-
-                        return {
-                            category,
-                            correct: data.correct,
-                            total: data.total,
-                            score: categoryScore
-                        };
-
-                    });
-
-            // =================================================
-            // PERFORMANCE
-            // =================================================
-
-            let performanceLevel;
-
-            if (score >= 85) {
-
-                performanceLevel = "Excellent";
-
-            } else if (score >= 70) {
-
-                performanceLevel = "Strong";
-
-            } else if (score >= 50) {
-
-                performanceLevel = "Moderate";
-
-            } else {
-
-                performanceLevel = "Needs Improvement";
-
-            }
-
-            // =================================================
-            // SAVE RESULT FOR LOGGED-IN USER
-            // =================================================
-
-            await pool.query(
-                `
-                INSERT INTO career_assessment_results
-                (
-                    user_id,
-                    role,
-                    role_name,
-                    total_questions,
-                    correct_answers,
-                    incorrect_answers,
-                    score,
-                    performance_level,
-                    category_results
-                )
-                VALUES
-                (
-                    $1,
-                    $2,
-                    $3,
-                    $4,
-                    $5,
-                    $6,
-                    $7,
-                    $8,
-                    $9
-                )
-                `,
-                [
-                    userId,
-                    role,
-                    selectedRole,
-                    totalQuestions,
-                    correctAnswers,
-                    totalQuestions - correctAnswers,
-                    score,
-                    performanceLevel,
-                    JSON.stringify(categoryResults)
-                ]
-            );
-
-            // =================================================
-            // RESPONSE
-            // =================================================
-
-            const result = {
-
+        // Save result for logged-in user
+        await pool.query(
+            `
+            INSERT INTO career_assessment_results
+            (
+                user_id,
                 role,
-                roleName: selectedRole,
-
-                totalQuestions,
-
-                correctAnswers,
-
-                incorrectAnswers:
-                    totalQuestions - correctAnswers,
-
+                role_name,
+                assessment_skill,
+                total_questions,
+                correct_answers,
+                incorrect_answers,
                 score,
-
+                performance_level,
+                category_results
+            )
+            VALUES
+            (
+                $1, $2, $3, $4, $5,
+                $6, $7, $8, $9, $10
+            )
+            `,
+            [
+                userId,
+                role,
+                selectedRole,
+                skill,
+                totalQuestions,
+                correctAnswers,
+                incorrectAnswers,
+                score,
                 performanceLevel,
+                JSON.stringify(categoryResults)
+            ]
+        );
 
-                categoryResults,
+        // Build response
+        const result = {
+            role,
+            roleName: selectedRole,
+            skill,
+            totalQuestions,
+            correctAnswers,
+            incorrectAnswers,
+            score,
+            performanceLevel,
+            categoryResults,
+            completedAt: new Date().toISOString()
+        };
 
-                completedAt:
-                    new Date().toISOString()
+        return res.status(200).json({
+            message: "Career assessment submitted successfully.",
+            result
+        });
+    } catch (error) {
+        console.error("Career assessment submission error:", error);
 
-            };
-
-            return res.status(200).json({
-
-                message:
-                    "Career assessment submitted successfully.",
-
-                result
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Career assessment submission error:",
-                error
-            );
-
-            return res.status(500).json({
-                message:
-                    "Failed to submit career assessment."
-            });
-        }
+        return res.status(500).json({
+            message: "Failed to submit career assessment."
+        });
     }
-);
-
-
-// =====================================================
-// GET MY LATEST ASSESSMENT
-// GET /api/assessment/my-result
-// =====================================================
-
-router.get(
-    "/my-result",
-    authMiddleware,
-    async (req, res) => {
-
-        try {
-
-            const userId = req.user.id;
-
-            const result = await pool.query(
-                `
-                SELECT *
-                FROM career_assessment_results
-                WHERE user_id = $1
-                ORDER BY completed_at DESC
-                LIMIT 1
-                `,
-                [userId]
-            );
-
-            if (result.rows.length === 0) {
-
-                return res.status(200).json({
-                    hasAssessment: false
-                });
-
-            }
-
-            const assessment = result.rows[0];
-
-            return res.status(200).json({
-
-                hasAssessment: true,
-
-                assessment: {
-
-                    id: assessment.id,
-
-                    role: assessment.role,
-
-                    roleName: assessment.role_name,
-
-                    totalQuestions:
-                        assessment.total_questions,
-
-                    correctAnswers:
-                        assessment.correct_answers,
-
-                    incorrectAnswers:
-                        assessment.incorrect_answers,
-
-                    score:
-                        assessment.score,
-
-                    performanceLevel:
-                        assessment.performance_level,
-
-                    categoryResults:
-                        assessment.category_results,
-
-                    completedAt:
-                        assessment.completed_at
-
-                }
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Get assessment result error:",
-                error
-            );
-
-            return res.status(500).json({
-                message:
-                    "Failed to fetch assessment result."
-            });
-
-        }
-    }
-);
-
+});
 
 module.exports = router;

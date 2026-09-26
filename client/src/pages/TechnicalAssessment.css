@@ -47,7 +47,7 @@ button {
 ===================================================== */
 
 .technical-header {
-  height: 72px;
+  min-height: 72px;
 
   display: flex;
 
@@ -55,7 +55,9 @@ button {
 
   justify-content: space-between;
 
-  padding: 0 34px;
+  gap: 16px;
+
+  padding: 12px 34px;
 
   background: white;
 
@@ -70,6 +72,8 @@ button {
   align-items: center;
 
   gap: 10px;
+
+  flex-shrink: 0;
 }
 
 
@@ -81,6 +85,8 @@ button {
 
   align-items: center;
   justify-content: center;
+
+  flex-shrink: 0;
 
   border-radius: 8px;
 
@@ -116,6 +122,8 @@ button {
 
 
 .role-badge {
+  max-width: 60%;
+
   padding: 7px 13px;
 
   border-radius: 20px;
@@ -127,6 +135,12 @@ button {
   font-size: 10px;
 
   font-weight: 800;
+
+  text-align: center;
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
 }
 
 
@@ -189,6 +203,8 @@ button {
   color: #7d879c;
 
   font-size: 11px;
+
+  line-height: 1.6;
 }
 
 
@@ -281,6 +297,8 @@ button {
 
   justify-content: space-between;
 
+  gap: 12px;
+
   margin-bottom: 20px;
 }
 
@@ -306,6 +324,8 @@ button {
   font-size: 8px;
 
   font-weight: 800;
+
+  text-transform: capitalize;
 }
 
 
@@ -323,12 +343,17 @@ button {
 }
 
 
-.difficulty.difficult {
+.difficulty.difficult,
+.difficulty.hard {
   background: #fff0f2;
 
   color: #d63c59;
 }
 
+
+/* =====================================================
+   QUESTION TEXT
+===================================================== */
 
 .question-card h2 {
   margin:
@@ -339,6 +364,8 @@ button {
   font-size: 19px;
 
   line-height: 1.55;
+
+  overflow-wrap: anywhere;
 }
 
 
@@ -385,7 +412,7 @@ button {
 }
 
 
-.answer-option:hover {
+.answer-option:hover:not(:disabled) {
   border-color: #b9c6f7;
 
   background: #fafbff;
@@ -408,6 +435,20 @@ button {
         234,
         0.06
       );
+}
+
+
+.answer-option:focus-visible {
+  outline: 2px solid #315bea;
+
+  outline-offset: 3px;
+}
+
+
+.answer-option:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.7;
 }
 
 
@@ -450,11 +491,15 @@ button {
 .answer-text {
   flex: 1;
 
+  min-width: 0;
+
   color: #4e5a72;
 
   font-size: 10px;
 
   line-height: 1.5;
+
+  overflow-wrap: anywhere;
 }
 
 
@@ -474,6 +519,8 @@ button {
 
   align-items: center;
   justify-content: center;
+
+  flex-shrink: 0;
 
   border:
     1px solid #dce2ed;
@@ -505,12 +552,16 @@ button {
 
   justify-content: space-between;
 
+  gap: 12px;
+
   margin-top: 18px;
 }
 
 
 .previous-question,
 .next-question {
+  min-height: 38px;
+
   padding:
     10px 16px;
 
@@ -521,6 +572,9 @@ button {
   font-weight: 800;
 
   cursor: pointer;
+
+  transition:
+    0.2s ease;
 }
 
 
@@ -574,6 +628,15 @@ button {
 }
 
 
+.next-question:focus-visible,
+.previous-question:focus-visible,
+.technical-empty button:focus-visible {
+  outline: 2px solid #315bea;
+
+  outline-offset: 3px;
+}
+
+
 .next-question:disabled {
   opacity: 0.6;
 
@@ -594,6 +657,8 @@ button {
   color: #a0a8b8;
 
   font-size: 9px;
+
+  line-height: 1.6;
 }
 
 
@@ -657,11 +722,15 @@ button {
 
 .technical-loading p,
 .technical-empty p {
+  max-width: 480px;
+
   margin: 0;
 
   color: #8992a6;
 
   font-size: 11px;
+
+  line-height: 1.6;
 }
 
 
@@ -691,6 +760,17 @@ button {
   font-weight: 800;
 
   cursor: pointer;
+
+  transition:
+    0.2s ease;
+}
+
+
+.technical-empty button:hover {
+  background: #294fd2;
+
+  transform:
+    translateY(-1px);
 }
 
 
@@ -699,9 +779,8 @@ button {
 ===================================================== */
 
 @media (max-width: 650px) {
-
   .technical-header {
-    padding: 0 18px;
+    padding: 12px 18px;
   }
 
   .technical-main {
@@ -730,18 +809,43 @@ button {
 
 
 @media (max-width: 480px) {
-
   .technical-brand {
     display: none;
   }
 
   .role-badge {
+    max-width: 100%;
+
     margin-left: auto;
   }
 
   .technical-main {
     width:
       calc(100% - 16px);
+
+    padding-top: 22px;
+  }
+
+  .technical-intro {
+    margin-bottom: 22px;
+  }
+
+  .technical-intro h1 {
+    font-size: 21px;
+  }
+
+  .technical-intro span {
+    display: block;
+
+    padding: 0 5px;
+  }
+
+  .question-card {
+    padding: 18px;
+  }
+
+  .question-card h2 {
+    font-size: 15px;
   }
 
   .technical-actions {
@@ -751,5 +855,9 @@ button {
   .previous-question,
   .next-question {
     flex: 1;
+
+    padding: 10px 8px;
+
+    font-size: 9px;
   }
 }
