@@ -1,1334 +1,815 @@
-import React, { useMemo } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CareerRoadmap.css";
-
-/* =========================================================
-   CAREER ROADMAP DATA
-========================================================= */
+import logoImg from "../assets/images/logo.jpeg";
 
 const ROADMAPS = {
-    "data-analyst": {
-        title: "Data Analyst",
-        shortTitle: "Data Analyst",
-        subtitle:
-            "A structured journey from data fundamentals to SQL, Python, visualization, real-world projects and placement readiness.",
-        totalDuration: "24–30 weeks",
-
-        stages: [
-            {
-                number: "01",
-                title: "Data & Excel Foundations",
-                category: "FOUNDATION",
-                duration: "2–3 weeks",
-                description:
-                    "Build the foundation required to understand, clean and summarize business data.",
-                skills: [
-                    "Data types",
-                    "Excel formulas",
-                    "Filtering & sorting",
-                    "Pivot tables",
-                    "Data cleaning",
-                ],
-                milestone:
-                    "Clean and summarize a real-world dataset.",
-                project:
-                    "Build an Excel Sales Performance Dashboard",
-                outcome:
-                    "You can confidently inspect, clean and summarize structured datasets.",
-            },
-
-            {
-                number: "02",
-                title: "SQL & Databases",
-                category: "CORE SKILL",
-                duration: "4–5 weeks",
-                description:
-                    "Learn to extract meaningful information from relational databases using SQL.",
-                skills: [
-                    "SELECT",
-                    "WHERE",
-                    "JOINs",
-                    "GROUP BY",
-                    "Subqueries",
-                    "CTEs",
-                    "Window functions",
-                ],
-                milestone:
-                    "Solve business questions using SQL queries.",
-                project:
-                    "Analyze Customer & Sales Data using SQL",
-                outcome:
-                    "You can retrieve, transform and analyze data stored in relational databases.",
-            },
-
-            {
-                number: "03",
-                title: "Statistics & Analytical Thinking",
-                category: "ANALYTICS",
-                duration: "3–4 weeks",
-                description:
-                    "Develop the statistical reasoning required to interpret data and identify meaningful patterns.",
-                skills: [
-                    "Mean & median",
-                    "Variance",
-                    "Probability",
-                    "Distributions",
-                    "Correlation",
-                    "Hypothesis testing",
-                ],
-                milestone:
-                    "Interpret statistical patterns and relationships.",
-                project:
-                    "Customer Behaviour Statistical Analysis",
-                outcome:
-                    "You can explain patterns in data and support conclusions with statistical reasoning.",
-            },
-
-            {
-                number: "04",
-                title: "Python for Data Analysis",
-                category: "TECHNICAL SKILL",
-                duration: "4–5 weeks",
-                description:
-                    "Use Python to automate data preparation, exploration and analysis.",
-                skills: [
-                    "Python",
-                    "NumPy",
-                    "Pandas",
-                    "Data cleaning",
-                    "Data transformation",
-                    "Exploratory Data Analysis",
-                ],
-                milestone:
-                    "Perform an end-to-end analysis using Python.",
-                project:
-                    "Python EDA on a Real-World Dataset",
-                outcome:
-                    "You can perform repeatable data analysis using Python and Pandas.",
-            },
-
-            {
-                number: "05",
-                title: "Data Visualization & Power BI",
-                category: "VISUALIZATION",
-                duration: "3–4 weeks",
-                description:
-                    "Transform analytical results into dashboards that communicate insights clearly.",
-                skills: [
-                    "Chart selection",
-                    "Power BI",
-                    "KPIs",
-                    "Dashboard design",
-                    "Data storytelling",
-                ],
-                milestone:
-                    "Create an interactive decision-making dashboard.",
-                project:
-                    "Power BI Business Intelligence Dashboard",
-                outcome:
-                    "You can communicate analytical findings through clear and interactive dashboards.",
-            },
-
-            {
-                number: "06",
-                title: "End-to-End Analytics Projects",
-                category: "PROJECT",
-                duration: "4–6 weeks",
-                description:
-                    "Combine SQL, Python, Excel and visualization skills to solve realistic analytical problems.",
-                skills: [
-                    "Business problem",
-                    "Data extraction",
-                    "Data cleaning",
-                    "Exploratory analysis",
-                    "Visualization",
-                    "Recommendations",
-                ],
-                milestone:
-                    "Complete a complete analytics workflow from raw data to business recommendations.",
-                project:
-                    "Healthcare / Sales / Customer Analytics Project",
-                outcome:
-                    "You have portfolio-ready evidence of practical Data Analyst skills.",
-            },
-
-            {
-                number: "07",
-                title: "Portfolio & Job Readiness",
-                category: "JOB READY",
-                duration: "Ongoing",
-                description:
-                    "Convert your technical skills and projects into a professional profile for analyst opportunities.",
-                skills: [
-                    "SQL interview questions",
-                    "Case studies",
-                    "Resume",
-                    "Portfolio",
-                    "Business communication",
-                    "Mock interviews",
-                ],
-                milestone:
-                    "Successfully complete a simulated Data Analyst interview.",
-                project:
-                    "Professional Data Analyst Portfolio",
-                outcome:
-                    "You are prepared for Data Analyst internships and entry-level opportunities.",
-            },
+  "data-analyst": {
+    title: "Data Analyst",
+    description:
+      "Progress from data fundamentals to SQL, Excel, Power BI, practical projects and interview preparation.",
+    duration: "24–30 weeks",
+    stages: [
+      {
+        title: "Start with the Basics",
+        category: "FOUNDATION",
+        icon: "01",
+        duration: "Weeks 1–3",
+        description:
+          "Understand data and learn how analysts organize information.",
+        skills: [
+          "Data types and tables",
+          "Excel basics",
+          "Formulas and functions",
+          "Sorting and filtering",
+          "Basic statistics"
         ],
-    },
-
-    /* =========================================================
-       SOFTWARE DEVELOPER
-    ========================================================= */
-
-    "software-developer": {
-        title: "Software Developer",
-        shortTitle: "Software Developer",
-        subtitle:
-            "A structured progression from programming fundamentals to application development, engineering practices and job-ready projects.",
-        totalDuration: "26–32 weeks",
-
-        stages: [
-            {
-                number: "01",
-                title: "Programming Foundations",
-                category: "FOUNDATION",
-                duration: "3–5 weeks",
-                description:
-                    "Build strong programming fundamentals using a primary programming language.",
-                skills: [
-                    "Variables",
-                    "Conditions",
-                    "Loops",
-                    "Functions",
-                    "Error handling",
-                    "OOP basics",
-                ],
-                milestone:
-                    "Build small programs without relying heavily on tutorials.",
-                project:
-                    "Console-Based Student Management System",
-                outcome:
-                    "You can write structured programs using core programming concepts.",
-            },
-
-            {
-                number: "02",
-                title: "Data Structures & Algorithms",
-                category: "CORE SKILL",
-                duration: "5–7 weeks",
-                description:
-                    "Develop problem-solving skills required for software development and technical interviews.",
-                skills: [
-                    "Arrays",
-                    "Strings",
-                    "Stacks",
-                    "Queues",
-                    "Hash maps",
-                    "Trees",
-                    "Searching & sorting",
-                ],
-                milestone:
-                    "Solve programming problems using appropriate data structures.",
-                project:
-                    "DSA Problem-Solving Portfolio",
-                outcome:
-                    "You can approach programming problems systematically.",
-            },
-
-            {
-                number: "03",
-                title: "Web & Application Development",
-                category: "DEVELOPMENT",
-                duration: "5–7 weeks",
-                description:
-                    "Learn how frontend, backend, APIs and databases work together.",
-                skills: [
-                    "HTML/CSS",
-                    "JavaScript",
-                    "React",
-                    "REST APIs",
-                    "Backend",
-                    "Databases",
-                ],
-                milestone:
-                    "Build a functional full-stack application.",
-                project:
-                    "Full-Stack Web Application",
-                outcome:
-                    "You can develop and connect application components.",
-            },
-
-            {
-                number: "04",
-                title: "Engineering Practices",
-                category: "ENGINEERING",
-                duration: "3–4 weeks",
-                description:
-                    "Learn professional practices used to develop maintainable software.",
-                skills: [
-                    "Git",
-                    "GitHub",
-                    "Testing",
-                    "Debugging",
-                    "Code reviews",
-                    "Clean code",
-                ],
-                milestone:
-                    "Collaborate using Git and maintain a structured codebase.",
-                project:
-                    "Collaborative GitHub Project",
-                outcome:
-                    "You understand professional software development workflows.",
-            },
-
-            {
-                number: "05",
-                title: "Real-World Projects",
-                category: "PROJECT",
-                duration: "5–8 weeks",
-                description:
-                    "Apply your development skills to substantial applications.",
-                skills: [
-                    "Application architecture",
-                    "Database design",
-                    "API integration",
-                    "Authentication",
-                    "Deployment",
-                    "Testing",
-                ],
-                milestone:
-                    "Deploy a complete working application.",
-                project:
-                    "Production-Style Full-Stack Application",
-                outcome:
-                    "You have serious projects demonstrating software engineering ability.",
-            },
-
-            {
-                number: "06",
-                title: "Portfolio & Interview Preparation",
-                category: "JOB READY",
-                duration: "3–4 weeks",
-                description:
-                    "Prepare your projects, GitHub profile and technical interview skills.",
-                skills: [
-                    "GitHub",
-                    "DSA",
-                    "Project explanation",
-                    "Technical communication",
-                    "Resume",
-                    "Mock interviews",
-                ],
-                milestone:
-                    "Complete a simulated software developer interview.",
-                project:
-                    "Professional Developer Portfolio",
-                outcome:
-                    "You are ready for software developer opportunities.",
-            },
+        task: "Clean and organize a small dataset.",
+        milestone: "Understand and summarize a dataset.",
+        interview:
+          "Explain mean, median, data types and missing values."
+      },
+      {
+        title: "Build Core Skills",
+        category: "TECHNICAL SKILLS",
+        icon: "02",
+        duration: "Weeks 4–10",
+        description:
+          "Learn the main tools used to query, analyse and visualize data.",
+        skills: [
+          "SQL queries and joins",
+          "Grouping and aggregation",
+          "Excel PivotTables",
+          "Power BI",
+          "Data modelling and DAX"
         ],
-    },
-
-    /* =========================================================
-       UI / UX
-    ========================================================= */
-
-    "ui-ux": {
-        title: "UI/UX Designer",
-        shortTitle: "UI/UX",
-        subtitle:
-            "A practical progression from design fundamentals to UX research, product design and professional portfolio readiness.",
-        totalDuration: "20–26 weeks",
-
-        stages: [
-            {
-                number: "01",
-                title: "Design Foundations",
-                category: "FOUNDATION",
-                duration: "2–3 weeks",
-                description:
-                    "Build the visual principles required for effective interface design.",
-                skills: [
-                    "Design principles",
-                    "Typography",
-                    "Color theory",
-                    "Layout",
-                    "Visual hierarchy",
-                ],
-                milestone:
-                    "Create a consistent visual design system.",
-                project:
-                    "Mobile App Visual Redesign",
-                outcome:
-                    "You understand the principles behind effective visual interfaces.",
-            },
-
-            {
-                number: "02",
-                title: "UX Research",
-                category: "RESEARCH",
-                duration: "3–4 weeks",
-                description:
-                    "Learn to understand users and define meaningful product problems.",
-                skills: [
-                    "User interviews",
-                    "Personas",
-                    "User journeys",
-                    "Information architecture",
-                    "Usability testing",
-                ],
-                milestone:
-                    "Convert user research into clear UX requirements.",
-                project:
-                    "User Research Case Study",
-                outcome:
-                    "You can identify and communicate user problems.",
-            },
-
-            {
-                number: "03",
-                title: "Wireframing & Prototyping",
-                category: "CORE SKILL",
-                duration: "3–4 weeks",
-                description:
-                    "Move from ideas to interactive product experiences.",
-                skills: [
-                    "Wireframes",
-                    "User flows",
-                    "Figma",
-                    "Prototypes",
-                    "Design iteration",
-                ],
-                milestone:
-                    "Create an interactive prototype.",
-                project:
-                    "Complete Mobile/Web App Prototype",
-                outcome:
-                    "You can convert product requirements into usable experiences.",
-            },
-
-            {
-                number: "04",
-                title: "UI Design & Design Systems",
-                category: "UI DESIGN",
-                duration: "3–5 weeks",
-                description:
-                    "Create polished and consistent interfaces.",
-                skills: [
-                    "UI patterns",
-                    "Responsive design",
-                    "Components",
-                    "Design systems",
-                    "Accessibility",
-                ],
-                milestone:
-                    "Build a reusable design system.",
-                project:
-                    "Responsive Product UI",
-                outcome:
-                    "You can design scalable and consistent interfaces.",
-            },
-
-            {
-                number: "05",
-                title: "Real Product Projects",
-                category: "PROJECT",
-                duration: "4–6 weeks",
-                description:
-                    "Apply the complete UX process to realistic product problems.",
-                skills: [
-                    "Research",
-                    "Problem definition",
-                    "Wireframes",
-                    "Prototype",
-                    "Testing",
-                ],
-                milestone:
-                    "Complete an end-to-end product design case study.",
-                project:
-                    "End-to-End Product Design Case Study",
-                outcome:
-                    "You have practical UX work for your portfolio.",
-            },
-
-            {
-                number: "06",
-                title: "Portfolio & Job Readiness",
-                category: "JOB READY",
-                duration: "2–3 weeks",
-                description:
-                    "Present your design decisions through professional case studies.",
-                skills: [
-                    "Case studies",
-                    "Portfolio",
-                    "Design challenges",
-                    "UX interviews",
-                    "Communication",
-                ],
-                milestone:
-                    "Complete a professional portfolio review.",
-                project:
-                    "Professional UX Portfolio",
-                outcome:
-                    "You are ready for UI/UX internships and entry-level roles.",
-            },
+        task: "Answer business questions using SQL and Excel.",
+        milestone:
+          "Analyse data and create meaningful visualizations.",
+        interview:
+          "Practise SQL joins, aggregations and KPI questions."
+      },
+      {
+        title: "Practise and Build",
+        category: "PRACTICAL EXPERIENCE",
+        icon: "03",
+        duration: "Weeks 11–18",
+        description:
+          "Apply your skills to a complete analysis instead of isolated exercises.",
+        skills: [
+          "Data quality checks",
+          "Exploratory analysis",
+          "KPI calculation",
+          "Dashboard design",
+          "Insight interpretation"
         ],
-    },
-
-    /* =========================================================
-       CYBERSECURITY
-    ========================================================= */
-
-    cybersecurity: {
-        title: "Cybersecurity",
-        shortTitle: "Cybersecurity",
-        subtitle:
-            "A structured security journey from networking and systems fundamentals to defensive security, hands-on labs and job readiness.",
-        totalDuration: "25–32 weeks",
-
-        stages: [
-            {
-                number: "01",
-                title: "IT & Networking Foundations",
-                category: "FOUNDATION",
-                duration: "4–6 weeks",
-                description:
-                    "Understand the systems and networks that security professionals protect.",
-                skills: [
-                    "TCP/IP",
-                    "DNS",
-                    "HTTP",
-                    "Ports",
-                    "Routing",
-                    "Operating systems",
-                ],
-                milestone:
-                    "Explain how a network communication flows.",
-                project:
-                    "Network Traffic Analysis Lab",
-                outcome:
-                    "You understand fundamental network communication.",
-            },
-
-            {
-                number: "02",
-                title: "Security Fundamentals",
-                category: "CORE SKILL",
-                duration: "3–4 weeks",
-                description:
-                    "Learn the fundamental principles of information security.",
-                skills: [
-                    "CIA triad",
-                    "Authentication",
-                    "Authorization",
-                    "Threats",
-                    "Vulnerabilities",
-                    "Risk",
-                ],
-                milestone:
-                    "Perform a basic security risk assessment.",
-                project:
-                    "Security Risk Assessment Report",
-                outcome:
-                    "You understand fundamental cybersecurity concepts.",
-            },
-
-            {
-                number: "03",
-                title: "Linux & Security Tools",
-                category: "TECHNICAL SKILL",
-                duration: "4–5 weeks",
-                description:
-                    "Develop command-line and security-tool proficiency through controlled labs.",
-                skills: [
-                    "Linux",
-                    "Shell",
-                    "Logs",
-                    "Network analysis",
-                    "Security tools",
-                ],
-                milestone:
-                    "Investigate a controlled security event.",
-                project:
-                    "Linux Security Investigation Lab",
-                outcome:
-                    "You can investigate systems using practical security tools.",
-            },
-
-            {
-                number: "04",
-                title: "Defensive Security",
-                category: "DEFENSE",
-                duration: "4–6 weeks",
-                description:
-                    "Understand how security teams detect and respond to suspicious activity.",
-                skills: [
-                    "Log analysis",
-                    "SIEM",
-                    "Incident response",
-                    "Threat detection",
-                    "Security monitoring",
-                ],
-                milestone:
-                    "Analyze and document a simulated incident.",
-                project:
-                    "SOC Incident Investigation",
-                outcome:
-                    "You understand the workflow of defensive security teams.",
-            },
-
-            {
-                number: "05",
-                title: "Hands-On Security Labs",
-                category: "PROJECT",
-                duration: "5–8 weeks",
-                description:
-                    "Apply security concepts through legal and controlled environments.",
-                skills: [
-                    "CTF labs",
-                    "Incident investigation",
-                    "Network analysis",
-                    "Detection exercises",
-                    "Security reports",
-                ],
-                milestone:
-                    "Complete multiple controlled security labs.",
-                project:
-                    "Cybersecurity Lab Portfolio",
-                outcome:
-                    "You have practical evidence of security skills.",
-            },
-
-            {
-                number: "06",
-                title: "Specialization & Job Readiness",
-                category: "JOB READY",
-                duration: "Ongoing",
-                description:
-                    "Choose a direction such as SOC, cloud security or application security.",
-                skills: [
-                    "Specialization",
-                    "Security projects",
-                    "Resume",
-                    "Portfolio",
-                    "Interview preparation",
-                ],
-                milestone:
-                    "Complete a simulated cybersecurity interview.",
-                project:
-                    "Professional Cybersecurity Portfolio",
-                outcome:
-                    "You are prepared for entry-level cybersecurity opportunities.",
-            },
+        task: "Complete an end-to-end analytics project.",
+        milestone:
+          "Present a dashboard with findings supported by your data.",
+        interview:
+          "Explain your analysis, assumptions and business insights."
+      },
+      {
+        title: "Prepare Your Profile",
+        category: "CAREER READINESS",
+        icon: "04",
+        duration: "Weeks 19–22",
+        description:
+          "Make your skills and project work easy for recruiters to understand.",
+        skills: [
+          "Resume preparation",
+          "Project documentation",
+          "GitHub presentation",
+          "Dashboard walkthrough",
+          "Communication skills"
         ],
-    },
-
-    /* =========================================================
-       CLOUD / DEVOPS
-    ========================================================= */
-
-    "cloud-devops": {
-        title: "Cloud / DevOps",
-        shortTitle: "Cloud / DevOps",
-        subtitle:
-            "A practical progression from Linux and networking to cloud infrastructure, automation, containers, CI/CD and production practices.",
-        totalDuration: "26–34 weeks",
-
-        stages: [
-            {
-                number: "01",
-                title: "Linux & Networking",
-                category: "FOUNDATION",
-                duration: "4–5 weeks",
-                description:
-                    "Understand the operating systems and networking concepts behind infrastructure.",
-                skills: [
-                    "Linux",
-                    "Shell",
-                    "Processes",
-                    "TCP/IP",
-                    "DNS",
-                    "SSH",
-                ],
-                milestone:
-                    "Manage a Linux environment using the command line.",
-                project:
-                    "Linux Server Administration Lab",
-                outcome:
-                    "You can work comfortably with Linux and networking fundamentals.",
-            },
-
-            {
-                number: "02",
-                title: "Git & Automation",
-                category: "AUTOMATION",
-                duration: "2–3 weeks",
-                description:
-                    "Learn version control and scripting practices used by engineering teams.",
-                skills: [
-                    "Git",
-                    "Branches",
-                    "Shell scripting",
-                    "Automation",
-                    "Environment variables",
-                ],
-                milestone:
-                    "Automate a repetitive development task.",
-                project:
-                    "Shell Automation Project",
-                outcome:
-                    "You can automate repeatable development tasks.",
-            },
-
-            {
-                number: "03",
-                title: "Cloud Fundamentals",
-                category: "CLOUD",
-                duration: "4–6 weeks",
-                description:
-                    "Understand cloud compute, storage, networking and identity services.",
-                skills: [
-                    "Compute",
-                    "Storage",
-                    "Networking",
-                    "IAM",
-                    "Monitoring",
-                    "Cloud architecture",
-                ],
-                milestone:
-                    "Deploy an application to the cloud.",
-                project:
-                    "Cloud-Hosted Web Application",
-                outcome:
-                    "You can deploy and manage basic cloud infrastructure.",
-            },
-
-            {
-                number: "04",
-                title: "Docker & Infrastructure as Code",
-                category: "INFRASTRUCTURE",
-                duration: "4–5 weeks",
-                description:
-                    "Learn how modern infrastructure is packaged and reproduced.",
-                skills: [
-                    "Docker",
-                    "Container images",
-                    "Docker Compose",
-                    "Terraform",
-                    "Infrastructure as Code",
-                ],
-                milestone:
-                    "Containerize and reproduce an application environment.",
-                project:
-                    "Dockerized Application",
-                outcome:
-                    "You can build repeatable containerized environments.",
-            },
-
-            {
-                number: "05",
-                title: "CI/CD & Kubernetes",
-                category: "ADVANCED",
-                duration: "5–7 weeks",
-                description:
-                    "Build automated deployment workflows and understand orchestration.",
-                skills: [
-                    "CI/CD",
-                    "Build pipelines",
-                    "Deployment strategies",
-                    "Kubernetes",
-                    "Services",
-                    "Secrets",
-                ],
-                milestone:
-                    "Create an automated deployment pipeline.",
-                project:
-                    "CI/CD Deployment Pipeline",
-                outcome:
-                    "You understand modern application deployment workflows.",
-            },
-
-            {
-                number: "06",
-                title: "Production Projects & Job Readiness",
-                category: "JOB READY",
-                duration: "5–8 weeks",
-                description:
-                    "Combine cloud, automation and monitoring skills into production-style projects.",
-                skills: [
-                    "Cloud project",
-                    "CI/CD",
-                    "Monitoring",
-                    "Logging",
-                    "Security",
-                    "Documentation",
-                ],
-                milestone:
-                    "Deploy and monitor a production-style application.",
-                project:
-                    "End-to-End DevOps Project",
-                outcome:
-                    "You have a practical DevOps portfolio for entry-level opportunities.",
-            },
+        task: "Prepare a resume and a clear project explanation.",
+        milestone:
+          "Present your skills and project contributions confidently.",
+        interview:
+          "Practise explaining your decisions and results."
+      },
+      {
+        title: "Interview and Placement",
+        category: "FINAL PREPARATION",
+        icon: "05",
+        duration: "Weeks 23–30",
+        description:
+          "Prepare for screening rounds, technical assessments and interviews.",
+        skills: [
+          "SQL interview practice",
+          "Excel questions",
+          "Power BI concepts",
+          "Business case questions",
+          "Mock interviews",
+          "HR preparation"
         ],
-    },
+        task:
+          "Complete mock interviews and timed practice questions.",
+        milestone:
+          "Demonstrate job-relevant analytical skills in interviews.",
+        interview:
+          "Practise technical, case-study and behavioural rounds."
+      }
+    ]
+  },
+
+  "software-developer": {
+    title: "Software Developer",
+    description:
+      "Progress from programming fundamentals to building and explaining software.",
+    duration: "24–32 weeks",
+    stages: [
+      {
+        title: "Start with the Basics",
+        category: "FOUNDATION",
+        icon: "01",
+        duration: "Weeks 1–4",
+        description:
+          "Choose a programming language and develop logical thinking.",
+        skills: [
+          "Variables and data types",
+          "Conditions and loops",
+          "Functions",
+          "Arrays and strings",
+          "Object-oriented basics"
+        ],
+        task:
+          "Write small programs using fundamental concepts.",
+        milestone:
+          "Solve beginner programming problems independently.",
+        interview:
+          "Explain variables, functions, loops and OOP concepts."
+      },
+      {
+        title: "Build Core Skills",
+        category: "TECHNICAL SKILLS",
+        icon: "02",
+        duration: "Weeks 5–11",
+        description:
+          "Learn problem-solving, databases and application development.",
+        skills: [
+          "Data structures",
+          "Searching and sorting",
+          "Time complexity",
+          "SQL and databases",
+          "HTTP and REST APIs"
+        ],
+        task:
+          "Solve coding problems and practise database queries.",
+        milestone:
+          "Choose suitable data structures and explain your solution.",
+        interview:
+          "Practise DSA, OOP, DBMS and basic networking questions."
+      },
+      {
+        title: "Practise and Build",
+        category: "PRACTICAL EXPERIENCE",
+        icon: "03",
+        duration: "Weeks 12–19",
+        description:
+          "Apply programming concepts by building a working application.",
+        skills: [
+          "Frontend or application UI",
+          "Backend fundamentals",
+          "API integration",
+          "Database connectivity",
+          "Testing and debugging"
+        ],
+        task:
+          "Build a functional application with a clear purpose.",
+        milestone:
+          "Demonstrate the application and explain its architecture.",
+        interview:
+          "Explain the code, features, database and technical decisions."
+      },
+      {
+        title: "Prepare Your Profile",
+        category: "CAREER READINESS",
+        icon: "04",
+        duration: "Weeks 20–24",
+        description:
+          "Prepare your code, project documentation and professional profile.",
+        skills: [
+          "Git and GitHub",
+          "Clean code",
+          "README documentation",
+          "Resume preparation",
+          "Project walkthrough"
+        ],
+        task:
+          "Organize your repository and prepare a project presentation.",
+        milestone:
+          "Show readable code and explain your contribution.",
+        interview:
+          "Practise describing design choices and debugging."
+      },
+      {
+        title: "Interview and Placement",
+        category: "FINAL PREPARATION",
+        icon: "05",
+        duration: "Weeks 25–32",
+        description:
+          "Prepare for coding assessments, technical rounds and HR discussions.",
+        skills: [
+          "DSA revision",
+          "OOP and DBMS",
+          "Coding assessments",
+          "System design basics",
+          "Mock interviews",
+          "HR preparation"
+        ],
+        task:
+          "Complete timed coding tests and mock interviews.",
+        milestone:
+          "Explain solutions clearly and demonstrate technical readiness.",
+        interview:
+          "Practise coding, CS fundamentals and behavioural rounds."
+      }
+    ]
+  },
+
+  "ui-ux": {
+    title: "UI/UX Designer",
+    description:
+      "Progress from design principles to user-focused interfaces and portfolio presentation.",
+    duration: "16–24 weeks",
+    stages: [
+      {
+        title: "Start with the Basics",
+        category: "FOUNDATION",
+        icon: "01",
+        duration: "Weeks 1–3",
+        description:
+          "Understand the visual principles that make digital products clear and usable.",
+        skills: [
+          "Color and typography",
+          "Spacing and alignment",
+          "Layout and hierarchy",
+          "Visual consistency",
+          "Accessibility basics"
+        ],
+        task:
+          "Review an existing interface and identify usability issues.",
+        milestone:
+          "Recognize common visual design problems.",
+        interview:
+          "Explain contrast, hierarchy, consistency and accessibility."
+      },
+      {
+        title: "Build Core Skills",
+        category: "DESIGN SKILLS",
+        icon: "02",
+        duration: "Weeks 4–8",
+        description:
+          "Learn how to understand users and translate needs into design decisions.",
+        skills: [
+          "User research",
+          "Personas and user journeys",
+          "Information architecture",
+          "Wireframing",
+          "Figma",
+          "Prototyping"
+        ],
+        task:
+          "Map a user journey and create initial wireframes.",
+        milestone:
+          "Turn a user problem into a structured design flow.",
+        interview:
+          "Explain user research, personas and design decisions."
+      },
+      {
+        title: "Practise and Build",
+        category: "PRACTICAL EXPERIENCE",
+        icon: "03",
+        duration: "Weeks 9–14",
+        description:
+          "Design and evaluate a digital experience from problem to prototype.",
+        skills: [
+          "Interactive prototypes",
+          "Responsive layouts",
+          "Design systems",
+          "Usability testing",
+          "Iteration and feedback"
+        ],
+        task:
+          "Design a connected set of screens for a user problem.",
+        milestone:
+          "Present a prototype and explain improvements from feedback.",
+        interview:
+          "Walk through your design process and usability choices."
+      },
+      {
+        title: "Prepare Your Profile",
+        category: "CAREER READINESS",
+        icon: "04",
+        duration: "Weeks 15–18",
+        description:
+          "Present your design process and decisions in a clear portfolio.",
+        skills: [
+          "Case study writing",
+          "Portfolio structure",
+          "Design rationale",
+          "Presentation skills",
+          "Resume preparation"
+        ],
+        task:
+          "Prepare a case study covering the problem, process and outcome.",
+        milestone:
+          "Explain the reasoning behind your design decisions.",
+        interview:
+          "Practise portfolio walkthroughs and design critiques."
+      },
+      {
+        title: "Interview and Placement",
+        category: "FINAL PREPARATION",
+        icon: "05",
+        duration: "Weeks 19–24",
+        description:
+          "Prepare to discuss design challenges, research and collaboration.",
+        skills: [
+          "Portfolio interviews",
+          "Design challenges",
+          "Usability questions",
+          "Accessibility review",
+          "Mock interviews",
+          "HR preparation"
+        ],
+        task:
+          "Present a case study and practise a timed design challenge.",
+        milestone:
+          "Explain how your design addresses user needs.",
+        interview:
+          "Practise portfolio, problem-solving and behavioural rounds."
+      }
+    ]
+  },
+
+  "cloud-devops": {
+    title: "Cloud / DevOps Engineer",
+    description:
+      "Progress from operating systems and networking to cloud deployment and troubleshooting.",
+    duration: "24–32 weeks",
+    stages: [
+      {
+        title: "Start with the Basics",
+        category: "FOUNDATION",
+        icon: "01",
+        duration: "Weeks 1–4",
+        description:
+          "Understand the systems and networks that applications depend on.",
+        skills: [
+          "Linux commands",
+          "Files and permissions",
+          "Processes",
+          "IP addressing",
+          "DNS",
+          "HTTP and HTTPS"
+        ],
+        task:
+          "Use Linux commands and investigate basic connectivity issues.",
+        milestone:
+          "Understand basic server and networking concepts.",
+        interview:
+          "Explain Linux commands, DNS and common network protocols."
+      },
+      {
+        title: "Build Core Skills",
+        category: "TECHNICAL SKILLS",
+        icon: "02",
+        duration: "Weeks 5–11",
+        description:
+          "Learn version control, automation and cloud infrastructure concepts.",
+        skills: [
+          "Git and GitHub",
+          "Shell scripting",
+          "Cloud fundamentals",
+          "Virtual machines",
+          "Storage and networking",
+          "CI/CD concepts"
+        ],
+        task:
+          "Use version control and describe a deployment workflow.",
+        milestone:
+          "Explain how code moves from development to deployment.",
+        interview:
+          "Practise Linux, networking, Git and cloud fundamentals."
+      },
+      {
+        title: "Practise and Build",
+        category: "PRACTICAL EXPERIENCE",
+        icon: "03",
+        duration: "Weeks 12–19",
+        description:
+          "Understand how applications are packaged, deployed and maintained.",
+        skills: [
+          "Docker",
+          "Container images",
+          "Cloud deployment",
+          "Environment configuration",
+          "CI/CD pipeline basics",
+          "Application logs"
+        ],
+        task:
+          "Deploy a simple application using a documented workflow.",
+        milestone:
+          "Explain the deployment process and common failure points.",
+        interview:
+          "Discuss containers, deployment steps and troubleshooting."
+      },
+      {
+        title: "Prepare Your Profile",
+        category: "CAREER READINESS",
+        icon: "04",
+        duration: "Weeks 20–24",
+        description:
+          "Document your infrastructure work and explain operational decisions.",
+        skills: [
+          "GitHub documentation",
+          "Architecture diagrams",
+          "Deployment documentation",
+          "Security fundamentals",
+          "Resume preparation"
+        ],
+        task:
+          "Document the architecture and deployment steps of your work.",
+        milestone:
+          "Explain the system components and how they interact.",
+        interview:
+          "Practise describing your infrastructure and configuration."
+      },
+      {
+        title: "Interview and Placement",
+        category: "FINAL PREPARATION",
+        icon: "05",
+        duration: "Weeks 25–32",
+        description:
+          "Prepare for technical discussions involving reliability and operations.",
+        skills: [
+          "Linux revision",
+          "Networking questions",
+          "Cloud concepts",
+          "CI/CD troubleshooting",
+          "Monitoring and logs",
+          "Mock interviews"
+        ],
+        task:
+          "Practise diagnosing sample deployment and connectivity failures.",
+        milestone:
+          "Explain a structured approach to troubleshooting.",
+        interview:
+          "Practise scenario-based, technical and HR rounds."
+      }
+    ]
+  }
 };
 
+const STORAGE_KEY = "careerbridge_roadmap";
 
-/* =========================================================
-   FALLBACK ROLE
-========================================================= */
-
-const DEFAULT_ROLE = "data-analyst";
-
-
-/* =========================================================
-   COMPONENT
-========================================================= */
-
-function CareerRoadmap() {
-    const navigate = useNavigate();
-
-    /*
-     * Read the selected role from localStorage.
-     * If nothing exists, Data Analyst is used.
-     */
-    const role =
-        localStorage.getItem("selectedRole") ||
-        DEFAULT_ROLE;
-
-    /*
-     * Select the roadmap based on the selected role.
-     */
-    const roadmap = useMemo(() => {
-        return (
-            ROADMAPS[role] ||
-            ROADMAPS[DEFAULT_ROLE]
-        );
-    }, [role]);
-
-
-    /* =====================================================
-       NAVIGATION
-    ===================================================== */
-
-    const handleDashboard = () => {
-        navigate("/dashboard");
-    };
-
-
-    const handleAssessment = () => {
-        navigate("/assessment-result");
-    };
-
-
-    /*
-     * CHANGE CAREER ROADMAP
-     *
-     * IMPORTANT:
-     * This is the function that changes the roadmap.
-     */
-    const handleRoadmapChange = (selectedRole) => {
-        localStorage.setItem(
-            "selectedRole",
-            selectedRole
-        );
-
-        /*
-         * Reload the page so the new localStorage
-         * value is read by the component.
-         */
-        window.location.reload();
-    };
-
-
-    /* =====================================================
-       PROGRESS
-    ===================================================== */
-
-    const currentStage = 0;
-
-    const completedStages = currentStage;
-
-    const progress = Math.round(
-        (completedStages /
-            roadmap.stages.length) *
-            100
+function loadProgress(role, count) {
+  try {
+    const all = JSON.parse(
+      localStorage.getItem(STORAGE_KEY) || "{}"
     );
 
-
-    return (
-        <div className="career-roadmap-page">
-
-            {/* =================================================
-                SIDEBAR
-            ================================================= */}
-
-            <aside className="roadmap-sidebar">
-
-                {/* BRAND */}
-
-                <div className="roadmap-sidebar-brand">
-
-                    <div className="roadmap-brand-logo">
-                        C
-                    </div>
-
-                    <div className="roadmap-brand-text">
-
-                        <strong>
-                            CareerBridge
-                        </strong>
-
-                        <span>
-                            Career Development
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                {/* NAVIGATION */}
-
-                <nav className="roadmap-navigation">
-
-                    <button
-                        type="button"
-                        onClick={handleDashboard}
-                        className="roadmap-nav-item"
-                    >
-                        <span>⌂</span>
-                        Dashboard
-                    </button>
-
-
-                    <button
-                        type="button"
-                        onClick={handleAssessment}
-                        className="roadmap-nav-item"
-                    >
-                        <span>✓</span>
-                        Career Assessment
-                    </button>
-
-
-                    <button
-                        type="button"
-                        className="roadmap-nav-item active"
-                    >
-                        <span>◆</span>
-                        Career Roadmap
-                    </button>
-
-                </nav>
-
-
-                {/* =================================================
-                    CAREER PATH SELECTOR
-                ================================================= */}
-
-                <div className="roadmap-sidebar-bottom">
-
-                    {/* CURRENT CAREER */}
-
-                    <div className="roadmap-role-box">
-
-                        <span>
-                            YOUR CAREER PATH
-                        </span>
-
-                        <strong>
-                            {roadmap.shortTitle}
-                        </strong>
-
-                    </div>
-
-
-                    {/* ALL CAREER ROADMAPS */}
-
-                    <div className="roadmap-selector">
-
-                        <span className="roadmap-selector-title">
-                            CAREER ROADMAPS
-                        </span>
-
-
-                        {Object.entries(ROADMAPS).map(
-                            ([roadmapKey, roadmapData]) => (
-
-                                <button
-                                    key={roadmapKey}
-                                    type="button"
-                                    className={`roadmap-option ${
-                                        role === roadmapKey
-                                            ? "selected"
-                                            : ""
-                                    }`}
-                                    onClick={() =>
-                                        handleRoadmapChange(
-                                            roadmapKey
-                                        )
-                                    }
-                                >
-
-                                    <span className="roadmap-option-dot">
-                                        {role === roadmapKey
-                                            ? "●"
-                                            : "○"}
-                                    </span>
-
-                                    <span>
-                                        {roadmapData.shortTitle}
-                                    </span>
-
-                                </button>
-
-                            )
-                        )}
-
-                    </div>
-
-                </div>
-
-            </aside>
-
-
-            {/* =================================================
-                MAIN CONTENT
-            ================================================= */}
-
-            <main className="career-roadmap-main">
-
-                {/* =================================================
-                    HEADER
-                ================================================= */}
-
-                <header className="roadmap-page-header">
-
-                    <div>
-
-                        <p className="roadmap-eyebrow">
-                            PERSONALIZED CAREER PATH
-                        </p>
-
-
-                        <h1>
-
-                            {roadmap.title}
-
-                            <span>
-                                {" "}Roadmap
-                            </span>
-
-                        </h1>
-
-
-                        <p className="roadmap-subtitle">
-                            {roadmap.subtitle}
-                        </p>
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        className="roadmap-back-button"
-                        onClick={handleAssessment}
-                    >
-                        ← Assessment Result
-                    </button>
-
-                </header>
-
-
-                {/* =================================================
-                    VISUAL ROADMAP
-                ================================================= */}
-
-                <section className="roadmap-journey">
-
-                    <div className="journey-line" />
-
-
-                    {roadmap.stages.map(
-                        (stage, index) => {
-
-                            const isCurrent =
-                                index === currentStage;
-
-                            const isCompleted =
-                                index < currentStage;
-
-
-                            return (
-                                <React.Fragment
-                                    key={stage.number}
-                                >
-
-                                    {/* =================================================
-                                        STAGE
-                                    ================================================= */}
-
-                                    <article
-                                        className={`journey-stage ${
-                                            isCurrent
-                                                ? "current-stage"
-                                                : ""
-                                        } ${
-                                            isCompleted
-                                                ? "completed-stage"
-                                                : ""
-                                        }`}
-                                    >
-
-                                        {/* TIMELINE NODE */}
-
-                                        <div className="journey-node">
-
-                                            {isCompleted
-                                                ? "✓"
-                                                : stage.number}
-
-                                        </div>
-
-
-                                        {/* STAGE CARD */}
-
-                                        <div className="journey-card">
-
-                                            {/* CARD TOP */}
-
-                                            <div className="journey-card-top">
-
-                                                <div>
-
-                                                    <span className="stage-category">
-                                                        {
-                                                            stage.category
-                                                        }
-                                                    </span>
-
-
-                                                    <h3>
-                                                        {
-                                                            stage.title
-                                                        }
-                                                    </h3>
-
-                                                </div>
-
-
-                                                <span className="stage-time">
-                                                    ⏱{" "}
-                                                    {
-                                                        stage.duration
-                                                    }
-                                                </span>
-
-                                            </div>
-
-
-                                            {/* DESCRIPTION */}
-
-                                            <p className="journey-description">
-                                                {
-                                                    stage.description
-                                                }
-                                            </p>
-
-
-                                            {/* =================================================
-                                                SKILLS
-                                            ================================================= */}
-
-                                            <div className="journey-section">
-
-                                                <div className="journey-section-label">
-
-                                                    <span>
-                                                        ✦
-                                                    </span>
-
-                                                    SKILLS TO DEVELOP
-
-                                                </div>
-
-
-                                                <div className="journey-skills">
-
-                                                    {stage.skills.map(
-                                                        (skill) => (
-
-                                                            <span
-                                                                key={
-                                                                    skill
-                                                                }
-                                                            >
-                                                                {
-                                                                    skill
-                                                                }
-                                                            </span>
-
-                                                        )
-                                                    )}
-
-                                                </div>
-
-                                            </div>
-
-
-                                            {/* =================================================
-                                                PROJECT
-                                            ================================================= */}
-
-                                            <div className="journey-project">
-
-                                                <div className="project-icon">
-                                                    ↗
-                                                </div>
-
-
-                                                <div>
-
-                                                    <span>
-                                                        PRACTICAL PROJECT
-                                                    </span>
-
-
-                                                    <strong>
-                                                        {
-                                                            stage.project
-                                                        }
-                                                    </strong>
-
-                                                </div>
-
-                                            </div>
-
-
-                                            {/* =================================================
-                                                OUTCOME
-                                            ================================================= */}
-
-                                            <div className="journey-outcome">
-
-                                                <span>
-                                                    OUTCOME
-                                                </span>
-
-
-                                                <p>
-                                                    {
-                                                        stage.outcome
-                                                    }
-                                                </p>
-
-                                            </div>
-
-                                        </div>
-
-                                    </article>
-
-
-                                    {/* =================================================
-                                        CONNECTOR
-                                    ================================================= */}
-
-                                    {index <
-                                        roadmap.stages.length -
-                                            1 && (
-
-                                        <div className="journey-connector">
-
-                                            <span>
-                                                ↓
-                                            </span>
-
-                                        </div>
-
-                                    )}
-
-                                </React.Fragment>
-                            );
-                        }
-                    )}
-
-                </section>
-
-
-                {/* =================================================
-                    FINAL DESTINATION
-                ================================================= */}
-
-                <section className="roadmap-finish">
-
-                    <div className="finish-icon">
-                        ✓
-                    </div>
-
-
-                    <div className="finish-content">
-
-                        <span>
-                            FINAL DESTINATION
-                        </span>
-
-
-                        <h2>
-                            Job Ready
-                        </h2>
-
-
-                        <p>
-                            Complete the roadmap, build your
-                            portfolio, strengthen your resume
-                            and practice interviews to become
-                            ready for {roadmap.title} opportunities.
-                        </p>
-
-                    </div>
-
-
-                    <div className="finish-badge">
-
-                        <span>
-                            CAREER
-                        </span>
-
-                        <strong>
-                            READY
-                        </strong>
-
-                    </div>
-
-                </section>
-
-
-                {/* =================================================
-                    FOOTER NOTE
-                ================================================= */}
-
-                <div className="roadmap-footer-note">
-
-                    <span>
-                        CareerBridge
-                    </span>
-
-
-                    <p>
-                        Your career path is a journey.
-                        Build one skill at a time.
-                    </p>
-
-                </div>
-
-            </main>
-
-        </div>
+    const saved = all[role];
+
+    if (!Array.isArray(saved)) return [];
+
+    return [...new Set(saved)].filter(
+      (index) =>
+        Number.isInteger(index) &&
+        index >= 0 &&
+        index < count
     );
+  } catch {
+    return [];
+  }
 }
 
+export default function CareerRoadmap() {
+  const navigate = useNavigate();
 
-export default CareerRoadmap;
+  const [role, setRole] = useState("data-analyst");
+  const [completed, setCompleted] = useState([]);
+  const [activeStage, setActiveStage] = useState(0);
+
+  const roadmap = ROADMAPS[role];
+  const stages = roadmap.stages;
+
+  const progress = Math.round(
+    (completed.length / stages.length) * 100
+  );
+
+  useEffect(() => {
+    try {
+      const savedRole = localStorage.getItem("careerbridge_role");
+
+      if (savedRole && ROADMAPS[savedRole]) {
+        setRole(savedRole);
+      }
+    } catch {
+      // Use the default role if storage is unavailable.
+    }
+  }, []);
+
+  useEffect(() => {
+    setCompleted(
+      loadProgress(role, ROADMAPS[role].stages.length)
+    );
+
+    setActiveStage(0);
+
+    try {
+      localStorage.setItem("careerbridge_role", role);
+    } catch {
+      // The roadmap still works without persistent role storage.
+    }
+  }, [role]);
+
+  useEffect(() => {
+    try {
+      const all = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) || "{}"
+      );
+
+      all[role] = completed;
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(all)
+      );
+    } catch {
+      // Progress remains available for the current session.
+    }
+  }, [role, completed]);
+
+  function toggleStage(index) {
+    setCompleted((previous) =>
+      previous.includes(index)
+        ? previous.filter((item) => item !== index)
+        : [...previous, index].sort((a, b) => a - b)
+    );
+  }
+
+  function resetProgress() {
+    if (window.confirm("Reset progress for this career roadmap?")) {
+      setCompleted([]);
+      setActiveStage(0);
+    }
+  }
+
+  const currentStage = stages[activeStage];
+
+  return (
+    <div className="career-roadmap-page">
+      <header className="roadmap-header">
+        <button
+          className="roadmap-brand"
+          type="button"
+          onClick={() => navigate("/dashboard")}
+          aria-label="CareerBridge dashboard"
+        >
+          <img
+            src={logoImg}
+            alt="CareerBridge logo"
+            className="brand-logo"
+          />
+
+          <span className="brand-text">
+            <strong>CareerBridge</strong>
+            <small>Career Roadmap</small>
+          </span>
+        </button>
+
+        <div className="roadmap-header-actions">
+          <button
+            className="roadmap-outline-btn"
+            onClick={() => navigate("/assessment-result")}
+            type="button"
+          >
+            Assessment
+          </button>
+
+          <button
+            className="roadmap-main-btn"
+            onClick={() => navigate("/dashboard")}
+            type="button"
+          >
+            Dashboard
+          </button>
+        </div>
+      </header>
+
+      <main className="roadmap-container">
+        {/* Main career introduction */}
+        <section className="roadmap-hero">
+          <div className="roadmap-hero-copy">
+            <span className="roadmap-kicker">
+              YOUR PERSONAL CAREER JOURNEY
+            </span>
+
+            <h1>
+              From <span>Beginner</span> to
+              <br />
+              Interview Ready
+            </h1>
+
+            <p>
+              Follow a step-by-step path, build the right skills and
+              track your progress towards your career goal.
+            </p>
+          </div>
+
+          <div className="hero-progress-card">
+            <span className="hero-progress-label">
+              YOUR PROGRESS
+            </span>
+
+            <strong className="hero-progress-number">
+              {progress}%
+            </strong>
+
+            <div
+              className="hero-progress-track"
+              role="progressbar"
+              aria-valuenow={progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Roadmap completion"
+            >
+              <span style={{ width: `${progress}%` }} />
+            </div>
+
+            <p>
+              {completed.length} of {stages.length} phases completed
+            </p>
+          </div>
+        </section>
+
+        {/* Career selection */}
+        <section className="roadmap-controls">
+          <div className="roadmap-role-control">
+            <label htmlFor="roadmap-role">
+              Choose your career path
+            </label>
+
+            <select
+              id="roadmap-role"
+              value={role}
+              onChange={(event) => setRole(event.target.value)}
+            >
+              {Object.entries(ROADMAPS).map(([key, item]) => (
+                <option value={key} key={key}>
+                  {item.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="roadmap-role-description">
+            <span className="role-description-icon">✦</span>
+            <p>{roadmap.description}</p>
+          </div>
+
+          <button
+            className="roadmap-reset-btn"
+            type="button"
+            onClick={resetProgress}
+          >
+            Reset progress
+          </button>
+        </section>
+
+        {/* The middle journey-flow section has been removed. */}
+
+        {/* Detailed learning stage */}
+        <section className="stage-details" aria-live="polite">
+          <div className="stage-detail-header">
+            <div className="stage-detail-icon">
+              {completed.includes(activeStage)
+                ? "✓"
+                : currentStage.icon}
+            </div>
+
+            <div className="stage-detail-title">
+              <span>{currentStage.category}</span>
+              <h2>{currentStage.title}</h2>
+              <p>{currentStage.description}</p>
+            </div>
+
+            <span className="stage-duration-badge">
+              {currentStage.duration}
+            </span>
+          </div>
+
+          <div className="stage-detail-grid">
+            <div className="detail-panel">
+              <h3>
+                <span className="detail-symbol">✦</span>
+                Skills to develop
+              </h3>
+
+              <div className="skill-list">
+                {currentStage.skills.map((skill) => (
+                  <span key={skill}>{skill}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="detail-panel">
+              <h3>
+                <span className="detail-symbol">◎</span>
+                Practical task
+              </h3>
+
+              <p>{currentStage.task}</p>
+
+              <div className="milestone-box">
+                <span>YOUR MILESTONE</span>
+                <p>{currentStage.milestone}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="interview-box">
+            <div className="interview-icon">↗</div>
+
+            <div>
+              <strong>Interview preparation</strong>
+              <p>{currentStage.interview}</p>
+            </div>
+          </div>
+
+          <div className="stage-detail-footer">
+            <label className="stage-check">
+              <input
+                type="checkbox"
+                checked={completed.includes(activeStage)}
+                onChange={() => toggleStage(activeStage)}
+              />
+
+              <span>
+                {completed.includes(activeStage)
+                  ? "Stage completed"
+                  : "Mark stage as completed"}
+              </span>
+            </label>
+
+            <div className="stage-navigation">
+              <button
+                type="button"
+                className="roadmap-outline-btn"
+                disabled={activeStage === 0}
+                onClick={() =>
+                  setActiveStage((value) => value - 1)
+                }
+              >
+                ← Previous
+              </button>
+
+              {activeStage < stages.length - 1 ? (
+                <button
+                  type="button"
+                  className="roadmap-main-btn"
+                  onClick={() =>
+                    setActiveStage((value) => value + 1)
+                  }
+                >
+                  Next stage →
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="roadmap-main-btn"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  Finish roadmap ✓
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+
+        
+      </main>
+
+      <footer className="roadmap-footer">
+        <div className="footer-brand">
+          <img
+            src={logoImg}
+            alt="CareerBridge logo"
+            className="brand-logo"
+          />
+          <span className="footer-brand-name">
+            CareerBridge
+          </span>
+        </div>
+
+        
+      </footer>
+    </div>
+  );
+}
+

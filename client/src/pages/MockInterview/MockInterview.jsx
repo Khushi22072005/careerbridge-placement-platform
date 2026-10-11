@@ -1,2762 +1,1704 @@
-import React, {
-    useEffect,
-    useRef,
-    useState,
-} from "react";
-
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import "./MockInterview.css";
 
-
 /* =========================================================
-   ROLE NAMES
+   CONFIGURATION
 ========================================================= */
 
-const ROLE_NAMES = {
-    "software-developer":
-        "Software Developer",
+const API_BASE =
+    import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-    "data-analyst":
-        "Data Analyst",
+const MAX_QUESTIONS = 10;
 
-    cybersecurity:
-        "Cybersecurity",
-
-    "cloud-devops":
-        "Cloud / DevOps",
-
-    "ui-ux":
-        "UI/UX Designer",
+const FIRST_QUESTIONS = {
+    technical: [
+        {
+            question:
+                "Tell me about yourself and the technical skills you have developed.",
+            category: "Introduction",
+        },
+        {
+            question:
+                "Explain a technical project you have worked on and the problem it solves.",
+            category: "Projects",
+        },
+    ],
+    hr: [
+        {
+            question: "Tell me about yourself.",
+            category: "Introduction",
+        },
+        {
+            question: "What are your strengths and weaknesses?",
+            category: "Self-awareness",
+        },
+        {
+            question: "Why should we hire you?",
+            category: "Motivation",
+        },
+        {
+            question: "Why do you want to join our company?",
+            category: "Career goals",
+        },
+        {
+            question:
+                "Tell me about a challenge you faced and how you handled it.",
+            category: "Problem-solving",
+        },
+        {
+            question: "How do you handle pressure and tight deadlines?",
+            category: "Work habits",
+        },
+        {
+            question: "Describe a situation where you worked in a team.",
+            category: "Teamwork",
+        },
+        {
+            question: "Where do you see yourself in five years?",
+            category: "Career goals",
+        },
+        {
+            question: "How do you respond to feedback or criticism?",
+            category: "Adaptability",
+        },
+        {
+            question: "Do you have any questions for the interviewer?",
+            category: "Closing",
+        },
+    ],
 };
 
+const HR_FALLBACK_QUESTIONS = [
+    "Tell me about yourself.",
+    "What are your strengths and weaknesses?",
+    "Why should we hire you?",
+    "Why do you want to join our company?",
+    "Tell me about a challenge you faced and how you handled it.",
+    "How do you handle pressure and tight deadlines?",
+    "Describe a situation where you worked in a team.",
+    "Where do you see yourself in five years?",
+    "How do you respond to feedback or criticism?",
+    "Do you have any questions for the interviewer?",
+];
 
-/* =========================================================
-   ROLE-SPECIFIC TECHNICAL SKILLS
-========================================================= */
+const TECHNICAL_ROLES = [
+    {
+        id: "software-developer",
+        label: "Software Developer",
+        description: "Programming, OOP, DSA, databases and software concepts",
+        
+    },
+    {
+        id: "data-analyst",
+        label: "Data Analyst",
+        description: "SQL, Excel, data analysis, dashboards and business insights",
+      
+    },
+    {
+        id: "web-developer",
+        label: "Web Developer",
+        description: "HTML, CSS, JavaScript, React and APIs",
+        
+    },
+    {
+        id: "ui-ux",
+        label: "UI/UX Designer",
+        description: "Design principles, user research, wireframes and usability",
+        
+    },
+    {
+        id: "cloud-devops",
+        label: "Cloud / DevOps Engineer",
+        description: "Linux, networking, cloud, deployment and automation",
+        
+    },
+];
 
-const SKILLS_BY_ROLE = {
+const TECHNICAL_SKILLS = {
     "software-developer": [
-        "Java",
-        "Python",
-        "JavaScript",
-        "C++",
-        "C#",
-        "TypeScript",
+        "Programming Fundamentals",
+        "Object-Oriented Programming",
+        "Data Structures and Algorithms",
+        "DBMS and SQL",
+        "Operating Systems",
+        "Computer Networks",
+        "Software Engineering",
     ],
-
     "data-analyst": [
-        "SQL",
-        "Python",
         "Excel",
-        "Power BI",
-        "Tableau",
-        "R",
-    ],
-
-    cybersecurity: [
-        "Python",
-        "Linux",
-        "Networking",
         "SQL",
-        "Bash / Shell Scripting",
-        "PowerShell",
+        "Power BI",
+        "Data Cleaning",
+        "Data Visualization",
+        "Business Analysis",
     ],
-
-    "cloud-devops": [
-        "Linux",
-        "AWS",
-        "Azure",
-        "Docker",
-        "Kubernetes",
-        "Terraform",
-        "Python",
-        "Bash / Shell Scripting",
+    "web-developer": [
+        "HTML and CSS",
+        "JavaScript",
+        "React",
+        "Backend and APIs",
+        "Database Integration",
+        "Web Development Fundamentals",
     ],
-
     "ui-ux": [
+        "UI Design Fundamentals",
+        "UX Research",
+        "Wireframing and Prototyping",
         "Figma",
-        "UI Design",
-        "UX Design",
-        "User Research",
-        "Prototyping",
-        "HTML/CSS",
-        "Design Systems",
+        "Usability and Accessibility",
+    ],
+    "cloud-devops": [
+        "Linux and Networking",
+        "Cloud Fundamentals",
+        "Git and GitHub",
+        "CI/CD",
+        "Containers and Deployment",
+        "Monitoring and Troubleshooting",
     ],
 };
 
-
 /* =========================================================
-   FIXED FIRST QUESTION
+   HELPERS
 ========================================================= */
 
-const FIRST_QUESTION = {
-    question:
-        "Tell me about yourself.",
-
-    type:
-        "intro",
-
-    focus:
-        "Introduction",
-
-    difficulty:
-        "easy",
-};
-
-
-/* =========================================================
-   AI INTERVIEWER
-========================================================= */
-
-const AI_INTERVIEWER = {
-    role:
-        "AI Interviewer",
-
-    fullName:
-        "AI Interviewer",
-};
-
-
-/* =========================================================
-   API BASE URL
-========================================================= */
-
-const API_BASE_URL =
-    import.meta.env.VITE_API_URL ||
-    "http://localhost:5000";
-
-
-/* =========================================================
-   MAX QUESTIONS
-========================================================= */
-
-const MAX_QUESTIONS =
-    15;
-
-
-/* =========================================================
-   SPEAK TEXT
-========================================================= */
-
-const speakText = (
-    text,
-    setIsSpeaking
-) => {
-    if (
-        !(
-            "speechSynthesis" in
-            window
-        )
-    ) {
-        return;
+function normalizeQuestion(questionData) {
+    if (typeof questionData === "string") {
+        return {
+            question: questionData,
+            category: "Interview",
+        };
     }
 
-    try {
-        window.speechSynthesis.cancel();
-
-        const utterance =
-            new window.SpeechSynthesisUtterance(
-                text
-            );
-
-        utterance.lang =
-            "en-IN";
-
-        utterance.rate =
-            0.9;
-
-        utterance.pitch =
-            1;
-
-        const voices =
-            window.speechSynthesis.getVoices();
-
-        const preferredVoice =
-            voices.find(
-                (voice) =>
-                    voice.lang
-                        ?.toLowerCase()
-                        .startsWith(
-                            "en-in"
-                        )
-            ) ||
-            voices.find(
-                (voice) =>
-                    voice.lang
-                        ?.toLowerCase()
-                        .startsWith(
-                            "en-us"
-                        )
-            ) ||
-            voices.find(
-                (voice) =>
-                    voice.lang
-                        ?.toLowerCase()
-                        .startsWith(
-                            "en-gb"
-                        )
-            );
-
-        if (preferredVoice) {
-            utterance.voice =
-                preferredVoice;
-        }
-
-        utterance.onstart = () => {
-            setIsSpeaking?.(
-                true
-            );
+    if (questionData && typeof questionData === "object") {
+        return {
+            ...questionData,
+            question:
+                questionData.question ||
+                questionData.text ||
+                questionData.nextQuestion ||
+                "",
+            category: questionData.category || "Interview",
         };
-
-        utterance.onend = () => {
-            setIsSpeaking?.(
-                false
-            );
-        };
-
-        utterance.onerror = () => {
-            setIsSpeaking?.(
-                false
-            );
-        };
-
-        window.speechSynthesis.speak(
-            utterance
-        );
-
-    } catch (error) {
-        console.error(
-            "Speech synthesis error:",
-            error
-        );
-
-        setIsSpeaking?.(
-            false
-        );
-    }
-};
-
-
-/* =========================================================
-   STOP AI
-========================================================= */
-
-const stopAI = (
-    setIsSpeaking
-) => {
-    if (
-        "speechSynthesis" in
-        window
-    ) {
-        window.speechSynthesis.cancel();
     }
 
-    setIsSpeaking?.(
-        false
-    );
-};
+    return {
+        question: "",
+        category: "Interview",
+    };
+}
 
+function getAnswerText(answer) {
+    if (typeof answer === "string") return answer;
+
+    if (answer && typeof answer === "object") {
+        return answer.answer || answer.text || "";
+    }
+
+    return "";
+}
+
+function calculateFallbackScore(answer) {
+    const text = String(answer || "").trim();
+
+    if (!text) return 0;
+
+    const words = text.split(/\s+/).filter(Boolean).length;
+
+    if (words < 5) return 25;
+    if (words < 15) return 45;
+    if (words < 30) return 60;
+    if (words < 60) return 75;
+
+    return 85;
+}
 
 /* =========================================================
-   COMPONENT
+   MAIN COMPONENT
 ========================================================= */
 
-const MockInterview = () => {
+export default function MockInterview() {
+    const navigate = useNavigate();
 
-    const navigate =
-        useNavigate();
+    /* ---------- Interview setup ---------- */
 
+    const [interviewMode, setInterviewMode] = useState("");
+    const [selectedRole, setSelectedRole] = useState("");
+    const [selectedSkill, setSelectedSkill] = useState("");
+
+    /* ---------- Interview state ---------- */
+
+    const [interviewStarted, setInterviewStarted] = useState(false);
+    const [currentQuestion, setCurrentQuestion] = useState(null);
+    const [currentQuestionNumber, setCurrentQuestionNumber] = useState(1);
+    const [answer, setAnswer] = useState("");
+    const [answers, setAnswers] = useState([]);
+    const [evaluation, setEvaluation] = useState(null);
+    const [report, setReport] = useState(null);
+
+    /* ---------- UI state ---------- */
+
+    const [loading, setLoading] = useState(false);
+    const [evaluating, setEvaluating] = useState(false);
+    const [error, setError] = useState("");
+    const [isListening, setIsListening] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [showReport, setShowReport] = useState(false);
+
+    /* ---------- Refs ---------- */
+
+    const recognitionRef = useRef(null);
+    const answerRef = useRef("");
+    const answersRef = useRef([]);
+    const requestRef = useRef(false);
+    const speakingRef = useRef(false);
+
+    const availableSkills = selectedRole
+        ? TECHNICAL_SKILLS[selectedRole] || []
+        : [];
+
+    const isHR = interviewMode === "hr";
 
     /* =====================================================
-       ROLE
+       SPEECH SYNTHESIS
     ===================================================== */
 
-    const [
-        selectedRole,
-        setSelectedRole,
-    ] = useState(
-        localStorage.getItem(
-            "selectedRole"
-        ) ||
-        "data-analyst"
-    );
-
-
-    /* =====================================================
-       TECHNICAL SKILL
-    ===================================================== */
-
-    const getInitialSkill = () => {
-
-        const savedRole =
-            localStorage.getItem(
-                "selectedRole"
-            ) ||
-            "data-analyst";
-
-        const savedSkill =
-            localStorage.getItem(
-                "selectedSkill"
-            );
-
-        const availableSkills =
-            SKILLS_BY_ROLE[
-                savedRole
-            ] ||
-            SKILLS_BY_ROLE[
-                "data-analyst"
-            ];
-
-        if (
-            savedSkill &&
-            availableSkills.includes(
-                savedSkill
-            )
-        ) {
-            return savedSkill;
+    const stopSpeaking = useCallback(() => {
+        if ("speechSynthesis" in window) {
+            window.speechSynthesis.cancel();
         }
 
-        return availableSkills[0];
+        speakingRef.current = false;
+        setIsSpeaking(false);
+    }, []);
+
+    const speakQuestion = useCallback(
+        (text) => {
+            if (!text || !("speechSynthesis" in window)) return;
+
+            stopSpeaking();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+
+            utterance.rate = 0.95;
+            utterance.pitch = 1;
+            utterance.lang = "en-IN";
+
+            utterance.onstart = () => {
+                speakingRef.current = true;
+                setIsSpeaking(true);
+            };
+
+            utterance.onend = () => {
+                speakingRef.current = false;
+                setIsSpeaking(false);
+            };
+
+            utterance.onerror = () => {
+                speakingRef.current = false;
+                setIsSpeaking(false);
+            };
+
+            window.speechSynthesis.speak(utterance);
+        },
+        [stopSpeaking]
+    );
+
+    /* =====================================================
+       SPEECH RECOGNITION
+    ===================================================== */
+
+    const stopListening = useCallback(() => {
+        if (recognitionRef.current) {
+            try {
+                recognitionRef.current.stop();
+            } catch {
+                // Recognition may already have stopped.
+            }
+        }
+
+        setIsListening(false);
+    }, []);
+
+    const startListening = useCallback(() => {
+        const SpeechRecognition =
+            window.SpeechRecognition ||
+            window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            setError(
+                "Speech recognition is not supported by this browser. Please type your answer instead."
+            );
+            return;
+        }
+
+        setError("");
+
+        try {
+            stopSpeaking();
+
+            if (recognitionRef.current) {
+                try {
+                    recognitionRef.current.stop();
+                } catch {
+                    // Ignore an already stopped recognition instance.
+                }
+            }
+
+            const recognition = new SpeechRecognition();
+
+            recognition.lang = "en-IN";
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onstart = () => {
+                setIsListening(true);
+            };
+
+            recognition.onresult = (event) => {
+                let finalTranscript = "";
+                let interimTranscript = "";
+
+                for (
+                    let i = event.resultIndex;
+                    i < event.results.length;
+                    i += 1
+                ) {
+                    const transcript =
+                        event.results[i][0].transcript;
+
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + " ";
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                if (finalTranscript) {
+                    const updatedAnswer = (
+                        answerRef.current +
+                        " " +
+                        finalTranscript
+                    )
+                        .replace(/\s+/g, " ")
+                        .trim();
+
+                    answerRef.current = updatedAnswer;
+                    setAnswer(updatedAnswer);
+                }
+
+                if (interimTranscript) {
+                    setAnswer(
+                        (
+                            answerRef.current +
+                            " " +
+                            interimTranscript
+                        )
+                            .replace(/\s+/g, " ")
+                            .trim()
+                    );
+                }
+            };
+
+            recognition.onerror = (event) => {
+                setIsListening(false);
+
+                if (
+                    event.error !== "no-speech" &&
+                    event.error !== "aborted"
+                ) {
+                    setError(
+                        "Microphone recognition failed. Please check microphone permissions or type your answer."
+                    );
+                }
+            };
+
+            recognition.onend = () => {
+                setIsListening(false);
+            };
+
+            recognitionRef.current = recognition;
+            recognition.start();
+        } catch {
+            setIsListening(false);
+            setError(
+                "Unable to start speech recognition. Please type your answer instead."
+            );
+        }
+    }, [stopSpeaking]);
+
+    /* =====================================================
+       RESET INTERVIEW
+    ===================================================== */
+
+    const resetInterview = useCallback(() => {
+        stopListening();
+        stopSpeaking();
+
+        setInterviewStarted(false);
+        setCurrentQuestion(null);
+        setCurrentQuestionNumber(1);
+        setAnswer("");
+        setAnswers([]);
+        setEvaluation(null);
+        setReport(null);
+        setShowReport(false);
+        setLoading(false);
+        setEvaluating(false);
+        setError("");
+
+        answerRef.current = "";
+        answersRef.current = [];
+        requestRef.current = false;
+    }, [stopListening, stopSpeaking]);
+
+    /* =====================================================
+       SELECT INTERVIEW MODE
+    ===================================================== */
+
+    const handleInterviewTypeSelect = (mode) => {
+        resetInterview();
+
+        setInterviewMode(mode);
+
+        if (mode !== "technical") {
+            setSelectedRole("");
+            setSelectedSkill("");
+        }
     };
 
-
-    const [
-        selectedSkill,
-        setSelectedSkill,
-    ] = useState(
-        getInitialSkill()
-    );
-
-
     /* =====================================================
-       INTERVIEW STATE
+       START INTERVIEW
     ===================================================== */
 
-    const [
-        interviewStarted,
-        setInterviewStarted,
-    ] = useState(false);
+    const startInterview = async () => {
+        if (!interviewMode) {
+            setError("Please select an interview type first.");
+            return;
+        }
 
+        if (
+            interviewMode === "technical" &&
+            (!selectedRole || !selectedSkill)
+        ) {
+            setError(
+                "Please select your technical role and skill before starting."
+            );
+            return;
+        }
 
-    const [
-        currentQuestion,
-        setCurrentQuestion,
-    ] = useState(
-        FIRST_QUESTION
-    );
+        resetInterview();
+        setLoading(true);
+        setError("");
 
+        try {
+            let firstQuestion;
 
-    const [
-        questionNumber,
-        setQuestionNumber,
-    ] = useState(1);
+            if (interviewMode === "hr") {
+                firstQuestion = FIRST_QUESTIONS.hr[0];
+            } else {
+                firstQuestion = FIRST_QUESTIONS.technical[0];
+            }
 
+            setCurrentQuestion(firstQuestion);
+            setCurrentQuestionNumber(1);
+            setInterviewStarted(true);
 
-    const [
-        transcript,
-        setTranscript,
-    ] = useState("");
+            answerRef.current = "";
+            answersRef.current = [];
 
-
-    const [
-        isListening,
-        setIsListening,
-    ] = useState(false);
-
-
-    const [
-        isSpeaking,
-        setIsSpeaking,
-    ] = useState(false);
-
-
-    const [
-        isThinking,
-        setIsThinking,
-    ] = useState(false);
-
-
-    const [
-        answerSubmitted,
-        setAnswerSubmitted,
-    ] = useState(false);
-
-
-    const [
-        answers,
-        setAnswers,
-    ] = useState([]);
-
-
-    const [
-        interviewFinished,
-        setInterviewFinished,
-    ] = useState(false);
-
-
-    const [
-        currentEvaluation,
-        setCurrentEvaluation,
-    ] = useState(null);
-
-
-    const [
-        elapsedTime,
-        setElapsedTime,
-    ] = useState(0);
-
-
-    const [
-        speechError,
-        setSpeechError,
-    ] = useState("");
-
-
-    const [
-        speechSupported,
-        setSpeechSupported,
-    ] = useState(true);
-
+            speakQuestion(firstQuestion.question);
+        } catch {
+            setError("Unable to start the interview. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     /* =====================================================
-       REFS
+       EVALUATE ANSWER
     ===================================================== */
 
-    const recognitionRef =
-        useRef(null);
+    const evaluateAnswer = async () => {
+        const submittedAnswer = answer.trim();
 
-    const recognitionRunningRef =
-        useRef(false);
+        if (!submittedAnswer) {
+            setError("Please enter or record an answer before continuing.");
+            return;
+        }
 
-    const finalTranscriptRef =
-        useRef("");
+        if (evaluating || requestRef.current) return;
 
-    const isMountedRef =
-        useRef(true);
+        stopListening();
+        stopSpeaking();
 
+        setEvaluating(true);
+        setError("");
+
+        const answerRecord = {
+            questionNumber: currentQuestionNumber,
+            question: currentQuestion?.question || "",
+            category: currentQuestion?.category || "Interview",
+            answer: submittedAnswer,
+            score: 0,
+            feedback: "",
+            strengths: [],
+            improvements: [],
+        };
+
+        try {
+            const response = await fetch(
+                `${API_BASE}/api/mock-interview/evaluate`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        interviewMode,
+                        role: selectedRole,
+                        skill: selectedSkill,
+                        question: currentQuestion?.question || "",
+                        answer: submittedAnswer,
+                        questionNumber: currentQuestionNumber,
+                        maxQuestions: MAX_QUESTIONS,
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Evaluation service unavailable.");
+            }
+
+            const data = await response.json();
+
+            answerRecord.score =
+                Number(data.score ?? data.rating ?? 0) ||
+                calculateFallbackScore(submittedAnswer);
+
+            answerRecord.feedback =
+                data.feedback ||
+                data.explanation ||
+                "Your answer has been recorded.";
+
+            answerRecord.strengths = Array.isArray(data.strengths)
+                ? data.strengths
+                : [];
+
+            answerRecord.improvements = Array.isArray(data.improvements)
+                ? data.improvements
+                : Array.isArray(data.suggestions)
+                ? data.suggestions
+                : [];
+
+            answerRecord.modelAnswer =
+                data.modelAnswer || data.sampleAnswer || "";
+
+            answerRecord.communicationScore =
+                data.communicationScore ?? null;
+
+            answerRecord.relevanceScore =
+                data.relevanceScore ?? null;
+        } catch {
+            answerRecord.score =
+                calculateFallbackScore(submittedAnswer);
+
+            answerRecord.feedback =
+                "Your answer was saved, but detailed AI feedback could not be retrieved. Review your answer for relevance, clarity, examples, and completeness.";
+        }
+
+        const updatedAnswers = [
+            ...answersRef.current,
+            answerRecord,
+        ];
+
+        answersRef.current = updatedAnswers;
+
+        setAnswers(updatedAnswers);
+        setEvaluation(answerRecord);
+        setAnswer("");
+        answerRef.current = "";
+
+        setEvaluating(false);
+    };
+
+    /* =====================================================
+       BUILD FINAL REPORT
+    ===================================================== */
+
+    const buildReport = useCallback((completedAnswers) => {
+        const safeAnswers = Array.isArray(completedAnswers)
+            ? completedAnswers
+            : [];
+
+        const totalScore = safeAnswers.reduce(
+            (total, item) =>
+                total + (Number(item.score) || 0),
+            0
+        );
+
+        const averageScore = safeAnswers.length
+            ? Math.round(totalScore / safeAnswers.length)
+            : 0;
+
+        const strengths = safeAnswers.flatMap((item) =>
+            Array.isArray(item.strengths)
+                ? item.strengths
+                : []
+        );
+
+        const improvements = safeAnswers.flatMap((item) =>
+            Array.isArray(item.improvements)
+                ? item.improvements
+                : []
+        );
+
+        const completedReport = {
+            interviewMode,
+            role: selectedRole,
+            skill: selectedSkill,
+            totalQuestions: safeAnswers.length,
+            maxQuestions: MAX_QUESTIONS,
+            averageScore,
+            answers: safeAnswers,
+            strengths: [...new Set(strengths)],
+            improvements: [...new Set(improvements)],
+            completedAt: new Date().toISOString(),
+            summary:
+                averageScore >= 80
+                    ? "Excellent performance. Continue practising to maintain your interview readiness."
+                    : averageScore >= 60
+                    ? "Good progress. Work on the improvement areas to make your answers stronger."
+                    : "Keep practising. Focus on relevant examples, clear explanations, and structured answers.",
+        };
+
+        setReport(completedReport);
+        setShowReport(true);
+        setInterviewStarted(false);
+        setEvaluation(null);
+    }, [interviewMode, selectedRole, selectedSkill]);
+
+    /* =====================================================
+       NEXT QUESTION
+    ===================================================== */
+
+    const nextQuestion = async () => {
+        if (!evaluation) {
+            setError("Please evaluate your answer before continuing.");
+            return;
+        }
+
+        if (requestRef.current) return;
+
+        if (currentQuestionNumber >= MAX_QUESTIONS) {
+            buildReport(answersRef.current);
+            return;
+        }
+
+        requestRef.current = true;
+        setLoading(true);
+        setError("");
+
+        const nextNumber = currentQuestionNumber + 1;
+
+        try {
+            let nextQuestionData = null;
+
+            if (interviewMode === "hr") {
+                const fallbackIndex = nextNumber - 1;
+
+                if (fallbackIndex < HR_FALLBACK_QUESTIONS.length) {
+                    nextQuestionData = {
+                        question:
+                            HR_FALLBACK_QUESTIONS[fallbackIndex],
+                        category: "HR Interview",
+                    };
+                }
+            }
+
+            if (!nextQuestionData) {
+                const response = await fetch(
+                    `${API_BASE}/api/mock-interview/next-question`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            interviewMode,
+                            role: selectedRole,
+                            skill: selectedSkill,
+                            currentQuestion:
+                                currentQuestion?.question || "",
+                            currentAnswer:
+                                answersRef.current[
+                                    answersRef.current.length - 1
+                                ]?.answer || "",
+                            questionNumber: nextNumber,
+                            maxQuestions: MAX_QUESTIONS,
+                            previousQuestions:
+                                answersRef.current.map(
+                                    (item) => item.question
+                                ),
+                            previousAnswers:
+                                answersRef.current.map(
+                                    (item) => item.answer
+                                ),
+                        }),
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error("Could not retrieve the next question.");
+                }
+
+                const data = await response.json();
+
+                nextQuestionData = normalizeQuestion(
+                    data.question
+                        ? data.question
+                        : data
+                );
+            }
+
+            if (
+                !nextQuestionData ||
+                !nextQuestionData.question
+            ) {
+                throw new Error("No next question was returned.");
+            }
+
+            setCurrentQuestion(nextQuestionData);
+            setCurrentQuestionNumber(nextNumber);
+            setEvaluation(null);
+            setAnswer("");
+            answerRef.current = "";
+
+            speakQuestion(nextQuestionData.question);
+        } catch {
+            if (interviewMode === "hr") {
+                const fallbackIndex = nextNumber - 1;
+                const fallbackText =
+                    HR_FALLBACK_QUESTIONS[fallbackIndex];
+
+                if (fallbackText) {
+                    const fallbackQuestion = {
+                        question: fallbackText,
+                        category: "HR Interview",
+                    };
+
+                    setCurrentQuestion(fallbackQuestion);
+                    setCurrentQuestionNumber(nextNumber);
+                    setEvaluation(null);
+                    setAnswer("");
+                    answerRef.current = "";
+
+                    speakQuestion(fallbackQuestion.question);
+                } else {
+                    buildReport(answersRef.current);
+                }
+            } else {
+                setError(
+                    "Unable to load the next technical question. Please try again."
+                );
+            }
+        } finally {
+            setLoading(false);
+            requestRef.current = false;
+        }
+    };
+
+    /* =====================================================
+       FINISH INTERVIEW
+    ===================================================== */
+
+    const finishInterview = () => {
+        stopListening();
+        stopSpeaking();
+        buildReport(answersRef.current);
+    };
+
+    /* =====================================================
+       DOWNLOAD REPORT
+    ===================================================== */
+
+    const downloadReport = () => {
+        if (!report) return;
+
+        const reportText = [
+            "CAREERBRIDGE MOCK INTERVIEW REPORT",
+            "===================================",
+            "",
+            `Interview type: ${
+                report.interviewMode === "hr"
+                    ? "HR Interview"
+                    : "Technical Mock Interview"
+            }`,
+            report.role ? `Role: ${report.role}` : "",
+            report.skill ? `Skill: ${report.skill}` : "",
+            `Questions answered: ${report.totalQuestions}/${MAX_QUESTIONS}`,
+            `Average score: ${report.averageScore}/100`,
+            "",
+            "SUMMARY",
+            report.summary,
+            "",
+            "QUESTION-WISE FEEDBACK",
+            ...report.answers.flatMap((item, index) => [
+                "",
+                `${index + 1}. ${item.question}`,
+                `Answer: ${item.answer}`,
+                `Score: ${item.score}/100`,
+                `Feedback: ${item.feedback}`,
+                item.strengths?.length
+                    ? `Strengths: ${item.strengths.join(", ")}`
+                    : "",
+                item.improvements?.length
+                    ? `Improvements: ${item.improvements.join(", ")}`
+                    : "",
+                item.modelAnswer
+                    ? `Sample answer: ${item.modelAnswer}`
+                    : "",
+            ]),
+        ]
+            .filter((line) => line !== undefined)
+            .join("\n");
+
+        const blob = new Blob([reportText], {
+            type: "text/plain;charset=utf-8",
+        });
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "CareerBridge-Mock-Interview-Report.txt";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(url);
+    };
 
     /* =====================================================
        CLEANUP
     ===================================================== */
 
     useEffect(() => {
-
-        isMountedRef.current =
-            true;
-
         return () => {
+            if (recognitionRef.current) {
+                try {
+                    recognitionRef.current.stop();
+                } catch {
+                    // Ignore cleanup errors.
+                }
+            }
 
-            isMountedRef.current =
-                false;
-
-            try {
-                recognitionRef.current?.abort();
-            } catch (error) {}
-
-            stopAI(
-                setIsSpeaking
-            );
+            if ("speechSynthesis" in window) {
+                window.speechSynthesis.cancel();
+            }
         };
-
     }, []);
 
-
     /* =====================================================
-       SPEECH RECOGNITION SUPPORT
+       REPORT SCREEN
     ===================================================== */
 
-    useEffect(() => {
-
-        const SpeechRecognition =
-            window.SpeechRecognition ||
-            window.webkitSpeechRecognition;
-
-        if (!SpeechRecognition) {
-
-            setSpeechSupported(
-                false
-            );
-
-            setSpeechError(
-                "Speech recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge."
-            );
-        }
-
-    }, []);
-
-
-    /* =====================================================
-       TIMER
-    ===================================================== */
-
-    useEffect(() => {
-
-        if (
-            !interviewStarted ||
-            interviewFinished
-        ) {
-            return;
-        }
-
-        const interval =
-            setInterval(() => {
-
-                setElapsedTime(
-                    (previous) =>
-                        previous + 1
-                );
-
-            }, 1000);
-
-        return () =>
-            clearInterval(
-                interval
-            );
-
-    }, [
-        interviewStarted,
-        interviewFinished,
-    ]);
-
-
-    /* =====================================================
-       SPEAK CURRENT QUESTION
-    ===================================================== */
-
-    useEffect(() => {
-
-        if (
-            !interviewStarted ||
-            interviewFinished ||
-            !currentQuestion?.question
-        ) {
-            return;
-        }
-
-        const timer =
-            setTimeout(() => {
-
-                speakText(
-                    currentQuestion.question,
-                    setIsSpeaking
-                );
-
-            }, 600);
-
-        return () => {
-
-            clearTimeout(
-                timer
-            );
-
-            stopAI(
-                setIsSpeaking
-            );
-        };
-
-    }, [
-        interviewStarted,
-        interviewFinished,
-        currentQuestion,
-    ]);
-
-
-    /* =====================================================
-       FORMAT TIME
-    ===================================================== */
-
-    const formatTime = (
-        seconds
-    ) => {
-
-        const minutes =
-            Math.floor(
-                seconds / 60
-            );
-
-        const remaining =
-            seconds % 60;
-
-        return `${String(
-            minutes
-        ).padStart(
-            2,
-            "0"
-        )}:${String(
-            remaining
-        ).padStart(
-            2,
-            "0"
-        )}`;
-    };
-
-
-    /* =====================================================
-       HANDLE ROLE CHANGE
-    ===================================================== */
-
-    const handleRoleChange = (
-        role
-    ) => {
-
-        setSelectedRole(
-            role
-        );
-
-        localStorage.setItem(
-            "selectedRole",
-            role
-        );
-
-        const roleSkills =
-            SKILLS_BY_ROLE[
-                role
-            ] ||
-            [];
-
-        const firstSkill =
-            roleSkills[0] ||
-            "";
-
-        setSelectedSkill(
-            firstSkill
-        );
-
-        localStorage.setItem(
-            "selectedSkill",
-            firstSkill
-        );
-    };
-
-
-    /* =====================================================
-       HANDLE SKILL CHANGE
-    ===================================================== */
-
-    const handleSkillChange = (
-        skill
-    ) => {
-
-        setSelectedSkill(
-            skill
-        );
-
-        localStorage.setItem(
-            "selectedSkill",
-            skill
-        );
-    };
-
-
-    /* =====================================================
-       START INTERVIEW
-    ===================================================== */
-
-    const startInterview =
-        () => {
-
-            const roleSkills =
-                SKILLS_BY_ROLE[
-                    selectedRole
-                ] ||
-                [];
-
-            const validSkill =
-                roleSkills.includes(
-                    selectedSkill
-                )
-                    ? selectedSkill
-                    : roleSkills[0];
-
-            setSelectedSkill(
-                validSkill
-            );
-
-            localStorage.setItem(
-                "selectedRole",
-                selectedRole
-            );
-
-            localStorage.setItem(
-                "selectedSkill",
-                validSkill
-            );
-
-            stopAI(
-                setIsSpeaking
-            );
-
-            setInterviewStarted(
-                true
-            );
-
-            setCurrentQuestion(
-                FIRST_QUESTION
-            );
-
-            setQuestionNumber(
-                1
-            );
-
-            setTranscript(
-                ""
-            );
-
-            finalTranscriptRef.current =
-                "";
-
-            setAnswers(
-                []
-            );
-
-            setInterviewFinished(
-                false
-            );
-
-            setAnswerSubmitted(
-                false
-            );
-
-            setCurrentEvaluation(
-                null
-            );
-
-            setElapsedTime(
-                0
-            );
-
-            setSpeechError("");
-        };
-
-
-    /* =====================================================
-       START LISTENING
-    ===================================================== */
-
-    const startListening =
-        () => {
-
-            setSpeechError("");
-
-            const SpeechRecognition =
-                window.SpeechRecognition ||
-                window.webkitSpeechRecognition;
-
-            if (!SpeechRecognition) {
-
-                setSpeechSupported(
-                    false
-                );
-
-                setSpeechError(
-                    "Speech recognition is not available in this browser. Please use Google Chrome or Microsoft Edge."
-                );
-
-                return;
-            }
-
-            if (
-                recognitionRunningRef.current
-            ) {
-                return;
-            }
-
-            stopAI(
-                setIsSpeaking
-            );
-
-            finalTranscriptRef.current =
-                transcript || "";
-
-            const recognition =
-                new SpeechRecognition();
-
-            recognition.continuous =
-                true;
-
-            recognition.interimResults =
-                true;
-
-            recognition.lang =
-                "en-IN";
-
-            recognition.maxAlternatives =
-                1;
-
-
-            recognition.onstart =
-                () => {
-
-                    recognitionRunningRef.current =
-                        true;
-
-                    setIsListening(
-                        true
-                    );
-
-                    setSpeechError(
-                        ""
-                    );
-
-                    console.log(
-                        "Microphone listening started."
-                    );
-                };
-
-
-            recognition.onresult =
-                (event) => {
-
-                    let finalText =
-                        finalTranscriptRef.current;
-
-                    let interimText =
-                        "";
-
-                    for (
-                        let i =
-                            event.resultIndex;
-                        i <
-                        event.results.length;
-                        i++
-                    ) {
-
-                        const result =
-                            event
-                                .results[
-                                i
-                            ];
-
-                        const text =
-                            result[
-                                0
-                            ]
-                                ?.transcript ||
-                            "";
-
-                        if (
-                            result.isFinal
-                        ) {
-
-                            finalText =
-                                `${finalText} ${text}`.trim();
-
-                            finalTranscriptRef.current =
-                                finalText;
-
-                        } else {
-
-                            interimText +=
-                                text;
-                        }
-                    }
-
-                    const combined =
-                        `${finalText} ${interimText}`.trim();
-
-                    if (
-                        isMountedRef.current
-                    ) {
-
-                        setTranscript(
-                            combined
-                        );
-                    }
-                };
-
-
-            recognition.onerror =
-                (event) => {
-
-                    console.error(
-                        "Speech recognition error:",
-                        event.error
-                    );
-
-                    recognitionRunningRef.current =
-                        false;
-
-                    setIsListening(
-                        false
-                    );
-
-                    if (
-                        event.error ===
-                            "not-allowed" ||
-                        event.error ===
-                            "permission-denied"
-                    ) {
-
-                        setSpeechError(
-                            "Microphone permission was denied. Allow microphone access for this site."
-                        );
-
-                    } else if (
-                        event.error ===
-                        "audio-capture"
-                    ) {
-
-                        setSpeechError(
-                            "Microphone could not be accessed. Check your microphone."
-                        );
-
-                    } else if (
-                        event.error ===
-                        "network"
-                    ) {
-
-                        setSpeechError(
-                            "Speech recognition could not connect to the browser speech service. Check your internet connection and try again."
-                        );
-
-                    } else if (
-                        event.error ===
-                        "no-speech"
-                    ) {
-
-                        setSpeechError(
-                            "No speech was detected. Please speak clearly and try again."
-                        );
-
-                    } else if (
-                        event.error !==
-                        "aborted"
-                    ) {
-
-                        setSpeechError(
-                            `Speech recognition error: ${event.error}`
-                        );
-                    }
-                };
-
-
-            recognition.onend =
-                () => {
-
-                    recognitionRunningRef.current =
-                        false;
-
-                    setIsListening(
-                        false
-                    );
-
-                    console.log(
-                        "Microphone listening ended."
-                    );
-                };
-
-
-            recognitionRef.current =
-                recognition;
-
-            try {
-
-                recognition.start();
-
-            } catch (error) {
-
-                console.error(
-                    "Could not start recognition:",
-                    error
-                );
-
-                recognitionRunningRef.current =
-                    false;
-
-                setIsListening(
-                    false
-                );
-
-                setSpeechError(
-                    "Could not start speech recognition. Please try again."
-                );
-            }
-        };
-
-
-    /* =====================================================
-       STOP LISTENING
-    ===================================================== */
-
-    const stopListening =
-        () => {
-
-            try {
-                recognitionRef.current?.stop();
-            } catch (error) {}
-
-            recognitionRunningRef.current =
-                false;
-
-            setIsListening(
-                false
-            );
-        };
-
-
-    /* =====================================================
-       EVALUATE ANSWER WITH AI
-    ===================================================== */
-
-    const submitAnswer =
-        async () => {
-
-            stopListening();
-
-            stopAI(
-                setIsSpeaking
-            );
-
-            const cleanAnswer =
-                transcript.trim();
-
-            if (!cleanAnswer) {
-
-                setSpeechError(
-                    "Please speak or type an answer before submitting."
-                );
-
-                return;
-            }
-
-            setSpeechError("");
-
-            setIsThinking(
-                true
-            );
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_BASE_URL}/api/mock-interview/evaluate`,
-                        {
-                            method:
-                                "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    role:
-                                        selectedRole,
-
-                                    skill:
-                                        selectedSkill,
-
-                                    question:
-                                        currentQuestion.question,
-
-                                    questionType:
-                                        currentQuestion.type,
-
-                                    answer:
-                                        cleanAnswer,
-
-                                    previousAnswers:
-                                        answers,
-                                }),
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (
-                    !response.ok
-                ) {
-
-                    throw new Error(
-                        data.message ||
-                            "AI evaluation failed."
-                    );
-                }
-
-                const newAnswer =
-                    {
-                        question:
-                            currentQuestion.question,
-
-                        answer:
-                            cleanAnswer,
-
-                        type:
-                            currentQuestion.type,
-
-                        focus:
-                            currentQuestion.focus,
-
-                        evaluation:
-                            data,
-                    };
-
-                setAnswers(
-                    (previous) => [
-                        ...previous,
-                        newAnswer,
-                    ]
-                );
-
-                setCurrentEvaluation(
-                    data
-                );
-
-                setAnswerSubmitted(
-                    true
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "AI evaluation error:",
-                    error
-                );
-
-                setSpeechError(
-                    `AI evaluation failed: ${error.message}`
-                );
-
-            } finally {
-
-                setIsThinking(
-                    false
-                );
-            }
-        };
-
-
-    /* =====================================================
-       NEXT QUESTION
-    ===================================================== */
-
-    const nextQuestion =
-        async () => {
-
-            stopListening();
-
-            stopAI(
-                setIsSpeaking
-            );
-
-            if (
-                !currentEvaluation
-            ) {
-                return;
-            }
-
-            /* -----------------------------------------
-               Q25 SHOULD NEVER GENERATE Q26
-            ----------------------------------------- */
-
-            if (
-                questionNumber >=
-                MAX_QUESTIONS
-            ) {
-
-                finishInterview();
-
-                return;
-            }
-
-            setIsThinking(
-                true
-            );
-
-            try {
-
-                /*
-                 * IMPORTANT:
-                 * Use the evaluated latest answer.
-                 */
-
-                const latestAnswer =
-                    {
-                        question:
-                            currentQuestion.question,
-
-                        answer:
-                            transcript.trim(),
-
-                        type:
-                            currentQuestion.type,
-
-                        focus:
-                            currentQuestion.focus,
-
-                        evaluation:
-                            currentEvaluation,
-                    };
-
-                const response =
-                    await fetch(
-                        `${API_BASE_URL}/api/mock-interview/next-question`,
-                        {
-                            method:
-                                "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    role:
-                                        selectedRole,
-
-                                    skill:
-                                        selectedSkill,
-
-                                    previousAnswers:
-                                        [
-                                            ...answers,
-                                            latestAnswer,
-                                        ],
-
-                                    currentQuestion:
-                                        currentQuestion.question,
-
-                                    currentAnswer:
-                                        transcript.trim(),
-
-                                    questionNumber:
-                                        questionNumber +
-                                        1,
-                                }),
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (
-                    !response.ok
-                ) {
-
-                    throw new Error(
-                        data.message ||
-                            "Could not generate next question."
-                    );
-                }
-
-                if (
-                    !data.question
-                ) {
-
-                    throw new Error(
-                        "AI did not return a valid next question."
-                    );
-                }
-
-                setCurrentQuestion(
-                    data
-                );
-
-                setQuestionNumber(
-                    (previous) =>
-                        previous + 1
-                );
-
-                setTranscript(
-                    ""
-                );
-
-                finalTranscriptRef.current =
-                    "";
-
-                setAnswerSubmitted(
-                    false
-                );
-
-                setCurrentEvaluation(
-                    null
-                );
-
-                setSpeechError("");
-
-            } catch (error) {
-
-                console.error(
-                    "Next question error:",
-                    error
-                );
-
-                setSpeechError(
-                    `Could not generate next question: ${error.message}`
-                );
-
-            } finally {
-
-                setIsThinking(
-                    false
-                );
-            }
-        };
-
-
-    /* =====================================================
-       FINISH INTERVIEW
-    ===================================================== */
-
-    const finishInterview =
-        () => {
-
-            stopListening();
-
-            stopAI(
-                setIsSpeaking
-            );
-
-            setInterviewFinished(
-                true
-            );
-        };
-
-
-    /* =====================================================
-       EXIT
-    ===================================================== */
-
-    const exitInterview =
-        () => {
-
-            stopListening();
-
-            stopAI(
-                setIsSpeaking
-            );
-
-            navigate(
-                "/dashboard"
-            );
-        };
-
-
-    /* =====================================================
-       PROGRESS
-    ===================================================== */
-
-    const progress =
-        Math.min(
-            (questionNumber /
-                MAX_QUESTIONS) *
-                100,
-            100
-        );
-
-
-    /* =====================================================
-       START SCREEN
-    ===================================================== */
-
-    if (
-        !interviewStarted
-    ) {
-
-        const availableSkills =
-            SKILLS_BY_ROLE[
-                selectedRole
-            ] ||
-            [];
-
+    if (showReport && report) {
         return (
-            <div className="mock-interview-page">
+            <main className="mock-interview-page">
+                <section className="mock-interview-report">
+                    <div className="report-header">
+                        <div className="report-success-icon">
+                            
+                        </div>
 
-                <div className="interview-hero">
+                        
+                        <h1>Interview Completed!</h1>
 
+                        
+                    </div>
+
+                    <div className="report-score-card">
+                        <span className="report-score-label">
+                            Overall Score
+                        </span>
+
+                        <div className="report-score">
+                            {report.averageScore}
+                            <span>/100</span>
+                        </div>
+
+                        <div className="report-progress-track">
+                            <div
+                                className="report-progress-fill"
+                                style={{
+                                    width: `${report.averageScore}%`,
+                                }}
+                            />
+                        </div>
+
+                        <p>{report.summary}</p>
+                    </div>
+
+                    <div className="report-stats-grid">
+                        <div className="report-stat">
+                            <span>Interview Type</span>
+                            <strong>
+                                {report.interviewMode === "hr"
+                                    ? "HR Interview"
+                                    : "Technical"}
+                            </strong>
+                        </div>
+
+                        <div className="report-stat">
+                            <span>Questions Answered</span>
+                            <strong>
+                                {report.totalQuestions}/{MAX_QUESTIONS}
+                            </strong>
+                        </div>
+
+                        {report.role && (
+                            <div className="report-stat">
+                                <span>Selected Role</span>
+                                <strong>
+                                    {
+                                        TECHNICAL_ROLES.find(
+                                            (role) =>
+                                                role.id === report.role
+                                        )?.label
+                                    }
+                                </strong>
+                            </div>
+                        )}
+
+                        {report.skill && (
+                            <div className="report-stat">
+                                <span>Focus Area</span>
+                                <strong>{report.skill}</strong>
+                            </div>
+                        )}
+                    </div>
+
+                    {report.strengths.length > 0 && (
+                        <section className="report-detail-card">
+                            <h2>What You Did Well</h2>
+
+                            <ul>
+                                {report.strengths.map(
+                                    (strength, index) => (
+                                        <li key={`${strength}-${index}`}>
+                                            {strength}
+                                        </li>
+                                    )
+                                )}
+                            </ul>
+                        </section>
+                    )}
+
+                    {report.improvements.length > 0 && (
+                        <section className="report-detail-card">
+                            <h2>Areas to Improve</h2>
+
+                            <ul>
+                                {report.improvements.map(
+                                    (improvement, index) => (
+                                        <li
+                                            key={`${improvement}-${index}`}
+                                        >
+                                            {improvement}
+                                        </li>
+                                    )
+                                )}
+                            </ul>
+                        </section>
+                    )}
+
+                    <section className="report-detail-card">
+                        <h2>Question-wise Feedback</h2>
+
+                        <div className="report-answer-list">
+                            {report.answers.map((item, index) => (
+                                <article
+                                    className="report-answer-item"
+                                    key={`${item.questionNumber}-${index}`}
+                                >
+                                    <div className="report-answer-heading">
+                                        <span className="report-question-number">
+                                            Q{index + 1}
+                                        </span>
+
+                                        <span className="report-answer-score">
+                                            {item.score}/100
+                                        </span>
+                                    </div>
+
+                                    <h3>{item.question}</h3>
+
+                                    <p className="report-answer-text">
+                                        <strong>Your answer:</strong>{" "}
+                                        {item.answer}
+                                    </p>
+
+                                    <p className="report-feedback-text">
+                                        <strong>Feedback:</strong>{" "}
+                                        {item.feedback}
+                                    </p>
+
+                                    {item.improvements?.length > 0 && (
+                                        <div className="report-improvements">
+                                            <strong>Improve:</strong>
+
+                                            <ul>
+                                                {item.improvements.map(
+                                                    (suggestion, i) => (
+                                                        <li
+                                                            key={`${suggestion}-${i}`}
+                                                        >
+                                                            {suggestion}
+                                                        </li>
+                                                    )
+                                                )}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {item.modelAnswer && (
+                                        <details className="model-answer-details">
+                                            <summary>
+                                                View sample answer
+                                            </summary>
+
+                                            <p>{item.modelAnswer}</p>
+                                        </details>
+                                    )}
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+
+                    <div className="report-actions">
+                        <button
+                            className="primary-button"
+                            onClick={downloadReport}
+                        >
+                            Download Report
+                        </button>
+
+                        <button
+                            className="secondary-button"
+                            onClick={() => {
+                                resetInterview();
+                                setInterviewMode("");
+                                setSelectedRole("");
+                                setSelectedSkill("");
+                            }}
+                        >
+                            Practise Again
+                        </button>
+
+                        <button
+                            className="text-button"
+                            onClick={() => navigate("/dashboard")}
+                        >
+                            Back to Dashboard
+                        </button>
+                    </div>
+                </section>
+            </main>
+        );
+    }
+
+    /* =====================================================
+       INTERVIEW SETUP SCREEN
+    ===================================================== */
+
+    if (!interviewStarted) {
+        return (
+            <main className="mock-interview-page">
+                <header className="mock-interview-topbar">
                     <button
-                        className="interview-back"
-                        onClick={() =>
-                            navigate(
-                                "/dashboard"
-                            )
-                        }
+                        className="back-button"
+                        onClick={() => navigate("/dashboard")}
                     >
                         ← Dashboard
                     </button>
 
-                    <div className="interview-hero-content">
-
-                        <div className="interview-badge">
-                            AI MOCK INTERVIEW
-                        </div>
-
-                        <h1>
-                            Practice like it's
-                            a real interview.
-                        </h1>
-
-                        <p>
-                            Meet your CareerBridge
-                            AI interviewer. Answer
-                            using your voice or
-                            keyboard and receive
-                            personalized AI feedback.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <main className="interview-start-card">
-
-                    <div className="start-card-icon">
-                        🎙️
-                    </div>
-
-
-                    <p className="interview-label">
-                        SELECT YOUR TARGET ROLE
-                    </p>
-
-
-                    <h2>
-                        AI Mock Interview
-                    </h2>
-
-
-                    <p className="start-description">
-                        Your interview adapts to
-                        your answers. Questions,
-                        difficulty and feedback are
-                        generated according to your
-                        performance.
-                    </p>
-
-
-                    {/* =====================================
-                        ROLE SELECTION
-                    ===================================== */}
-
-                    <div className="role-selector">
-
-                        {Object.entries(
-                            ROLE_NAMES
-                        ).map(
-                            ([
-                                value,
-                                label,
-                            ]) => (
-
-                                <button
-                                    key={
-                                        value
-                                    }
-                                    className={
-                                        selectedRole ===
-                                        value
-                                            ? "role-option selected"
-                                            : "role-option"
-                                    }
-                                    onClick={() =>
-                                        handleRoleChange(
-                                            value
-                                        )
-                                    }
-                                >
-                                    {label}
-                                </button>
-
-                            )
-                        )}
-
-                    </div>
-
-
-                    {/* =====================================
-                        TECHNICAL SKILL SELECTION
-                    ===================================== */}
-
-                    <p
-                        className="interview-label"
-                        style={{
-                            marginTop:
-                                "28px",
-                        }}
-                    >
-                        SELECT TECHNICAL SKILL / TECHNOLOGY
-                    </p>
-
-
-                    <div className="skill-selector">
-
-                        {availableSkills.map(
-                            (
-                                skill
-                            ) => (
-
-                                <button
-                                    key={
-                                        skill
-                                    }
-                                    className={
-                                        selectedSkill ===
-                                        skill
-                                            ? "skill-option selected"
-                                            : "skill-option"
-                                    }
-                                    onClick={() =>
-                                        handleSkillChange(
-                                            skill
-                                        )
-                                    }
-                                >
-                                    {skill}
-                                </button>
-
-                            )
-                        )}
-
-                    </div>
-
-
-                    {/* =====================================
-                        SELECTED ROLE + SKILL
-                    ===================================== */}
-
-                    <div className="selected-interview-info">
-
-                        <span>
-                            Role:
-                        </span>
-
-                        <strong>
-                            {
-                                ROLE_NAMES[
-                                    selectedRole
-                                ]
-                            }
-                        </strong>
-
-                        <span>
-                            Skill:
-                        </span>
-
-                        <strong>
-                            {
-                                selectedSkill
-                            }
-                        </strong>
-
-                    </div>
-
-
-                    <div className="interview-features">
-
-                        <div>
-
-                            <span>
-                                🔊
-                            </span>
-
-                            <strong>
-                                AI Speaking
-                            </strong>
-
-                            <p>
-                                Hear interview
-                                questions naturally.
-                            </p>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                🎙
-                            </span>
-
-                            <strong>
-                                Voice + Typing
-                            </strong>
-
-                            <p>
-                                Speak and edit
-                                your answer.
-                            </p>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                📊
-                            </span>
-
-                            <strong>
-                                AI Feedback
-                            </strong>
-
-                            <p>
-                                Receive personalized
-                                evaluation.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        className="start-interview-button"
-                        onClick={
-                            startInterview
-                        }
-                    >
-                        Start AI Interview →
-                    </button>
-
-
-                    <span className="interview-note">
-                        15 adaptive questions •
-                        Use Google Chrome or
-                        Microsoft Edge and allow
-                        microphone access.
+                    <span className="topbar-brand">
+                        CareerBridge
                     </span>
+                </header>
 
-                </main>
+                <section className="mock-interview-hero">
+                    <span className="hero-badge">
+                       
+                    </span>
+                </section>
 
-            </div>
-        );
-    }
-
-
-    /* =====================================================
-       FINAL REPORT
-    ===================================================== */
-
-    if (
-        interviewFinished
-    ) {
-
-        const overallScore =
-            answers.length
-                ? Math.round(
-                      answers.reduce(
-                          (
-                              total,
-                              item
-                          ) =>
-                              total +
-                              Number(
-                                  item
-                                      .evaluation
-                                      ?.overall ||
-                                  0
-                              ),
-                          0
-                      ) /
-                          answers.length
-                  )
-                : 0;
-
-
-        const communicationScore =
-            answers.length
-                ? Math.round(
-                      answers.reduce(
-                          (
-                              total,
-                              item
-                          ) =>
-                              total +
-                              Number(
-                                  item
-                                      .evaluation
-                                      ?.communication ||
-                                  0
-                              ),
-                          0
-                      ) /
-                          answers.length
-                  )
-                : 0;
-
-
-        const relevanceScore =
-            answers.length
-                ? Math.round(
-                      answers.reduce(
-                          (
-                              total,
-                              item
-                          ) =>
-                              total +
-                              Number(
-                                  item
-                                      .evaluation
-                                      ?.relevance ||
-                                  0
-                              ),
-                          0
-                      ) /
-                          answers.length
-                  )
-                : 0;
-
-
-        const technicalScore =
-            answers.length
-                ? Math.round(
-                      answers.reduce(
-                          (
-                              total,
-                              item
-                          ) =>
-                              total +
-                              Number(
-                                  item
-                                      .evaluation
-                                      ?.technicalAccuracy ||
-                                  0
-                              ),
-                          0
-                      ) /
-                          answers.length
-                  )
-                : 0;
-
-
-        const allStrengths =
-            answers.flatMap(
-                (item) =>
-                    item.evaluation
-                        ?.strengths ||
-                    []
-            );
-
-
-        const allImprovements =
-            answers.flatMap(
-                (item) =>
-                    item.evaluation
-                        ?.improvements ||
-                    []
-            );
-
-
-        const uniqueStrengths =
-            [
-                ...new Set(
-                    allStrengths
-                ),
-            ].slice(
-                0,
-                6
-            );
-
-
-        const uniqueImprovements =
-            [
-                ...new Set(
-                    allImprovements
-                ),
-            ].slice(
-                0,
-                6
-            );
-
-
-        return (
-            <div className="mock-interview-page">
-
-                <main className="interview-complete">
-
-                    <div className="complete-icon">
-                        ✓
+                <section className="interview-setup-container">
+                    <div className="setup-heading">
+                        <span className="setup-step">STEP 01</span>
+                        <h2>Choose your interview type</h2>
+                        
                     </div>
 
-
-                    <p className="interview-label">
-                        INTERVIEW COMPLETE
-                    </p>
-
-
-                    <h1>
-                        Your interview
-                        performance report
-                    </h1>
-
-
-                    <p>
-                        You completed a
-                        <strong>
-                            {" "}15-question adaptive
-                        </strong>{" "}
-                        AI interview for the{" "}
-                        <strong>
-                            {
-                                ROLE_NAMES[
-                                    selectedRole
-                                ]
-                            }
-                        </strong>{" "}
-                        role using{" "}
-                        <strong>
-                            {selectedSkill}
-                        </strong>.
-                    </p>
-
-
-                    {/* =================================
-                        ROLE + SKILL
-                    ================================= */}
-
-                    <div className="selected-interview-info">
-
-                        <span>
-                            Target Role
-                        </span>
-
-                        <strong>
-                            {
-                                ROLE_NAMES[
-                                    selectedRole
-                                ]
-                            }
-                        </strong>
-
-                        <span>
-                            Technical Skill
-                        </span>
-
-                        <strong>
-                            {
-                                selectedSkill
-                            }
-                        </strong>
-
-                    </div>
-
-
-                    <div className="final-score">
-
-                        <strong>
-                            {
-                                overallScore
-                            }
-                        </strong>
-
-                        <span>
-                            Overall Score
-                        </span>
-
-                    </div>
-
-
-                    <div className="complete-stats">
-
-                        <div>
-
-                            <strong>
-                                {
-                                    answers.length
-                                }
-                            </strong>
-
-                            <span>
-                                Questions
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                {
-                                    communicationScore
-                                }
-                            </strong>
-
-                            <span>
-                                Communication
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                {
-                                    relevanceScore
-                                }
-                            </strong>
-
-                            <span>
-                                Relevance
-                            </span>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                {
-                                    technicalScore
-                                }
-                            </strong>
-
-                            <span>
-                                Technical
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    {uniqueStrengths.length >
-                        0 && (
-
-                        <div className="final-feedback">
-
-                            <h3>
-                                💪 Your Strengths
-                            </h3>
-
-                            <ul>
-
-                                {uniqueStrengths.map(
-                                    (
-                                        strength,
-                                        index
-                                    ) => (
-
-                                        <li
-                                            key={
-                                                index
-                                            }
-                                        >
-                                            {
-                                                strength
-                                            }
-                                        </li>
-
-                                    )
-                                )}
-
-                            </ul>
-
-                        </div>
-
-                    )}
-
-
-                    {uniqueImprovements.length >
-                        0 && (
-
-                        <div className="final-feedback">
-
-                            <h3>
-                                📌 Areas to Improve
-                            </h3>
-
-                            <ul>
-
-                                {uniqueImprovements.map(
-                                    (
-                                        improvement,
-                                        index
-                                    ) => (
-
-                                        <li
-                                            key={
-                                                index
-                                            }
-                                        >
-                                            {
-                                                improvement
-                                            }
-                                        </li>
-
-                                    )
-                                )}
-
-                            </ul>
-
-                        </div>
-
-                    )}
-
-
-                    <div className="final-feedback">
-
-                        <h3>
-                            🤖 AI Interview Summary
-                        </h3>
-
-                        <p>
-                            {overallScore >=
-                            85
-                                ? "Excellent performance. You demonstrated strong knowledge, communication and adaptability."
-                                : overallScore >=
-                                  70
-                                ? "Good performance. Your answers were generally strong. Continue improving depth and examples."
-                                : overallScore >=
-                                  55
-                                ? "You are making progress. Focus on technical depth, structure and supporting answers with examples."
-                                : "Keep practicing. Work on giving clearer, more relevant and technically detailed answers."}
-                        </p>
-
-                    </div>
-
-
-                    <div className="complete-actions">
-
+                    <div className="interview-mode-grid">
                         <button
-                            className="secondary-interview-button"
-                            onClick={() => {
-
-                                stopAI(
-                                    setIsSpeaking
-                                );
-
-                                setInterviewStarted(
-                                    false
-                                );
-
-                                setInterviewFinished(
-                                    false
-                                );
-
-                                setAnswers(
-                                    []
-                                );
-
-                                setCurrentQuestion(
-                                    FIRST_QUESTION
-                                );
-
-                                setQuestionNumber(
-                                    1
-                                );
-
-                                setElapsedTime(
-                                    0
-                                );
-
-                                setTranscript(
-                                    ""
-                                );
-
-                                finalTranscriptRef.current =
-                                    "";
-
-                                setCurrentEvaluation(
-                                    null
-                                );
-
-                                setAnswerSubmitted(
-                                    false
-                                );
-
-                                setSpeechError(
-                                    ""
-                                );
-                            }}
-                        >
-                            Practice Again
-                        </button>
-
-
-                        <button
-                            className="primary-interview-button"
+                            type="button"
+                            className={`interview-mode-card ${
+                                interviewMode === "technical"
+                                    ? "selected"
+                                    : ""
+                            }`}
                             onClick={() =>
-                                navigate(
-                                    "/dashboard"
-                                )
+                                handleInterviewTypeSelect("technical")
                             }
                         >
-                            Back to Dashboard →
+                            <span className="mode-card-icon">
+                                
+                            </span>
+
+                            <span className="mode-card-content">
+                                <strong>
+                                    Technical Mock Interview
+                                </strong>
+
+                                
+
+                                <span className="mode-card-meta">
+                                    Role + skill selection
+                                </span>
+                            </span>
+
+                            <span className="mode-card-arrow">
+                                →
+                            </span>
                         </button>
 
+                        <button
+                            type="button"
+                            className={`interview-mode-card ${
+                                interviewMode === "hr"
+                                    ? "selected"
+                                    : ""
+                            }`}
+                            onClick={() =>
+                                handleInterviewTypeSelect("hr")
+                            }
+                        >
+                            <span className="mode-card-icon">
+                                
+                            </span>
+
+                            <span className="mode-card-content">
+                                <strong>HR Interview</strong>
+                            </span>
+
+                            <span className="mode-card-arrow">
+                                →
+                            </span>
+                        </button>
                     </div>
 
-                </main>
+                    {interviewMode === "technical" && (
+                        <section className="technical-setup-section">
+                            <div className="setup-heading">
+                                <span className="setup-step">
+                                    STEP 02
+                                </span>
 
-            </div>
+                                <h2>Choose your technical role</h2>
+
+                
+                            </div>
+
+                            <div className="role-selector">
+                                {TECHNICAL_ROLES.map((role) => (
+                                    <button
+                                        type="button"
+                                        key={role.id}
+                                        className={`role-card ${
+                                            selectedRole === role.id
+                                                ? "selected"
+                                                : ""
+                                        }`}
+                                        onClick={() => {
+                                            setSelectedRole(role.id);
+                                            setSelectedSkill("");
+                                            setError("");
+                                        }}
+                                    >
+                                        <span className="role-card-icon">
+                                            {role.icon}
+                                        </span>
+
+                                        <strong>{role.label}</strong>
+
+                                        <span>{role.description}</span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {selectedRole && (
+                                <>
+                                    <div className="setup-heading skill-heading">
+                                        <span className="setup-step">
+                                            STEP 03
+                                        </span>
+
+                                        <h2>Choose your focus area</h2>
+
+                                        
+                                    </div>
+
+                                    <div className="skill-selector">
+                                        {availableSkills.map((skill) => (
+                                            <button
+                                                type="button"
+                                                key={skill}
+                                                className={`skill-option ${
+                                                    selectedSkill === skill
+                                                        ? "selected"
+                                                        : ""
+                                                }`}
+                                                onClick={() => {
+                                                    setSelectedSkill(skill);
+                                                    setError("");
+                                                }}
+                                            >
+                                                <span>
+                                                    {selectedSkill === skill
+                                                        ? "✓"
+                                                        : "+"}
+                                                </span>
+
+                                                {skill}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+
+                            {error && (
+                                <div className="interview-error">
+                                    {error}
+                                </div>
+                            )}
+
+                            <button
+                                type="button"
+                                className="primary-button start-interview-button"
+                                disabled={
+                                    loading ||
+                                    !selectedRole ||
+                                    !selectedSkill
+                                }
+                                onClick={startInterview}
+                            >
+                                {loading
+                                    ? "Starting..."
+                                    : "Start Technical Interview →"}
+                            </button>
+                        </section>
+                    )}
+
+                    {interviewMode === "hr" && (
+                        <section className="hr-start-section">
+                            <div className="hr-start-info">
+                                <span className="hr-start-icon">
+                                    
+                                </span>
+
+                                <div>
+                                    <h3>Ready for your HR round?</h3>
+
+                                </div>
+                            </div>
+
+                            {error && (
+                                <div className="interview-error">
+                                    {error}
+                                </div>
+                            )}
+
+                            <button
+                                type="button"
+                                className="primary-button start-interview-button"
+                                disabled={loading}
+                                onClick={startInterview}
+                            >
+                                {loading
+                                    ? "Starting..."
+                                    : "Start HR Interview →"}
+                            </button>
+                        </section>
+                    )}
+                </section>
+            </main>
         );
     }
 
-
     /* =====================================================
-       INTERVIEW SCREEN
+       LIVE INTERVIEW SCREEN
     ===================================================== */
 
     return (
-        <div className="mock-interview-page">
-
-            <header className="interview-topbar">
-
-                <div className="interview-brand">
-
-                    <div>
-                        C
-                    </div>
-
-                    <span>
-                        CareerBridge
-                    </span>
-
-                </div>
-
-
-                <div className="interview-role">
-
-                    {
-                        ROLE_NAMES[
-                            selectedRole
-                        ]
-                    }
-
-                    {" • "}
-
-                    {
-                        selectedSkill
-                    }
-
-                    {" AI Interview"}
-
-                </div>
-
-
-                <div className="interview-header-right">
-
-                    <div className="interview-timer">
-
-                        ⏱{" "}
-
-                        {
-                            formatTime(
-                                elapsedTime
+        <main className="mock-interview-page">
+            <header className="mock-interview-topbar">
+                <button
+                    className="back-button"
+                    onClick={() => {
+                        if (
+                            window.confirm(
+                                "Are you sure you want to leave this interview? Your current session will end."
                             )
+                        ) {
+                            resetInterview();
+                            setInterviewMode("");
                         }
+                    }}
+                >
+                    ← Exit Interview
+                </button>
 
-                    </div>
 
-
-                    <button
-                        className="exit-interview"
-                        onClick={
-                            exitInterview
-                        }
-                    >
-                        Exit
-                    </button>
-
-                </div>
-
+                <span className="interview-type-label">
+                    {isHR
+                        ? "HR INTERVIEW"
+                        : "TECHNICAL MOCK INTERVIEW"}
+                </span>
             </header>
 
+            <section className="interview-workspace">
+                <div className="interview-workspace-header">
+                    <div>
+                        
 
-            <main className="interview-workspace">
+                        <h1>
+                            {isHR
+                                ? "HR Interview"
+                                : "Technical Mock Interview"}
+                        </h1>
 
-                {/* =========================================
-                    PROGRESS
-                ========================================= */}
-
-                <div className="interview-progress-area">
-
-                    <div className="progress-header">
-
-                        <span>
-
-                            Question{" "}
-                            {
-                                questionNumber
-                            }{" "}
-
-                            of{" "}
-
-                            {
-                                MAX_QUESTIONS
-                            }
-
-                        </span>
-
-
-                        <span>
-
-                            {Math.round(
-                                progress
-                            )}
-
-                            %
-
-                        </span>
-
+                        <p>
+                            {isHR
+                                ? "Practise your communication and behavioural answers."
+                                : `${
+                                      TECHNICAL_ROLES.find(
+                                          (role) =>
+                                              role.id === selectedRole
+                                      )?.label || "Technical"
+                                  } · ${selectedSkill}`}
+                        </p>
                     </div>
 
+                    <div className="question-counter">
+                        <span>QUESTION</span>
 
-                    <div className="interview-progress">
-
-                        <div
-                            style={{
-                                width:
-                                    `${progress}%`,
-                            }}
-                        />
-
+                        <strong>
+                            {currentQuestionNumber}
+                            <span> / {MAX_QUESTIONS}</span>
+                        </strong>
                     </div>
-
                 </div>
 
+                <div className="question-progress-track">
+                    <div
+                        className="question-progress-fill"
+                        style={{
+                            width: `${
+                                (currentQuestionNumber /
+                                    MAX_QUESTIONS) *
+                                100
+                            }%`,
+                        }}
+                    />
+                </div>
 
-                {/* =========================================
-                    QUESTION CARD
-                ========================================= */}
-
-                <section className="question-card">
-
-                    <div className="question-meta">
-
-                        <span>
-                            {(
-                                currentQuestion.type ||
-                                "question"
-                            ).toUpperCase()}
-                        </span>
-
-
-                        <span>
-                            {
-                                currentQuestion.focus ||
-                                "Interview"
-                            }
-                        </span>
-
-
-                        {currentQuestion.difficulty && (
-
-                            <span>
-
-                                Difficulty:{" "}
-
-                                {
-                                    currentQuestion.difficulty
-                                }
-
-                            </span>
-
-                        )}
-
-                    </div>
-
-
-                    <div className="interviewer-profile-row">
-
-                        <div
-                            className={
-                                isSpeaking
-                                    ? "ai-profile speaking"
-                                    : "ai-profile"
-                            }
-                        >
-
-                            <div className="ai-profile-face">
-
-                                <div className="ai-face-hair" />
-
-
-                                <div className="ai-face">
-
-                                    <span className="ai-eye left" />
-
-                                    <span className="ai-eye right" />
-
-                                    <span className="ai-nose" />
-
-
-                                    <span
-                                        className={
-                                            isSpeaking
-                                                ? "ai-mouth speaking-mouth"
-                                                : "ai-mouth"
-                                        }
-                                    />
-
-                                </div>
-
-                            </div>
-
-
-                            <span className="ai-online-dot" />
-
-                        </div>
-
-
-                        <div className="interviewer-info">
-
-                            <p className="ai-label">
-                                CAREERBRIDGE AI INTERVIEWER
-                            </p>
-
-
-                            <div className="ai-interviewer-name">
-
-                                {
-                                    AI_INTERVIEWER.fullName
-                                }
-
-                            </div>
-
-
-                            <div className="ai-speaking-status">
-
-                                <span
-                                    className={
-                                        isSpeaking
-                                            ? "voice-indicator active"
-                                            : "voice-indicator"
-                                    }
-                                >
-                                    ●
+                <div className="interview-layout">
+                    <section className="interview-main-panel">
+                        <article className="question-card">
+                            <div className="question-card-top">
+                                <span className="question-label">
+                                    INTERVIEWER ASKS
                                 </span>
 
-
-                                {isSpeaking
-                                    ? "Speaking..."
-                                    : isListening
-                                    ? "Listening to you..."
-                                    : isThinking
-                                    ? "Thinking..."
-                                    : "Your AI interviewer is ready"}
-
+                                <span className="question-category">
+                                    {currentQuestion?.category ||
+                                        "Interview Question"}
+                                </span>
                             </div>
 
-                        </div>
-
-                    </div>
-
-
-                    <h1>
-
-                        {
-                            currentQuestion.question
-                        }
-
-                    </h1>
-
-
-                    <p className="question-hint">
-
-                        Take a moment to think,
-                        then answer naturally.
-                        You can speak or type your
-                        answer and edit the transcript
-                        before submitting.
-
-                    </p>
-
-
-                    <button
-                        className="repeat-question-button"
-                        onClick={() =>
-                            speakText(
-                                currentQuestion.question,
-                                setIsSpeaking
-                            )
-                        }
-                        disabled={
-                            isListening ||
-                            isThinking
-                        }
-                    >
-                        🔊 Repeat Question
-                    </button>
-
-                </section>
-
-
-                {/* =========================================
-                    ANSWER AREA
-                ========================================= */}
-
-                <section className="answer-area">
-
-                    <div className="answer-header">
-
-                        <div>
-
-                            <p>
-                                YOUR ANSWER
-                            </p>
-
-
-                            <span>
-
-                                Speak naturally or
-                                type your answer.
-                                You can edit the
-                                transcript before
-                                submitting.
-
-                            </span>
-
-                        </div>
-
-
-                        {isListening && (
-
-                            <div className="listening-status">
-
-                                <span className="pulse-dot" />
-
-                                Listening...
-
-                            </div>
-
-                        )}
-
-                    </div>
-
-
-                    {speechError && (
-
-                        <div
-                            className="speech-error"
-                            role="alert"
-                        >
-                            ⚠️{" "}
-                            {
-                                speechError
-                            }
-                        </div>
-
-                    )}
-
-
-                    {/* =====================================
-                        EDITABLE TRANSCRIPT
-                    ===================================== */}
-
-                    <div
-                        className={
-                            isListening
-                                ? "answer-box listening"
-                                : "answer-box"
-                        }
-                    >
-
-                        <div className="transcript-editor-container">
-
-                            <div className="live-transcript-label">
-
-                                {isListening
-                                    ? "LIVE TRANSCRIPT"
-                                    : "YOUR EDITABLE ANSWER"}
-
-                            </div>
-
-
-                            <textarea
-                                className="transcript-editor"
-                                value={
-                                    transcript
-                                }
-                                onChange={(
-                                    event
-                                ) => {
-
-                                    const value =
-                                        event
-                                            .target
-                                            .value;
-
-                                    setTranscript(
-                                        value
-                                    );
-
-                                    finalTranscriptRef.current =
-                                        value;
-
-                                }}
-                                placeholder="Start speaking or type your answer here..."
-                                rows={8}
-                                disabled={
-                                    isThinking ||
-                                    answerSubmitted
-                                }
-                            />
-
-
-                            <div className="transcript-help">
-
-                                ✏️ You can correct
-                                speech-to-text
-                                mistakes before
-                                submitting.
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    {/* =====================================
-                        CONTROLS
-                    ===================================== */}
-
-                    <div className="answer-controls">
-
-                        <button
-                            className={
-                                isListening
-                                    ? "mic-button recording"
-                                    : "mic-button"
-                            }
-                            onClick={
-                                isListening
-                                    ? stopListening
-                                    : startListening
-                            }
-                            disabled={
-                                !speechSupported ||
-                                isThinking ||
-                                answerSubmitted
-                            }
-                        >
-
-                            <span>
-
-                                {isListening
-                                    ? "■"
-                                    : "🎙"}
-
-                            </span>
-
-
-                            {isListening
-                                ? "Stop Recording"
-                                : "Start Speaking"}
-
-                        </button>
-
-
-                        <button
-                            className="submit-answer-button"
-                            disabled={
-                                !transcript.trim() ||
-                                isThinking ||
-                                answerSubmitted
-                            }
-                            onClick={
-                                submitAnswer
-                            }
-                        >
-
-                            {isThinking
-                                ? "AI is evaluating..."
-                                : answerSubmitted
-                                ? "Answer Evaluated ✓"
-                                : "Submit Answer →"}
-
-                        </button>
-
-                    </div>
-
-                </section>
-
-
-                {/* =========================================
-                    FEEDBACK
-                ========================================= */}
-
-                {answerSubmitted &&
-                    currentEvaluation && (
-
-                        <section className="answer-feedback">
-
-                            <div className="feedback-icon">
-                                ✓
-                            </div>
-
-
-                            <div className="feedback-content">
-
-                                <strong>
-                                    AI Feedback
-                                </strong>
-
-
-                                <p>
-                                    {
-                                        currentEvaluation.feedback
-                                    }
-                                </p>
-
-
-                                <div className="feedback-scores">
-
-                                    <span>
-                                        Overall{" "}
-                                        <strong>
-                                            {
-                                                currentEvaluation.overall
-                                            }
-                                        </strong>
-                                    </span>
-
-
-                                    <span>
-                                        Communication{" "}
-                                        <strong>
-                                            {
-                                                currentEvaluation.communication
-                                            }
-                                        </strong>
-                                    </span>
-
-
-                                    <span>
-                                        Relevance{" "}
-                                        <strong>
-                                            {
-                                                currentEvaluation.relevance
-                                            }
-                                        </strong>
-                                    </span>
-
-
-                                    <span>
-                                        Technical{" "}
-                                        <strong>
-                                            {
-                                                currentEvaluation.technicalAccuracy
-                                            }
-                                        </strong>
-                                    </span>
-
-
-                                    <span>
-                                        Completeness{" "}
-                                        <strong>
-                                            {
-                                                currentEvaluation.completeness
-                                            }
-                                        </strong>
-                                    </span>
-
+                            <div className="interviewer-profile">
+                                <div
+                                    className={`interviewer-avatar ${
+                                        isSpeaking ? "speaking" : ""
+                                    }`}
+                                >
+                                    <span>AI</span>
+
+                                    {isSpeaking && (
+                                        <span className="speaking-pulse" />
+                                    )}
                                 </div>
 
+                                <div>
+                                    <strong>AI Interviewer</strong>
 
-                                {currentEvaluation.strengths?.length >
-                                    0 && (
+                                    <span>
+                                        {isSpeaking
+                                            ? "Speaking..."
+                                            : "CareerBridge Interview Coach"}
+                                    </span>
+                                </div>
 
-                                    <div>
-
-                                        <strong>
-                                            💪 Strengths
-                                        </strong>
-
-
-                                        <ul>
-
-                                            {currentEvaluation.strengths.map(
-                                                (
-                                                    item,
-                                                    index
-                                                ) => (
-
-                                                    <li
-                                                        key={
-                                                            index
-                                                        }
-                                                    >
-                                                        {
-                                                            item
-                                                        }
-                                                    </li>
-
-                                                )
-                                            )}
-
-                                        </ul>
-
-                                    </div>
-
-                                )}
-
-
-                                {currentEvaluation.improvements?.length >
-                                    0 && (
-
-                                    <div>
-
-                                        <strong>
-                                            📌 Improve
-                                        </strong>
-
-
-                                        <ul>
-
-                                            {currentEvaluation.improvements.map(
-                                                (
-                                                    item,
-                                                    index
-                                                ) => (
-
-                                                    <li
-                                                        key={
-                                                            index
-                                                        }
-                                                    >
-                                                        {
-                                                            item
-                                                        }
-                                                    </li>
-
-                                                )
-                                            )}
-
-                                        </ul>
-
-                                    </div>
-
-                                )}
-
+                                <button
+                                    type="button"
+                                    className="repeat-question-button"
+                                    onClick={() =>
+                                        speakQuestion(
+                                            currentQuestion?.question
+                                        )
+                                    }
+                                    title="Read the question aloud"
+                                >
+                                    🔊 Repeat
+                                </button>
                             </div>
 
+                            <h2 className="interview-question-text">
+                                {currentQuestion?.question}
+                            </h2>
 
-                            <button
-                                onClick={
-                                    questionNumber >=
-                                    MAX_QUESTIONS
-                                        ? finishInterview
-                                        : nextQuestion
-                                }
-                                disabled={
-                                    isThinking
-                                }
-                            >
+                            
+                        </article>
 
-                                {questionNumber >=
-                                MAX_QUESTIONS
-                                    ? "Finish Interview"
-                                    : "Next Question →"}
+                        <article className="answer-card">
+                            <div className="answer-card-header">
+                                <div>
+                                    <h2>Your Answer</h2>
 
-                            </button>
+                                    <p>
+                                        Type your answer or speak using
+                                        your microphone.
+                                    </p>
+                                </div>
 
-                        </section>
+                                <span className="answer-word-count">
+                                    {answer.trim()
+                                        ? answer
+                                              .trim()
+                                              .split(/\s+/).length
+                                        : 0}{" "}
+                                    words
+                                </span>
+                            </div>
 
-                    )}
+                            <textarea
+                                className="interview-answer-input"
+                                value={answer}
+                                onChange={(event) => {
+                                    setAnswer(event.target.value);
+                                    answerRef.current =
+                                        event.target.value;
+                                }}
+                                placeholder="Start typing your answer here..."
+                                rows={7}
+                                disabled={evaluating}
+                            />
 
-            </main>
+                            <div className="answer-toolbar">
+                                <div className="voice-controls">
+                                    {!isListening ? (
+                                        <button
+                                            type="button"
+                                            className="voice-button"
+                                            onClick={startListening}
+                                            disabled={evaluating}
+                                        >
+                                             Start Speaking
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className="voice-button listening"
+                                            onClick={stopListening}
+                                        >
+                                            Stop Recording
+                                        </button>
+                                    )}
 
-        </div>
+                                    {isListening && (
+                                        <span className="listening-indicator">
+                                            <span className="listening-dot" />
+                                            Listening...
+                                        </span>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="clear-answer-button"
+                                    onClick={() => {
+                                        setAnswer("");
+                                        answerRef.current = "";
+                                    }}
+                                    disabled={
+                                        !answer.trim() || evaluating
+                                    }
+                                >
+                                    Clear answer
+                                </button>
+                            </div>
+
+                            {error && (
+                                <div className="interview-error">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div className="answer-submit-row">
+                                <span className="answer-submit-hint">
+                                    Your answer will be reviewed before
+                                    the next question.
+                                </span>
+
+                                <button
+                                    type="button"
+                                    className="primary-button evaluate-answer-button"
+                                    onClick={evaluateAnswer}
+                                    disabled={
+                                        evaluating ||
+                                        !answer.trim() ||
+                                        Boolean(evaluation)
+                                    }
+                                >
+                                    {evaluating
+                                        ? "Evaluating..."
+                                        : evaluation
+                                        ? "Answer Evaluated ✓"
+                                        : "Submit Answer →"}
+                                </button>
+                            </div>
+                        </article>
+
+                        {evaluation && (
+                            <section className="evaluation-card">
+                                <div className="evaluation-header">
+                                    <div>
+                                        <span className="workspace-eyebrow">
+                                            ANSWER REVIEW
+                                        </span>
+
+                                        <h2>Your Feedback</h2>
+                                    </div>
+
+                                    <div className="evaluation-score">
+                                        <strong>
+                                            {evaluation.score}
+                                        </strong>
+
+                                        <span>/100</span>
+                                    </div>
+                                </div>
+
+                                <div className="evaluation-score-track">
+                                    <div
+                                        className="evaluation-score-fill"
+                                        style={{
+                                            width: `${Math.max(
+                                                0,
+                                                Math.min(
+                                                    100,
+                                                    Number(
+                                                        evaluation.score
+                                                    ) || 0
+                                                )
+                                            )}%`,
+                                        }}
+                                    />
+                                </div>
+
+                                <p className="evaluation-feedback">
+                                    {evaluation.feedback}
+                                </p>
+
+                                {evaluation.strengths?.length > 0 && (
+                                    <div className="evaluation-list">
+                                        <h3>What went well</h3>
+
+                                        <ul>
+                                            {evaluation.strengths.map(
+                                                (item, index) => (
+                                                    <li
+                                                        key={`${item}-${index}`}
+                                                    >
+                                                        {item}
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {evaluation.improvements?.length > 0 && (
+                                    <div className="evaluation-list">
+                                        <h3>How to improve</h3>
+
+                                        <ul>
+                                            {evaluation.improvements.map(
+                                                (item, index) => (
+                                                    <li
+                                                        key={`${item}-${index}`}
+                                                    >
+                                                        {item}
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {evaluation.modelAnswer && (
+                                    <details className="model-answer-details">
+                                        <summary>
+                                            View a sample answer
+                                        </summary>
+
+                                        <p>{evaluation.modelAnswer}</p>
+                                    </details>
+                                )}
+
+                                <div className="next-question-actions">
+                                    <button
+                                        type="button"
+                                        className="secondary-button"
+                                        onClick={finishInterview}
+                                    >
+                                        Finish Interview
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="primary-button"
+                                        onClick={nextQuestion}
+                                        disabled={loading}
+                                    >
+                                        {loading
+                                            ? "Loading..."
+                                            : currentQuestionNumber >=
+                                              MAX_QUESTIONS
+                                            ? "View Final Report →"
+                                            : "Next Question →"}
+                                    </button>
+                                </div>
+                            </section>
+                        )}
+                    </section>
+
+                    
+                </div>
+            </section>
+        </main>
     );
-};
+}
 
-
-export default MockInterview;

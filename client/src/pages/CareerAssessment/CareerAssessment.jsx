@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CareerAssessment.css";
-
+import logoImg from "../../assets/images/logo.jpeg";
 // =====================================================
 // API
 // =====================================================
@@ -39,11 +39,11 @@ const ROLE_DESCRIPTIONS = {
 };
 
 const ROLE_ICONS = {
-    "software-developer": "💻",
-    "data-analyst": "📊",
-    cybersecurity: "🔐",
-    "cloud-devops": "☁️",
-    "ui-ux": "🎨",
+    "software-developer": "",
+    "data-analyst": "",
+    cybersecurity: "",
+    "cloud-devops": "",
+    "ui-ux": "",
 };
 
 const ROLES = [
@@ -553,11 +553,15 @@ function CareerAssessment() {
                     </button>
 
                     <div className="assessment-brand">
-                        <div className="brand-logo">C</div>
-
+                        
+<img
+            src={logoImg}
+            alt="CareerBridge Logo"
+            className="brand-logo"
+          />
                         <div>
                             <strong>Career Assessment</strong>
-                            <span>Technical Knowledge Test</span>
+                           
                         </div>
                     </div>
 
@@ -568,18 +572,11 @@ function CareerAssessment() {
 
                 <main className="assessment-main">
                     <div className="assessment-intro">
-                        <p className="intro-label">
-                            CAREER ASSESSMENT
-                        </p>
+                        
 
                         <h1>Choose Your Career Role</h1>
 
-                        <p>
-                            Select a career role and a technical
-                            skill to evaluate your knowledge.
-                            Each available test contains exactly
-                            20 questions.
-                        </p>
+                        
                     </div>
 
                     <div className="assessment-flow">
@@ -608,7 +605,7 @@ function CareerAssessment() {
                         <section className="assessment-section">
                             <div className="section-heading">
                                 <div className="section-icon">
-                                    🎯
+                                    
                                 </div>
 
                                 <div>
@@ -681,7 +678,7 @@ function CareerAssessment() {
                                 <div className="skill-selection">
                                     <div className="section-heading">
                                         <div className="section-icon">
-                                            📘
+                                            
                                         </div>
 
                                         <div>
@@ -743,16 +740,7 @@ function CareerAssessment() {
                                 </div>
                             )}
 
-                            <div className="assessment-note">
-                                <strong>Note:</strong>
-                                <span>
-                                    Only role and skill combinations
-                                    with exactly 20 questions are
-                                    available to take. More options
-                                    can be enabled after their
-                                    question sets are completed.
-                                </span>
-                            </div>
+                            
 
                             {error && (
                                 <div
@@ -793,10 +781,7 @@ function CareerAssessment() {
                         </div>
                     </div>
 
-                    <p className="privacy-note">
-                        Your selected role, skill and answers are
-                        used to evaluate your technical knowledge.
-                    </p>
+                    
                 </main>
             </div>
         );

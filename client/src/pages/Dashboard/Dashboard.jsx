@@ -1,8 +1,13 @@
+
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
+import logoImg from "../../assets/images/logo.jpeg";
 
+const API_BASE = "http://localhost:5000/api";
 const REQUIRED_QUESTIONS = 20;
+const VISIBLE_HISTORY_COUNT = 5;
+const CHART_HISTORY_COUNT = 10;
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -13,11 +18,18 @@ const Dashboard = () => {
   const [profile, setProfile] = useState(null);
   const [assessment, setAssessment] = useState(null);
 
+  const [attempts, setAttempts] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyError, setHistoryError] = useState("");
+
+  // NEW: Controls the assessment history dropdown.
+  const [showAllHistory, setShowAllHistory] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   // =====================================================
-  // FETCH DASHBOARD
+  // FETCH DASHBOARD DATA
   // =====================================================
 
   const fetchDashboard = useCallback(async () => {
@@ -30,15 +42,75 @@ const Dashboard = () => {
         localStorage.getItem("email");
 
       if (!email) {
-        setError("User email not found. Please login again.");
-        setLoading(false);
-        return;
+        throw new Error("User email not found. Please log in again.");
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/dashboard/${encodeURIComponent(
-          email
-        )}`
+        `${API_BASE}/dashboard/${encodeURIComponent(email)}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+          cache: "no-store",
+        }
+      );
+
+      let data;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error("The server returned an invalid response.");
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to load your dashboard."
+        );
+      }
+
+      setUser(data.user || null);
+      setProfile(data.profile || null);
+      setAssessment(data.assessment || null);
+      setDashboard(data.dashboard || null);
+    } catch (err) {
+      console.error("Dashboard error:", err);
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // =====================================================
+  // FETCH REAL ASSESSMENT HISTORY
+  // =====================================================
+
+  const fetchAssessmentHistory = useCallback(async () => {
+    try {
+      setHistoryLoading(true);
+      setHistoryError("");
+
+      const token =
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("accessToken");
+
+      const headers = {
+        Accept: "application/json",
+      };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(
+        `${API_BASE}/assessment/history`,
+        {
+          method: "GET",
+          headers,
+          cache: "no-store",
+        }
       );
 
       let data;
@@ -47,104 +119,183 @@ const Dashboard = () => {
         data = await response.json();
       } catch {
         throw new Error(
-          "Server returned an invalid dashboard response."
+          "The server returned an invalid history response."
         );
       }
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Failed to load dashboard"
+          data.message ||
+            "Unable to load assessment performance."
         );
       }
 
-      console.log("=================================");
-      console.log("DASHBOARD DATA");
-      console.log(data);
-      console.log("ASSESSMENT DATA");
-      console.log(data.assessment);
-      console.log("=================================");
+      const history = Array.isArray(data)
+        ? data
+        : Array.isArray(data.attempts)
+        ? data.attempts
+        : Array.isArray(data.history)
+        ? data.history
+        : [];
 
-      setUser(data.user || null);
-      setProfile(data.profile || null);
-      setAssessment(data.assessment || null);
-      setDashboard(data.dashboard || null);
+      const normalizedAttempts = history
+        .map((attempt, index) => {
+          const rawScore = Number(
+            attempt.score ??
+              attempt.percentage ??
+              attempt.overallPercentage
+          );
 
+          const score = Number.isFinite(rawScore)
+            ? Math.min(100, Math.max(0, rawScore))
+            : 0;
+
+          const rawTotal = Number(
+            attempt.totalQuestions ??
+              attempt.total_questions ??
+              REQUIRED_QUESTIONS
+          );
+
+          const rawCorrect = Number(
+            attempt.correctAnswers ??
+              attempt.correct_answers ??
+              0
+          );
+
+          const rawIncorrect = Number(
+            attempt.incorrectAnswers ??
+              attempt.incorrect_answers ??
+              0
+          );
+
+          return {
+            id: attempt.id ?? `attempt-${index}`,
+
+            role:
+              attempt.roleName ||
+              attempt.role_name ||
+              attempt.role ||
+              "",
+
+            skill:
+              attempt.skill ||
+              attempt.assessmentSkill ||
+              attempt.assessment_skill ||
+              "",
+
+            score,
+
+            totalQuestions:
+              Number.isFinite(rawTotal) && rawTotal > 0
+                ? rawTotal
+                : REQUIRED_QUESTIONS,
+
+            correctAnswers:
+              Number.isFinite(rawCorrect) && rawCorrect >= 0
+                ? rawCorrect
+                : 0,
+
+            incorrectAnswers:
+              Number.isFinite(rawIncorrect) && rawIncorrect >= 0
+                ? rawIncorrect
+                : 0,
+
+            performanceLevel:
+              attempt.performanceLevel ||
+              attempt.performance_level ||
+              "",
+
+            completedAt:
+              attempt.completedAt ||
+              attempt.completed_at ||
+              attempt.createdAt ||
+              attempt.created_at ||
+              null,
+          };
+        })
+        .sort((a, b) => {
+          const dateA = a.completedAt
+            ? new Date(a.completedAt).getTime()
+            : 0;
+
+          const dateB = b.completedAt
+            ? new Date(b.completedAt).getTime()
+            : 0;
+
+          if (dateA !== dateB) {
+            return dateA - dateB;
+          }
+
+          return String(a.id).localeCompare(
+            String(b.id),
+            undefined,
+            { numeric: true }
+          );
+        });
+
+      setAttempts(normalizedAttempts);
     } catch (err) {
-      console.error("Dashboard Error:", err);
+      console.error("Assessment history error:", err);
 
-      setError(
+      setHistoryError(
         err.message ||
-          "Something went wrong while loading dashboard."
+          "Unable to load assessment performance."
       );
     } finally {
-      setLoading(false);
+      setHistoryLoading(false);
     }
   }, []);
 
   // =====================================================
-  // INITIAL LOAD
+  // INITIAL LOAD AND REFRESH
   // =====================================================
 
   useEffect(() => {
     fetchDashboard();
-  }, [fetchDashboard]);
+    fetchAssessmentHistory();
+  }, [
+    fetchDashboard,
+    fetchAssessmentHistory,
+    location.pathname,
+  ]);
 
   // =====================================================
-  // REFRESH WHEN RETURNING TO DASHBOARD
-  // =====================================================
-
-  useEffect(() => {
-    if (location.pathname === "/dashboard") {
-      fetchDashboard();
-    }
-  }, [location.pathname, fetchDashboard]);
-
-  // =====================================================
-  // LOADING
+  // LOADING STATE
   // =====================================================
 
   if (loading) {
     return (
-      <div className="dashboard-loading">
+      <div className="cb-state-screen">
+        <div className="cb-spinner" />
 
-        <div className="loading-spinner"></div>
-
-        <h3>
-          Loading your CareerBridge dashboard...
-        </h3>
+        <h2>Preparing your career dashboard</h2>
 
         <p>
-          Preparing your personalized career journey
+          Loading your CareerBridge progress...
         </p>
-
       </div>
     );
   }
 
   // =====================================================
-  // ERROR
+  // ERROR STATE
   // =====================================================
 
   if (error) {
     return (
-      <div className="dashboard-error">
+      <div className="cb-state-screen">
+        <div className="cb-state-icon">!</div>
 
-        <div className="error-icon">
-          ⚠️
-        </div>
+        <h2>Unable to load dashboard</h2>
 
-        <h2>
-          Unable to load dashboard
-        </h2>
+        <p>{error}</p>
 
-        <p>
-          {error}
-        </p>
-
-        <button onClick={fetchDashboard}>
-          Try Again
+        <button
+          className="cb-primary-button"
+          onClick={fetchDashboard}
+        >
+          Try again
         </button>
-
       </div>
     );
   }
@@ -153,1049 +304,1098 @@ const Dashboard = () => {
   // DASHBOARD DATA
   // =====================================================
 
-  const placementReadiness =
-    Number(
-      dashboard?.placementReadiness ??
-        dashboard?.placement_readiness ??
-        0
-    ) || 0;
-
-  const roadmapProgress =
-    Number(
-      dashboard?.roadmapProgress ??
-        dashboard?.roadmap_progress ??
-        0
-    ) || 0;
-
-  const resumeScore =
-    Number(
-      dashboard?.resumeScore ??
-        dashboard?.resume_score ??
-        0
-    ) || 0;
-
-  const profileCompletion =
-    Number(
-      dashboard?.profileCompletion ??
-        dashboard?.profile_completion ??
-        0
-    ) || 0;
-
-  // =====================================================
-  // CAREER DATA
-  // =====================================================
-
-  const roadmap =
-    Array.isArray(dashboard?.roadmap)
-      ? dashboard.roadmap
-      : [];
-
-  const tasks =
-    Array.isArray(dashboard?.tasks)
-      ? dashboard.tasks
-      : [];
-
-  // =====================================================
-  // ASSESSMENT DATA
-  // =====================================================
-
-  const backendAssessment = assessment || {};
-
-  // =====================================================
-  // GET STORED ASSESSMENT RESULT
-  // =====================================================
-
-  let storedAssessmentResult = null;
-
-  try {
-    const storedResult =
-      sessionStorage.getItem("assessmentResult");
-
-    if (storedResult) {
-      storedAssessmentResult = JSON.parse(storedResult);
-
-      console.log(
-        "Stored Assessment Result:",
-        storedAssessmentResult
-      );
-    }
-  } catch (storageError) {
-    console.error(
-      "Assessment session storage error:",
-      storageError
-    );
-  }
-
-  // =====================================================
-  // ASSESSMENT TOTAL
-  // =====================================================
-
-  const getAssessmentTotal = () => {
-    const possibleTotals = [
-      backendAssessment.totalQuestions,
-      backendAssessment.total_questions,
-      backendAssessment.total,
-      storedAssessmentResult?.totalQuestions,
-      storedAssessmentResult?.total_questions,
-      storedAssessmentResult?.total,
-    ];
-
-    for (const value of possibleTotals) {
-      const number = Number(value);
-
-      if (
-        Number.isFinite(number) &&
-        number > 0
-      ) {
-        return number;
-      }
-    }
-
-    return REQUIRED_QUESTIONS;
-  };
-
-  const assessmentTotal = getAssessmentTotal();
-
-  // =====================================================
-  // ACTUAL CORRECT ANSWERS
-  // =====================================================
-
-  /*
-   * IMPORTANT
-   *
-   * We specifically look for the NUMBER OF CORRECT
-   * ANSWERS first.
-   *
-   * Example:
-   *
-   * correctAnswers = 12
-   * totalQuestions = 20
-   *
-   * Dashboard = 12/20
-   *
-   * We DO NOT treat a percentage such as 60
-   * as 60 correct answers.
-   */
-
-  const possibleCorrectAnswers = [
-
-    // Backend
-    backendAssessment.correctAnswers,
-    backendAssessment.correct_answers,
-    backendAssessment.correctCount,
-    backendAssessment.correct_count,
-    backendAssessment.correct,
-
-    // Stored assessment result
-    storedAssessmentResult?.correctAnswers,
-    storedAssessmentResult?.correct_answers,
-    storedAssessmentResult?.correctCount,
-    storedAssessmentResult?.correct_count,
-    storedAssessmentResult?.correct,
-  ];
-
-  let actualCorrectAnswers = null;
-
-  for (const value of possibleCorrectAnswers) {
-
-    if (
-      value !== undefined &&
-      value !== null &&
-      value !== "" &&
-      !isNaN(Number(value))
-    ) {
-
-      const number = Number(value);
-
-      if (
-        Number.isFinite(number) &&
-        number >= 0 &&
-        number <= assessmentTotal
-      ) {
-        actualCorrectAnswers = number;
-        break;
-      }
-    }
-  }
-
-  // =====================================================
-  // DERIVE CORRECT ANSWERS FROM PERCENTAGE
-  // =====================================================
-
-  /*
-   * If backend doesn't directly give correct answers,
-   * use percentage.
-   *
-   * Example:
-   *
-   * 60% of 20 = 12 correct
-   */
-
-  if (actualCorrectAnswers === null) {
-
-    const possiblePercentages = [
-
-      // Backend
-      backendAssessment.percentage,
-      backendAssessment.overallPercentage,
-      backendAssessment.scorePercentage,
-      backendAssessment.accuracy,
-
-      // Stored result
-      storedAssessmentResult?.percentage,
-      storedAssessmentResult?.overallPercentage,
-      storedAssessmentResult?.scorePercentage,
-      storedAssessmentResult?.accuracy,
-    ];
-
-    let percentage = null;
-
-    for (const value of possiblePercentages) {
-
-      if (
-        value !== undefined &&
-        value !== null &&
-        value !== "" &&
-        !isNaN(Number(value))
-      ) {
-
-        const number = Number(value);
-
-        if (
-          Number.isFinite(number) &&
-          number >= 0 &&
-          number <= 100
-        ) {
-          percentage = number;
-          break;
-        }
-      }
-    }
-
-    if (percentage !== null) {
-
-      actualCorrectAnswers = Math.round(
-        (percentage / 100) * assessmentTotal
-      );
-    }
-  }
-
-  // =====================================================
-  // FALLBACK TO SCORE
-  // =====================================================
-
-  /*
-   * Only use "score" as a fallback.
-   *
-   * If score is 12 and total is 20,
-   * we assume it means 12 correct.
-   */
-
-  if (actualCorrectAnswers === null) {
-
-    const possibleScores = [
-
-      backendAssessment.score,
-      backendAssessment.total_score,
-      backendAssessment.totalScore,
-
-      storedAssessmentResult?.score,
-      storedAssessmentResult?.total_score,
-      storedAssessmentResult?.totalScore,
-    ];
-
-    for (const value of possibleScores) {
-
-      if (
-        value !== undefined &&
-        value !== null &&
-        value !== "" &&
-        !isNaN(Number(value))
-      ) {
-
-        const number = Number(value);
-
-        if (
-          Number.isFinite(number) &&
-          number >= 0 &&
-          number <= assessmentTotal
-        ) {
-          actualCorrectAnswers = number;
-          break;
-        }
-      }
-    }
-  }
-
-  // =====================================================
-  // FINAL CORRECT ANSWERS
-  // =====================================================
-
-  if (actualCorrectAnswers === null) {
-    actualCorrectAnswers = 0;
-  }
-
-  actualCorrectAnswers = Math.max(
-    0,
-    Math.min(
-      Math.round(Number(actualCorrectAnswers) || 0),
-      assessmentTotal
-    )
+  const readiness = clamp(
+    dashboard?.placementReadiness ??
+      dashboard?.placement_readiness
   );
 
-  // =====================================================
-  // ASSESSMENT ANSWERED QUESTIONS
-  // =====================================================
+  const roadmapProgress = clamp(
+    dashboard?.roadmapProgress ??
+      dashboard?.roadmap_progress
+  );
 
-  /*
-   * IMPORTANT:
-   *
-   * Correct answers != answered questions.
-   *
-   * But for this dashboard card we are intentionally
-   * showing the SCORE as:
-   *
-   * correct / total
-   *
-   * Example:
-   *
-   * 12/20
-   */
+  const resumeScore = clamp(
+    dashboard?.resumeScore ??
+      dashboard?.resume_score
+  );
 
-  const answeredQuestions = actualCorrectAnswers;
-
-  // =====================================================
-  // ASSESSMENT COMPLETED
-  // =====================================================
-
-  const assessmentCompleted =
-    Boolean(
-      backendAssessment.completed === true ||
-      backendAssessment.is_completed === true ||
-      backendAssessment.completed_at ||
-      backendAssessment.status === "completed" ||
-      backendAssessment.status === "Completed" ||
-      storedAssessmentResult
-    );
-
-  const finalAssessmentCompleted =
-    assessmentCompleted;
-
-  // =====================================================
-  // ASSESSMENT SCORE PERCENTAGE
-  // =====================================================
-
-  const assessmentScorePercentage =
-    assessmentTotal > 0
-      ? Math.round(
-          (actualCorrectAnswers /
-            assessmentTotal) *
-            100
-        )
-      : 0;
-
-  // =====================================================
-  // USER NAME
-  // =====================================================
+  const profileCompletion = clamp(
+    dashboard?.profileCompletion ??
+      dashboard?.profile_completion
+  );
 
   const firstName =
-    user?.fullname?.split(" ")[0] ||
-    user?.name?.split(" ")[0] ||
+    user?.fullname?.trim().split(/\s+/)[0] ||
+    user?.name?.trim().split(/\s+/)[0] ||
+    "Student";
+
+  const fullName =
+    user?.fullname ||
+    user?.name ||
     "Student";
 
   // =====================================================
-  // TASK COUNT
+  // ASSESSMENT PERFORMANCE CALCULATIONS
   // =====================================================
 
-  const completedTasks =
-    tasks.filter(
-      (task) => task.completed
-    ).length;
+  // Attempts are sorted from oldest to newest.
+  const latestAttempt =
+    attempts.length > 0
+      ? attempts[attempts.length - 1]
+      : null;
 
-  const totalTasks =
-    tasks.length > 0
-      ? tasks.length
-      : 4;
+  const latestScore = latestAttempt
+    ? latestAttempt.score
+    : null;
 
-  // =====================================================
-  // READINESS TITLE
-  // =====================================================
+  const bestScore =
+    attempts.length > 0
+      ? Math.max(...attempts.map((attempt) => attempt.score))
+      : null;
 
-  const getReadinessTitle = () => {
+  const previousAttempt =
+    attempts.length > 1
+      ? attempts[attempts.length - 2]
+      : null;
 
-    if (placementReadiness >= 80) {
-      return "You're career ready!";
+  const improvement =
+    latestAttempt && previousAttempt
+      ? latestAttempt.score - previousAttempt.score
+      : null;
+
+  const assessmentCompleted = attempts.length > 0;
+
+  const backendAssessment = assessment || {};
+
+  let storedAssessment = null;
+
+  try {
+    const raw = sessionStorage.getItem("assessmentResult");
+
+    if (raw) {
+      storedAssessment = JSON.parse(raw);
+    }
+  } catch (err) {
+    console.warn("Could not read stored assessment:", err);
+  }
+
+  const assessmentSources = [
+    backendAssessment,
+    storedAssessment,
+  ];
+
+  const readNumber = (keys, max = Infinity) => {
+    for (const source of assessmentSources) {
+      for (const key of keys) {
+        const value = source?.[key];
+
+        if (
+          value === undefined ||
+          value === null ||
+          value === ""
+        ) {
+          continue;
+        }
+
+        const number = Number(value);
+
+        if (
+          Number.isFinite(number) &&
+          number >= 0 &&
+          number <= max
+        ) {
+          return number;
+        }
+      }
     }
 
-    if (placementReadiness >= 60) {
-      return "You're making great progress!";
-    }
-
-    if (placementReadiness >= 40) {
-      return "";
-    }
-
-    return "Let's build your career readiness!";
+    return null;
   };
 
-  // =====================================================
-  // READINESS DESCRIPTION
-  // =====================================================
+  const totalQuestions =
+    readNumber(
+      ["totalQuestions", "total_questions", "total"],
+      10000
+    ) || REQUIRED_QUESTIONS;
 
-  const getReadinessDescription = () => {
+  let correctAnswers = readNumber(
+    [
+      "correctAnswers",
+      "correct_answers",
+      "correctCount",
+      "correct_count",
+      "correct",
+    ],
+    totalQuestions
+  );
 
-    if (placementReadiness >= 80) {
-      return "Great work! Continue improving your skills and preparing for your target career.";
-    }
+  const assessmentPercentage = readNumber(
+    [
+      "percentage",
+      "overallPercentage",
+      "scorePercentage",
+      "accuracy",
+    ],
+    100
+  );
 
-    if (placementReadiness >= 60) {
-      return "You're on the right track. Continue building your skills, resume and career roadmap.";
-    }
+  if (
+    correctAnswers === null &&
+    assessmentPercentage !== null
+  ) {
+    correctAnswers = Math.round(
+      (assessmentPercentage / 100) * totalQuestions
+    );
+  }
 
-    return "Complete your profile, career assessment and preparation activities to build your personalized career journey.";
-  };
-
-  // =====================================================
-  // READINESS BUTTON
-  // =====================================================
-
-  const getReadinessButton = () => {
-
-    if (!finalAssessmentCompleted) {
-      return "Take Career Assessment";
-    }
-
-    if (profileCompletion < 100) {
-      return "Complete Profile";
-    }
-
-    if (resumeScore < 70) {
-      return "Improve Resume";
-    }
-
-    if (roadmapProgress < 100) {
-      return "Continue Roadmap";
-    }
-
-    return "View Career Progress";
-  };
-
-  // =====================================================
-  // READINESS BUTTON ACTION
-  // =====================================================
-
-  const handleReadinessButton = () => {
-
-    if (!finalAssessmentCompleted) {
-      navigate("/career-assessment");
-      return;
-    }
-
-    if (profileCompletion < 100) {
-      navigate("/profile");
-      return;
-    }
-
-    if (resumeScore < 70) {
-      navigate("/resume-builder");
-      return;
-    }
-
-    if (roadmapProgress < 100) {
-      navigate("/career-roadmap");
-      return;
-    }
-
-    navigate("/career-recommendations");
-  };
-
-  // =====================================================
-  // PROFILE CHECKLIST
-  // =====================================================
-
-  const hasBasicInformation =
-    Boolean(
-      profile?.phone &&
-      user?.fullname &&
-      user?.email
+  if (correctAnswers === null) {
+    const score = readNumber(
+      ["score", "total_score", "totalScore"],
+      totalQuestions
     );
 
-  const hasEducationDetails =
-    Boolean(
-      profile?.college &&
+    correctAnswers = score ?? 0;
+  }
+
+  correctAnswers = Math.min(
+    totalQuestions,
+    Math.max(0, Math.round(correctAnswers))
+  );
+
+  const assessmentPercent = latestAttempt
+    ? latestAttempt.score
+    : assessmentPercentage ?? 0;
+
+  const tasks = Array.isArray(dashboard?.tasks)
+    ? dashboard.tasks
+    : [];
+
+  const hasBasicInformation = Boolean(
+    profile?.phone &&
+      user?.fullname &&
+      user?.email
+  );
+
+  const hasEducationDetails = Boolean(
+    profile?.college &&
       profile?.degree &&
       profile?.branch &&
       profile?.graduation_year
-    );
+  );
 
-  const hasSkillsAndInterests =
-    Boolean(
-      Array.isArray(profile?.skills) &&
+  const hasSkillsAndInterests = Boolean(
+    Array.isArray(profile?.skills) &&
       profile.skills.length > 0 &&
       Array.isArray(profile?.interests) &&
       profile.interests.length > 0
-    );
+  );
 
-  const hasCareerPreferences =
-    Boolean(
-      Array.isArray(profile?.preferred_roles) &&
+  const hasCareerPreferences = Boolean(
+    Array.isArray(profile?.preferred_roles) &&
       profile.preferred_roles.length > 0 &&
       Array.isArray(profile?.preferred_locations) &&
       profile.preferred_locations.length > 0
-    );
+  );
 
-  const profileChecklist = [
+  const checklist = [
     {
-      label: "Basic Information",
-      completed: hasBasicInformation,
+      label: "Basic information",
+      done: hasBasicInformation,
     },
     {
-      label: "Education Details",
-      completed: hasEducationDetails,
+      label: "Education details",
+      done: hasEducationDetails,
     },
     {
-      label: "Skills & Interests",
-      completed: hasSkillsAndInterests,
+      label: "Skills and interests",
+      done: hasSkillsAndInterests,
     },
     {
-      label: "Career Preferences",
-      completed: hasCareerPreferences,
+      label: "Career preferences",
+      done: hasCareerPreferences,
     },
   ];
 
+  const nextStep = getNextStep({
+    assessmentCompleted,
+    profileCompletion,
+    resumeScore,
+    roadmapProgress,
+  });
+
+  const readinessMessage =
+    readiness >= 80
+      ? "Excellent progress! Keep strengthening your skills."
+      : readiness >= 60
+      ? "You're making progress. Keep moving towards your career goal."
+      : "Build your career journey one step at a time.";
+
+  const handleNextStep = () => {
+    navigate(nextStep.path);
+  };
+
   // =====================================================
-  // MAIN DASHBOARD
+  // HISTORY DISPLAY SETTINGS
+  // =====================================================
+
+  // Keep the full history in state, but show only five rows
+  // until the user expands the history section.
+  const reversedAttempts = [...attempts].reverse();
+
+  const visibleAttempts = showAllHistory
+    ? reversedAttempts
+    : reversedAttempts.slice(0, VISIBLE_HISTORY_COUNT);
+
+  const hasMoreHistory =
+    attempts.length > VISIBLE_HISTORY_COUNT;
+
+  // Only the ten newest attempts appear in the graph.
+  // Statistics above still use the complete history.
+  const chartAttempts = attempts.slice(-CHART_HISTORY_COUNT);
+
+  // =====================================================
+  // DASHBOARD UI
   // =====================================================
 
   return (
-    <div className="dashboard-container">
+    <main className="cb-dashboard">
+      {/* Header */}
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
-
-      <header className="dashboard-header">
-
-        <div className="header-left">
-
-          <p className="dashboard-label">
-            YOUR CAREER JOURNEY
-          </p>
-
-          <h1>
-            Welcome back, {firstName}
-          </h1>
-
-          <p className="dashboard-subtitle">
-            Track your progress, build job-ready skills
-            and prepare for your dream career.
-          </p>
-
-        </div>
-
-        <div className="header-profile">
-
-          <div className="profile-avatar">
-            {firstName
-              .charAt(0)
-              .toUpperCase()}
-          </div>
-
-          <div className="profile-details">
-
-            <strong>
-              {user?.fullname || "Student"}
-            </strong>
-
-            <span>
-              {user?.email || ""}
-            </span>
-
-          </div>
-
-        </div>
-
-      </header>
-
-
-      {/* =================================================
-          CAREER READINESS
-      ================================================= */}
-
-      <section className="readiness-card">
-
-        <div className="readiness-left">
-
-          <div className="readiness-icon">
-            🎯
-          </div>
-
-          <div className="readiness-content">
-
-            <p className="small-label">
-              YOUR CAREER READINESS
-            </p>
-
-            <h2>
-              {getReadinessTitle()}
-            </h2>
-
-            <p>
-              {getReadinessDescription()}
-            </p>
-
-            <button
-              className="primary-button"
-              onClick={handleReadinessButton}
-            >
-              {getReadinessButton()} ↗
-            </button>
-
-          </div>
-
-        </div>
-
-        <div className="readiness-right">
-
-          <div
-            className="progress-circle"
-            style={{
-              "--progress":
-                `${placementReadiness}%`,
-            }}
-          >
-
-            <div className="progress-inner">
-
-              <strong>
-                {placementReadiness}%
-              </strong>
-
-              <span>
-                Ready
-              </span>
-
-            </div>
-
-          </div>
-
-          <span className="readiness-label">
-            Career Readiness
-          </span>
-
-        </div>
-
-      </section>
-
-
-      {/* =================================================
-          MAIN STATISTICS
-      ================================================= */}
-
-      <section className="stats-grid">
-
-        <StatCard
-          icon="🗺️"
-          title="Roadmap Progress"
-          value={`${roadmapProgress}%`}
-          subtitle="Career roadmap"
-          iconClass="purple"
-        />
-
-        <StatCard
-          icon="📄"
-          title="Resume Score"
-          value={`${resumeScore}/100`}
-          subtitle="Resume strength"
-          iconClass="orange"
-        />
-
-        <StatCard
-          icon="🧠"
-          title="Assessment"
-
-          /*
-           * IMPORTANT:
-           *
-           * This now displays the actual score.
-           *
-           * Example:
-           * 12 correct out of 20
-           *
-           * => 12/20
-           */
-
-          value={`${actualCorrectAnswers}/${assessmentTotal}`}
-
-          subtitle={
-            finalAssessmentCompleted
-              ? `Assessment completed • Score: ${actualCorrectAnswers}/${assessmentTotal}`
-              : `${assessmentScorePercentage}% completed`
-          }
-
-          iconClass="green"
-        />
-
-      </section>
-
-
-      {/* =================================================
-          PROFILE
-      ================================================= */}
-
-      <section className="dashboard-card profile-card profile-card-full">
-
-        <div className="profile-header">
+      <header className="cb-topbar">
+        <div className="cb-brand">
+          <img
+            src={logoImg}
+            alt="CareerBridge Logo"
+            className="cb-brand-logo"
+          />
 
           <div>
+            <strong>CareerBridge</strong>
+            <span>STUDENT DASHBOARD</span>
+          </div>
+        </div>
 
-            <p className="small-label">
-              PROFILE
+        <button
+          className="cb-profile-chip"
+          onClick={() => navigate("/profile")}
+          aria-label="Open your profile"
+        >
+          <span className="cb-avatar">
+            {firstName.charAt(0).toUpperCase()}
+          </span>
+
+          <span className="cb-profile-chip-text">
+            <strong>{fullName}</strong>
+            <small>Student account</small>
+          </span>
+
+          <span className="cb-chevron">↗</span>
+        </button>
+      </header>
+
+      {/* Welcome */}
+
+      <section className="cb-welcome">
+        <div className="cb-welcome-copy">
+          
+
+          <h1>
+            Welcome back, <span>{firstName}!</span>
+          </h1>
+
+          <button
+            className="cb-primary-button"
+            onClick={handleNextStep}
+          >
+            {nextStep.label}
+            <span>→</span>
+          </button>
+
+          <div className="cb-welcome-note">
+             {readinessMessage}
+          </div>
+        </div>
+
+        <div className="cb-readiness-panel">
+          <span className="cb-panel-label">
+            CAREER READINESS
+          </span>
+
+          <ProgressRing value={readiness} />
+
+          <strong className="cb-readiness-status">
+            {readiness >= 80
+              ? "Career ready"
+              : readiness >= 50
+              ? "Making progress"
+              : "Your journey starts here"}
+          </strong>
+
+          <p>
+            Keep completing your preparation activities.
+          </p>
+        </div>
+
+        <div className="cb-decoration cb-decoration-one" />
+        <div className="cb-decoration cb-decoration-two" />
+      </section>
+
+     
+
+      {/* Quick Actions */}
+
+      <section className="cb-section">
+        <div className="cb-section-heading">
+          <div>
+            
+
+            <h2>Explore your career tools</h2>
+
+            
+          </div>
+        </div>
+
+        <div className="cb-actions-grid">
+          <QuickAction
+            
+           
+            title="Career Assessment"
+            description="Discover strengths and improvement areas."
+            onClick={() => navigate("/career-assessment")}
+          />
+
+          <QuickAction
+            
+            
+            title="Resume Builder"
+            description="Create and improve your professional resume."
+            onClick={() => navigate("/resume-builder")}
+          />
+
+          <QuickAction
+           
+           
+            title="Career Roadmap"
+            description="Follow your learning plan step by step."
+            onClick={() => navigate("/career-roadmap")}
+          />
+
+          <QuickAction
+           
+           
+            title="Learning Hub"
+            description="Explore resources for your career goals."
+            onClick={() => navigate("/learning-hub")}
+          />
+
+          <QuickAction
+            
+            title="Mock Interview"
+            description="Practice answering role-specific questions."
+            onClick={() => navigate("/interview")}
+          />
+
+          
+        </div>
+      </section>
+
+      {/* Assessment Performance */}
+
+      <section className="cb-card cb-performance-card">
+        <div className="cb-card-heading">
+          <div>
+            
+
+            <h2>Assessment Performance</h2>
+
+            <p>
+              Track your assessment scores and see how your
+              preparation improves over time.
             </p>
-
-            <h2>
-              {profileCompletion >= 100
-                ? "Profile Completed"
-                : "Complete Your Profile"}
-            </h2>
-
           </div>
 
           <button
-            className="edit-button"
-            onClick={() =>
-              navigate("/profile")
-            }
+            className="cb-outline-button"
+            onClick={fetchAssessmentHistory}
+            disabled={historyLoading}
           >
-            ✎
+            {historyLoading ? "Refreshing..." : "↻ Refresh"}
           </button>
-
         </div>
 
-        <div className="profile-progress">
-
-          <div
-            className="profile-circle"
-            style={{
-              "--progress":
-                `${profileCompletion}%`,
-            }}
-          >
-
-            <strong>
-              {profileCompletion}%
-            </strong>
-
-          </div>
-
-          <div className="profile-progress-text">
-
-            <h3>
-              {profileCompletion >= 100
-                ? "Profile completed!"
-                : "You're almost there!"}
-            </h3>
+        {historyLoading ? (
+          <div className="cb-performance-state">
+            <div className="cb-spinner" />
 
             <p>
-              {profileCompletion >= 100
-                ? "Your profile is complete."
-                : "Complete your profile for better career recommendations."}
+              Loading your assessment history...
+            </p>
+          </div>
+        ) : historyError ? (
+          <div className="cb-performance-state">
+            <div className="cb-state-icon">!</div>
+
+            <h3>
+              Unable to load assessment history
+            </h3>
+
+            <p>{historyError}</p>
+
+            <button
+              className="cb-primary-button"
+              onClick={fetchAssessmentHistory}
+            >
+              Try again
+            </button>
+          </div>
+        ) : attempts.length === 0 ? (
+          <div className="cb-performance-empty">
+            <div className="cb-performance-empty-icon">
+              
+            </div>
+
+            <h3>Your progress starts here</h3>
+
+            <p>
+              Complete your first career assessment to see your
+              score, track your improvement, and view your
+              performance graph.
             </p>
 
+            <button
+              className="cb-primary-button"
+              onClick={() => navigate("/career-assessment")}
+            >
+              Take an assessment <span>→</span>
+            </button>
           </div>
+        ) : (
+          <>
+            {/* Performance Summary Cards */}
 
-        </div>
+            <div className="cb-performance-stats">
+              <PerformanceStat
+                label="Latest score"
+                value={`${latestScore}%`}
+                detail={formatDate(latestAttempt.completedAt)}
+                tone="violet"
+              />
 
-        <div className="profile-checklist">
+              <PerformanceStat
+                label="Best score"
+                value={`${bestScore}%`}
+                detail="Highest score achieved"
+                tone="green"
+              />
 
-          {profileChecklist.map(
-            (item, index) => (
+              
 
-              <div
-                key={index}
-                className={`check-item ${
-                  item.completed
-                    ? "completed"
-                    : ""
-                }`}
-              >
+              <PerformanceStat
+                label="Total attempts"
+                value={attempts.length}
+                detail="Assessments completed"
+                tone="amber"
+              />
+            </div>
 
-                <span className="check-symbol">
-                  {item.completed
-                    ? "✓"
-                    : "○"}
+            {/* Score Graph */}
+
+            <AssessmentChart attempts={chartAttempts} />
+
+            {/* Assessment History: Five Latest by Default */}
+
+            <div className="cb-attempt-history">
+              <div className="cb-attempt-heading">
+                <div>
+                  <h3>Assessment history</h3>
+
+                  <p>
+                    Your latest assessment results.
+                    {hasMoreHistory
+                      ? " Older results are available on demand."
+                      : " All your saved results are shown below."}
+                  </p>
+                </div>
+
+                <span className="cb-attempt-count">
+                  {attempts.length}{" "}
+                  {attempts.length === 1
+                    ? "assessment"
+                    : "assessments"}
                 </span>
-
-                {item.label}
-
               </div>
 
-            )
-          )}
+              <div className="cb-attempt-list">
+                {visibleAttempts.map((attempt, index) => (
+                  <div
+                    className="cb-attempt-row"
+                    key={`${attempt.id}-${index}`}
+                  >
+                    <div className="cb-attempt-number">
+                      {attempts.length -
+                        index}
+                    </div>
 
-        </div>
+                    <div className="cb-attempt-info">
+                      <strong>
+                        {attempt.skill ||
+                          "Career Assessment"}
+                      </strong>
 
+                      <span>
+                        {attempt.role
+                          ? `${attempt.role} · `
+                          : ""}
+                        {formatDate(attempt.completedAt)}
+                      </span>
+                    </div>
+
+                    <div className="cb-attempt-score">
+                      <strong>{attempt.score}%</strong>
+
+                      <span>
+                        {attempt.performanceLevel ||
+                          getPerformanceLevel(attempt.score)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* View All / Show Less */}
+
+              {hasMoreHistory && (
+                <div className="cb-history-toggle">
+                  <button
+                    type="button"
+                    className="cb-outline-button cb-history-toggle-button"
+                    onClick={() =>
+                      setShowAllHistory((previous) => !previous)
+                    }
+                    aria-expanded={showAllHistory}
+                  >
+                    {showAllHistory
+                      ? "Show latest 5"
+                      : `View assessment history (${attempts.length - VISIBLE_HISTORY_COUNT} older)`}
+                    <span aria-hidden="true">
+                      {showAllHistory ? " ↑" : " ↓"}
+                    </span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="cb-performance-footer">
+              
+
+              <button
+                className="cb-text-button"
+                onClick={() =>
+                  navigate("/career-assessment")
+                }
+              >
+                Take another assessment →
+              </button>
+            </div>
+          </>
+        )}
       </section>
 
+      {/* Footer */}
 
-    
-
-
-      {/* =================================================
-          QUICK ACTIONS
-      ================================================= */}
-
-      <section className="dashboard-card quick-actions-card">
-
-        <div>
-
-          <p className="small-label">
-            QUICK ACTIONS
-          </p>
-
-          <h2>
-            Continue Your Preparation
-          </h2>
-
+       <footer className="cb-footer">
+        <div className="cb-footer-brand">
+          <img
+            src={logoImg}
+            alt="CareerBridge Logo"
+            className="cb-footer-mark"
+          />
+          <div>
+            <strong>CareerBridge</strong>
+          </div>
         </div>
 
-        <div className="quick-actions">
-
-          <QuickAction
-            icon="🧭"
-            title="Career Assessment"
-            description={`${REQUIRED_QUESTIONS} questions to discover your career`}
-            onClick={() =>
-              navigate("/career-assessment")
-            }
-          />
-
-          <QuickAction
-            icon="📄"
-            title="Resume Builder"
-            description="Build your professional resume"
-            onClick={() =>
-              navigate("/resume-builder")
-            }
-          />
-
-          <QuickAction
-            icon="🗺️"
-            title="Career Roadmap"
-            description="Follow your personalized roadmap"
-            onClick={() =>
-              navigate("/career-roadmap")
-            }
-          />
-
-          <QuickAction
-            icon="📚"
-            title="Learning Hub"
-            description="Explore learning resources"
-            onClick={() =>
-              navigate("/learning-hub")
-            }
-          />
-
-        </div>
-
-      </section>
-
-
-      {/* =================================================
-          FOOTER
-      ================================================= */}
-
-      <footer className="dashboard-footer">
-
-        <span>
-          © {new Date().getFullYear()} CareerBridge
-        </span>
-
-        <span>
-          Personalized career guidance &
-          placement readiness
-        </span>
-
+        
       </footer>
-
-    </div>
+    </main>
   );
 };
 
+// =====================================================
+// HELPERS
+// =====================================================
 
-// ======================================================
-// STAT CARD
-// ======================================================
+function clamp(value) {
+  const number = Number(value);
 
-const StatCard = ({
-  icon,
-  title,
-  value,
-  subtitle,
-  iconClass,
-}) => {
+  if (!Number.isFinite(number)) {
+    return 0;
+  }
 
-  return (
-    <div className="stat-card">
+  return Math.min(100, Math.max(0, number));
+}
 
-      <div
-        className={`stat-icon ${iconClass}`}
-      >
-        {icon}
-      </div>
+function formatDate(value) {
+  if (!value) {
+    return "Date unavailable";
+  }
 
-      <div className="stat-content">
+  const date = new Date(value);
 
-        <p>
-          {title}
-        </p>
+  if (Number.isNaN(date.getTime())) {
+    return "Date unavailable";
+  }
 
-        <h2>
-          {value}
-        </h2>
+  return date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
-        <span>
-          {subtitle}
-        </span>
+// Short date for graph labels.
+function formatChartDate(value) {
+  if (!value) {
+    return "Date N/A";
+  }
 
-      </div>
+  const date = new Date(value);
 
-    </div>
-  );
-};
+  if (Number.isNaN(date.getTime())) {
+    return "Date N/A";
+  }
 
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+  });
+}
 
-// ======================================================
-// ROADMAP STEP
-// ======================================================
+function getPerformanceLevel(score) {
+  if (score >= 85) return "Excellent";
+  if (score >= 70) return "Strong";
+  if (score >= 50) return "Moderate";
 
-const RoadmapStep = ({
-  number,
-  title,
-  status,
-  active,
-  completed,
-}) => {
+  return "Needs Improvement";
+}
 
+function getNextStep({
+  assessmentCompleted,
+  profileCompletion,
+  resumeScore,
+  roadmapProgress,
+}) {
+  if (!assessmentCompleted) {
+    return {
+      label: "Take career assessment",
+      title: "Discover your strengths",
+      description:
+        "Start with your career assessment to understand your current preparation level.",
+      path: "/career-assessment",
+      
+    };
+  }
+
+  if (profileCompletion < 100) {
+    return {
+      label: "Complete your profile",
+      title: "Complete your profile",
+      description:
+        "Add your education, skills, interests, and career preferences for a more complete profile.",
+      path: "/profile",
+      
+    };
+  }
+
+  if (resumeScore < 70) {
+    return {
+      label: "Improve your resume",
+      title: "Strengthen your resume",
+      description:
+        "Review your resume and improve its content before applying for opportunities.",
+      path: "/resume-builder",
+      
+    };
+  }
+
+  if (roadmapProgress < 100) {
+    return {
+      label: "Continue roadmap",
+      title: "Build job-ready skills",
+      description:
+        "Continue your learning roadmap and work through the remaining preparation activities.",
+      path: "/career-roadmap",
+      icon: "↗",
+    };
+  }
+
+  return {
+    label: "Explore recommendations",
+    title: "Explore your next opportunity",
+    description:
+      "Review career recommendations and continue preparing for your target role.",
+    path: "/career-recommendations",
+    
+  };
+}
+
+// =====================================================
+// CAREER READINESS RING
+// =====================================================
+
+function ProgressRing({ value }) {
   return (
     <div
-      className={`roadmap-step ${
-        completed
-          ? "completed-step"
-          : active
-          ? "active-step"
-          : ""
-      }`}
+      className="cb-progress-ring"
+      style={{
+        "--ring-progress": `${value * 3.6}deg`,
+      }}
+      role="img"
+      aria-label={`Career readiness ${value}%`}
     >
+      <div className="cb-progress-ring-inner">
+        <strong>{value}%</strong>
+        <span>READY</span>
+      </div>
+    </div>
+  );
+}
 
-      <div className="roadmap-circle">
+// =====================================================
+// DASHBOARD STAT CARD
+// =====================================================
 
-        {completed
-          ? "✓"
-          : active
-          ? "•"
-          : number}
+function StatCard({
+  icon,
+  tone,
+  label,
+  value,
+  detail,
+  progress,
+  onClick,
+}) {
+  return (
+    <button
+      className="cb-stat-card"
+      onClick={onClick}
+    >
+      <div className="cb-stat-top">
+        <span className={`cb-stat-icon ${tone}`}>
+          {icon}
+        </span>
 
+        <span className="cb-stat-arrow">↗</span>
       </div>
 
-      <span className="step-number">
-        STEP{" "}
-        {String(number).padStart(2, "0")}
+      <span className="cb-stat-label">
+        {label}
       </span>
 
-      <h4>
-        {title}
-      </h4>
+      <strong className="cb-stat-value">
+        {value}
+      </strong>
 
-      <span className="step-status">
-        {status}
-      </span>
+      <div className="cb-stat-bottom">
+        <span>{detail}</span>
+      </div>
 
-    </div>
+      <div className="cb-progress-track">
+        <span
+          className={tone}
+          style={{
+            width: `${clamp(progress)}%`,
+          }}
+        />
+      </div>
+    </button>
   );
-};
+}
 
+// =====================================================
+// QUICK ACTION CARD
+// =====================================================
 
-// ======================================================
-// TASK
-// ======================================================
-
-const Task = ({
-  text,
-  completed,
-}) => {
-
-  return (
-    <div className="task-item">
-
-      <span
-        className={`task-checkbox ${
-          completed
-            ? "checked"
-            : ""
-        }`}
-      >
-        {completed
-          ? "✓"
-          : ""}
-      </span>
-
-      <span
-        className={
-          completed
-            ? "task-completed"
-            : ""
-        }
-      >
-        {text}
-      </span>
-
-    </div>
-  );
-};
-
-
-// ======================================================
-// QUICK ACTION
-// ======================================================
-
-const QuickAction = ({
+function QuickAction({
   icon,
+  tone,
   title,
   description,
   onClick,
-}) => {
-
+}) {
   return (
     <button
-      className="quick-action"
+      className="cb-action-card"
       onClick={onClick}
     >
-
-      <div className="quick-action-icon">
+      <span className={`cb-action-icon ${tone}`}>
         {icon}
-      </div>
-
-      <div className="quick-action-content">
-
-        <strong>
-          {title}
-        </strong>
-
-        <span>
-          {description}
-        </span>
-
-      </div>
-
-      <span className="quick-action-arrow">
-        →
       </span>
 
+      <span className="cb-action-copy">
+        <strong>{title}</strong>
+        <span>{description}</span>
+      </span>
+
+      <span className="cb-action-arrow">→</span>
     </button>
   );
-};
+}
 
+// =====================================================
+// ASSESSMENT PERFORMANCE STAT
+// =====================================================
+
+function PerformanceStat({
+  label,
+  value,
+  detail,
+  tone,
+}) {
+  return (
+    <div className={`cb-performance-stat ${tone}`}>
+      <span className="cb-performance-stat-label">
+        {label}
+      </span>
+
+      <strong className="cb-performance-stat-value">
+        {value}
+      </strong>
+
+      <span className="cb-performance-stat-detail">
+        {detail}
+      </span>
+    </div>
+  );
+}
+
+// =====================================================
+// ASSESSMENT PERFORMANCE CHART
+// Native SVG chart — no extra library required
+// =====================================================
+
+function AssessmentChart({ attempts }) {
+  const width = 760;
+  const height = 300;
+
+  const paddingLeft = 48;
+  const paddingRight = 24;
+  const paddingTop = 24;
+  const paddingBottom = 48;
+
+  const chartWidth =
+    width - paddingLeft - paddingRight;
+
+  const chartHeight =
+    height - paddingTop - paddingBottom;
+
+  const points = attempts.map((attempt, index) => {
+    const x =
+      attempts.length === 1
+        ? paddingLeft + chartWidth / 2
+        : paddingLeft +
+          (index / (attempts.length - 1)) * chartWidth;
+
+    const y =
+      paddingTop +
+      ((100 - attempt.score) / 100) * chartHeight;
+
+    return {
+      ...attempt,
+      x,
+      y,
+    };
+  });
+
+  const polylinePoints = points
+    .map((point) => `${point.x},${point.y}`)
+    .join(" ");
+
+  const areaPoints =
+    points.length > 0
+      ? [
+          `${points[0].x},${paddingTop + chartHeight}`,
+          ...points.map(
+            (point) => `${point.x},${point.y}`
+          ),
+          `${points[points.length - 1].x},${paddingTop + chartHeight}`,
+        ].join(" ")
+      : "";
+
+  const yTicks = [0, 25, 50, 75, 100];
+
+  return (
+    <div className="cb-chart-container">
+      <div className="cb-chart-heading">
+        <div>
+          <h3>Score progression</h3>
+
+          <p>
+            Track your scores across completed assessments.
+          </p>
+        </div>
+
+        <span className="cb-chart-unit">
+          Score (%)
+        </span>
+      </div>
+
+      <div className="cb-chart-scroll">
+        <svg
+          className="cb-performance-chart"
+          viewBox={`0 0 ${width} ${height}`}
+          role="img"
+          aria-label="Line chart showing assessment scores by completion date"
+        >
+          <defs>
+            <linearGradient
+              id="cb-performance-area-gradient"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stopColor="#7868f5"
+                stopOpacity="0.24"
+              />
+
+              <stop
+                offset="100%"
+                stopColor="#7868f5"
+                stopOpacity="0.015"
+              />
+            </linearGradient>
+          </defs>
+
+          {/* Horizontal grid and Y-axis labels */}
+
+          {yTicks.map((tick) => {
+            const y =
+              paddingTop +
+              ((100 - tick) / 100) * chartHeight;
+
+            return (
+              <g key={tick}>
+                <line
+                  x1={paddingLeft}
+                  y1={y}
+                  x2={width - paddingRight}
+                  y2={y}
+                  stroke="currentColor"
+                  strokeOpacity="0.12"
+                  strokeDasharray={tick === 0 ? "0" : "4 5"}
+                />
+
+                <text
+                  x={paddingLeft - 12}
+                  y={y + 4}
+                  textAnchor="end"
+                  fill="currentColor"
+                  opacity="0.68"
+                  fontSize="12"
+                >
+                  {tick}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Area below score line */}
+
+          {points.length > 1 && (
+            <polygon
+              points={areaPoints}
+              fill="url(#cb-performance-area-gradient)"
+            />
+          )}
+
+          {/* Score line */}
+
+          {points.length > 1 && (
+            <polyline
+              points={polylinePoints}
+              fill="none"
+              stroke="#7868f5"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          )}
+
+          {/* Score points and date labels */}
+
+          {points.map((point) => (
+            <g key={point.id}>
+              <title>
+                {`${point.skill || "Assessment"}: ${point.score}% on ${formatDate(point.completedAt)}`}
+              </title>
+
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r="7"
+                fill="#7868f5"
+                stroke="currentColor"
+                strokeOpacity="0.15"
+                strokeWidth="2"
+              />
+
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r="3"
+                fill="#ffffff"
+              />
+
+              <text
+                x={point.x}
+                y={Math.max(
+                  point.y - 14,
+                  paddingTop + 12
+                )}
+                textAnchor="middle"
+                fill="currentColor"
+                fontSize="12"
+                fontWeight="700"
+              >
+                {point.score}%
+              </text>
+
+              {/* Dates replace Attempt 1, Attempt 2, etc. */}
+
+              <text
+                x={point.x}
+                y={height - 20}
+                textAnchor="middle"
+                fill="currentColor"
+                opacity="0.72"
+                fontSize="11"
+              >
+                {formatChartDate(point.completedAt)}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      <div className="cb-chart-legend">
+        <span className="cb-chart-legend-dot" />
+
+        Assessment score
+
+        <span className="cb-chart-legend-note">
+          {attempts.length === 0
+            ? "No recorded assessments"
+            : `Latest ${attempts.length} ${
+                attempts.length === 1
+                  ? "assessment"
+                  : "assessments"
+              }`}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default Dashboard;

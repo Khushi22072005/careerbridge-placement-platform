@@ -6,20 +6,45 @@ const cors = require("cors");
 const authRoutes = require("../routes/authRoutes");
 const dashboardRoutes = require("../routes/dashboardRoutes");
 const profileRoutes = require("../routes/profileRoutes");
-
 const assessmentRoutes = require("../routes/assessmentRoutes");
 const technicalAssessmentRoutes =
     require("../routes/technicalAssessmentRoutes");
 
 const app = express();
 
-app.use(cors());
+// =====================================================
+// CORS CONFIGURATION
+// =====================================================
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true,
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ],
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization"
+        ]
+    })
+);
+
+// =====================================================
+// MIDDLEWARE
+// =====================================================
 app.use(express.json());
 
+// =====================================================
+// API ROUTES
+// =====================================================
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/profile", profileRoutes);
-
 app.use("/api/assessment", assessmentRoutes);
 
 app.use(
@@ -27,9 +52,11 @@ app.use(
     technicalAssessmentRoutes
 );
 
-app.listen(process.env.PORT, () => {
-    console.log(
-        "Server Running on Port",
-        process.env.PORT
-    );
+// =====================================================
+// START SERVER
+// =====================================================
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server Running on Port ${PORT}`);
 });

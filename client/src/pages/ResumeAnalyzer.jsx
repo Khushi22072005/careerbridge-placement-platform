@@ -1,1083 +1,831 @@
-import React, { useState } from "react";
+
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./ResumeAnalyzer.css";
 
-const ResumeAnalyzer = () => {
+const API_URL = "http://localhost:5000/api/resume/analyze";
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+const STOP_WORDS = new Set([
+    "the", "and", "for", "with", "from", "this", "that",
+    "you", "your", "are", "our", "will", "have", "has",
+    "was", "were", "can", "all", "who", "what", "when",
+    "where", "how", "into", "about", "using", "use",
+    "work", "working", "role", "job", "team", "skills",
+    "ability", "strong", "good", "excellent", "required",
+    "preferred", "responsibilities", "responsibility",
+    "experience", "candidate", "candidates", "knowledge",
+    "including", "such", "must", "should", "would",
+]);
+
+const normalize = (value) =>
+    String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9+#.]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+const unique = (items) => [
+    ...new Set(
+        items
+            .map((item) => String(item || "").trim())
+            .filter(Boolean)
+    ),
+];
+
+const extractKeywords = (text) => {
+    const words = normalize(text)
+        .split(" ")
+        .filter(
+            (word) =>
+                word.length > 2 &&
+                !STOP_WORDS.has(word) &&
+                !/^\d+$/.test(word)
+        );
+
+    return unique(words);
+};
+
+const toArray = (value) => {
+    if (Array.isArray(value)) return value;
+
+    if (typeof value === "string" && value.trim()) {
+        return value
+            .split(/[,;\n•]/)
+            .map((item) => item.trim())
+            .filter(Boolean);
+    }
+
+    return [];
+};
+
+const getAnalysisText = (analysis) => {
+    if (!analysis) return "";
+
+    if (typeof analysis === "string") return analysis;
+
+    return [
+        ...toArray(analysis.detectedSkills),
+        ...toArray(analysis.detected_skills),
+        ...toArray(analysis.skills),
+        ...toArray(analysis.sectionsFound),
+        ...toArray(analysis.sections_found),
+        ...toArray(analysis.strengths),
+        ...toArray(analysis.improvements),
+        ...toArray(analysis.suggestions),
+        ...toArray(analysis.keywords),
+        analysis.summary,
+        analysis.feedback,
+    ]
+        .filter(Boolean)
+        .join(" ");
+};
+
+const findField = (object, names, fallback = undefined) => {
+    for (const name of names) {
+        if (object?.[name] !== undefined && object[name] !== null) {
+            return object[name];
+        }
+    }
+
+    return fallback;
+};
+
+const clampScore = (value) => {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) return null;
+
+    return Math.max(0, Math.min(100, Math.round(number)));
+};
+
+const getScoreLabel = (score) => {
+    if (score >= 85) return "Excellent";
+    if (score >= 70) return "Good";
+    if (score >= 50) return "Needs improvement";
+    return "Needs attention";
+};
+
+const getMatchScore = (resumeText, jobDescription) => {
+    const resumeKeywords = new Set(extractKeywords(resumeText));
+    const jobKeywords = extractKeywords(jobDescription);
+
+    if (!jobKeywords.length || !resumeKeywords.size) {
+        return {
+            score: null,
+            matched: [],
+            missing: jobKeywords,
+            total: jobKeywords.length,
+        };
+    }
+
+    const matched = jobKeywords.filter((word) =>
+        resumeKeywords.has(word)
+    );
+
+    const missing = jobKeywords.filter(
+        (word) => !resumeKeywords.has(word)
+    );
+
+    return {
+        score: Math.round((matched.length / jobKeywords.length) * 100),
+        matched,
+        missing,
+        total: jobKeywords.length,
+    };
+};
+
+function ScoreRing({ score, label }) {
+    const safeScore = score ?? 0;
+
+    return (
+        <div
+            className="ra-score-ring"
+            style={{ "--score-progress": `${safeScore * 3.6}deg` }}
+            role="img"
+            aria-label={`${label}: ${
+                score === null ? "not available" : `${score} out of 100`
+            }`}
+        >
+            <div className="ra-score-ring-inner">
+                <strong>{score === null ? "—" : score}</strong>
+                <span>/ 100</span>
+            </div>
+        </div>
+    );
+}
+
+function ScoreCard({ title, score, description, icon }) {
+    return (
+        <article className="ra-score-card">
+            <div className="ra-score-card-heading">
+                <span className="ra-icon-box">{icon}</span>
+                <span>{title}</span>
+            </div>
+
+            <ScoreRing score={score} label={title} />
+
+            <strong className="ra-score-label">
+                {score === null ? "Not available" : getScoreLabel(score)}
+            </strong>
+
+            <p>{description}</p>
+        </article>
+    );
+}
+
+function TagList({ items, emptyMessage, variant = "" }) {
+    const cleanedItems = unique(toArray(items));
+
+    if (!cleanedItems.length) {
+        return <p className="ra-empty-message">{emptyMessage}</p>;
+    }
+
+    return (
+        <div className={`ra-tag-list ${variant}`}>
+            {cleanedItems.map((item, index) => (
+                <span className="ra-tag" key={`${item}-${index}`}>
+                    {item}
+                </span>
+            ))}
+        </div>
+    );
+}
+
+function ResultSection({ title, icon, children, className = "" }) {
+    return (
+        <section className={`ra-result-section ${className}`}>
+            <h3>
+                <span aria-hidden="true">{icon}</span>
+                {title}
+            </h3>
+            {children}
+        </section>
+    );
+}
+
+export default function ResumeAnalyzer() {
+    const navigate = useNavigate();
+
     const [selectedFile, setSelectedFile] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [jobTitle, setJobTitle] = useState("");
+    const [jobDescription, setJobDescription] = useState("");
     const [analyzed, setAnalyzed] = useState(false);
-    const [resumeScore, setResumeScore] = useState(0);
-    const [analysis, setAnalysis] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [error, setError] = useState("");
+    const [analysis, setAnalysis] = useState(null);
+    const [resumeScore, setResumeScore] = useState(null);
+    const [jobMatchScore, setJobMatchScore] = useState(null);
+    const [matchResults, setMatchResults] = useState({
+        matched: [],
+        missing: [],
+        total: 0,
+    });
+    const [scoreSource, setScoreSource] = useState("unavailable");
 
-    // =====================================================
-    // HANDLE FILE
-    // =====================================================
+    const skillsFound = useMemo(() => {
+        if (!analysis) return [];
+
+        return unique([
+            ...toArray(analysis.detectedSkills),
+            ...toArray(analysis.detected_skills),
+            ...toArray(analysis.skills),
+        ]);
+    }, [analysis]);
+
+    const sectionsFound = useMemo(() => {
+        if (!analysis) return [];
+
+        return unique([
+            ...toArray(analysis.sectionsFound),
+            ...toArray(analysis.sections_found),
+        ]);
+    }, [analysis]);
+
+    const strengths = useMemo(() => {
+        if (!analysis) return [];
+
+        return unique([
+            ...toArray(analysis.strengths),
+            ...toArray(analysis.whatIsWorking),
+            ...toArray(analysis.what_is_working),
+        ]);
+    }, [analysis]);
+
+    const improvements = useMemo(() => {
+        if (!analysis) return [];
+
+        return unique([
+            ...toArray(analysis.improvements),
+            ...toArray(analysis.needsImprovement),
+            ...toArray(analysis.needs_improvement),
+            ...toArray(analysis.suggestions),
+            ...toArray(analysis.recommendations),
+        ]);
+    }, [analysis]);
 
     const handleFile = (file) => {
+        setError("");
+        setAnalyzed(false);
+        setAnalysis(null);
+        setResumeScore(null);
+        setJobMatchScore(null);
+        setMatchResults({ matched: [], missing: [], total: 0 });
+
         if (!file) return;
 
-        const allowedTypes = [
-            "application/pdf",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/msword",
-        ];
-
-        const fileExtension = file.name
-            .split(".")
-            .pop()
-            .toLowerCase();
-
+        const extension = file.name.split(".").pop()?.toLowerCase();
         const allowedExtensions = ["pdf", "doc", "docx"];
 
-        if (
-            !allowedTypes.includes(file.type) &&
-            !allowedExtensions.includes(fileExtension)
-        ) {
-            alert("Please upload a PDF or DOC/DOCX file.");
+        if (!allowedExtensions.includes(extension)) {
+            setSelectedFile(null);
+            setError("Please upload a PDF, DOC, or DOCX file.");
             return;
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-            alert("Resume file must be smaller than 5 MB.");
+        if (file.size > MAX_FILE_SIZE) {
+            setSelectedFile(null);
+            setError("Your resume must be 5 MB or smaller.");
+            return;
+        }
+
+        if (file.size === 0) {
+            setSelectedFile(null);
+            setError("The selected file is empty. Please choose another file.");
             return;
         }
 
         setSelectedFile(file);
-        setAnalyzed(false);
-        setResumeScore(0);
-        setAnalysis(null);
     };
 
-    // =====================================================
-    // FILE INPUT
-    // =====================================================
+    const handleAnalyze = async (event) => {
+        event?.preventDefault();
 
-    const handleFileChange = (event) => {
-        const file = event.target.files?.[0];
+        setError("");
 
-        if (file) {
-            handleFile(file);
-        }
-
-        event.target.value = "";
-    };
-
-    // =====================================================
-    // DRAG & DROP
-    // =====================================================
-
-    const handleDragOver = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        setIsDragging(false);
-    };
-
-    const handleDrop = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        setIsDragging(false);
-
-        const file = event.dataTransfer.files?.[0];
-
-        if (file) {
-            handleFile(file);
-        }
-    };
-
-    // =====================================================
-    // ANALYZE RESUME
-    // =====================================================
-
-    const handleAnalyze = async () => {
         if (!selectedFile) {
-            alert("Please upload your resume first.");
+            setError("Please upload your resume before analyzing it.");
+            return;
+        }
+
+        if (!jobDescription.trim()) {
+            setError(
+                "Please paste the job description to check how your resume matches the role."
+            );
+            return;
+        }
+
+        if (jobDescription.trim().length < 30) {
+            setError(
+                "Please enter a more detailed job description (at least 30 characters)."
+            );
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setError("Your session has expired. Please log in and try again.");
             return;
         }
 
         setIsAnalyzing(true);
         setAnalyzed(false);
-        setAnalysis(null);
-        setResumeScore(0);
 
         try {
-            const token = localStorage.getItem("token");
-
-            if (!token) {
-                alert("Login session expired. Please login again.");
-                setIsAnalyzing(false);
-                return;
-            }
-
             const formData = new FormData();
-
-            // IMPORTANT:
-            // This must match upload.single("resume")
-            // in your backend route.
             formData.append("resume", selectedFile);
+            formData.append("jobTitle", jobTitle.trim());
+            formData.append("jobDescription", jobDescription.trim());
 
-            console.log("Uploading resume:", selectedFile.name);
-            console.log("Token exists:", !!token);
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
 
-            const response = await fetch(
-                "http://localhost:5000/api/resume/analyze",
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: formData,
-                }
-            );
-
-            const contentType =
-                response.headers.get("content-type") || "";
-
-            let data;
-
-            if (contentType.includes("application/json")) {
-                data = await response.json();
-            } else {
-                const text = await response.text();
-
-                console.error(
-                    "Server returned non-JSON response:",
-                    text
-                );
-
-                throw new Error(
-                    `Server error (${response.status}). Please check your backend server.`
-                );
-            }
-
-            console.log(
-                "Resume analysis response:",
-                data
-            );
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
                 throw new Error(
                     data.message ||
                     data.error ||
-                    `Analysis failed with status ${response.status}`
+                    `Analysis failed (${response.status}). Please try again.`
                 );
             }
 
-            const score = Number(data.resumeScore);
+            const returnedAnalysis =
+                data.analysis ||
+                data.result?.analysis ||
+                data.data?.analysis ||
+                {};
 
-            setResumeScore(
-                Number.isFinite(score)
-                    ? Math.max(0, Math.min(100, score))
-                    : 0
+            setAnalysis(returnedAnalysis);
+
+            const returnedScore = findField(
+                data,
+                ["resumeScore", "resume_score", "overallScore", "overall_score"],
+                findField(
+                    data.result,
+                    ["resumeScore", "resume_score", "overallScore", "overall_score"]
+                )
             );
 
-            setAnalysis(
-                data.analysis || {}
+            const contactScore = Number(
+                findField(returnedAnalysis, ["contactScore", "contact_score"], 0)
             );
+
+            const sectionScore = Number(
+                findField(returnedAnalysis, ["sectionScore", "section_score"], 0)
+            );
+
+            const contentScore = Number(
+                findField(returnedAnalysis, ["contentScore", "content_score"], 0)
+            );
+
+            let finalResumeScore = clampScore(returnedScore);
+
+            // Retain compatibility with the earlier response structure.
+            // Confirm the backend's score scales before relying on this fallback.
+            if (
+                finalResumeScore === null &&
+                [contactScore, sectionScore, contentScore].every(
+                    Number.isFinite
+                ) &&
+                (
+                    contactScore > 0 ||
+                    sectionScore > 0 ||
+                    contentScore > 0
+                )
+            ) {
+                finalResumeScore = clampScore(
+                    ((contactScore + sectionScore + contentScore) / 40) * 100
+                );
+            }
+
+            setResumeScore(finalResumeScore);
+
+            const returnedMatch = findField(
+                data,
+                ["jobMatch", "job_match", "jdMatch", "jd_match", "matchResults"],
+                findField(
+                    data.result,
+                    ["jobMatch", "job_match", "jdMatch", "jd_match", "matchResults"]
+                )
+            );
+
+            const returnedMatchScore = findField(
+                returnedMatch,
+                ["score", "matchScore", "match_score", "percentage"]
+            );
+
+            const directMatchScore = findField(
+                data,
+                ["jobMatchScore", "job_match_score", "jdMatchScore", "jd_match_score"],
+                findField(
+                    data.result,
+                    ["jobMatchScore", "job_match_score", "jdMatchScore", "jd_match_score"]
+                )
+            );
+
+            const finalReturnedMatchScore = clampScore(
+                returnedMatchScore ?? directMatchScore
+            );
+
+            const returnedMatched = unique([
+                ...toArray(findField(returnedMatch, [
+                    "matchedSkills", "matched_skills", "matchedKeywords",
+                    "matched_keywords", "matched"
+                ])),
+                ...toArray(findField(data, ["matchedSkills", "matched_skills"])),
+            ]);
+
+            const returnedMissing = unique([
+                ...toArray(findField(returnedMatch, [
+                    "missingSkills", "missing_skills", "missingKeywords",
+                    "missing_keywords", "missing"
+                ])),
+                ...toArray(findField(data, ["missingSkills", "missing_skills"])),
+            ]);
+
+            if (finalReturnedMatchScore !== null) {
+                setJobMatchScore(finalReturnedMatchScore);
+                setMatchResults({
+                    matched: returnedMatched,
+                    missing: returnedMissing,
+                    total: returnedMatched.length + returnedMissing.length,
+                });
+                setScoreSource("backend");
+            } else {
+                // Fallback compares JD keywords with skills and text returned
+                // by the backend. This is a rough keyword estimate, not AI scoring.
+                const resumeText = [
+                    getAnalysisText(returnedAnalysis),
+                    ...skillsFound,
+                    ...sectionsFound,
+                ].join(" ");
+
+                const comparison = getMatchScore(
+                    resumeText,
+                    jobDescription.trim()
+                );
+
+                setJobMatchScore(comparison.score);
+                setMatchResults({
+                    matched: comparison.matched,
+                    missing: comparison.missing,
+                    total: comparison.total,
+                });
+                setScoreSource("keyword-estimate");
+            }
 
             setAnalyzed(true);
-
-        } catch (error) {
-
-            console.error(
-                "RESUME ANALYZER ERROR:",
-                error
+        } catch (err) {
+            setError(
+                err.message ||
+                "Something went wrong while analyzing your resume. Please try again."
             );
-
-            alert(
-                error.message ||
-                "Failed to analyze resume. Please make sure the backend server is running."
-            );
-
         } finally {
             setIsAnalyzing(false);
         }
     };
 
-    // =====================================================
-    // REMOVE FILE
-    // =====================================================
-
-    const removeFile = () => {
+    const handleReset = () => {
         setSelectedFile(null);
+        setJobTitle("");
+        setJobDescription("");
         setAnalyzed(false);
-        setResumeScore(0);
         setAnalysis(null);
+        setResumeScore(null);
+        setJobMatchScore(null);
+        setMatchResults({ matched: [], missing: [], total: 0 });
+        setScoreSource("unavailable");
+        setError("");
     };
 
-    // =====================================================
-    // ATS SCORE
-    // =====================================================
-
-    const atsScore = analysis
-        ? Math.min(
-            100,
-            Math.round(
-                (
-                    Number(analysis.contactScore || 0) +
-                    Number(analysis.sectionScore || 0) +
-                    Number(analysis.contentScore || 0)
-                ) / 40 * 100
-            )
-        )
-        : 0;
-
-    // =====================================================
-    // KEYWORD SCORE
-    // =====================================================
-
-    const keywordScore = analysis
-        ? Math.min(
-            100,
-            Math.round(
-                Number(analysis.skillScore || 0) / 20 * 100
-            )
-        )
-        : 0;
-
-    // =====================================================
-    // RESUME TITLE
-    // =====================================================
-
-    const getResumeTitle = () => {
-        if (resumeScore >= 85) {
-            return "Excellent Resume";
-        }
-
-        if (resumeScore >= 70) {
-            return "Good Resume";
-        }
-
-        if (resumeScore >= 50) {
-            return "Average Resume";
-        }
-
-        return "Needs Improvement";
+    const handleDrop = (event) => {
+        event.preventDefault();
+        setIsDragging(false);
+        handleFile(event.dataTransfer.files?.[0]);
     };
-
-    // =====================================================
-    // RESUME DESCRIPTION
-    // =====================================================
-
-    const getResumeDescription = () => {
-        if (resumeScore >= 85) {
-            return "Your resume has strong structure, relevant skills and good overall content.";
-        }
-
-        if (resumeScore >= 70) {
-            return "Your resume has a solid foundation. A few improvements can make it more competitive.";
-        }
-
-        if (resumeScore >= 50) {
-            return "Your resume has some good elements, but several areas should be improved.";
-        }
-
-        return "Your resume needs significant improvements before it is placement ready.";
-    };
-
-    // =====================================================
-    // SCORE COLOR
-    // =====================================================
-
-    const getScoreClass = () => {
-        if (resumeScore >= 85) {
-            return "excellent";
-        }
-
-        if (resumeScore >= 70) {
-            return "good";
-        }
-
-        if (resumeScore >= 50) {
-            return "average";
-        }
-
-        return "poor";
-    };
-
-    // =====================================================
-    // SCORE CIRCLE
-    // =====================================================
-
-    const scoreDegree =
-        Math.round((resumeScore / 100) * 360);
-
-    // =====================================================
-    // SAFE ANALYSIS VALUES
-    // =====================================================
-
-    const sectionsFound =
-        Array.isArray(analysis?.sectionsFound)
-            ? analysis.sectionsFound
-            : [];
-
-    const skillsFound =
-        Array.isArray(analysis?.skillsFound)
-            ? analysis.skillsFound
-            : [];
 
     return (
-        <div className="resume-analyzer-page">
-
-            {/* =================================================
-                HEADER
-            ================================================= */}
-
-            <div className="analyzer-header">
-
-                <div className="analyzer-title-row">
-
-                    <div className="analyzer-title-icon">
-                        🔍
+        <main className="ra-page">
+            <div className="ra-container">
+                <header className="ra-header">
+                    <div className="ra-eyebrow">
+                        
                     </div>
 
-                    <div>
-                        <span className="analyzer-eyebrow">
-                            CAREER TOOLS
-                        </span>
+                    <h1>
+                        Resume <span>Analyzer</span>
+                    </h1>
 
-                        <h1>
-                            Resume Analyzer
-                        </h1>
+                    <p>
+                        Understand your resume, compare it with a job
+                        description, and discover what you can improve before
+                        applying.
+                    </p>
+                </header>
 
-                        <p>
-                            Analyze your resume and improve your
-                            chances of getting shortlisted.
-                        </p>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {/* =================================================
-                MAIN CONTENT
-            ================================================= */}
-
-            <div className="analyzer-content">
-
-                {/* =================================================
-                    UPLOAD CARD
-                ================================================= */}
-
-                <section className="analyzer-card upload-card">
-
-                    <div className="card-heading">
-
-                        <div className="heading-icon">
-                            ✨
-                        </div>
-
-                        <div>
-                            <h2>
-                                Analyze Your Resume
-                            </h2>
-
-                            <p>
-                                Upload your resume to check its ATS
-                                compatibility, content quality and
-                                overall placement readiness.
-                            </p>
-                        </div>
-
-                    </div>
-
-
-                    {/* =================================================
-                        UPLOAD BOX
-                    ================================================= */}
-
-                    <div
-                        className={`resume-upload-box ${
-                            isDragging
-                                ? "dragging"
-                                : ""
-                        } ${
-                            selectedFile
-                                ? "has-file"
-                                : ""
-                        }`}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                    >
-
-                        {!selectedFile ? (
-
-                            <>
-                                <div className="upload-icon">
-                                    📄
-                                </div>
-
-                                <h3>
-                                    Upload your resume
-                                </h3>
-
+                <form className="ra-form" onSubmit={handleAnalyze}>
+                    <section className="ra-panel">
+                        <div className="ra-panel-heading">
+                            <span className="ra-step-number">01</span>
+                            <div>
+                                <h2>Upload your resume</h2>
                                 <p>
-                                    Drag and drop your resume here
-                                    or browse from your computer
+                                    Add the resume you want to evaluate.
+                                    Supported formats: PDF, DOC, DOCX.
                                 </p>
-
-                                <label className="browse-button">
-
-                                    <span>
-                                        📁
-                                    </span>
-
-                                    Browse Files
-
-                                    <input
-                                        type="file"
-                                        accept=".pdf,.doc,.docx"
-                                        onChange={handleFileChange}
-                                    />
-
-                                </label>
-
-                                <span className="upload-note">
-                                    Supported formats: PDF, DOC, DOCX
-                                    <span className="dot-separator">
-                                        •
-                                    </span>
-                                    Maximum size: 5 MB
-                                </span>
-
-                            </>
-
-                        ) : (
-
-                            <div className="uploaded-file">
-
-                                <div className="file-icon">
-                                    📄
-                                </div>
-
-                                <div className="file-information">
-
-                                    <div className="file-name-row">
-
-                                        <h3>
-                                            {selectedFile.name}
-                                        </h3>
-
-                                        <span className="ready-badge">
-                                            Ready
-                                        </span>
-
-                                    </div>
-
-                                    <p>
-                                        {(
-                                            selectedFile.size /
-                                            (1024 * 1024)
-                                        ).toFixed(2)}{" "}
-                                        MB
-                                        <span>
-                                            •
-                                        </span>
-                                        Ready to analyze
-                                    </p>
-
-                                </div>
-
-                                <button
-                                    type="button"
-                                    className="remove-file-button"
-                                    onClick={removeFile}
-                                    aria-label="Remove file"
-                                >
-                                    ×
-                                </button>
-
                             </div>
+                        </div>
 
-                        )}
-
-                    </div>
-
-
-                    {/* =================================================
-                        ANALYZE BUTTON
-                    ================================================= */}
-
-                    <div className="upload-actions">
-
-                        <button
-                            type="button"
-                            className="analyze-button"
-                            onClick={handleAnalyze}
-                            disabled={
-                                !selectedFile ||
-                                isAnalyzing
-                            }
+                        <label
+                            className={`ra-upload-zone ${
+                                isDragging ? "is-dragging" : ""
+                            } ${selectedFile ? "has-file" : ""}`}
+                            onDragOver={(event) => {
+                                event.preventDefault();
+                                setIsDragging(true);
+                            }}
+                            onDragLeave={() => setIsDragging(false)}
+                            onDrop={handleDrop}
                         >
+                            <input
+                                type="file"
+                                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                onChange={(event) => {
+                                    handleFile(event.target.files?.[0]);
+                                    event.target.value = "";
+                                }}
+                            />
 
-                            <span>
-                                {isAnalyzing
-                                    ? "⏳"
-                                    : "✨"}
+                            <span className="ra-upload-icon" aria-hidden="true">
+                                {selectedFile ? "✓" : "↑"}
                             </span>
 
-                            {isAnalyzing
-                                ? "Analyzing Resume..."
-                                : "Analyze Resume"}
+                            {selectedFile ? (
+                                <>
+                                    <strong>{selectedFile.name}</strong>
+                                    <span>
+                                        {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                                        {" · "}Ready to analyze
+                                    </span>
+                                    <span className="ra-change-file">
+                                        Choose a different file
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    <strong>Drag and drop your resume here</strong>
+                                    <span>
+                                        or click to browse files · Maximum 5 MB
+                                    </span>
+                                </>
+                            )}
+                        </label>
+                    </section>
 
-                        </button>
-
-                    </div>
-
-                </section>
-
-
-                {/* =================================================
-                    QUICK CHECKS
-                ================================================= */}
-
-                <section className="quick-checks">
-
-                    <div className="quick-check">
-
-                        <div className="quick-icon blue">
-                            🎯
+                    <section className="ra-panel">
+                        <div className="ra-panel-heading">
+                            <span className="ra-step-number">02</span>
+                            <div>
+                                <h2>Add the job description</h2>
+                                
+                            </div>
                         </div>
 
-                        <div>
-                            <h3>
-                                ATS Compatibility
-                            </h3>
+                        <div className="ra-field">
+                            <label htmlFor="ra-job-title">
+                                Target job title{" "}
+                                <span className="ra-optional">(optional)</span>
+                            </label>
 
-                            <p>
-                                Check whether your resume is easy
-                                for Applicant Tracking Systems to read.
-                            </p>
+                            <input
+                                id="ra-job-title"
+                                type="text"
+                                value={jobTitle}
+                                onChange={(event) =>
+                                    setJobTitle(event.target.value)
+                                }
+                                placeholder="e.g. Data Analyst Intern"
+                                maxLength={150}
+                            />
                         </div>
 
-                    </div>
+                        <div className="ra-field">
+                            <div className="ra-label-row">
+                                <label htmlFor="ra-job-description">
+                                    Job description
+                                </label>
+                                <span className="ra-character-count">
+                                    {jobDescription.length} characters
+                                </span>
+                            </div>
 
+                            <textarea
+                                id="ra-job-description"
+                                value={jobDescription}
+                                onChange={(event) =>
+                                    setJobDescription(event.target.value)
+                                }
+                                placeholder={
+                                    "Paste the job description here...\n\nInclude the responsibilities, required skills, qualifications, and experience from the job posting."
+                                }
+                                rows={8}
+                                maxLength={15000}
+                                required
+                            />
 
-                    <div className="quick-check">
-
-                        <div className="quick-icon purple">
-                            🔑
+                            
                         </div>
+                    </section>
 
-                        <div>
-                            <h3>
-                                Keyword Match
-                            </h3>
-
-                            <p>
-                                Identify important skills and
-                                keywords recruiters look for.
-                            </p>
+                    {error && (
+                        <div className="ra-error" role="alert">
+                            <span aria-hidden="true">!</span>
+                            <p>{error}</p>
                         </div>
+                    )}
 
-                    </div>
+                    <button
+                        className="ra-primary-button"
+                        type="submit"
+                        disabled={isAnalyzing}
+                    >
+                        {isAnalyzing ? (
+                            <>
+                                <span className="ra-spinner" />
+                                Analyzing your resume...
+                            </>
+                        ) : (
+                            <>
+                                Analyze Resume & Match Job
+                                <span aria-hidden="true">→</span>
+                            </>
+                        )}
+                    </button>
 
-
-                    <div className="quick-check">
-
-                        <div className="quick-icon green">
-                            📊
-                        </div>
-
-                        <div>
-                            <h3>
-                                Resume Quality
-                            </h3>
-
-                            <p>
-                                Review your resume structure,
-                                content and overall quality.
-                            </p>
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                {/* =================================================
-                    RESULTS
-                ================================================= */}
+                    
+                </form>
 
                 {analyzed && (
-
-                    <section className="results-section">
-
-                        <div className="results-header">
-
+                    <section className="ra-results" aria-live="polite">
+                        <div className="ra-results-heading">
                             <div>
-                                <span className="results-eyebrow">
-                                    ANALYSIS REPORT
+                                <span className="ra-eyebrow">
+                                    YOUR ANALYSIS REPORT
                                 </span>
-
-                                <h2>
-                                    Resume Analysis
-                                </h2>
-
+                                <h2>Here is your result</h2>
                                 <p>
-                                    Here's how your resume performs
-                                    across important hiring criteria.
+                                    {jobTitle.trim()
+                                        ? `Target role: ${jobTitle.trim()}`
+                                        : "Your resume compared with the provided job description."}
                                 </p>
                             </div>
-
-                            <span className="analysis-status">
-                                <span>
-                                    ✓
-                                </span>
-                                Analysis Complete
-                            </span>
-
-                        </div>
-
-
-                        {/* =================================================
-                            SCORE OVERVIEW
-                        ================================================= */}
-
-                        <div className="score-overview">
-
-                            {/* MAIN SCORE */}
-
-                            <div
-                                className={`score-card main-score ${getScoreClass()}`}
-                            >
-
-                                <div
-                                    className="score-circle"
-                                    style={{
-                                        "--score-degree":
-                                            `${scoreDegree}deg`
-                                    }}
-                                >
-
-                                    <div className="score-circle-content">
-
-                                        <strong>
-                                            {resumeScore}
-                                        </strong>
-
-                                        <span>
-                                            /100
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-
-                                <div className="score-details">
-
-                                    <span className="score-small-label">
-                                        OVERALL SCORE
-                                    </span>
-
-                                    <h3>
-                                        {getResumeTitle()}
-                                    </h3>
-
-                                    <p>
-                                        {getResumeDescription()}
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            {/* ATS SCORE */}
-
-                            <div className="score-card metric-card">
-
-                                <div className="mini-score-icon blue">
-                                    🎯
-                                </div>
-
-                                <div className="metric-content">
-
-                                    <span className="metric-label">
-                                        ATS Compatibility
-                                    </span>
-
-                                    <strong className="metric-score">
-                                        {atsScore}%
-                                    </strong>
-
-                                    <span
-                                        className={`metric-status ${
-                                            atsScore >= 70
-                                                ? "good"
-                                                : "average"
-                                        }`}
-                                    >
-                                        {atsScore >= 70
-                                            ? "Good"
-                                            : "Needs Work"}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            {/* KEYWORD SCORE */}
-
-                            <div className="score-card metric-card">
-
-                                <div className="mini-score-icon purple">
-                                    🔑
-                                </div>
-
-                                <div className="metric-content">
-
-                                    <span className="metric-label">
-                                        Keyword Match
-                                    </span>
-
-                                    <strong className="metric-score">
-                                        {keywordScore}%
-                                    </strong>
-
-                                    <span
-                                        className={`metric-status ${
-                                            keywordScore >= 70
-                                                ? "good"
-                                                : "average"
-                                        }`}
-                                    >
-                                        {keywordScore >= 70
-                                            ? "Good"
-                                            : "Needs Work"}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        {/* =================================================
-                            DETAILED ANALYSIS
-                        ================================================= */}
-
-                        <div className="analysis-grid">
-
-                            {/* WHAT'S WORKING */}
-
-                            <div className="analysis-card">
-
-                                <div className="analysis-card-header">
-
-                                    <div className="analysis-card-icon positive">
-                                        ✓
-                                    </div>
-
-                                    <div>
-                                        <h3>
-                                            What's Working
-                                        </h3>
-
-                                        <p>
-                                            Your resume's strengths
-                                        </p>
-                                    </div>
-
-                                </div>
-
-
-                                <ul className="feedback-list">
-
-                                    {sectionsFound.length > 0 && (
-                                        <li>
-                                            <span className="feedback-icon">
-                                                ✓
-                                            </span>
-
-                                            Strong resume structure with{" "}
-                                            {sectionsFound.length}{" "}
-                                            sections detected
-                                        </li>
-                                    )}
-
-                                    {skillsFound.length > 0 && (
-                                        <li>
-                                            <span className="feedback-icon">
-                                                ✓
-                                            </span>
-
-                                            {skillsFound.length}{" "}
-                                            relevant technical skills
-                                            detected
-                                        </li>
-                                    )}
-
-                                    {Number(analysis?.wordCount || 0) >= 200 && (
-                                        <li>
-                                            <span className="feedback-icon">
-                                                ✓
-                                            </span>
-
-                                            Good amount of resume content
-                                        </li>
-                                    )}
-
-                                    {Number(analysis?.contactScore || 0) >= 10 && (
-                                        <li>
-                                            <span className="feedback-icon">
-                                                ✓
-                                            </span>
-
-                                            Email and phone number detected
-                                        </li>
-                                    )}
-
-                                    {sectionsFound.length === 0 &&
-                                        skillsFound.length === 0 && (
-                                            <li>
-                                                <span className="feedback-icon neutral">
-                                                    !
-                                                </span>
-
-                                                Resume sections could not
-                                                be detected clearly
-                                            </li>
-                                        )}
-
-                                </ul>
-
-                            </div>
-
-
-                            {/* NEEDS IMPROVEMENT */}
-
-                            <div className="analysis-card">
-
-                                <div className="analysis-card-header">
-
-                                    <div className="analysis-card-icon warning">
-                                        !
-                                    </div>
-
-                                    <div>
-                                        <h3>
-                                            Needs Improvement
-                                        </h3>
-
-                                        <p>
-                                            Areas you should work on
-                                        </p>
-                                    </div>
-
-                                </div>
-
-
-                                <ul className="feedback-list warning-list">
-
-                                    {Number(
-                                        analysis?.achievementScore || 0
-                                    ) < 10 && (
-                                        <li>
-                                            <span className="feedback-icon warning">
-                                                !
-                                            </span>
-
-                                            Add more measurable achievements
-                                            and numbers
-                                        </li>
-                                    )}
-
-                                    {Number(
-                                        analysis?.skillScore || 0
-                                    ) < 10 && (
-                                        <li>
-                                            <span className="feedback-icon warning">
-                                                !
-                                            </span>
-
-                                            Include more relevant technical
-                                            skills
-                                        </li>
-                                    )}
-
-                                    {Number(
-                                        analysis?.projectScore || 0
-                                    ) < 10 && (
-                                        <li>
-                                            <span className="feedback-icon warning">
-                                                !
-                                            </span>
-
-                                            Add stronger project descriptions
-                                            and outcomes
-                                        </li>
-                                    )}
-
-                                    {Number(
-                                        analysis?.contentScore || 0
-                                    ) < 10 && (
-                                        <li>
-                                            <span className="feedback-icon warning">
-                                                !
-                                            </span>
-
-                                            Add more relevant resume content
-                                        </li>
-                                    )}
-
-                                    {Number(
-                                        analysis?.sectionScore || 0
-                                    ) < 15 && (
-                                        <li>
-                                            <span className="feedback-icon warning">
-                                                !
-                                            </span>
-
-                                            Improve your resume section
-                                            structure
-                                        </li>
-                                    )}
-
-                                    {analysis &&
-                                        Number(
-                                            analysis.achievementScore || 0
-                                        ) >= 10 &&
-                                        Number(
-                                            analysis.skillScore || 0
-                                        ) >= 10 &&
-                                        Number(
-                                            analysis.projectScore || 0
-                                        ) >= 10 &&
-                                        Number(
-                                            analysis.contentScore || 0
-                                        ) >= 10 &&
-                                        Number(
-                                            analysis.sectionScore || 0
-                                        ) >= 15 && (
-                                            <li>
-                                                <span className="feedback-icon">
-                                                    ✓
-                                                </span>
-
-                                                No major issues detected.
-                                                Your resume is well structured.
-                                            </li>
-                                        )}
-
-                                </ul>
-
-                            </div>
-
-                        </div>
-
-
-                        {/* =================================================
-                            DETECTED SKILLS
-                        ================================================= */}
-
-                        <div className="keywords-card">
-
-                            <div className="analysis-card-header">
-
-                                <div className="analysis-card-icon keyword">
-                                    🔑
-                                </div>
-
-                                <div>
-                                    <h3>
-                                        Detected Skills
-                                    </h3>
-
-                                    <p>
-                                        Technical skills found in your resume
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                            <div className="keyword-list">
-
-                                {skillsFound.length > 0 ? (
-
-                                    skillsFound.map(
-                                        (skill, index) => (
-                                            <span key={index}>
-                                                {skill}
-                                            </span>
-                                        )
-                                    )
-
-                                ) : (
-
-                                    <span className="no-keywords">
-                                        No technical skills detected
-                                    </span>
-
-                                )}
-
-                            </div>
-
-                        </div>
-
-
-                        {/* =================================================
-                            ACTION
-                        ================================================= */}
-
-                        <div className="improvement-card">
-
-                            <div className="improvement-icon">
-                                🚀
-                            </div>
-
-                            <div className="improvement-content">
-
-                                <h3>
-                                    Ready to improve your resume?
-                                </h3>
-
-                                <p>
-                                    Use our Resume Builder to apply these
-                                    recommendations and create a stronger,
-                                    placement-ready resume.
-                                </p>
-
-                            </div>
-
 
                             <button
                                 type="button"
-                                className="builder-button"
-                                onClick={() =>
-                                    window.location.href =
-                                        "/resume-builder"
-                                }
+                                className="ra-secondary-button"
+                                onClick={handleReset}
                             >
-                                Open Resume Builder
-                                <span>
-                                    →
-                                </span>
+                                Analyze another
                             </button>
-
                         </div>
 
+                        <div className="ra-score-grid">
+                            <ScoreCard
+                                title="Resume Quality"
+                                score={resumeScore}
+                                icon="▤"
+                                description="General resume structure and content based on the analysis returned by your backend."
+                            />
+
+                            <ScoreCard
+                                title="Job Match"
+                                score={jobMatchScore}
+                                icon="⌕"
+                                description={
+                                    scoreSource === "backend"
+                                        ? "Match score returned by your backend."
+                                        : "Estimated keyword overlap. Not a full semantic ATS evaluation."
+                                }
+                            />
+                        </div>
+
+                        {scoreSource === "keyword-estimate" && (
+                            <p className="ra-estimate-note">
+                                <strong>Keyword estimate:</strong> This fallback
+                                uses the resume skills and analysis text
+                                returned by the backend. It may not represent
+                                every word in your uploaded document. For an
+                                accurate job-match score, implement JD matching
+                                in the backend.
+                            </p>
+                        )}
+
+                        <div className="ra-results-grid">
+                            <ResultSection
+                                title="Skills matching the job"
+                                icon="✓"
+                                className="ra-success-section"
+                            >
+                                <p className="ra-section-description">
+                                    Keywords found in the available resume
+                                    analysis and job description.
+                                </p>
+
+                                <TagList
+                                    items={matchResults.matched}
+                                    emptyMessage="No matching keywords were identified yet. Check whether your backend returns the resume's detected skills."
+                                />
+                            </ResultSection>
+
+                            <ResultSection
+                                title="Skills and keywords to review"
+                                icon="＋"
+                                className="ra-improvement-section"
+                            >
+                                <p className="ra-section-description">
+                                    Job-description keywords not found in the
+                                    available resume analysis.
+                                </p>
+
+                                <TagList
+                                    items={matchResults.missing}
+                                    emptyMessage="No missing keywords were identified. This does not guarantee that every job requirement is satisfied."
+                                />
+                            </ResultSection>
+
+                            <ResultSection
+                                title="What's working"
+                                icon="✦"
+                            >
+                                <TagList
+                                    items={strengths}
+                                    emptyMessage="Your backend did not return specific strengths for this resume."
+                                />
+                            </ResultSection>
+
+                            <ResultSection
+                                title="Areas to improve"
+                                icon="↗"
+                            >
+                                <TagList
+                                    items={improvements}
+                                    emptyMessage="Your backend did not return improvement suggestions. Consider adding specific resume recommendations to the analysis service."
+                                />
+                            </ResultSection>
+
+                            <ResultSection
+                                title="Detected skills"
+                                icon="⌘"
+                            >
+                                <TagList
+                                    items={skillsFound}
+                                    emptyMessage="No skills were returned by the resume analysis."
+                                />
+                            </ResultSection>
+
+                            <ResultSection
+                                title="Resume sections detected"
+                                icon="▦"
+                            >
+                                <TagList
+                                    items={sectionsFound}
+                                    emptyMessage="No section information was returned by the resume analysis."
+                                />
+                            </ResultSection>
+                        </div>
+
+                        <div className="ra-next-step">
+                            <div className="ra-next-step-icon" aria-hidden="true">
+                                ↗
+                            </div>
+                            <div>
+                                <h3>Ready to improve your resume?</h3>
+                                <p>
+                                    Update your resume using CareerBridge's
+                                    Resume Builder, then analyze it again
+                                    against the same job description.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                className="ra-primary-button ra-builder-button"
+                                onClick={() => navigate("/resume-builder")}
+                            >
+                                Open Resume Builder
+                                <span aria-hidden="true">→</span>
+                            </button>
+                        </div>
                     </section>
-
                 )}
-
             </div>
-
-        </div>
+        </main>
     );
-};
-
-export default ResumeAnalyzer;
+}

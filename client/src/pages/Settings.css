@@ -1,16 +1,19 @@
+
 /* =====================================================
    SETTINGS PAGE
 ===================================================== */
 
 .settings-page {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 36px 40px 60px;
-  background: #f8f9fc;
-  color: #0f172a;
-  min-height: 100vh;
-  font-family: Arial, Helvetica, sans-serif;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 36px 40px 60px;
+    box-sizing: border-box;
+
+    background: #f8f7fc;
+    color: #201638;
+    font-family: Inter, Arial, Helvetica, sans-serif;
 }
 
 
@@ -19,35 +22,56 @@
 ===================================================== */
 
 .settings-header {
-  margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.settings-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+
+    border-radius: 14px;
+    background: #ede5ff;
+    color: #6d28d9;
+    font-size: 25px;
 }
 
 .settings-header h1 {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.5px;
+    margin: 0;
+    color: #241443;
+    font-size: 30px;
+    font-weight: 750;
+    letter-spacing: -0.7px;
 }
 
 .settings-header p {
-  margin: 8px 0 0;
-  color: #64748b;
-  font-size: 14px;
+    margin: 7px 0 0;
+    color: #777087;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 
 /* =====================================================
-   SETTINGS CARD
+   SETTINGS SECTIONS
 ===================================================== */
 
 .settings-section {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    margin-bottom: 24px;
+    padding: 28px;
+
+    background: #ffffff;
+    border: 1px solid #e9e3f4;
+    border-radius: 18px;
+
+    box-shadow: 0 4px 16px rgba(52, 24, 91, 0.04);
 }
 
 
@@ -56,97 +80,128 @@
 ===================================================== */
 
 .section-title {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
 }
 
-.section-title > span {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #eef2ff;
-  border-radius: 10px;
-  font-size: 21px;
+.section-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+
+    border-radius: 12px;
+    font-size: 20px;
+}
+
+.security-icon {
+    background: #f0e9ff;
+}
+
+.account-icon {
+    background: #eeeaff;
 }
 
 .section-title h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  color: #0f172a;
+    margin: 0;
+    color: #281747;
+    font-size: 20px;
+    font-weight: 700;
 }
 
 .section-title p {
-  margin: 5px 0 0;
-  font-size: 13px;
-  color: #64748b;
+    margin: 5px 0 0;
+    color: #817890;
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 
 /* =====================================================
-   SETTINGS ITEM
+   SETTINGS ITEMS
 ===================================================== */
 
 .settings-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 25px;
-  padding: 20px 0;
-  border-top: 1px solid #edf0f5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+
+    padding: 22px 0;
+    border-top: 1px solid #eeeaf4;
 }
 
-.settings-item:first-of-type {
-  border-top: 1px solid #edf0f5;
+.settings-item:last-child {
+    padding-bottom: 0;
+}
+
+.settings-item-info {
+    flex: 1;
+    min-width: 0;
 }
 
 .settings-item h3 {
-  margin: 0 0 7px;
-  font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
+    margin: 0 0 7px;
+    color: #2b2040;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .settings-item p {
-  margin: 0;
-  font-size: 13px;
-  color: #64748b;
-  line-height: 1.5;
+    max-width: 560px;
+    margin: 0;
+
+    color: #817890;
+    font-size: 13px;
+    line-height: 1.7;
 }
 
 
 /* =====================================================
-   NORMAL BLUE BUTTON
+   PRIMARY BUTTON
 ===================================================== */
 
 .settings-button {
-  border: none;
-  outline: none;
-  background: #315bea;
-  color: #ffffff;
-  padding: 11px 18px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 11px 18px;
+    flex-shrink: 0;
+
+    border: 1px solid transparent;
+    border-radius: 9px;
+
+    background: #7c3aed;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-.settings-button:hover {
-  background: #244bd1;
-  transform: translateY(-1px);
+.settings-button:hover:not(:disabled) {
+    background: #6d28d9;
+    box-shadow: 0 5px 12px rgba(124, 58, 237, 0.18);
+    transform: translateY(-1px);
 }
 
 .settings-button:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-  transform: none;
+    opacity: 0.65;
+    cursor: not-allowed;
 }
 
 
@@ -155,67 +210,78 @@
 ===================================================== */
 
 .password-form {
-  border-top: 1px solid #edf0f5;
-  padding-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #eeeaf4;
 }
 
 .form-group {
-  margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #334155;
+    display: block;
+    margin-bottom: 8px;
+
+    color: #382b4f;
+    font-size: 13px;
+    font-weight: 650;
 }
 
 .form-group input {
-  width: 100%;
-  height: 44px;
-  padding: 0 13px;
-  border: 1px solid #d9dee8;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #0f172a;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    display: block;
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    box-sizing: border-box;
+
+    border: 1px solid #ddd5e9;
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #281747;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .form-group input::placeholder {
-  color: #94a3b8;
+    color: #a49bb2;
 }
 
 .form-group input:focus {
-  border-color: #315bea;
-  box-shadow: 0 0 0 3px rgba(49, 91, 234, 0.1);
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
 }
 
 
 /* =====================================================
-   PASSWORD MESSAGE
+   PASSWORD MESSAGES
 ===================================================== */
 
 .password-message {
-  padding: 12px 14px;
-  border-radius: 8px;
-  margin-bottom: 18px;
-  font-size: 13px;
-  font-weight: 500;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+
+    border-radius: 9px;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 .password-message.success {
-  background: #e8f8ef;
-  color: #15803d;
-  border: 1px solid #c8efd8;
+    border: 1px solid #bce8cc;
+    background: #effbf3;
+    color: #18723a;
 }
 
 .password-message.error {
-  background: #fff0f0;
-  color: #dc2626;
-  border: 1px solid #ffd2d2;
+    border: 1px solid #f4caca;
+    background: #fff1f1;
+    color: #bd2828;
 }
 
 
@@ -224,27 +290,44 @@
 ===================================================== */
 
 .password-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
 }
 
 .cancel-button {
-  border: 1px solid #d9dee8;
-  background: #ffffff;
-  color: #475569;
-  padding: 11px 18px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 10px 18px;
+
+    border: 1px solid #ded6e9;
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #594b6d;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.cancel-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+.cancel-button:hover:not(:disabled) {
+    border-color: #c7b8dc;
+    background: #f8f5fc;
+}
+
+.cancel-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 
@@ -253,66 +336,88 @@
 ===================================================== */
 
 .danger-outline {
-  border: 1px solid #ef4444;
-  background: #ffffff;
-  color: #dc2626;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 10px 18px;
+    flex-shrink: 0;
+
+    border: 1px solid #e5a4a4;
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #c52d3a;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .danger-outline:hover {
-  background: #fff5f5;
-  border-color: #dc2626;
+    border-color: #dc6464;
+    background: #fff3f3;
 }
 
 .danger-button {
-  border: none;
-  background: #ef2f2f;
-  color: #ffffff;
-  padding: 11px 18px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 11px 18px;
+    flex-shrink: 0;
+
+    border: 1px solid transparent;
+    border-radius: 9px;
+
+    background: #dc3545;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
-.danger-button:hover {
-  background: #dc2626;
+.danger-button:hover:not(:disabled) {
+    background: #bd2635;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.16);
 }
 
 .danger-button:disabled {
-  background: #cbd5e1;
-  cursor: not-allowed;
+    background: #c9c4d0;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 
 /* =====================================================
-   DELETE INPUT
+   MODAL OVERLAY
 ===================================================== */
 
-.delete-input {
-  width: 100%;
-  height: 44px;
-  padding: 0 13px;
-  margin-top: 8px;
-  border: 1px solid #d9dee8;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #0f172a;
-  font-size: 14px;
-  outline: none;
-}
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
 
-.delete-input:focus {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+    box-sizing: border-box;
+
+    background: rgba(24, 14, 43, 0.55);
+    backdrop-filter: blur(3px);
 }
 
 
@@ -320,1056 +425,276 @@
    MODAL
 ===================================================== */
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(15, 23, 42, 0.55);
+.settings-modal {
+    width: 100%;
+    max-width: 470px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+
+    padding: 30px;
+    box-sizing: border-box;
+
+    border: 1px solid #eee7f6;
+    border-radius: 18px;
+
+    background: #ffffff;
+    color: #281747;
+
+    box-shadow: 0 24px 70px rgba(24, 14, 43, 0.25);
+
+    animation: settingsModalIn 0.2s ease-out;
 }
 
-.modal {
-  width: 100%;
-  max-width: 470px;
-  padding: 28px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
-  color: #0f172a;
+@keyframes settingsModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
-.modal h2 {
-  margin: 0 0 10px;
-  font-size: 20px;
+.settings-modal h2 {
+    margin: 0 0 12px;
+    color: #281747;
+    font-size: 21px;
+    font-weight: 750;
+    line-height: 1.4;
 }
 
-.modal p {
-  margin: 0 0 8px;
-  color: #64748b;
-  font-size: 14px;
-  line-height: 1.6;
+.settings-modal p {
+    margin: 0 0 12px;
+    color: #766b85;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.settings-modal strong {
+    color: #bd2635;
+}
+
+
+/* =====================================================
+   MODAL ICONS
+===================================================== */
+
+.modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
+    margin-bottom: 18px;
+
+    border-radius: 13px;
+    font-size: 23px;
+    font-weight: 750;
 }
 
 .warning-icon {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 15px;
-  background: #fff4e5;
-  border-radius: 10px;
-  font-size: 22px;
+    background: #fff3dc;
+    color: #b7791f;
 }
+
+.delete-icon {
+    background: #fff0f0;
+    color: #d12f3d;
+}
+
+
+/* =====================================================
+   DELETE CONFIRMATION INPUT
+===================================================== */
+
+.delete-label {
+    display: block;
+    margin: 20px 0 8px;
+
+    color: #382b4f;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.delete-input {
+    display: block;
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    box-sizing: border-box;
+
+    border: 1px solid #ddd5e9;
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #281747;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.delete-input::placeholder {
+    color: #a49bb2;
+}
+
+.delete-input:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+
+/* =====================================================
+   MODAL ACTIONS
+===================================================== */
 
 .modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
 }
 
 
 /* =====================================================
-   RESPONSIVE
+   RESPONSIVE TABLET
 ===================================================== */
 
-@media (max-width: 768px) {
-
-  .settings-page {
-    padding: 25px 20px 50px;
-  }
-
-  .settings-section {
-    padding: 22px;
-  }
-
-  .settings-item {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .settings-item button {
-    width: fit-content;
-  }
-
-  .password-actions {
-    justify-content: flex-start;
-  }
-
-  .modal-actions {
-    flex-direction: column-reverse;
-  }
-
-  .modal-actions button {
-    width: 100%;
-  }
-}
-/* =====================================================
-   COMPACT RESUME - LESS EMPTY SPACE
-===================================================== */
-
-/* Resume paper */
-.resume-paper {
-    max-width: 720px !important;
-
-    min-height: 0 !important;
-
-    padding: 30px 38px !important;
-
-    box-sizing: border-box !important;
-
-    line-height: 1.3 !important;
-}
-
-
-/* Header */
-.resume-paper-header {
-    padding-bottom: 10px !important;
-    margin-bottom: 0 !important;
-}
-
-.resume-paper-header h1 {
-    margin: 0 !important;
-
-    font-size: 24px !important;
-
-    line-height: 1.1 !important;
-}
-
-.resume-paper-header h2 {
-    margin: 3px 0 6px !important;
-
-    font-size: 11px !important;
-
-    line-height: 1.2 !important;
-}
-
-.resume-contact,
-.resume-links {
-    gap: 5px !important;
-
-    font-size: 8.5px !important;
-
-    line-height: 1.2 !important;
-}
-
-.resume-links {
-    margin-top: 2px !important;
-}
-
-
-/* Sections */
-.resume-preview-section {
-    margin-top: 9px !important;
-
-    margin-bottom: 0 !important;
-
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-}
-
-.resume-preview-section h3 {
-    margin: 0 !important;
-
-    font-size: 10px !important;
-
-    line-height: 1.2 !important;
-
-    letter-spacing: 1px !important;
-}
-
-.editable-resume-heading {
-    margin: 0 !important;
-
-    padding: 0 !important;
-
-    font-size: 10px !important;
-
-    line-height: 1.2 !important;
-
-    letter-spacing: 1px !important;
-}
-
-.section-line {
-    height: 1px !important;
-
-    margin: 2px 0 4px !important;
-}
-
-
-/* Summary */
-.preview-summary {
-    margin: 0 !important;
-
-    padding: 0 !important;
-
-    font-size: 8.5px !important;
-
-    line-height: 1.35 !important;
-
-    min-height: 0 !important;
-
-    height: auto !important;
-
-    max-height: 50px !important;
-
-    resize: none !important;
-}
-
-
-/* Experience / Education / Projects */
-.preview-entry {
-    margin-bottom: 6px !important;
-
-    padding: 0 !important;
-
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-}
-
-.preview-entry-heading {
-    gap: 10px !important;
-
-    font-size: 9px !important;
-
-    line-height: 1.2 !important;
-}
-
-.preview-entry-heading strong {
-    font-size: 9px !important;
-}
-
-.preview-entry-heading span {
-    font-size: 8px !important;
-}
-
-.preview-company {
-    margin-top: 1px !important;
-
-    font-size: 8.5px !important;
-
-    line-height: 1.2 !important;
-}
-
-.preview-entry p {
-    margin: 2px 0 0 !important;
-
-    font-size: 8px !important;
-
-    line-height: 1.3 !important;
-}
-
-
-/* Editable preview inputs */
-.preview-editable-input {
-    padding: 0 !important;
-
-    margin: 0 !important;
-
-    border: none !important;
-
-    outline: none !important;
-
-    background: transparent !important;
-
-    font-family: inherit !important;
-
-    font-size: 8.5px !important;
-
-    line-height: 1.25 !important;
-}
-
-
-/* Editable textareas */
-.preview-editable-textarea {
-    width: 100% !important;
-
-    min-height: 0 !important;
-
-    height: auto !important;
-
-    max-height: 42px !important;
-
-    padding: 0 !important;
-
-    margin: 1px 0 0 !important;
-
-    border: none !important;
-
-    outline: none !important;
-
-    background: transparent !important;
-
-    resize: none !important;
-
-    overflow: hidden !important;
-
-    font-family: inherit !important;
-
-    font-size: 8px !important;
-
-    line-height: 1.3 !important;
-}
-
-
-/* Project / experience title inputs */
-.preview-entry-title-input {
-    font-size: 9px !important;
-
-    line-height: 1.2 !important;
-}
-
-.preview-date-input {
-    width: 100px !important;
-
-    font-size: 8px !important;
-
-    line-height: 1.2 !important;
-}
-
-.preview-company-input {
-    font-size: 8.5px !important;
-
-    line-height: 1.2 !important;
-}
-
-
-/* Skills */
-.preview-skills {
-    gap: 2px 7px !important;
-
-    margin: 0 !important;
-
-    line-height: 1.2 !important;
-}
-
-.preview-skills span {
-    font-size: 8.5px !important;
-}
-
-
-/* Hide editing controls until hover */
-.preview-section-controls {
-    opacity: 0 !important;
-}
-
-.resume-preview-section:hover .preview-section-controls {
-    opacity: 1 !important;
-}
-
-
-/* Add / delete buttons */
-.preview-add-entry {
-    padding: 2px 5px !important;
-
-    margin: 2px 0 0 !important;
-
-    font-size: 7px !important;
-}
-
-.preview-delete-entry {
-    font-size: 7px !important;
-
-    margin: 1px 0 0 !important;
+@media (max-width: 900px) {
+    .settings-page {
+        padding: 30px 26px 50px;
+    }
+
+    .settings-section {
+        padding: 24px;
+    }
 }
 
 
 /* =====================================================
-   PRINT VERSION
+   RESPONSIVE MOBILE
 ===================================================== */
 
-@media print {
-
-    @page {
-        size: A4;
-        margin: 10mm;
+@media (max-width: 600px) {
+    .settings-page {
+        padding: 24px 16px 40px;
     }
 
-    .resume-paper {
-        width: 190mm !important;
-
-        max-width: 190mm !important;
-
-        min-height: 0 !important;
-
-        height: auto !important;
-
-        padding: 0 !important;
-
-        margin: 0 !important;
-
-        box-shadow: none !important;
-
-        overflow: visible !important;
+    .settings-header {
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 24px;
     }
 
-    .resume-preview-section {
-        margin-top: 8px !important;
+    
 
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
+    .settings-header h1 {
+        font-size: 25px;
     }
 
-    .preview-entry {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
+    .settings-header p {
+        font-size: 12px;
     }
 
-    .preview-section-controls,
-    .preview-add-entry,
-    .preview-delete-entry,
-    .add-preview-section-button {
-        display: none !important;
+    .settings-section {
+        padding: 20px 17px;
+        margin-bottom: 18px;
+        border-radius: 14px;
     }
 
-    .preview-editable-input,
-    .preview-editable-textarea,
-    .editable-resume-heading {
-        border: none !important;
-
-        outline: none !important;
-
-        background: transparent !important;
-    }
-}
-/* =========================================
-   FINAL RESUME FONT + SPACING FIX
-   ========================================= */
-
-/* Overall resume text */
-.resume-paper {
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 9px !important;
-    line-height: 1.3 !important;
-}
-
-
-/* Section headings */
-.editable-resume-heading,
-.resume-preview-section h3 {
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 10px !important;
-    font-weight: 700 !important;
-    line-height: 1.2 !important;
-    letter-spacing: 0.7px !important;
-    margin: 0 !important;
-}
-
-
-/* Section spacing */
-.resume-preview-section {
-    margin-top: 7px !important;
-    margin-bottom: 0 !important;
-}
-
-.section-line {
-    margin: 2px 0 4px !important;
-}
-
-
-/* All normal resume text */
-.resume-preview-section,
-.resume-preview-section p,
-.resume-preview-section span,
-.resume-preview-section div {
-    font-family: Arial, Helvetica, sans-serif !important;
-}
-
-
-/* Experience / Education / Project titles */
-.preview-entry-title-input,
-.preview-entry-heading strong {
-    font-size: 9px !important;
-    font-weight: 700 !important;
-    line-height: 1.2 !important;
-}
-
-
-/* Company / institution / secondary text */
-.preview-company-input,
-.preview-company,
-.preview-entry-heading span {
-    font-size: 8.5px !important;
-    line-height: 1.2 !important;
-}
-
-
-/* Descriptions */
-.preview-editable-textarea,
-.preview-entry p {
-    font-size: 8px !important;
-    line-height: 1.3 !important;
-
-    margin-top: 2px !important;
-    margin-bottom: 0 !important;
-}
-
-
-/* =========================================
-   SKILLS - FIX THE BIG FONT
-   ========================================= */
-
-.preview-skills {
-    display: grid !important;
-
-    grid-template-columns: 1fr 1fr !important;
-
-    column-gap: 25px !important;
-    row-gap: 2px !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-
-.preview-skill-edit {
-    display: flex !important;
-
-    align-items: center !important;
-
-    height: 17px !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-
-.preview-skill-edit input {
-    width: 100% !important;
-
-    padding: 0 !important;
-    margin: 0 !important;
-
-    border: none !important;
-    outline: none !important;
-    background: transparent !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-
-    font-size: 8.5px !important;
-    font-weight: 400 !important;
-
-    line-height: 1.2 !important;
-}
-
-
-/* Red X */
-.preview-skill-edit button {
-    font-size: 8px !important;
-
-    margin-left: 3px !important;
-
-    padding: 0 !important;
-}
-
-
-/* Certifications */
-.preview-entry {
-    margin-bottom: 5px !important;
-}
-
-
-/* Add buttons */
-.preview-add-entry {
-    font-size: 7px !important;
-
-    padding: 2px 5px !important;
-
-    margin-top: 2px !important;
-}
-
-
-/* =========================================
-   PERSONAL INFORMATION IN PREVIEW
-   ========================================= */
-
-.preview-name-input {
-    font-family: Arial, Helvetica, sans-serif !important;
-
-    font-size: 22px !important;
-    font-weight: 700 !important;
-
-    line-height: 1.1 !important;
-}
-
-.preview-job-title-input {
-    font-family: Arial, Helvetica, sans-serif !important;
-
-    font-size: 10px !important;
-    font-weight: 400 !important;
-
-    line-height: 1.2 !important;
-}
-
-
-/* Contact details */
-.preview-inline-input {
-    font-family: Arial, Helvetica, sans-serif !important;
-
-    font-size: 8px !important;
-
-    line-height: 1.2 !important;
-}
-
-
-/* =========================================
-   SUMMARY
-   ========================================= */
-
-.preview-summary {
-    font-family: Arial, Helvetica, sans-serif !important;
-
-    font-size: 8.5px !important;
-
-    line-height: 1.3 !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-
-/* =========================================
-   REMOVE EXCESSIVE EMPTY SPACE
-   ========================================= */
-
-.preview-editable-textarea {
-    min-height: 0 !important;
-    height: auto !important;
-
-    max-height: 38px !important;
-
-    resize: none !important;
-
-    overflow: hidden !important;
-}
-
-
-/* Keep entries compact */
-.preview-entry-heading {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.preview-company-input {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-
-/* =========================================
-   PRINT
-   ========================================= */
-
-@media print {
-
-    .resume-paper {
-        font-family: Arial, Helvetica, sans-serif !important;
-        font-size: 9px !important;
+    .section-title {
+        gap: 11px;
+        margin-bottom: 18px;
     }
 
-    .resume-preview-section {
-        margin-top: 7px !important;
+    .section-icon {
+        width: 39px;
+        height: 39px;
+        border-radius: 10px;
+        font-size: 18px;
     }
 
-    .preview-entry {
-        margin-bottom: 5px !important;
+    .section-title h2 {
+        font-size: 18px;
     }
 
-    .preview-skills {
-        row-gap: 2px !important;
+    .section-title p {
+        font-size: 12px;
     }
 
-    .preview-section-controls,
-    .preview-add-entry,
-    .preview-delete-entry,
-    .add-preview-section-button {
-        display: none !important;
+    .settings-item {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px 0;
+    }
+
+    .settings-item h3 {
+        font-size: 14px;
+    }
+
+    .settings-item p {
+        font-size: 12px;
+    }
+
+    .settings-item button {
+        width: 100%;
+    }
+
+    .form-group input {
+        height: 44px;
+    }
+
+    .password-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .password-actions button {
+        width: 100%;
+    }
+
+    .settings-modal {
+        padding: 23px 20px;
+        border-radius: 15px;
+    }
+
+    .settings-modal h2 {
+        font-size: 19px;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .modal-actions button {
+        width: 100%;
     }
 }
 
-/* =========================================================
-   FINAL RESUME SPACING
-   Compact like the reference resume
-   ========================================================= */
 
-/* Resume page */
-.resume-paper {
-    max-width: 720px !important;
-    min-height: 0 !important;
-    height: auto !important;
+/* =====================================================
+   ACCESSIBILITY
+===================================================== */
 
-    padding: 30px 38px !important;
-    box-sizing: border-box !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 9px !important;
-    line-height: 1.3 !important;
+.settings-page button:focus-visible {
+    outline: 3px solid rgba(139, 92, 246, 0.35);
+    outline-offset: 3px;
 }
 
-
-/* =========================================================
-   HEADER
-   ========================================================= */
-
-.resume-paper-header {
-    padding-bottom: 8px !important;
-    margin-bottom: 0 !important;
-}
-
-.preview-name-input {
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 22px !important;
-    font-weight: 700 !important;
-    line-height: 1.05 !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.preview-job-title-input {
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 10px !important;
-    font-weight: 400 !important;
-    line-height: 1.15 !important;
-
-    margin: 2px 0 4px !important;
-    padding: 0 !important;
-}
-
-.resume-contact,
-.resume-links {
-    gap: 5px !important;
-    font-size: 8px !important;
-    line-height: 1.2 !important;
-}
-
-.resume-links {
-    margin-top: 2px !important;
-}
-
-.preview-inline-input {
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 8px !important;
-    line-height: 1.2 !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-
-/* =========================================================
-   SECTION SPACING
-   ========================================================= */
-
-.resume-preview-section {
-    margin-top: 9px !important;
-    margin-bottom: 0 !important;
-
-    padding: 0 !important;
-
-    /* IMPORTANT:
-       Don't prevent sections from flowing naturally.
-       This avoids unnecessary blank space. */
-    page-break-inside: auto !important;
-    break-inside: auto !important;
-}
-
-
-/* Section heading */
-.editable-resume-heading,
-.resume-preview-section h3 {
-    margin: 0 !important;
-    padding: 0 !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 10px !important;
-    font-weight: 700 !important;
-    line-height: 1.15 !important;
-
-    letter-spacing: 0.6px !important;
-}
-
-
-/* REMOVE THE BLUE LINE */
-.section-line {
-    display: none !important;
-}
-
-
-/* =========================================================
-   SUMMARY
-   ========================================================= */
-
-.preview-summary {
-    margin: 3px 0 0 !important;
-    padding: 0 !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 8.5px !important;
-    line-height: 1.35 !important;
-
-    min-height: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-
-    resize: none !important;
-    overflow: hidden !important;
-}
-
-
-/* =========================================================
-   EXPERIENCE / EDUCATION / PROJECTS
-   ========================================================= */
-
-.preview-entry {
-    margin: 0 0 6px 0 !important;
-    padding: 0 !important;
-
-    page-break-inside: auto !important;
-    break-inside: auto !important;
-}
-
-
-/* Last entry should not create unnecessary space */
-.preview-entry:last-child {
-    margin-bottom: 0 !important;
-}
-
-
-/* Entry heading */
-.preview-entry-heading {
-    display: flex !important;
-    align-items: baseline !important;
-
-    gap: 8px !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    font-size: 9px !important;
-    line-height: 1.2 !important;
-}
-
-
-/* Job / project / degree title */
-.preview-entry-title-input,
-.preview-entry-heading strong {
-    margin: 0 !important;
-    padding: 0 !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 9px !important;
-    font-weight: 700 !important;
-    line-height: 1.2 !important;
-}
-
-
-/* Date */
-.preview-date-input,
-.preview-entry-heading span {
-    margin: 0 !important;
-    padding: 0 !important;
-
-    font-size: 8px !important;
-    line-height: 1.2 !important;
-}
-
-
-/* Company / institution */
-.preview-company-input,
-.preview-company {
-    margin: 1px 0 0 !important;
-    padding: 0 !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 8.5px !important;
-    line-height: 1.2 !important;
-}
-
-
-/* Description */
-.preview-editable-textarea,
-.preview-entry p {
-    margin: 2px 0 0 !important;
-    padding: 0 !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 8px !important;
-    line-height: 1.3 !important;
-
-    min-height: 0 !important;
-    height: auto !important;
-
-    /* Do NOT use a small max-height.
-       It can cut off newly added text. */
-    max-height: none !important;
-
-    resize: none !important;
-    overflow: hidden !important;
-}
-
-
-/* Editable inputs */
-.preview-editable-input {
-    margin: 0 !important;
-    padding: 0 !important;
-
-    border: none !important;
-    outline: none !important;
-    background: transparent !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 8.5px !important;
-    line-height: 1.2 !important;
-}
-
-
-/* =========================================================
-   SKILLS
-   ========================================================= */
-
-.preview-skills {
-    display: grid !important;
-
-    grid-template-columns: 1fr 1fr !important;
-
-    column-gap: 24px !important;
-    row-gap: 1px !important;
-
-    margin: 2px 0 0 !important;
-    padding: 0 !important;
-}
-
-.preview-skill-edit {
-    display: flex !important;
-    align-items: center !important;
-
-    height: 16px !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.preview-skill-edit input {
-    width: 100% !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    border: none !important;
-    outline: none !important;
-    background: transparent !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 8.5px !important;
-    line-height: 1.2 !important;
-}
-
-.preview-skill-edit button {
-    margin-left: 3px !important;
-    padding: 0 !important;
-
-    font-size: 8px !important;
-}
-
-
-/* =========================================================
-   CERTIFICATIONS
-   ========================================================= */
-
-.preview-entry {
-    margin-bottom: 5px !important;
-}
-
-.preview-entry:last-child {
-    margin-bottom: 0 !important;
-}
-
-
-/* =========================================================
-   ADD / DELETE CONTROLS
-   ========================================================= */
-
-.preview-add-entry {
-    margin: 3px 0 0 !important;
-    padding: 2px 5px !important;
-
-    font-size: 7px !important;
-}
-
-.preview-delete-entry {
-    margin: 1px 0 0 !important;
-    padding: 0 !important;
-
-    font-size: 7px !important;
-}
-
-
-/* =========================================================
-   SECTION CONTROLS
-   ========================================================= */
-
-.preview-section-controls {
-    opacity: 0 !important;
-}
-
-.resume-preview-section:hover .preview-section-controls {
-    opacity: 1 !important;
-}
-
-
-/* =========================================================
-   PRINT
-   ========================================================= */
-
-@media print {
-
-    @page {
-        size: A4;
-        margin: 10mm;
-    }
-
-    .resume-paper {
-        width: 190mm !important;
-        max-width: 190mm !important;
-
-        min-height: 0 !important;
-        height: auto !important;
-
-        padding: 0 !important;
-        margin: 0 !important;
-
-        box-shadow: none !important;
-        overflow: visible !important;
-    }
-
-    .resume-preview-section {
-        margin-top: 8px !important;
-        page-break-inside: auto !important;
-        break-inside: auto !important;
-    }
-
-    .preview-entry {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
-
-    .preview-section-controls,
-    .preview-add-entry,
-    .preview-delete-entry,
-    .add-preview-section-button {
-        display: none !important;
-    }
-
-    .preview-editable-input,
-    .preview-editable-textarea,
-    .editable-resume-heading {
-        border: none !important;
-        outline: none !important;
-        background: transparent !important;
+@media (prefers-reduced-motion: reduce) {
+    .settings-page *,
+    .settings-page *::before,
+    .settings-page *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
     }
 }
