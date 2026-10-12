@@ -1,3 +1,4 @@
+
 const express = require("express");
 const router = express.Router();
 
@@ -33,7 +34,7 @@ const roleConfig = {
         ],
     },
 
-    "cybersecurity": {
+    cybersecurity: {
         title: "Cybersecurity",
         skills: [
             "Python",
@@ -74,43 +75,34 @@ const roleConfig = {
 };
 
 const validRoles = Object.keys(roleConfig);
-
 const validOptions = ["A", "B", "C", "D"];
-
-const validDifficulties = ["Easy", "Medium", "Difficult"];
 
 // =====================================================
 // HELPER: PERFORMANCE LEVEL
 // =====================================================
 
 function getPerformanceLevel(score) {
-    if (score >= 80) {
-        return "Strong";
-    }
-
-    if (score >= 60) {
-        return "Intermediate";
-    }
-
+    if (score >= 80) return "Strong";
+    if (score >= 60) return "Intermediate";
     return "Needs Improvement";
 }
 
 // =====================================================
 // HELPER: ROADMAP LEVEL
-// This is a practice-stage label based on the assessment
-// score, not a prediction of placement or employability.
 // =====================================================
 
 function getRoadmapLevel(score) {
-    if (score < 40) {
-        return "Foundation";
-    }
-
-    if (score < 70) {
-        return "Skill Building";
-    }
-
+    if (score < 40) return "Foundation";
+    if (score < 70) return "Skill Building";
     return "Placement Ready";
+}
+
+// =====================================================
+// HELPER: NORMALIZE ANSWER OPTION
+// =====================================================
+
+function normalizeOption(value) {
+    return String(value || "").trim().toUpperCase();
 }
 
 // =====================================================
@@ -127,9 +119,7 @@ router.get("/roles", async (req, res) => {
             skills: roleConfig[roleId].skills,
         }));
 
-        return res.status(200).json({
-            roles,
-        });
+        return res.status(200).json({ roles });
     } catch (error) {
         console.error("Roles Error:", error);
 
@@ -140,13 +130,9 @@ router.get("/roles", async (req, res) => {
 });
 
 // =====================================================
-// START TECHNICAL ASSESSMENT
+// GET QUESTIONS AND START ASSESSMENT
 //
 // GET /api/technical-assessment/questions/:email
-//     ?role=data-analyst&skill=Python
-//
-// Example:
-// /api/technical-assessment/questions/student@gmail.com
 //     ?role=data-analyst&skill=Python
 // =====================================================
 
@@ -159,58 +145,28 @@ router.get("/questions/:email", async (req, res) => {
         const role = String(req.query.role || "").trim();
         const skill = String(req.query.skill || "").trim();
 
-        // -------------------------------------------------
-        // VALIDATE EMAIL
-        // -------------------------------------------------
-
         if (!email) {
             return res.status(400).json({
                 message: "Email is required.",
             });
         }
 
-        // -------------------------------------------------
-        // VALIDATE ROLE
-        // -------------------------------------------------
-
-        if (!role) {
+        if (!role || !validRoles.includes(role)) {
             return res.status(400).json({
-                message: "Career role is required.",
+                message: "A valid career role is required.",
             });
         }
 
-        if (!validRoles.includes(role)) {
+        if (!skill || !roleConfig[role].skills.includes(skill)) {
             return res.status(400).json({
-                message: "Unsupported career role.",
+                message: "A valid skill for the selected role is required.",
             });
         }
 
-        // -------------------------------------------------
-        // VALIDATE SKILL
-        // -------------------------------------------------
-
-        if (!skill) {
-            return res.status(400).json({
-                message: "Assessment skill is required.",
-            });
-        }
-
-        if (!roleConfig[role].skills.includes(skill)) {
-            return res.status(400).json({
-                message: "Unsupported skill for the selected role.",
-            });
-        }
-
-        // -------------------------------------------------
-        // FIND USER
-        // -------------------------------------------------
-
+        // Find user
         const userResult = await pool.query(
             `
-            SELECT
-                id,
-                fullname,
-                email
+            SELECT id, fullname, email
             FROM users
             WHERE LOWER(email) = $1
             `,
@@ -225,15 +181,8 @@ router.get("/questions/:email", async (req, res) => {
 
         const user = userResult.rows[0];
 
-        // -------------------------------------------------
-        // GET 20 QUESTIONS FOR THE SELECTED ROLE + SKILL
-        //
-        // technical_questions.role stores the role key,
-        // e.g. "data-analyst".
-        //
-        // technical_questions.category stores the skill,
-        // e.g. "Python".
-        // -------------------------------------------------
+        // Get 20 random questions for the selected role and skill.
+        // Never send correct_option before submission.
 
         const questionsResult = await pool.query(
             `
@@ -270,13 +219,7 @@ router.get("/questions/:email", async (req, res) => {
             });
         }
 
-        // -------------------------------------------------
-        // CREATE ASSESSMENT RECORD
-        //
-        // The assessment_skill column must exist in
-        // technical_assessments.
-        // -------------------------------------------------
-
+        // Create assessment record
         const assessmentResult = await pool.query(
             `
             INSERT INTO technical_assessments
@@ -289,42 +232,24 @@ router.get("/questions/:email", async (req, res) => {
                 score,
                 completed
             )
-            VALUES
-            (
-                $1,
-                $2,
-                $3,
-                $4,
-                0,
-                0,
-                false
-            )
+            VALUES ($1, $2, $3, $4, 0, 0, false)
             RETURNING id
             `,
-            [
-                user.id,
-                role,
-                skill,
-                20,
-            ]
+            [user.id, role, skill, 20]
         );
 
         const assessmentId = assessmentResult.rows[0].id;
 
-        // -------------------------------------------------
-        // SEND SAFE QUESTIONS
-        // Do not send correct_option to the frontend.
-        // -------------------------------------------------
-
-        const safeQuestions = questions.map((question) => ({
-            id: question.id,
-            category: question.category,
-            question: question.question,
-            option_a: question.option_a,
-            option_b: question.option_b,
-            option_c: question.option_c,
-            option_d: question.option_d,
-            difficulty: question.difficulty,
+        // Safe question response
+        const safeQuestions = questions.map((q) => ({
+            id: q.id,
+            category: q.category,
+            question: q.question,
+            option_a: q.option_a,
+            option_b: q.option_b,
+            option_c: q.option_c,
+            option_d: q.option_d,
+            difficulty: q.difficulty,
         }));
 
         return res.status(200).json({
@@ -375,13 +300,10 @@ router.get("/questions/:email", async (req, res) => {
 
 router.post("/submit", async (req, res) => {
     let client;
+    let transactionStarted = false;
 
     try {
         const { assessmentId, answers } = req.body;
-
-        // -------------------------------------------------
-        // VALIDATE ASSESSMENT ID
-        // -------------------------------------------------
 
         const parsedAssessmentId = Number(assessmentId);
 
@@ -393,10 +315,6 @@ router.post("/submit", async (req, res) => {
                 message: "A valid assessmentId is required.",
             });
         }
-
-        // -------------------------------------------------
-        // VALIDATE ANSWERS
-        // -------------------------------------------------
 
         if (!Array.isArray(answers)) {
             return res.status(400).json({
@@ -433,9 +351,7 @@ router.post("/submit", async (req, res) => {
 
         const normalizedAnswers = answers.map((answer) => ({
             questionId: Number(answer.questionId),
-            selectedOption: String(answer.selectedOption || "")
-                .trim()
-                .toUpperCase(),
+            selectedOption: normalizeOption(answer.selectedOption),
         }));
 
         if (
@@ -450,19 +366,12 @@ router.post("/submit", async (req, res) => {
             });
         }
 
-        // -------------------------------------------------
-        // BEGIN TRANSACTION
-        // Save all answers and mark the assessment complete
-        // as one operation.
-        // -------------------------------------------------
-
+        // Begin transaction
         client = await pool.connect();
         await client.query("BEGIN");
+        transactionStarted = true;
 
-        // -------------------------------------------------
-        // GET AND LOCK ASSESSMENT
-        // -------------------------------------------------
-
+        // Lock assessment while submitting
         const assessmentResult = await client.query(
             `
             SELECT
@@ -481,6 +390,7 @@ router.post("/submit", async (req, res) => {
 
         if (assessmentResult.rows.length === 0) {
             await client.query("ROLLBACK");
+            transactionStarted = false;
 
             return res.status(404).json({
                 message: "Assessment not found.",
@@ -491,6 +401,7 @@ router.post("/submit", async (req, res) => {
 
         if (assessment.completed) {
             await client.query("ROLLBACK");
+            transactionStarted = false;
 
             return res.status(400).json({
                 message: "This assessment has already been submitted.",
@@ -505,6 +416,7 @@ router.post("/submit", async (req, res) => {
             !roleConfig[role].skills.includes(skill)
         ) {
             await client.query("ROLLBACK");
+            transactionStarted = false;
 
             return res.status(400).json({
                 message:
@@ -512,11 +424,8 @@ router.post("/submit", async (req, res) => {
             });
         }
 
-        // -------------------------------------------------
-        // FETCH AND VERIFY THE 20 QUESTIONS
-        // Every question must match this assessment's
-        // selected role and skill.
-        // -------------------------------------------------
+        // Fetch complete question details for answer review.
+        // correct_option is fetched only on the server.
 
         const questionsResult = await client.query(
             `
@@ -524,6 +433,11 @@ router.post("/submit", async (req, res) => {
                 id,
                 role,
                 category,
+                question,
+                option_a,
+                option_b,
+                option_c,
+                option_d,
                 difficulty,
                 correct_option
             FROM technical_questions
@@ -531,17 +445,14 @@ router.post("/submit", async (req, res) => {
               AND role = $2
               AND category = $3
             `,
-            [
-                questionIds,
-                role,
-                skill,
-            ]
+            [questionIds, role, skill]
         );
 
         const questions = questionsResult.rows;
 
         if (questions.length !== 20) {
             await client.query("ROLLBACK");
+            transactionStarted = false;
 
             return res.status(400).json({
                 message:
@@ -549,58 +460,40 @@ router.post("/submit", async (req, res) => {
             });
         }
 
-        // -------------------------------------------------
-        // CREATE QUESTION LOOKUP MAP
-        // -------------------------------------------------
-
         const questionMap = new Map();
 
         questions.forEach((question) => {
             questionMap.set(Number(question.id), question);
         });
 
-        // -------------------------------------------------
-        // SCORE AND COLLECT CATEGORY / DIFFICULTY RESULTS
-        // -------------------------------------------------
-
         let correctAnswers = 0;
 
         const categoryScores = {};
 
         const difficultyScores = {
-            Easy: {
-                total: 0,
-                correct: 0,
-            },
-            Medium: {
-                total: 0,
-                correct: 0,
-            },
-            Difficult: {
-                total: 0,
-                correct: 0,
-            },
+            Easy: { total: 0, correct: 0 },
+            Medium: { total: 0, correct: 0 },
+            Difficult: { total: 0, correct: 0 },
         };
 
-        // Keep the submitted order in the evaluated answer list.
         const evaluatedAnswers = [];
 
+        // Evaluate each answer in the submitted order.
         for (const answer of normalizedAnswers) {
             const question = questionMap.get(answer.questionId);
 
             if (!question) {
                 await client.query("ROLLBACK");
+                transactionStarted = false;
 
                 return res.status(400).json({
                     message: "A submitted question could not be verified.",
                 });
             }
 
-            const correctOption = String(
-                question.correct_option || ""
-            )
-                .trim()
-                .toUpperCase();
+            const correctOption = normalizeOption(
+                question.correct_option
+            );
 
             if (!validOptions.includes(correctOption)) {
                 throw new Error(
@@ -640,7 +533,7 @@ router.post("/submit", async (req, res) => {
                 }
             }
 
-            // Store each answer in the database.
+            // Save answer in the database.
             await client.query(
                 `
                 INSERT INTO technical_answers
@@ -650,13 +543,7 @@ router.post("/submit", async (req, res) => {
                     selected_option,
                     is_correct
                 )
-                VALUES
-                (
-                    $1,
-                    $2,
-                    $3,
-                    $4
-                )
+                VALUES ($1, $2, $3, $4)
                 `,
                 [
                     parsedAssessmentId,
@@ -666,19 +553,24 @@ router.post("/submit", async (req, res) => {
                 ]
             );
 
+            // Full question details for the result page.
             evaluatedAnswers.push({
                 questionId: question.id,
+                question: question.question,
+
+                option_a: question.option_a,
+                option_b: question.option_b,
+                option_c: question.option_c,
+                option_d: question.option_d,
+
                 category,
                 difficulty: question.difficulty,
+
                 selectedAnswer: answer.selectedOption,
                 correctAnswer: correctOption,
                 isCorrect,
             });
         }
-
-        // -------------------------------------------------
-        // CALCULATE OVERALL SCORE
-        // -------------------------------------------------
 
         const totalQuestions = Number(
             assessment.total_questions
@@ -694,10 +586,6 @@ router.post("/submit", async (req, res) => {
             (correctAnswers / totalQuestions) * 100
         );
 
-        // -------------------------------------------------
-        // CATEGORY RESULTS
-        // -------------------------------------------------
-
         const categoryResults = Object.entries(categoryScores)
             .map(([category, data]) => ({
                 category,
@@ -707,11 +595,9 @@ router.post("/submit", async (req, res) => {
                     (data.correct / data.total) * 100
                 ),
             }))
-            .sort((a, b) => a.category.localeCompare(b.category));
-
-        // -------------------------------------------------
-        // DIFFICULTY RESULTS
-        // -------------------------------------------------
+            .sort((a, b) =>
+                a.category.localeCompare(b.category)
+            );
 
         const difficultyResults = Object.entries(difficultyScores)
             .map(([difficulty, data]) => ({
@@ -726,17 +612,10 @@ router.post("/submit", async (req, res) => {
                         : 0,
             }));
 
-        // -------------------------------------------------
-        // PERFORMANCE AND ROADMAP LABELS
-        // -------------------------------------------------
-
         const performanceLevel = getPerformanceLevel(score);
         const roadmapLevel = getRoadmapLevel(score);
 
-        // -------------------------------------------------
-        // UPDATE ASSESSMENT
-        // -------------------------------------------------
-
+        // Update assessment
         await client.query(
             `
             UPDATE technical_assessments
@@ -754,36 +633,40 @@ router.post("/submit", async (req, res) => {
             ]
         );
 
-        // -------------------------------------------------
-        // COMMIT TRANSACTION
-        // -------------------------------------------------
-
+        // Commit transaction
         await client.query("COMMIT");
+        transactionStarted = false;
 
-        // -------------------------------------------------
-        // SEND RESULT
-        // -------------------------------------------------
-
+        // Return the summary and question-by-question details.
         return res.status(200).json({
             message: "Assessment submitted successfully.",
+
             result: {
                 assessmentId: parsedAssessmentId,
                 role,
                 roleTitle: roleConfig[role].title,
                 skill,
+
                 totalQuestions,
                 correctAnswers,
-                incorrectAnswers: totalQuestions - correctAnswers,
+                incorrectAnswers:
+                    totalQuestions - correctAnswers,
+
                 score,
                 performanceLevel,
                 roadmapLevel,
+
                 categoryResults,
                 difficultyResults,
+
                 evaluatedAnswers,
             },
+
+            // Also expose answers at the root level for compatibility.
+            answers: evaluatedAnswers,
         });
     } catch (error) {
-        if (client) {
+        if (client && transactionStarted) {
             try {
                 await client.query("ROLLBACK");
             } catch (rollbackError) {
@@ -828,16 +711,10 @@ router.get("/result/:email", async (req, res) => {
             });
         }
 
-        // -------------------------------------------------
-        // FIND USER
-        // -------------------------------------------------
-
+        // Find user
         const userResult = await pool.query(
             `
-            SELECT
-                id,
-                fullname,
-                email
+            SELECT id, fullname, email
             FROM users
             WHERE LOWER(email) = $1
             `,
@@ -852,10 +729,7 @@ router.get("/result/:email", async (req, res) => {
 
         const user = userResult.rows[0];
 
-        // -------------------------------------------------
-        // GET LATEST COMPLETED ASSESSMENT
-        // -------------------------------------------------
-
+        // Get latest completed assessment
         const assessmentResult = await pool.query(
             `
             SELECT
@@ -870,7 +744,7 @@ router.get("/result/:email", async (req, res) => {
             FROM technical_assessments
             WHERE user_id = $1
               AND completed = true
-            ORDER BY completed_at DESC, id DESC
+            ORDER BY completed_at DESC NULLS LAST, id DESC
             LIMIT 1
             `,
             [user.id]
@@ -884,10 +758,7 @@ router.get("/result/:email", async (req, res) => {
 
         const assessment = assessmentResult.rows[0];
 
-        // -------------------------------------------------
-        // GET CATEGORY SCORES FOR THIS ASSESSMENT
-        // -------------------------------------------------
-
+        // Get category scores
         const categoryResult = await pool.query(
             `
             SELECT
@@ -924,10 +795,39 @@ router.get("/result/:email", async (req, res) => {
             };
         });
 
-        // -------------------------------------------------
-        // NORMALIZE VALUES FROM POSTGRES
-        // -------------------------------------------------
+        // Retrieve individual answers for the result page.
+        const answersResult = await pool.query(
+            `
+            SELECT
+                q.id AS "questionId",
+                q.question,
+                q.option_a,
+                q.option_b,
+                q.option_c,
+                q.option_d,
+                q.category,
+                q.difficulty,
+                a.selected_option AS "selectedAnswer",
+                q.correct_option AS "correctAnswer",
+                a.is_correct AS "isCorrect"
+            FROM technical_answers a
+            JOIN technical_questions q
+              ON q.id = a.question_id
+            WHERE a.assessment_id = $1
+            ORDER BY a.id
+            `,
+            [assessment.id]
+        );
 
+        const evaluatedAnswers = answersResult.rows.map((row) => ({
+            ...row,
+            questionId: Number(row.questionId),
+            selectedAnswer: normalizeOption(row.selectedAnswer),
+            correctAnswer: normalizeOption(row.correctAnswer),
+            isCorrect: row.isCorrect === true,
+        }));
+
+        // Normalize PostgreSQL values
         const score = Number(assessment.score);
         const totalQuestions = Number(
             assessment.total_questions
@@ -942,6 +842,28 @@ router.get("/result/:email", async (req, res) => {
             ? roleConfig[role].title
             : role;
 
+        const result = {
+            assessmentId: assessment.id,
+            role,
+            roleTitle,
+            skill: assessment.assessment_skill,
+
+            totalQuestions,
+            correctAnswers,
+            incorrectAnswers:
+                totalQuestions - correctAnswers,
+
+            score,
+            completed: assessment.completed,
+            completedAt: assessment.completed_at,
+
+            performanceLevel: getPerformanceLevel(score),
+            roadmapLevel: getRoadmapLevel(score),
+
+            categoryResults,
+            evaluatedAnswers,
+        };
+
         return res.status(200).json({
             user: {
                 id: user.id,
@@ -949,22 +871,9 @@ router.get("/result/:email", async (req, res) => {
                 email: user.email,
             },
 
-            assessment: {
-                id: assessment.id,
-                role,
-                roleTitle,
-                skill: assessment.assessment_skill,
-                totalQuestions,
-                correctAnswers,
-                incorrectAnswers:
-                    totalQuestions - correctAnswers,
-                score,
-                completed: assessment.completed,
-                completedAt: assessment.completed_at,
-                performanceLevel: getPerformanceLevel(score),
-                roadmapLevel: getRoadmapLevel(score),
-            },
-
+            assessment: result,
+            result,
+            answers: evaluatedAnswers,
             categoryResults,
         });
     } catch (error) {

@@ -19,23 +19,30 @@ const menuSections = [
             },
         ],
     },
-    {
-        title: "CAREER",
-        items: [
-            {
-                name: "Career Assessment",
-                path: "/career-assessment",
-            },
-            {
-                name: "Career Roadmap",
-                path: "/career-roadmap",
-            },
-            {
-                name: "AI Career Companion",
-                path: "/career-companion",
-            },
-        ],
-    },
+    
+{
+    title: "CAREER",
+    items: [
+        {
+            name: "Career Roadmap",
+            path: "/career-roadmap",
+        },
+        {
+            name: "AI Career Companion",
+            path: "/career-companion",
+        },
+    ],
+},
+{
+    title: "ASSESSMENTS",
+    items: [
+        {
+            name: "Assessments",
+            path: "/assessments",
+        },
+    ],
+},
+
     {
         title: "LEARNING",
         items: [

@@ -1,0 +1,126 @@
+
+.assessment-center {
+    min-height: 100vh;
+    padding: 42px 32px;
+    background: #f8f7fc;
+    color: #24143f;
+    font-family: Inter, Arial, sans-serif;
+}
+
+.assessment-center-header {
+    max-width: 760px;
+    margin: 0 auto 40px;
+    text-align: center;
+}
+
+.assessment-center-eyebrow {
+    color: #7c3aed;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+}
+
+.assessment-center-header h1 {
+    margin: 14px 0 12px;
+    font-size: clamp(30px, 4vw, 42px);
+}
+
+.assessment-center-header p {
+    color: #71677f;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.assessment-center-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.assessment-center-card {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    border: 1px solid #e9e2f4;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 8px 28px rgba(46, 16, 101, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.assessment-center-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(46, 16, 101, 0.09);
+}
+
+.assessment-center-icon {
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 22px;
+    border-radius: 16px;
+    background: #f0e8ff;
+    font-size: 29px;
+}
+
+.assessment-center-tag {
+    color: #7c3aed;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+}
+
+.assessment-center-card h2 {
+    margin: 12px 0;
+    font-size: 23px;
+}
+
+.assessment-center-card p {
+    color: #71677f;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.assessment-center-card ul {
+    display: grid;
+    gap: 12px;
+    margin: 14px 0 28px;
+    padding-left: 20px;
+    color: #514361;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.assessment-center-card button {
+    width: 100%;
+    margin-top: auto;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #6d28d9;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.assessment-center-card button:hover {
+    background: #4c1d95;
+}
+
+@media (max-width: 700px) {
+    .assessment-center {
+        padding: 28px 18px;
+    }
+
+    .assessment-center-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .assessment-center-card {
+        padding: 24px;
+    }
+}

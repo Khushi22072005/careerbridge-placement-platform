@@ -1,3 +1,4 @@
+
 const express = require("express");
 const router = express.Router();
 
@@ -22,21 +23,47 @@ const roleMap = {
 
 const skillMap = {
     "Software Developer": [
-        "Java", "Python", "JavaScript", "C++", "C#", "TypeScript"
+        "Java",
+        "Python",
+        "JavaScript",
+        "C++",
+        "C#",
+        "TypeScript"
     ],
     "Data Analyst": [
-        "SQL", "Python", "Excel", "Power BI", "Tableau", "R"
+        "SQL",
+        "Python",
+        "Excel",
+        "Power BI",
+        "Tableau",
+        "R"
     ],
     "Cybersecurity": [
-        "Python", "Linux", "Networking", "SQL", "Bash/Shell", "PowerShell"
+        "Python",
+        "Linux",
+        "Networking",
+        "SQL",
+        "Bash/Shell",
+        "PowerShell"
     ],
     "Cloud / DevOps": [
-        "Linux", "AWS", "Azure", "Docker", "Kubernetes",
-        "Terraform", "Python", "Bash/Shell"
+        "Linux",
+        "AWS",
+        "Azure",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "Python",
+        "Bash/Shell"
     ],
     "UI/UX Designer": [
-        "Figma", "UI Design", "UX Design", "User Research",
-        "Prototyping", "HTML/CSS", "Design Systems"
+        "Figma",
+        "UI Design",
+        "UX Design",
+        "User Research",
+        "Prototyping",
+        "HTML/CSS",
+        "Design Systems"
     ]
 };
 
@@ -60,7 +87,9 @@ router.get("/skills/:role", async (req, res) => {
         }
 
         const result = await pool.query(
-            `SELECT category, COUNT(*)::int AS question_count
+            `SELECT
+                category,
+                COUNT(*)::int AS question_count
              FROM career_assessment_questions
              WHERE role = $1
              GROUP BY category`,
@@ -117,10 +146,19 @@ router.get("/questions/:role/:skill", async (req, res) => {
         }
 
         const result = await pool.query(
-            `SELECT id, role, category, question,
-                    option_a, option_b, option_c, option_d, difficulty
+            `SELECT
+                id,
+                role,
+                category,
+                question,
+                option_a,
+                option_b,
+                option_c,
+                option_d,
+                difficulty
              FROM career_assessment_questions
-             WHERE role = $1 AND category = $2
+             WHERE role = $1
+               AND category = $2
              ORDER BY RANDOM()
              LIMIT $3`,
             [selectedRole, skill, REQUIRED_QUESTIONS]
@@ -162,6 +200,10 @@ router.post("/submit", authMiddleware, async (req, res) => {
         const userId = req.user.id;
         const { role, skill, answers } = req.body;
 
+        // ---------------------------------------------
+        // VALIDATE ROLE
+        // ---------------------------------------------
+
         if (!role) {
             return res.status(400).json({
                 message: "Career role is required."
@@ -176,6 +218,10 @@ router.post("/submit", authMiddleware, async (req, res) => {
             });
         }
 
+        // ---------------------------------------------
+        // VALIDATE SKILL
+        // ---------------------------------------------
+
         if (!skill) {
             return res.status(400).json({
                 message: "Assessment skill is required."
@@ -188,6 +234,10 @@ router.post("/submit", authMiddleware, async (req, res) => {
             });
         }
 
+        // ---------------------------------------------
+        // VALIDATE ANSWERS ARRAY
+        // ---------------------------------------------
+
         if (!Array.isArray(answers)) {
             return res.status(400).json({
                 message: "Answers must be an array."
@@ -199,6 +249,10 @@ router.post("/submit", authMiddleware, async (req, res) => {
                 message: `Assessment must contain exactly ${REQUIRED_QUESTIONS} answers. Received ${answers.length}.`
             });
         }
+
+        // ---------------------------------------------
+        // VALIDATE EACH ANSWER
+        // ---------------------------------------------
 
         for (const answer of answers) {
             if (
@@ -227,6 +281,10 @@ router.post("/submit", authMiddleware, async (req, res) => {
             }
         }
 
+        // ---------------------------------------------
+        // CHECK DUPLICATE QUESTION IDS
+        // ---------------------------------------------
+
         const questionIds = answers.map(answer =>
             Number(answer.questionId)
         );
@@ -237,8 +295,23 @@ router.post("/submit", authMiddleware, async (req, res) => {
             });
         }
 
+        // ---------------------------------------------
+        // FETCH QUESTIONS AND CORRECT ANSWERS
+        // Includes question text and options for review
+        // ---------------------------------------------
+
         const questionResult = await pool.query(
-            `SELECT id, role, category, correct_option
+            `SELECT
+                id,
+                role,
+                category,
+                question,
+                option_a,
+                option_b,
+                option_c,
+                option_d,
+                correct_option,
+                difficulty
              FROM career_assessment_questions
              WHERE id = ANY($1::integer[])
                AND role = $2
@@ -252,14 +325,24 @@ router.post("/submit", authMiddleware, async (req, res) => {
             });
         }
 
+        // ---------------------------------------------
+        // CREATE QUESTION LOOKUP
+        // ---------------------------------------------
+
         const questionLookup = new Map();
 
         questionResult.rows.forEach(question => {
             questionLookup.set(Number(question.id), question);
         });
 
+        // ---------------------------------------------
+        // EVALUATE ANSWERS
+        // ---------------------------------------------
+
         let correctAnswers = 0;
+
         const categoryScores = {};
+        const evaluatedQuestions = [];
 
         for (const answer of answers) {
             const question = questionLookup.get(
@@ -272,12 +355,42 @@ router.post("/submit", authMiddleware, async (req, res) => {
                 });
             }
 
-            const isCorrect =
-                question.correct_option === answer.selectedOption;
+            const selectedAnswer = answer.selectedOption;
+            const correctAnswer = question.correct_option;
+
+            const isCorrect = correctAnswer === selectedAnswer;
 
             if (isCorrect) {
                 correctAnswers++;
             }
+
+            // -----------------------------------------
+            // SAVE INDIVIDUAL QUESTION REVIEW DETAILS
+            // -----------------------------------------
+
+            evaluatedQuestions.push({
+                questionId: Number(question.id),
+
+                question: question.question,
+
+                options: {
+                    A: question.option_a,
+                    B: question.option_b,
+                    C: question.option_c,
+                    D: question.option_d
+                },
+
+                category: question.category,
+                difficulty: question.difficulty,
+
+                selectedAnswer,
+                correctAnswer,
+                isCorrect
+            });
+
+            // -----------------------------------------
+            // CATEGORY-WISE SCORING
+            // -----------------------------------------
 
             const category = question.category || "General";
 
@@ -295,12 +408,22 @@ router.post("/submit", authMiddleware, async (req, res) => {
             }
         }
 
+        // ---------------------------------------------
+        // CALCULATE OVERALL SCORE
+        // ---------------------------------------------
+
         const totalQuestions = answers.length;
-        const incorrectAnswers = totalQuestions - correctAnswers;
+
+        const incorrectAnswers =
+            totalQuestions - correctAnswers;
 
         const score = Math.round(
             (correctAnswers / totalQuestions) * 100
         );
+
+        // ---------------------------------------------
+        // CATEGORY RESULTS
+        // ---------------------------------------------
 
         const categoryResults = Object.entries(categoryScores)
             .map(([category, data]) => ({
@@ -311,6 +434,10 @@ router.post("/submit", authMiddleware, async (req, res) => {
                     (data.correct / data.total) * 100
                 )
             }));
+
+        // ---------------------------------------------
+        // PERFORMANCE LEVEL
+        // ---------------------------------------------
 
         let performanceLevel;
 
@@ -324,12 +451,23 @@ router.post("/submit", authMiddleware, async (req, res) => {
             performanceLevel = "Needs Improvement";
         }
 
+        // ---------------------------------------------
+        // SAVE ASSESSMENT SUMMARY TO DATABASE
+        // ---------------------------------------------
+
         await pool.query(
             `INSERT INTO career_assessment_results
              (
-                 user_id, role, role_name, assessment_skill,
-                 total_questions, correct_answers, incorrect_answers,
-                 score, performance_level, category_results
+                 user_id,
+                 role,
+                 role_name,
+                 assessment_skill,
+                 total_questions,
+                 correct_answers,
+                 incorrect_answers,
+                 score,
+                 performance_level,
+                 category_results
              )
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
             [
@@ -346,18 +484,33 @@ router.post("/submit", authMiddleware, async (req, res) => {
             ]
         );
 
+        // ---------------------------------------------
+        // FINAL RESULT
+        // Includes evaluatedQuestions for the frontend
+        // ---------------------------------------------
+
         const result = {
             role,
             roleName: selectedRole,
             skill,
+
             totalQuestions,
             correctAnswers,
             incorrectAnswers,
+
             score,
             performanceLevel,
+
             categoryResults,
+
+            evaluatedQuestions,
+
             completedAt: new Date().toISOString()
         };
+
+        // ---------------------------------------------
+        // SEND RESULT TO FRONTEND
+        // ---------------------------------------------
 
         return res.status(200).json({
             message: "Career assessment submitted successfully.",
@@ -382,8 +535,7 @@ router.get("/history", authMiddleware, async (req, res) => {
         const userId = req.user.id;
 
         const result = await pool.query(
-            `
-            SELECT
+            `SELECT
                 id,
                 role,
                 role_name,
@@ -395,28 +547,33 @@ router.get("/history", authMiddleware, async (req, res) => {
                 performance_level,
                 category_results,
                 completed_at
-            FROM career_assessment_results
-            WHERE user_id = $1
-            ORDER BY completed_at ASC, id ASC
-            `,
+             FROM career_assessment_results
+             WHERE user_id = $1
+             ORDER BY completed_at ASC, id ASC`,
             [userId]
         );
 
-        const attempts = result.rows.map((row) => ({
+        const attempts = result.rows.map(row => ({
             id: row.id,
+
             role: row.role,
             roleName: row.role_name,
             skill: row.assessment_skill,
+
             totalQuestions: Number(row.total_questions),
             correctAnswers: Number(row.correct_answers),
             incorrectAnswers: Number(row.incorrect_answers),
+
             score: Number(row.score),
             percentage: Number(row.score),
+
             performanceLevel: row.performance_level,
+
             categoryResults:
                 typeof row.category_results === "string"
                     ? JSON.parse(row.category_results)
                     : row.category_results,
+
             completedAt: row.completed_at
         }));
 

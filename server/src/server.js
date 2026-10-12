@@ -30,6 +30,9 @@ const learningRoutes =
 const careerDevelopmentRoutes =
     require("../routes/careerDevelopmentRoutes");
     
+const aptitudeRoutes =
+    require("../routes/aptitudeRoutes");
+
 
 const app = express();
 
@@ -124,6 +127,15 @@ app.use(
 app.use(
     "/api/career-companion",
     careerCompanionRoutes
+);
+
+ // =====================================================
+// APTITUDE PRACTICE
+// =====================================================
+
+app.use(
+    "/api/aptitude",
+    aptitudeRoutes
 );
 
 

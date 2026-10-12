@@ -6,7 +6,7 @@ const cors = require("cors");
 const authRoutes = require("../routes/authRoutes");
 const dashboardRoutes = require("../routes/dashboardRoutes");
 const profileRoutes = require("../routes/profileRoutes");
-const assessmentRoutes = require("../routes/assessmentRoutes");
+const assessmentRoutes = require("./routes/assessmentRoutes");
 const technicalAssessmentRoutes =
     require("../routes/technicalAssessmentRoutes");
 

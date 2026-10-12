@@ -18,6 +18,12 @@ import Settings from "./pages/Settings";
 import LearningHub from "./pages/LearningHub";
 import CareerDevelopment from "./pages/CareerDevelopment";
 import CareerCompanion from "./pages/CareerCompanion";
+import AssessmentCenter from "./pages/AssessmentCenter";
+
+import AptitudePractice from "./pages/AptitudePractice";
+import AptitudeTest from "./pages/AptitudeTest";
+import AptitudeResult from "./pages/AptitudeResult";
+
 
 function App() {
   return (
@@ -69,6 +75,25 @@ function App() {
       <Route
   path="/career-companion"
   element={<CareerCompanion />}
+/>
+
+<Route
+  path="/aptitude-practice"
+  element={<AptitudePractice />}
+/>
+
+<Route
+  path="/aptitude-test/:assessmentId"
+  element={<AptitudeTest />}
+/>
+
+<Route
+  path="/aptitude-result/:assessmentId"
+  element={<AptitudeResult />}
+/>
+<Route
+    path="/assessments"
+    element={<AssessmentCenter />}
 />
 
       {/* =======================

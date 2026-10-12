@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AssessmentResult.css";
@@ -39,6 +40,7 @@ const getScore = (result) => {
 
   if (value !== undefined && value !== null && value !== "") {
     const score = Number(value);
+
     if (Number.isFinite(score)) {
       return Math.max(0, Math.min(100, Math.round(score)));
     }
@@ -48,6 +50,7 @@ const getScore = (result) => {
     result.correctAnswers ?? result.correct,
     0
   );
+
   const total = getNumber(
     result.totalQuestions ?? result.total,
     0
@@ -70,22 +73,49 @@ const getSavedResult = () => {
       storageType === "session" ? sessionStorage : localStorage;
 
     const stored = storage.getItem(key);
+
     if (!stored) continue;
 
     try {
       const parsed = JSON.parse(stored);
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+
+      if (
+        !parsed ||
+        typeof parsed !== "object" ||
+        Array.isArray(parsed)
+      ) {
         continue;
       }
 
-      const result =
+      const savedResult =
         parsed.result &&
         typeof parsed.result === "object" &&
         !Array.isArray(parsed.result)
           ? parsed.result
           : parsed;
 
-      return result;
+      // Preserve answer details stored beside the result.
+     
+const answers = [
+  savedResult.evaluatedQuestions,
+  savedResult.answers,
+  savedResult.answerDetails,
+  savedResult.questionResults,
+  savedResult.questions,
+  parsed.evaluatedQuestions,
+  parsed.answers,
+  parsed.answerDetails,
+  parsed.questionResults,
+  parsed.questions,
+].find(
+  (item) => Array.isArray(item) && item.length > 0
+) || [];
+
+
+      return {
+        ...savedResult,
+        answers,
+      };
     } catch (error) {
       console.error(`Could not parse ${key}:`, error);
     }
@@ -98,7 +128,10 @@ const formatCompletedDate = (dateValue) => {
   if (!dateValue) return "Date not available";
 
   const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) return "Date not available";
+
+  if (Number.isNaN(date.getTime())) {
+    return "Date not available";
+  }
 
   return date.toLocaleString(undefined, {
     day: "numeric",
@@ -126,13 +159,78 @@ const getPerformanceMessage = (score) => {
     return "This attempt indicates that there are several questions to revisit. Review the relevant learning material and consider retaking the assessment.";
   }
 
-  return "This attempt shows that more practice may be useful before moving on. Review the learning material for this skill and try the assessment again when you feel ready.";
+  return "";
+};
+
+const getAnswerDetails = (answer) => {
+  const selected =
+    answer.selectedAnswer ??
+    answer.selected_answer ??
+    answer.selectedOption ??
+    answer.selected_option ??
+    answer.userAnswer ??
+    answer.user_answer;
+
+  const correct =
+    answer.correctAnswer ??
+    answer.correct_answer ??
+    answer.correctOption ??
+    answer.correct_option ??
+    answer.answerKey ??
+    answer.answer_key;
+
+  let isCorrect = null;
+
+  if (typeof answer.isCorrect === "boolean") {
+    isCorrect = answer.isCorrect;
+  } else if (typeof answer.is_correct === "boolean") {
+    isCorrect = answer.is_correct;
+  } else if (
+    selected !== undefined &&
+    selected !== null &&
+    correct !== undefined &&
+    correct !== null
+  ) {
+    isCorrect =
+      String(selected).trim().toLowerCase() ===
+      String(correct).trim().toLowerCase();
+  }
+
+  return { selected, correct, isCorrect };
+};
+
+const getOptionText = (answer, value) => {
+  if (value === undefined || value === null || value === "") {
+    return "Not answered";
+  }
+
+  const options = {
+    A: answer.optionA ?? answer.option_a,
+    B: answer.optionB ?? answer.option_b,
+    C: answer.optionC ?? answer.option_c,
+    D: answer.optionD ?? answer.option_d,
+  };
+
+  const normalized = String(value).trim();
+  const letter = normalized.toUpperCase();
+
+  if (
+    options[letter] !== undefined &&
+    options[letter] !== null &&
+    options[letter] !== ""
+  ) {
+    return `${letter}. ${options[letter]}`;
+  }
+
+  return normalized;
 };
 
 function AssessmentResult() {
   const navigate = useNavigate();
 
   const [result, setResult] = useState(null);
+  const [answers, setAnswers] = useState([]);
+  const [answersOpen, setAnswersOpen] = useState(false);
   const [storedRole, setStoredRole] = useState("");
   const [storedSkill, setStoredSkill] = useState("");
   const [loading, setLoading] = useState(true);
@@ -156,7 +254,10 @@ function AssessmentResult() {
 
       if (saved) {
         setResult(saved);
+        setAnswers(saved.answers || []);
+
         console.log("Assessment result loaded:", saved);
+        console.log("Assessment answers loaded:", saved.answers || []);
       } else {
         console.warn("No saved assessment result found.");
       }
@@ -196,7 +297,9 @@ function AssessmentResult() {
     )
   );
 
-  const completedAt = formatCompletedDate(result?.completedAt);
+  const completedAt = formatCompletedDate(
+    result?.completedAt ?? result?.completed_at
+  );
 
   const performance =
     result?.performanceLevel ||
@@ -225,6 +328,7 @@ function AssessmentResult() {
     sessionStorage.removeItem("assessmentResult");
     localStorage.removeItem("assessmentResult");
     localStorage.removeItem("technicalAssessmentResult");
+
     navigate("/career-assessment");
   };
 
@@ -261,7 +365,7 @@ function AssessmentResult() {
           </button>
 
           <div className="result-brand">
-            <div className="result-brand-logo">C</div>
+            
             <div>
               <strong>CareerBridge</strong>
               <span>Assessment Report</span>
@@ -273,9 +377,11 @@ function AssessmentResult() {
           <div className="empty-icon">!</div>
           <h1>Assessment Result Not Found</h1>
           <p>
-            We could not find a saved result for this attempt. Please
-            complete the assessment again to generate your report.
+            We could not find a saved result for this attempt.
+            Please complete the assessment again to generate
+            your report.
           </p>
+
           <button
             type="button"
             className="primary-result-button"
@@ -300,7 +406,7 @@ function AssessmentResult() {
         </button>
 
         <div className="result-brand">
-          <div className="result-brand-logo">C</div>
+          
           <div>
             <strong>CareerBridge</strong>
             <span>Assessment Report</span>
@@ -312,7 +418,7 @@ function AssessmentResult() {
         {/* REPORT INTRO */}
         <section className="result-intro">
           <p className="result-intro-label">ASSESSMENT REPORT</p>
-          <h1>Your Assessment Results</h1>
+          
           <p>
             Review your score and answer summary for the completed
             assessment.
@@ -322,10 +428,10 @@ function AssessmentResult() {
         {/* ASSESSMENT SUMMARY */}
         <section className="result-section">
           <div className="result-section-heading">
-            <div className="result-section-icon">📋</div>
+            <div className="result-section-icon"></div>
             <div>
               <h2>Assessment Summary</h2>
-              <p>Details of your completed assessment.</p>
+              
             </div>
           </div>
 
@@ -369,7 +475,9 @@ function AssessmentResult() {
           </div>
 
           <div className="score-content">
-            <p className="score-small-label">ASSESSMENT PERFORMANCE</p>
+            <p className="score-small-label">
+              ASSESSMENT PERFORMANCE
+            </p>
             <h2>{performance}</h2>
             <p>{getPerformanceMessage(score)}</p>
 
@@ -378,10 +486,12 @@ function AssessmentResult() {
                 <strong>{correctAnswers}</strong>
                 <span>Correct</span>
               </div>
+
               <div>
                 <strong>{incorrectAnswers}</strong>
                 <span>Incorrect</span>
               </div>
+
               <div>
                 <strong>{totalQuestions}</strong>
                 <span>Total</span>
@@ -393,10 +503,10 @@ function AssessmentResult() {
         {/* ANSWER BREAKDOWN */}
         <section className="result-section">
           <div className="result-section-heading">
-            <div className="result-section-icon">📊</div>
+            <div className="result-section-icon"></div>
             <div>
               <h2>Answer Breakdown</h2>
-              <p>How your submitted answers were scored.</p>
+              
             </div>
           </div>
 
@@ -412,90 +522,165 @@ function AssessmentResult() {
             </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              width: "100%",
-              height: "18px",
-              overflow: "hidden",
-              borderRadius: "999px",
-              background: "#e9e5f2",
-              marginTop: "22px",
-            }}
-            aria-label={`${correctAnswers} correct and ${incorrectAnswers} incorrect answers`}
-          >
+          <div className="answer-progress-bar">
             <div
-              style={{
-                width: correctWidth,
-                background: "#16a34a",
-                transition: "width 0.4s ease",
-              }}
+              className="answer-progress-correct"
+              style={{ width: correctWidth }}
             />
             <div
-              style={{
-                width: incorrectWidth,
-                background: "#ef4444",
-                transition: "width 0.4s ease",
-              }}
+              className="answer-progress-incorrect"
+              style={{ width: incorrectWidth }}
             />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "20px",
-              marginTop: "14px",
-            }}
-          >
+          <div className="answer-progress-legend">
             <span>
-              <span
-                style={{
-                  display: "inline-block",
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  background: "#16a34a",
-                  marginRight: "7px",
-                }}
-              />
+              <i className="legend-dot correct-dot" />
               Correct: {correctAnswers}
             </span>
 
             <span>
-              <span
-                style={{
-                  display: "inline-block",
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  background: "#ef4444",
-                  marginRight: "7px",
-                }}
-              />
+              <i className="legend-dot incorrect-dot" />
               Incorrect: {incorrectAnswers}
             </span>
+          </div>
+
+          {/* COLLAPSIBLE ANSWER REVIEW */}
+          <div className="answer-review">
+            <button
+              type="button"
+              className="answer-review-toggle"
+              onClick={() =>
+                setAnswersOpen((previous) => !previous)
+              }
+              aria-expanded={answersOpen}
+            >
+              <span className="answer-review-title">
+                <span className="answer-review-icon"></span>
+
+                <span>
+                  <strong>Review Your Answers</strong>
+                  <small>
+                    View questions, your answers, and correct answers
+                  </small>
+                </span>
+              </span>
+
+              <span
+                className={`answer-review-chevron ${
+                  answersOpen ? "is-open" : ""
+                }`}
+              >
+                ▾
+              </span>
+            </button>
+
+            {answersOpen && (
+              <div className="answer-review-content">
+                {answers.length === 0 ? (
+                  <div className="answer-review-empty">
+                    <strong>
+                      Individual answer details are not available.
+                    </strong>
+                    <p>
+                      Your score summary is available, but the saved
+                      result does not contain the individual questions
+                      and answers. The technical assessment API must
+                      return those details to display them here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="answer-review-list">
+                    {answers.map((answer, index) => {
+                      const {
+                        selected,
+                        correct,
+                        isCorrect,
+                      } = getAnswerDetails(answer);
+
+                      return (
+                        <article
+                          key={
+                            answer.questionId ??
+                            answer.question_id ??
+                            index
+                          }
+                          className={`answer-review-card ${
+                            isCorrect === true
+                              ? "answer-review-correct"
+                              : isCorrect === false
+                              ? "answer-review-incorrect"
+                              : ""
+                          }`}
+                        >
+                          <div className="answer-review-card-heading">
+                            <span>Question {index + 1}</span>
+
+                            <span
+                              className={`answer-review-status ${
+                                isCorrect === true
+                                  ? "status-correct"
+                                  : isCorrect === false
+                                  ? "status-incorrect"
+                                  : "status-unknown"
+                              }`}
+                            >
+                              {isCorrect === true
+                                ? "✓ Correct"
+                                : isCorrect === false
+                                ? "✕ Incorrect"
+                                : "Unverified"}
+                            </span>
+                          </div>
+
+                          <h3>
+                            {answer.question ??
+                              answer.questionText ??
+                              answer.question_text ??
+                              `Question ${index + 1}`}
+                          </h3>
+
+                          <div className="answer-review-detail">
+                            <span>Your Answer</span>
+                            <strong>
+                              {getOptionText(answer, selected)}
+                            </strong>
+                          </div>
+
+                          <div className="answer-review-detail correct-answer-detail">
+                            <span>Correct Answer</span>
+                            <strong>
+                              {getOptionText(answer, correct)}
+                            </strong>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
 
         {/* SCORE INTERPRETATION */}
         <section className="result-section">
           <div className="result-section-heading">
-            <div className="result-section-icon">📝</div>
+            <div className="result-section-icon"></div>
             <div>
               <h2>Score Interpretation</h2>
-              <p>A brief explanation of your assessment outcome.</p>
+             
             </div>
           </div>
 
           <div className="skill-placeholder">
             <strong>{performance}</strong>
             <span>
-              You scored {score}% by answering {correctAnswers} out of{" "}
-              {totalQuestions} questions correctly. This result reflects
-              your performance on this assessment attempt only. It is
-              not a complete measure of your overall ability or career
-              readiness.
+              You scored {score}% by answering {correctAnswers} out
+              of {totalQuestions} questions correctly. This result
+              reflects your performance on this assessment attempt
+              only. It is not a complete measure of your overall
+              ability or career readiness.
             </span>
           </div>
         </section>
@@ -503,10 +688,10 @@ function AssessmentResult() {
         {/* NEXT STEPS */}
         <section className="result-section">
           <div className="result-section-heading">
-            <div className="result-section-icon">🚀</div>
+            <div className="result-section-icon"></div>
             <div>
               <h2>What You Can Do Next</h2>
-              <p>Continue your preparation with CareerBridge.</p>
+             
             </div>
           </div>
 
@@ -516,8 +701,9 @@ function AssessmentResult() {
               <div>
                 <strong>Review the assessed skill</strong>
                 <p>
-                  Revisit the learning material for {skill || "this skill"}
-                  and practise questions related to the assessment.
+                  Revisit the learning material for{" "}
+                  {skill || "this skill"} and practise questions
+                  related to the assessment.
                 </p>
               </div>
             </div>
@@ -527,8 +713,8 @@ function AssessmentResult() {
               <div>
                 <strong>Continue your career preparation</strong>
                 <p>
-                  Explore your career roadmap and keep working toward
-                  your learning goals.
+                  Explore your career roadmap and keep working
+                  toward your learning goals.
                 </p>
               </div>
             </div>
@@ -538,8 +724,8 @@ function AssessmentResult() {
               <div>
                 <strong>Retake when you are ready</strong>
                 <p>
-                  After practising, take the assessment again to review
-                  your performance on a new attempt.
+                  After practising, take the assessment again to
+                  review your performance on a new attempt.
                 </p>
               </div>
             </div>

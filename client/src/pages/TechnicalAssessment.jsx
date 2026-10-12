@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import "./TechnicalAssessment.css";
 
@@ -20,6 +21,10 @@ const TechnicalAssessment = () => {
     "cloud-devops": "Cloud / DevOps Engineer",
     "ui-ux": "UI/UX Designer",
   };
+
+  // =====================================================
+  // LOAD SELECTED ROLE, SKILL AND USER
+  // =====================================================
 
   useEffect(() => {
     const selectedRole = localStorage.getItem("selectedCareerRole");
@@ -44,12 +49,13 @@ const TechnicalAssessment = () => {
     fetchQuestions(email, selectedRole, selectedSkill);
   }, []);
 
-  /*
-   * FETCH ROLE- AND SKILL-SPECIFIC QUESTIONS
-   *
-   * Backend route:
-   * GET /api/technical-assessment/questions/:email?role=...&skill=...
-   */
+  // =====================================================
+  // FETCH ROLE- AND SKILL-SPECIFIC QUESTIONS
+  //
+  // GET /api/technical-assessment/questions/:email
+  //     ?role=...&skill=...
+  // =====================================================
+
   const fetchQuestions = async (email, selectedRole, selectedSkill) => {
     try {
       setLoading(true);
@@ -78,7 +84,9 @@ const TechnicalAssessment = () => {
       }
 
       if (!Array.isArray(data.questions) || data.questions.length === 0) {
-        throw new Error("No questions are available for this role and skill.");
+        throw new Error(
+          "No questions are available for this role and skill."
+        );
       }
 
       setAssessmentId(data.assessmentId);
@@ -88,21 +96,20 @@ const TechnicalAssessment = () => {
     } catch (error) {
       console.error("Question loading error:", error);
 
-      alert(
-        error.message || "Unable to load assessment questions."
-      );
+      alert(error.message || "Unable to load assessment questions.");
     } finally {
       setLoading(false);
     }
   };
 
-  /*
-   * SELECT ANSWER
-   */
+  // =====================================================
+  // SELECT ANSWER
+  // =====================================================
+
   const handleAnswer = (option) => {
     const question = questions[currentQuestion];
 
-    if (!question) return;
+    if (!question || submitting) return;
 
     setAnswers((previous) => ({
       ...previous,
@@ -110,13 +117,14 @@ const TechnicalAssessment = () => {
     }));
   };
 
-  /*
-   * NEXT QUESTION OR SUBMIT
-   */
+  // =====================================================
+  // NEXT QUESTION OR SUBMIT
+  // =====================================================
+
   const handleNext = () => {
     const question = questions[currentQuestion];
 
-    if (!question) return;
+    if (!question || submitting) return;
 
     if (!answers[question.id]) {
       alert("Please select an answer before continuing.");
@@ -131,29 +139,37 @@ const TechnicalAssessment = () => {
     handleSubmit();
   };
 
-  /*
-   * PREVIOUS QUESTION
-   */
+  // =====================================================
+  // PREVIOUS QUESTION
+  // =====================================================
+
   const handlePrevious = () => {
     if (currentQuestion > 0 && !submitting) {
       setCurrentQuestion((previous) => previous - 1);
     }
   };
 
-  /*
-   * SUBMIT ANSWERS
-   *
-   * Backend expects:
-   * {
-   *   assessmentId,
-   *   answers: [{ questionId, selectedOption }]
-   * }
-   */
+  // =====================================================
+  // SUBMIT ASSESSMENT
+  //
+  // POST /api/technical-assessment/submit
+  //
+  // Saves:
+  // - Assessment summary
+  // - Score and performance level
+  // - Question text and options
+  // - Selected answer
+  // - Correct answer
+  // - Correct/incorrect status
+  // =====================================================
+
   const handleSubmit = async () => {
     if (submitting) return;
 
     if (!assessmentId) {
-      alert("Assessment information is missing. Please reload the assessment.");
+      alert(
+        "Assessment information is missing. Please reload the assessment."
+      );
       return;
     }
 
@@ -167,6 +183,7 @@ const TechnicalAssessment = () => {
       );
 
       setCurrentQuestion(unansweredIndex);
+
       alert("Please answer all questions before submitting.");
       return;
     }
@@ -174,6 +191,7 @@ const TechnicalAssessment = () => {
     try {
       setSubmitting(true);
 
+      // Format answers for the backend.
       const formattedAnswers = questions.map((question) => ({
         questionId: question.id,
         selectedOption: answers[question.id],
@@ -205,26 +223,66 @@ const TechnicalAssessment = () => {
         );
       }
 
+      // The backend should return the result summary and
+      // evaluatedAnswers containing question-by-question details.
+      const resultData = data.result || data;
+
+      const evaluatedAnswers =
+        resultData.evaluatedAnswers ||
+        resultData.answers ||
+        data.answers ||
+        [];
+
+      // Save everything in one consistent object.
+      const savedResult = {
+        ...resultData,
+
+        assessmentId:
+          resultData.assessmentId || assessmentId,
+
+        role: resultData.role || role,
+
+        roleTitle:
+          resultData.roleTitle || roleNames[role] || role,
+
+        skill: resultData.skill || skill,
+
+        totalQuestions:
+          resultData.totalQuestions || questions.length,
+
+        // Keep the detailed answers under both keys so
+        // the result page can read either format.
+        answers: evaluatedAnswers,
+        evaluatedAnswers: evaluatedAnswers,
+      };
+
+      // Save the new result for the result page.
       localStorage.setItem(
         "technicalAssessmentResult",
-        JSON.stringify(data)
+        JSON.stringify(savedResult)
       );
 
+      // Also save the selected role and skill consistently.
+      localStorage.setItem("selectedCareerRole", role);
+      localStorage.setItem("selectedCareerSkill", skill);
+
+      console.log("Saved Technical Assessment Result:", savedResult);
+
+      // Navigate only after successfully saving the result.
       window.location.href = "/technical-assessment/result";
     } catch (error) {
       console.error("Assessment submission error:", error);
 
-      alert(
-        error.message || "Unable to submit assessment."
-      );
+      alert(error.message || "Unable to submit assessment.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  /*
-   * LOADING SCREEN
-   */
+  // =====================================================
+  // LOADING SCREEN
+  // =====================================================
+
   if (loading) {
     return (
       <div className="technical-loading">
@@ -239,9 +297,10 @@ const TechnicalAssessment = () => {
     );
   }
 
-  /*
-   * NO QUESTIONS / FETCH FAILURE
-   */
+  // =====================================================
+  // NO QUESTIONS / FETCH FAILURE
+  // =====================================================
+
   if (!questions.length) {
     return (
       <div className="technical-empty">
@@ -251,7 +310,8 @@ const TechnicalAssessment = () => {
 
         <p>
           Questions for this role and skill may still be
-          under preparation. Please choose another option or try again later.
+          under preparation. Please choose another option
+          or try again later.
         </p>
 
         <button
@@ -265,6 +325,10 @@ const TechnicalAssessment = () => {
       </div>
     );
   }
+
+  // =====================================================
+  // CURRENT QUESTION
+  // =====================================================
 
   const question = questions[currentQuestion];
 
@@ -290,9 +354,10 @@ const TechnicalAssessment = () => {
   const progress =
     ((currentQuestion + 1) / questions.length) * 100;
 
-  /*
-   * MAIN ASSESSMENT SCREEN
-   */
+  // =====================================================
+  // MAIN ASSESSMENT SCREEN
+  // =====================================================
+
   return (
     <div className="technical-page">
       {/* HEADER */}
@@ -365,7 +430,7 @@ const TechnicalAssessment = () => {
 
           <h2>{question.question}</h2>
 
-          {/* OPTIONS */}
+          {/* ANSWER OPTIONS */}
           <div className="answers-list">
             {[
               ["A", question.option_a],
@@ -384,9 +449,13 @@ const TechnicalAssessment = () => {
                   disabled={submitting}
                   onClick={() => handleAnswer(option)}
                 >
-                  <span className="answer-letter">{option}</span>
+                  <span className="answer-letter">
+                    {option}
+                  </span>
 
-                  <span className="answer-text">{optionText}</span>
+                  <span className="answer-text">
+                    {optionText}
+                  </span>
 
                   <span className="answer-check">
                     {selectedAnswer === option ? "✓" : ""}
@@ -396,7 +465,7 @@ const TechnicalAssessment = () => {
           </div>
         </section>
 
-        {/* ACTIONS */}
+        {/* NAVIGATION ACTIONS */}
         <div className="technical-actions">
           <button
             type="button"
@@ -422,7 +491,7 @@ const TechnicalAssessment = () => {
         </div>
 
         <p className="assessment-security">
-          🔒 Your answers are used to calculate your role
+          Your answers are used to calculate your role
           preparation score.
         </p>
       </main>
