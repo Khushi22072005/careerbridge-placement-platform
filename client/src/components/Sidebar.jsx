@@ -1,28 +1,12 @@
-
-
 import React, { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import {
-    LayoutDashboard,
-    ClipboardCheck,
-    Map,
-    BookOpen,
-    TrendingUp,
-    FileText,
-    ScanSearch,
-    Video,
-    UserRound,
-    Settings,
-    LogOut,
-    BriefcaseBusiness,
-    Menu,
-    X,
-    ChevronLeft,
-    ChevronRight,
-} from "lucide-react";
 
 import "./Sidebar.css";
 import logoImg from "../assets/images/logo.jpeg";
+
+// =====================================================
+// SIDEBAR MENU SECTIONS
+// =====================================================
 
 const menuSections = [
     {
@@ -31,7 +15,6 @@ const menuSections = [
             {
                 name: "Dashboard",
                 path: "/dashboard",
-                icon: LayoutDashboard,
                 end: true,
             },
         ],
@@ -42,12 +25,14 @@ const menuSections = [
             {
                 name: "Career Assessment",
                 path: "/career-assessment",
-                icon: ClipboardCheck,
             },
             {
                 name: "Career Roadmap",
                 path: "/career-roadmap",
-                icon: Map,
+            },
+            {
+                name: "AI Career Companion",
+                path: "/career-companion",
             },
         ],
     },
@@ -57,9 +42,7 @@ const menuSections = [
             {
                 name: "Learning Hub",
                 path: "/learning-hub",
-                icon: BookOpen,
             },
-            
         ],
     },
     {
@@ -68,12 +51,10 @@ const menuSections = [
             {
                 name: "Resume Builder",
                 path: "/resume-builder",
-                icon: FileText,
             },
             {
                 name: "Resume Analyzer",
                 path: "/resume-analyzer",
-                icon: ScanSearch,
             },
         ],
     },
@@ -83,9 +64,7 @@ const menuSections = [
             {
                 name: "Mock Interviews",
                 path: "/interview",
-                icon: Video,
             },
-            
         ],
     },
     {
@@ -94,16 +73,18 @@ const menuSections = [
             {
                 name: "My Profile",
                 path: "/profile",
-                icon: UserRound,
             },
             {
                 name: "Settings",
                 path: "/settings",
-                icon: Settings,
             },
         ],
     },
 ];
+
+// =====================================================
+// SIDEBAR COMPONENT
+// =====================================================
 
 const Sidebar = () => {
     const navigate = useNavigate();
@@ -111,9 +92,15 @@ const Sidebar = () => {
 
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
+
     const [isMobile, setIsMobile] = useState(
-        typeof window !== "undefined" && window.innerWidth <= 700
+        typeof window !== "undefined" &&
+        window.innerWidth <= 700
     );
+
+    // =====================================================
+    // RESPONSIVE SIDEBAR
+    // =====================================================
 
     useEffect(() => {
         const handleResize = () => {
@@ -133,12 +120,18 @@ const Sidebar = () => {
         };
     }, []);
 
+    // Close mobile sidebar after navigation.
+
     useEffect(() => {
         setIsMobileOpen(false);
     }, [location.pathname]);
 
+    // Close mobile sidebar using Escape.
+
     useEffect(() => {
-        if (!isMobileOpen || !isMobile) return undefined;
+        if (!isMobileOpen || !isMobile) {
+            return undefined;
+        }
 
         const handleEscape = (event) => {
             if (event.key === "Escape") {
@@ -153,12 +146,17 @@ const Sidebar = () => {
         };
     }, [isMobileOpen, isMobile]);
 
+    // =====================================================
+    // SIDEBAR ACTIONS
+    // =====================================================
+
     const handleLogout = () => {
         localStorage.removeItem("userEmail");
         localStorage.removeItem("email");
         localStorage.removeItem("token");
 
         setIsMobileOpen(false);
+
         navigate("/login", { replace: true });
     };
 
@@ -174,19 +172,28 @@ const Sidebar = () => {
         setIsMobileOpen(false);
     };
 
+    // =====================================================
+    // RENDER
+    // =====================================================
+
     return (
         <>
             {/* MOBILE TOP BAR */}
+
             <header className="cb-mobile-topbar">
                 <button
                     type="button"
                     className="cb-mobile-menu-button"
                     onClick={toggleMobileMenu}
-                    aria-label={isMobileOpen ? "Close navigation" : "Open navigation"}
+                    aria-label={
+                        isMobileOpen
+                            ? "Close navigation"
+                            : "Open navigation"
+                    }
                     aria-expanded={isMobileOpen}
                     aria-controls="careerbridge-sidebar"
                 >
-                    {isMobileOpen ? <X size={23} /> : <Menu size={23} />}
+                    {isMobileOpen ? "✕" : "☰"}
                 </button>
 
                 <div className="cb-mobile-brand">
@@ -194,10 +201,14 @@ const Sidebar = () => {
                     <span>CareerBridge</span>
                 </div>
 
-                <span className="cb-mobile-brand-spacer" aria-hidden="true" />
+                <span
+                    className="cb-mobile-brand-spacer"
+                    aria-hidden="true"
+                />
             </header>
 
             {/* MOBILE OVERLAY */}
+
             {isMobile && isMobileOpen && (
                 <button
                     type="button"
@@ -209,18 +220,24 @@ const Sidebar = () => {
             )}
 
             {/* SIDEBAR */}
+
             <aside
                 id="careerbridge-sidebar"
                 className={[
                     "sidebar",
-                    isCollapsed && !isMobile ? "sidebar-collapsed" : "",
-                    isMobileOpen ? "sidebar-mobile-open" : "",
+                    isCollapsed && !isMobile
+                        ? "sidebar-collapsed"
+                        : "",
+                    isMobileOpen
+                        ? "sidebar-mobile-open"
+                        : "",
                 ]
                     .filter(Boolean)
                     .join(" ")}
                 aria-label="Main navigation"
             >
                 {/* BRAND */}
+
                 <div className="sidebar-logo">
                     <NavLink
                         to="/dashboard"
@@ -241,6 +258,7 @@ const Sidebar = () => {
                     </NavLink>
 
                     {/* DESKTOP COLLAPSE BUTTON */}
+
                     {!isMobile && (
                         <button
                             type="button"
@@ -257,16 +275,13 @@ const Sidebar = () => {
                                     : "Collapse sidebar"
                             }
                         >
-                            {isCollapsed ? (
-                                <ChevronRight size={17} />
-                            ) : (
-                                <ChevronLeft size={17} />
-                            )}
+                            {isCollapsed ? "›" : "‹"}
                         </button>
                     )}
                 </div>
 
                 {/* NAVIGATION */}
+
                 <nav className="sidebar-nav">
                     {menuSections.map((section) => (
                         <div
@@ -277,38 +292,37 @@ const Sidebar = () => {
                                 {section.title}
                             </p>
 
-                            {section.items.map((item) => {
-                                const Icon = item.icon;
-
-                                return (
-                                    
-<NavLink
-    key={item.path}
-    to={item.path}
-    end={item.end}
-    title={isCollapsed && !isMobile ? item.name : undefined}
-    className={({ isActive }) =>
-        [
-            "sidebar-link",
-            isActive ? "active" : "",
-        ]
-            .filter(Boolean)
-            .join(" ")
-    }
-    onClick={closeMobileMenu}
->
-    <span className="sidebar-link-text">
-        {item.name}
-    </span>
-</NavLink>
-
-                                );
-                            })}
+                            {section.items.map((item) => (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    end={item.end}
+                                    title={
+                                        isCollapsed && !isMobile
+                                            ? item.name
+                                            : undefined
+                                    }
+                                    className={({ isActive }) =>
+                                        [
+                                            "sidebar-link",
+                                            isActive ? "active" : "",
+                                        ]
+                                            .filter(Boolean)
+                                            .join(" ")
+                                    }
+                                    onClick={closeMobileMenu}
+                                >
+                                    <span className="sidebar-link-text">
+                                        {item.name}
+                                    </span>
+                                </NavLink>
+                            ))}
                         </div>
                     ))}
                 </nav>
 
                 {/* LOGOUT */}
+
                 <div className="sidebar-bottom">
                     <button
                         type="button"
@@ -320,20 +334,15 @@ const Sidebar = () => {
                                 : undefined
                         }
                     >
-                        <span className="sidebar-icon">
-                            <LogOut size={19} strokeWidth={1.9} />
-                        </span>
-
                         <span className="sidebar-link-text">
                             Logout
                         </span>
                     </button>
 
                     <div className="sidebar-footer-note">
-                        <span className="sidebar-footer-dot" />
-                        <span className="sidebar-link-text">
-                            Your journey starts here
-                        </span>
+                        
+
+                       
                     </div>
                 </div>
             </aside>

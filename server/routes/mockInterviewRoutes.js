@@ -1,25 +1,23 @@
-
 const express = require("express");
 const { GoogleGenAI } = require("@google/genai");
 
 const router = express.Router();
 
 /* =========================================================
-   GEMINI CLIENT
+   GEMINI CLIENT AND MODEL
 ========================================================= */
 
 if (!process.env.GEMINI_API_KEY) {
-    console.error(
-        "GEMINI_API_KEY is missing from server/.env"
-    );
+    console.error("GEMINI_API_KEY is missing from server/.env");
 }
 
 const gemini = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY || "",
 });
 
+// Uses the model configured in server/.env.
 const GEMINI_MODEL =
-    process.env.GEMINI_MODEL || "gemini-3.6-flash";
+    process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
 
 const MAX_QUESTIONS = 10;
 
@@ -94,8 +92,7 @@ const SKILLS_BY_ROLE = {
 ========================================================= */
 
 const normalizeInterviewMode = (mode) => {
-    if (mode === "hr") return "hr";
-    return "technical";
+    return mode === "hr" ? "hr" : "technical";
 };
 
 /* =========================================================
@@ -112,10 +109,7 @@ const getTechnicalSkill = (role, skill) => {
         return skill;
     }
 
-    if (
-        Array.isArray(roleSkills) &&
-        roleSkills.length > 0
-    ) {
+    if (Array.isArray(roleSkills) && roleSkills.length > 0) {
         return roleSkills[0];
     }
 
@@ -128,9 +122,7 @@ const getTechnicalSkill = (role, skill) => {
 
 const parseAIJson = (text) => {
     if (!text) {
-        throw new Error(
-            "Gemini returned an empty response."
-        );
+        throw new Error("Gemini returned an empty response.");
     }
 
     const cleaned = text
@@ -160,10 +152,7 @@ const normalizeScore = (value) => {
         return 0;
     }
 
-    return Math.max(
-        0,
-        Math.min(100, Math.round(number))
-    );
+    return Math.max(0, Math.min(100, Math.round(number)));
 };
 
 /* =========================================================
@@ -180,7 +169,11 @@ const safeArray = (value) =>
 
 /* =========================================================
    GENERATE CONTENT WITH GEMINI
-   RETRY TEMPORARY FAILURES
+
+   IMPORTANT:
+   - Uses GEMINI_MODEL from .env.
+   - Does not repeatedly retry quota-exceeded errors.
+   - Retries only selected temporary service/network errors.
 ========================================================= */
 
 const generateWithGemini = async (prompt) => {
@@ -192,25 +185,20 @@ const generateWithGemini = async (prompt) => {
 
     const MAX_RETRIES = 3;
 
-    for (
-        let attempt = 1;
-        attempt <= MAX_RETRIES;
-        attempt++
-    ) {
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         try {
             console.log(
-                `Sending Gemini request: ${attempt}/${MAX_RETRIES}`
+                `Gemini model: ${GEMINI_MODEL} | Attempt: ${attempt}/${MAX_RETRIES}`
             );
 
-            const response =
-                await gemini.models.generateContent({
-                    model: GEMINI_MODEL,
-                    contents: prompt,
-                });
+            const response = await gemini.models.generateContent({
+                model: GEMINI_MODEL,
+                contents: prompt,
+            });
 
             const text = response.text;
 
-            if (!text) {
+            if (!text || !text.trim()) {
                 throw new Error(
                     "Gemini returned an empty response."
                 );
@@ -221,35 +209,40 @@ const generateWithGemini = async (prompt) => {
             const status =
                 Number(error?.status || error?.code) || 0;
 
-            const message =
-                error?.message || "";
+            const message = error?.message || "";
+            const lowerMessage = message.toLowerCase();
 
-            const lowerMessage =
-                message.toLowerCase();
+            console.error("Gemini request failed:", {
+                model: GEMINI_MODEL,
+                attempt,
+                status,
+                message,
+            });
 
-            const isTemporaryError =
-                [429, 500, 502, 503, 504].includes(status) ||
-                lowerMessage.includes("headers timeout") ||
-                lowerMessage.includes("fetch failed") ||
-                lowerMessage.includes("unavailable") ||
-                lowerMessage.includes("overloaded") ||
-                lowerMessage.includes("timed out") ||
-                lowerMessage.includes("econnreset");
-
-            console.error(
-                `Gemini attempt ${attempt} failed:`,
-                message
-            );
-
+            // Quota errors should not be retried repeatedly.
             if (
-                !isTemporaryError ||
-                attempt === MAX_RETRIES
+                status === 429 ||
+                /resource_exhausted|quota exceeded|rate limit/i.test(
+                    message
+                )
             ) {
                 throw error;
             }
 
-            const delay =
-                1000 * Math.pow(2, attempt - 1);
+            const isTemporaryError =
+                [500, 502, 503, 504].includes(status) ||
+                lowerMessage.includes("headers timeout") ||
+                lowerMessage.includes("fetch failed") ||
+                lowerMessage.includes("temporarily unavailable") ||
+                lowerMessage.includes("overloaded") ||
+                lowerMessage.includes("timed out") ||
+                lowerMessage.includes("econnreset");
+
+            if (!isTemporaryError || attempt === MAX_RETRIES) {
+                throw error;
+            }
+
+            const delay = 1000 * Math.pow(2, attempt - 1);
 
             console.log(
                 `Retrying Gemini in ${delay / 1000} second(s)...`
@@ -268,6 +261,7 @@ const generateWithGemini = async (prompt) => {
 
 /* =========================================================
    FIRST QUESTION BY INTERVIEW MODE
+   The first question does not require an AI API call.
 ========================================================= */
 
 const getFirstQuestion = (mode) => {
@@ -314,9 +308,15 @@ Evaluation:
 Overall: ${evaluation.overall ?? "N/A"}
 Communication: ${evaluation.communication ?? "N/A"}
 Relevance: ${evaluation.relevance ?? "N/A"}
-${mode === "technical"
-    ? `Technical accuracy: ${evaluation.technicalAccuracy ?? "N/A"}`
-    : `Answer structure: ${evaluation.answerStructure ?? evaluation.structure ?? "N/A"}`}
+${
+    mode === "technical"
+        ? `Technical accuracy: ${evaluation.technicalAccuracy ?? "N/A"}`
+        : `Answer structure: ${
+              evaluation.answerStructure ??
+              evaluation.structure ??
+              "N/A"
+          }`
+}
 Feedback: ${safeText(evaluation.feedback)}
 Understanding: ${safeText(evaluation.understanding)}
 `;
@@ -768,10 +768,11 @@ router.post("/evaluate", async (req, res) => {
                 result.answerStructure ?? result.structure
             );
 
-            result.confidence = normalizeScore(result.confidence);
+            result.confidence = normalizeScore(
+                result.confidence
+            );
 
-            // Preserve compatibility with frontend code that
-            // still reads technicalAccuracy.
+            // Preserve compatibility with the frontend.
             result.technicalAccuracy = result.answerStructure;
         } else {
             result.technicalAccuracy = normalizeScore(
@@ -784,19 +785,36 @@ router.post("/evaluate", async (req, res) => {
         result.interviewMode = mode;
 
         console.log(
-            `Interview evaluation completed: ${mode}, score ${result.overall}`
+            `Interview evaluation completed: ${mode}, score ${result.overall}, model ${GEMINI_MODEL}`
         );
 
         return res.json(result);
     } catch (error) {
-        console.error("Interview evaluation error:", error);
+        console.error("Interview evaluation error:", {
+            model: GEMINI_MODEL,
+            status: error?.status,
+            code: error?.code,
+            message: error?.message,
+        });
 
-        const status = Number(error?.status) || 500;
+        const status =
+            Number(error?.status || error?.code) || 500;
+
+        const isQuotaError =
+            status === 429 ||
+            /RESOURCE_EXHAUSTED|quota exceeded|rate limit/i.test(
+                error?.message || ""
+            );
+
+        if (isQuotaError) {
+            return res.status(429).json({
+                message:
+                    "The interview AI has reached its current usage limit. Please try again later.",
+            });
+        }
 
         const statusCode =
-            [429, 502, 503, 504].includes(status)
-                ? status
-                : 500;
+            [502, 503, 504].includes(status) ? status : 500;
 
         return res.status(statusCode).json({
             message: "Unable to evaluate the interview answer.",
@@ -852,10 +870,7 @@ router.post("/next-question", async (req, res) => {
             });
         }
 
-        /*
-         * The first question is determined by the selected mode.
-         */
-
+        // The first question is predefined and uses no AI request.
         if (!currentQuestion || !currentAnswer) {
             return res.json({
                 ...getFirstQuestion(mode),
@@ -865,10 +880,7 @@ router.post("/next-question", async (req, res) => {
             });
         }
 
-        /*
-         * Do not generate a question beyond question 10.
-         */
-
+        // Do not generate a question beyond question 10.
         if (number >= MAX_QUESTIONS) {
             return res.status(400).json({
                 message:
@@ -919,10 +931,14 @@ router.post("/next-question", async (req, res) => {
 
         const response = {
             question: result.question.trim(),
-            type: safeText(result.type) ||
+            type:
+                safeText(result.type) ||
                 (mode === "hr" ? "behavioral" : "technical"),
-            focus: safeText(result.focus) ||
-                (mode === "hr" ? "HR Interview" : "Technical Skills"),
+            focus:
+                safeText(result.focus) ||
+                (mode === "hr"
+                    ? "HR Interview"
+                    : "Technical Skills"),
             difficulty: validDifficulties.includes(difficulty)
                 ? difficulty
                 : "medium",
@@ -932,19 +948,36 @@ router.post("/next-question", async (req, res) => {
         };
 
         console.log(
-            `Generated ${mode} question ${nextQuestionNumber}/${MAX_QUESTIONS}`
+            `Generated ${mode} question ${nextQuestionNumber}/${MAX_QUESTIONS} using ${GEMINI_MODEL}`
         );
 
         return res.json(response);
     } catch (error) {
-        console.error("Next-question generation error:", error);
+        console.error("Next-question generation error:", {
+            model: GEMINI_MODEL,
+            status: error?.status,
+            code: error?.code,
+            message: error?.message,
+        });
 
-        const status = Number(error?.status) || 500;
+        const status =
+            Number(error?.status || error?.code) || 500;
+
+        const isQuotaError =
+            status === 429 ||
+            /RESOURCE_EXHAUSTED|quota exceeded|rate limit/i.test(
+                error?.message || ""
+            );
+
+        if (isQuotaError) {
+            return res.status(429).json({
+                message:
+                    "The interview AI has reached its current usage limit. Please try again later.",
+            });
+        }
 
         const statusCode =
-            [429, 502, 503, 504].includes(status)
-                ? status
-                : 500;
+            [502, 503, 504].includes(status) ? status : 500;
 
         return res.status(statusCode).json({
             message:

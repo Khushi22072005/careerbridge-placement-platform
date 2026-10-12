@@ -1,5 +1,6 @@
 require("dotenv").config();
-
+const careerCompanionRoutes =
+    require("../routes/careerCompanionRoutes");
 const express = require("express");
 const cors = require("cors");
 
@@ -28,6 +29,7 @@ const learningRoutes =
     require("../routes/learningRoutes");
 const careerDevelopmentRoutes =
     require("../routes/careerDevelopmentRoutes");
+    
 
 const app = express();
 
@@ -114,6 +116,14 @@ app.use(
 app.use(
     "/api/learning",
     learningRoutes
+);
+// =====================================================
+// AI CAREER COMPANION
+// =====================================================
+
+app.use(
+    "/api/career-companion",
+    careerCompanionRoutes
 );
 
 
