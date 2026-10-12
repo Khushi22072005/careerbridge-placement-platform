@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+
+import React, {
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import "./MockInterview.css";
 
@@ -10,6 +16,10 @@ const API_BASE =
     import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const MAX_QUESTIONS = 10;
+
+/* =========================================================
+   INITIAL QUESTIONS
+========================================================= */
 
 const FIRST_QUESTIONS = {
     technical: [
@@ -24,6 +34,7 @@ const FIRST_QUESTIONS = {
             category: "Projects",
         },
     ],
+
     hr: [
         {
             question: "Tell me about yourself.",
@@ -82,38 +93,50 @@ const HR_FALLBACK_QUESTIONS = [
     "Do you have any questions for the interviewer?",
 ];
 
+/* =========================================================
+   TECHNICAL ROLES
+========================================================= */
+
 const TECHNICAL_ROLES = [
     {
         id: "software-developer",
         label: "Software Developer",
-        description: "Programming, OOP, DSA, databases and software concepts",
-        
+        description:
+            "Programming, OOP, DSA, databases and software concepts",
+        icon: "",
     },
     {
         id: "data-analyst",
         label: "Data Analyst",
-        description: "SQL, Excel, data analysis, dashboards and business insights",
-      
+        description:
+            "SQL, Excel, data analysis, dashboards and business insights",
+        icon: "",
     },
     {
         id: "web-developer",
         label: "Web Developer",
         description: "HTML, CSS, JavaScript, React and APIs",
-        
+        icon: "",
     },
     {
         id: "ui-ux",
         label: "UI/UX Designer",
-        description: "Design principles, user research, wireframes and usability",
-        
+        description:
+            "Design principles, user research, wireframes and usability",
+        icon: "",
     },
     {
         id: "cloud-devops",
         label: "Cloud / DevOps Engineer",
-        description: "Linux, networking, cloud, deployment and automation",
-        
+        description:
+            "Linux, networking, cloud, deployment and automation",
+        icon: "",
     },
 ];
+
+/* =========================================================
+   TECHNICAL SKILLS
+========================================================= */
 
 const TECHNICAL_SKILLS = {
     "software-developer": [
@@ -125,6 +148,7 @@ const TECHNICAL_SKILLS = {
         "Computer Networks",
         "Software Engineering",
     ],
+
     "data-analyst": [
         "Excel",
         "SQL",
@@ -133,6 +157,7 @@ const TECHNICAL_SKILLS = {
         "Data Visualization",
         "Business Analysis",
     ],
+
     "web-developer": [
         "HTML and CSS",
         "JavaScript",
@@ -141,6 +166,7 @@ const TECHNICAL_SKILLS = {
         "Database Integration",
         "Web Development Fundamentals",
     ],
+
     "ui-ux": [
         "UI Design Fundamentals",
         "UX Research",
@@ -148,6 +174,7 @@ const TECHNICAL_SKILLS = {
         "Figma",
         "Usability and Accessibility",
     ],
+
     "cloud-devops": [
         "Linux and Networking",
         "Cloud Fundamentals",
@@ -159,7 +186,7 @@ const TECHNICAL_SKILLS = {
 };
 
 /* =========================================================
-   HELPERS
+   HELPER FUNCTIONS
 ========================================================= */
 
 function normalizeQuestion(questionData) {
@@ -188,16 +215,6 @@ function normalizeQuestion(questionData) {
     };
 }
 
-function getAnswerText(answer) {
-    if (typeof answer === "string") return answer;
-
-    if (answer && typeof answer === "object") {
-        return answer.answer || answer.text || "";
-    }
-
-    return "";
-}
-
 function calculateFallbackScore(answer) {
     const text = String(answer || "").trim();
 
@@ -211,6 +228,35 @@ function calculateFallbackScore(answer) {
     if (words < 60) return 75;
 
     return 85;
+}
+
+function averageScore(values) {
+    const validValues = values
+        .map(Number)
+        .filter(
+            (value) =>
+                Number.isFinite(value) &&
+                value >= 0 &&
+                value <= 100
+        );
+
+    if (!validValues.length) return null;
+
+    return Math.round(
+        validValues.reduce((total, value) => total + value, 0) /
+            validValues.length
+    );
+}
+
+function getUniqueItems(items) {
+    return [
+        ...new Set(
+            items
+                .filter(Boolean)
+                .map((item) => String(item).trim())
+                .filter(Boolean)
+        ),
+    ];
 }
 
 /* =========================================================
@@ -230,7 +276,9 @@ export default function MockInterview() {
 
     const [interviewStarted, setInterviewStarted] = useState(false);
     const [currentQuestion, setCurrentQuestion] = useState(null);
-    const [currentQuestionNumber, setCurrentQuestionNumber] = useState(1);
+    const [currentQuestionNumber, setCurrentQuestionNumber] =
+        useState(1);
+
     const [answer, setAnswer] = useState("");
     const [answers, setAnswers] = useState([]);
     const [evaluation, setEvaluation] = useState(null);
@@ -341,7 +389,7 @@ export default function MockInterview() {
                 try {
                     recognitionRef.current.stop();
                 } catch {
-                    // Ignore an already stopped recognition instance.
+                    // Ignore an already stopped instance.
                 }
             }
 
@@ -492,13 +540,10 @@ export default function MockInterview() {
         setError("");
 
         try {
-            let firstQuestion;
-
-            if (interviewMode === "hr") {
-                firstQuestion = FIRST_QUESTIONS.hr[0];
-            } else {
-                firstQuestion = FIRST_QUESTIONS.technical[0];
-            }
+            const firstQuestion =
+                interviewMode === "hr"
+                    ? FIRST_QUESTIONS.hr[0]
+                    : FIRST_QUESTIONS.technical[0];
 
             setCurrentQuestion(firstQuestion);
             setCurrentQuestionNumber(1);
@@ -509,7 +554,9 @@ export default function MockInterview() {
 
             speakQuestion(firstQuestion.question);
         } catch {
-            setError("Unable to start the interview. Please try again.");
+            setError(
+                "Unable to start the interview. Please try again."
+            );
         } finally {
             setLoading(false);
         }
@@ -523,7 +570,9 @@ export default function MockInterview() {
         const submittedAnswer = answer.trim();
 
         if (!submittedAnswer) {
-            setError("Please enter or record an answer before continuing.");
+            setError(
+                "Please enter or record an answer before continuing."
+            );
             return;
         }
 
@@ -585,7 +634,9 @@ export default function MockInterview() {
                 ? data.strengths
                 : [];
 
-            answerRecord.improvements = Array.isArray(data.improvements)
+            answerRecord.improvements = Array.isArray(
+                data.improvements
+            )
                 ? data.improvements
                 : Array.isArray(data.suggestions)
                 ? data.suggestions
@@ -599,6 +650,9 @@ export default function MockInterview() {
 
             answerRecord.relevanceScore =
                 data.relevanceScore ?? null;
+
+            answerRecord.technicalScore =
+                data.technicalScore ?? null;
         } catch {
             answerRecord.score =
                 calculateFallbackScore(submittedAnswer);
@@ -626,57 +680,60 @@ export default function MockInterview() {
        BUILD FINAL REPORT
     ===================================================== */
 
-    const buildReport = useCallback((completedAnswers) => {
-        const safeAnswers = Array.isArray(completedAnswers)
-            ? completedAnswers
-            : [];
+    const buildReport = useCallback(
+        (completedAnswers) => {
+            const safeAnswers = Array.isArray(completedAnswers)
+                ? completedAnswers
+                : [];
 
-        const totalScore = safeAnswers.reduce(
-            (total, item) =>
-                total + (Number(item.score) || 0),
-            0
-        );
+            const totalScore = safeAnswers.reduce(
+                (total, item) =>
+                    total + (Number(item.score) || 0),
+                0
+            );
 
-        const averageScore = safeAnswers.length
-            ? Math.round(totalScore / safeAnswers.length)
-            : 0;
+            const average = safeAnswers.length
+                ? Math.round(totalScore / safeAnswers.length)
+                : 0;
 
-        const strengths = safeAnswers.flatMap((item) =>
-            Array.isArray(item.strengths)
-                ? item.strengths
-                : []
-        );
+            const strengths = safeAnswers.flatMap((item) =>
+                Array.isArray(item.strengths)
+                    ? item.strengths
+                    : []
+            );
 
-        const improvements = safeAnswers.flatMap((item) =>
-            Array.isArray(item.improvements)
-                ? item.improvements
-                : []
-        );
+            const improvements = safeAnswers.flatMap((item) =>
+                Array.isArray(item.improvements)
+                    ? item.improvements
+                    : []
+            );
 
-        const completedReport = {
-            interviewMode,
-            role: selectedRole,
-            skill: selectedSkill,
-            totalQuestions: safeAnswers.length,
-            maxQuestions: MAX_QUESTIONS,
-            averageScore,
-            answers: safeAnswers,
-            strengths: [...new Set(strengths)],
-            improvements: [...new Set(improvements)],
-            completedAt: new Date().toISOString(),
-            summary:
-                averageScore >= 80
-                    ? "Excellent performance. Continue practising to maintain your interview readiness."
-                    : averageScore >= 60
-                    ? "Good progress. Work on the improvement areas to make your answers stronger."
-                    : "Keep practising. Focus on relevant examples, clear explanations, and structured answers.",
-        };
+            const completedReport = {
+                interviewMode,
+                role: selectedRole,
+                skill: selectedSkill,
+                totalQuestions: safeAnswers.length,
+                maxQuestions: MAX_QUESTIONS,
+                averageScore: average,
+                answers: safeAnswers,
+                strengths: getUniqueItems(strengths),
+                improvements: getUniqueItems(improvements),
+                completedAt: new Date().toISOString(),
+                summary:
+                    average >= 80
+                        ? "Excellent performance. Continue practising to maintain your interview readiness."
+                        : average >= 60
+                        ? "Good progress. Work on the improvement areas to make your answers stronger."
+                        : "Keep practising. Focus on relevant examples, clear explanations, and structured answers.",
+            };
 
-        setReport(completedReport);
-        setShowReport(true);
-        setInterviewStarted(false);
-        setEvaluation(null);
-    }, [interviewMode, selectedRole, selectedSkill]);
+            setReport(completedReport);
+            setShowReport(true);
+            setInterviewStarted(false);
+            setEvaluation(null);
+        },
+        [interviewMode, selectedRole, selectedSkill]
+    );
 
     /* =====================================================
        NEXT QUESTION
@@ -684,7 +741,9 @@ export default function MockInterview() {
 
     const nextQuestion = async () => {
         if (!evaluation) {
-            setError("Please evaluate your answer before continuing.");
+            setError(
+                "Please evaluate your answer before continuing."
+            );
             return;
         }
 
@@ -707,7 +766,10 @@ export default function MockInterview() {
             if (interviewMode === "hr") {
                 const fallbackIndex = nextNumber - 1;
 
-                if (fallbackIndex < HR_FALLBACK_QUESTIONS.length) {
+                if (
+                    fallbackIndex <
+                    HR_FALLBACK_QUESTIONS.length
+                ) {
                     nextQuestionData = {
                         question:
                             HR_FALLBACK_QUESTIONS[fallbackIndex],
@@ -749,15 +811,15 @@ export default function MockInterview() {
                 );
 
                 if (!response.ok) {
-                    throw new Error("Could not retrieve the next question.");
+                    throw new Error(
+                        "Could not retrieve the next question."
+                    );
                 }
 
                 const data = await response.json();
 
                 nextQuestionData = normalizeQuestion(
-                    data.question
-                        ? data.question
-                        : data
+                    data.question ? data.question : data
                 );
             }
 
@@ -765,7 +827,9 @@ export default function MockInterview() {
                 !nextQuestionData ||
                 !nextQuestionData.question
             ) {
-                throw new Error("No next question was returned.");
+                throw new Error(
+                    "No next question was returned."
+                );
             }
 
             setCurrentQuestion(nextQuestionData);
@@ -834,7 +898,13 @@ export default function MockInterview() {
                     ? "HR Interview"
                     : "Technical Mock Interview"
             }`,
-            report.role ? `Role: ${report.role}` : "",
+            report.role
+                ? `Role: ${
+                      TECHNICAL_ROLES.find(
+                          (role) => role.id === report.role
+                      )?.label || report.role
+                  }`
+                : "",
             report.skill ? `Skill: ${report.skill}` : "",
             `Questions answered: ${report.totalQuestions}/${MAX_QUESTIONS}`,
             `Average score: ${report.averageScore}/100`,
@@ -872,6 +942,7 @@ export default function MockInterview() {
 
         link.href = url;
         link.download = "CareerBridge-Mock-Interview-Report.txt";
+
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -900,22 +971,58 @@ export default function MockInterview() {
     }, []);
 
     /* =====================================================
-       REPORT SCREEN
+       COMPACT REPORT SCREEN
     ===================================================== */
 
     if (showReport && report) {
+        const communication = averageScore(
+            report.answers.map(
+                (item) => item.communicationScore
+            )
+        );
+
+        const relevance = averageScore(
+            report.answers.map((item) => item.relevanceScore)
+        );
+
+        const technical = averageScore(
+            report.answers.map((item) => item.technicalScore)
+        );
+
+        const metrics = [
+            {
+                label: "Questions",
+                value: `${report.totalQuestions}/${MAX_QUESTIONS}`,
+            },
+            {
+                label: "Communication",
+                value: communication,
+            },
+            {
+                label: "Relevance",
+                value: relevance,
+            },
+            {
+                label: "Technical",
+                value: technical,
+            },
+        ].filter((metric) => metric.value !== null);
+
         return (
             <main className="mock-interview-page">
-                <section className="mock-interview-report">
+                <section className="mock-interview-report report-compact">
                     <div className="report-header">
-                        <div className="report-success-icon">
-                            
-                        </div>
+                        <div className="report-success-icon">✓</div>
 
-                        
                         <h1>Interview Completed!</h1>
 
-                        
+                        <p>
+                            Your{" "}
+                            {report.interviewMode === "hr"
+                                ? "HR Interview"
+                                : "Technical Interview"}{" "}
+                            performance report
+                        </p>
                     </div>
 
                     <div className="report-score-card">
@@ -932,7 +1039,13 @@ export default function MockInterview() {
                             <div
                                 className="report-progress-fill"
                                 style={{
-                                    width: `${report.averageScore}%`,
+                                    width: `${Math.max(
+                                        0,
+                                        Math.min(
+                                            100,
+                                            report.averageScore
+                                        )
+                                    )}%`,
                                 }}
                             />
                         </div>
@@ -940,81 +1053,64 @@ export default function MockInterview() {
                         <p>{report.summary}</p>
                     </div>
 
-                    <div className="report-stats-grid">
-                        <div className="report-stat">
-                            <span>Interview Type</span>
-                            <strong>
-                                {report.interviewMode === "hr"
-                                    ? "HR Interview"
-                                    : "Technical"}
-                            </strong>
-                        </div>
-
-                        <div className="report-stat">
-                            <span>Questions Answered</span>
-                            <strong>
-                                {report.totalQuestions}/{MAX_QUESTIONS}
-                            </strong>
-                        </div>
-
-                        {report.role && (
-                            <div className="report-stat">
-                                <span>Selected Role</span>
-                                <strong>
-                                    {
-                                        TECHNICAL_ROLES.find(
-                                            (role) =>
-                                                role.id === report.role
-                                        )?.label
-                                    }
-                                </strong>
+                    <div className="report-stats-grid report-metrics-grid">
+                        {metrics.map((metric) => (
+                            <div
+                                className="report-stat"
+                                key={metric.label}
+                            >
+                                <span>{metric.label}</span>
+                                <strong>{metric.value}</strong>
                             </div>
-                        )}
-
-                        {report.skill && (
-                            <div className="report-stat">
-                                <span>Focus Area</span>
-                                <strong>{report.skill}</strong>
-                            </div>
-                        )}
+                        ))}
                     </div>
 
                     {report.strengths.length > 0 && (
                         <section className="report-detail-card">
-                            <h2>What You Did Well</h2>
+                            <h2> Your Strengths</h2>
 
                             <ul>
-                                {report.strengths.map(
-                                    (strength, index) => (
-                                        <li key={`${strength}-${index}`}>
+                                {report.strengths
+                                    .slice(0, 4)
+                                    .map((strength, index) => (
+                                        <li
+                                            key={`${strength}-${index}`}
+                                        >
                                             {strength}
                                         </li>
-                                    )
-                                )}
+                                    ))}
                             </ul>
                         </section>
                     )}
 
                     {report.improvements.length > 0 && (
                         <section className="report-detail-card">
-                            <h2>Areas to Improve</h2>
+                            <h2> Areas to Improve</h2>
 
                             <ul>
-                                {report.improvements.map(
-                                    (improvement, index) => (
+                                {report.improvements
+                                    .slice(0, 4)
+                                    .map((improvement, index) => (
                                         <li
                                             key={`${improvement}-${index}`}
                                         >
                                             {improvement}
                                         </li>
-                                    )
-                                )}
+                                    ))}
                             </ul>
                         </section>
                     )}
 
-                    <section className="report-detail-card">
-                        <h2>Question-wise Feedback</h2>
+                    <section className="report-detail-card report-summary-card">
+                        <h2> AI Interview Summary</h2>
+                        <p>{report.summary}</p>
+                    </section>
+
+                    <details className="report-detail-card report-question-details">
+                        <summary>
+                            View Question-wise Feedback (
+                            {report.totalQuestions})
+                        </summary>
 
                         <div className="report-answer-list">
                             {report.answers.map((item, index) => (
@@ -1046,7 +1142,9 @@ export default function MockInterview() {
 
                                     {item.improvements?.length > 0 && (
                                         <div className="report-improvements">
-                                            <strong>Improve:</strong>
+                                            <strong>
+                                                Areas to improve:
+                                            </strong>
 
                                             <ul>
                                                 {item.improvements.map(
@@ -1074,7 +1172,7 @@ export default function MockInterview() {
                                 </article>
                             ))}
                         </div>
-                    </section>
+                    </details>
 
                     <div className="report-actions">
                         <button
@@ -1130,7 +1228,7 @@ export default function MockInterview() {
 
                 <section className="mock-interview-hero">
                     <span className="hero-badge">
-                       
+                        AI-POWERED INTERVIEW PRACTICE
                     </span>
                 </section>
 
@@ -1138,7 +1236,6 @@ export default function MockInterview() {
                     <div className="setup-heading">
                         <span className="setup-step">STEP 01</span>
                         <h2>Choose your interview type</h2>
-                        
                     </div>
 
                     <div className="interview-mode-grid">
@@ -1153,25 +1250,19 @@ export default function MockInterview() {
                                 handleInterviewTypeSelect("technical")
                             }
                         >
-                            <span className="mode-card-icon">
-                                
-                            </span>
+                            <span className="mode-card-icon"></span>
 
                             <span className="mode-card-content">
                                 <strong>
                                     Technical Mock Interview
                                 </strong>
 
-                                
-
                                 <span className="mode-card-meta">
                                     Role + skill selection
                                 </span>
                             </span>
 
-                            <span className="mode-card-arrow">
-                                →
-                            </span>
+                            <span className="mode-card-arrow">→</span>
                         </button>
 
                         <button
@@ -1185,17 +1276,17 @@ export default function MockInterview() {
                                 handleInterviewTypeSelect("hr")
                             }
                         >
-                            <span className="mode-card-icon">
-                                
-                            </span>
+                            <span className="mode-card-icon"></span>
 
                             <span className="mode-card-content">
                                 <strong>HR Interview</strong>
+
+                                <span className="mode-card-meta">
+                                    Behavioural and communication practice
+                                </span>
                             </span>
 
-                            <span className="mode-card-arrow">
-                                →
-                            </span>
+                            <span className="mode-card-arrow">→</span>
                         </button>
                     </div>
 
@@ -1207,8 +1298,6 @@ export default function MockInterview() {
                                 </span>
 
                                 <h2>Choose your technical role</h2>
-
-                
                             </div>
 
                             <div className="role-selector">
@@ -1232,7 +1321,6 @@ export default function MockInterview() {
                                         </span>
 
                                         <strong>{role.label}</strong>
-
                                         <span>{role.description}</span>
                                     </button>
                                 ))}
@@ -1246,8 +1334,6 @@ export default function MockInterview() {
                                         </span>
 
                                         <h2>Choose your focus area</h2>
-
-                                        
                                     </div>
 
                                     <div className="skill-selector">
@@ -1304,13 +1390,14 @@ export default function MockInterview() {
                     {interviewMode === "hr" && (
                         <section className="hr-start-section">
                             <div className="hr-start-info">
-                                <span className="hr-start-icon">
-                                    
-                                </span>
+                                <span className="hr-start-icon"></span>
 
                                 <div>
                                     <h3>Ready for your HR round?</h3>
-
+                                    <p>
+                                        Practise common HR questions and
+                                        receive feedback on your answers.
+                                    </p>
                                 </div>
                             </div>
 
@@ -1360,7 +1447,6 @@ export default function MockInterview() {
                     ← Exit Interview
                 </button>
 
-
                 <span className="interview-type-label">
                     {isHR
                         ? "HR INTERVIEW"
@@ -1371,8 +1457,6 @@ export default function MockInterview() {
             <section className="interview-workspace">
                 <div className="interview-workspace-header">
                     <div>
-                        
-
                         <h1>
                             {isHR
                                 ? "HR Interview"
@@ -1461,15 +1545,13 @@ export default function MockInterview() {
                                     }
                                     title="Read the question aloud"
                                 >
-                                    🔊 Repeat
+                                     Repeat
                                 </button>
                             </div>
 
                             <h2 className="interview-question-text">
                                 {currentQuestion?.question}
                             </h2>
-
-                            
                         </article>
 
                         <article className="answer-card">
@@ -1515,7 +1597,7 @@ export default function MockInterview() {
                                             onClick={startListening}
                                             disabled={evaluating}
                                         >
-                                             Start Speaking
+                                            🎙 Start Speaking
                                         </button>
                                     ) : (
                                         <button
@@ -1694,11 +1776,10 @@ export default function MockInterview() {
                             </section>
                         )}
                     </section>
-
-                    
                 </div>
             </section>
         </main>
     );
 }
+
 

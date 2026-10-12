@@ -1,4 +1,5 @@
 
+
 import { useNavigate } from "react-router-dom";
 import "./AssessmentCenter.css";
 
@@ -9,20 +10,22 @@ function AssessmentCenter() {
         <div className="assessment-center">
             <header className="assessment-center-header">
                 <span className="assessment-center-eyebrow">
-                  
+                    CAREERBRIDGE • PRACTICE CENTER
                 </span>
 
                 <h1>Assessments</h1>
 
                 <p>
-                    Test your technical knowledge and reasoning skills.
-                    Choose an assessment to begin your practice.
+                    Test your technical knowledge, reasoning skills,
+                    and programming abilities. Choose an assessment
+                    to begin your practice.
                 </p>
             </header>
 
             <div className="assessment-center-grid">
+                {/* TECHNICAL ASSESSMENT */}
+
                 <article className="assessment-center-card">
-                    
                     <span className="assessment-center-tag">
                         TECHNICAL SKILLS
                     </span>
@@ -42,15 +45,17 @@ function AssessmentCenter() {
 
                     <button
                         type="button"
-                        onClick={() => navigate("/technical-assessment")}
+                        onClick={() =>
+                            navigate("/technical-assessment")
+                        }
                     >
                         Start Technical Assessment →
                     </button>
                 </article>
 
-                <article className="assessment-center-card">
-                    
+                {/* APTITUDE ASSESSMENT */}
 
+                <article className="assessment-center-card">
                     <span className="assessment-center-tag">
                         REASONING SKILLS
                     </span>
@@ -70,9 +75,43 @@ function AssessmentCenter() {
 
                     <button
                         type="button"
-                        onClick={() => navigate("/aptitude-practice")}
+                        onClick={() =>
+                            navigate("/aptitude-practice")
+                        }
                     >
                         Start Aptitude Assessment →
+                    </button>
+                </article>
+
+                {/* CODING ASSESSMENT */}
+
+                <article className="assessment-center-card">
+                    <span className="assessment-center-tag">
+                        PROGRAMMING SKILLS
+                    </span>
+
+                    <h2>Coding Assessment</h2>
+
+                    <p>
+                        Practice coding problems to improve your
+                        problem-solving skills and prepare for
+                        technical placement interviews.
+                    </p>
+
+                    <ul>
+                        <li>Easy, Medium, and Hard problems</li>
+                        <li>Online code editor and test cases</li>
+                        <li>Run code and submit solutions</li>
+                        <li>Track your coding progress</li>
+                    </ul>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            navigate("/coding-assessment")
+                        }
+                    >
+                        Start Coding Assessment →
                     </button>
                 </article>
             </div>

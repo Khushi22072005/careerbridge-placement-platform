@@ -23,7 +23,7 @@ import AssessmentCenter from "./pages/AssessmentCenter";
 import AptitudePractice from "./pages/AptitudePractice";
 import AptitudeTest from "./pages/AptitudeTest";
 import AptitudeResult from "./pages/AptitudeResult";
-
+import CodingAssessment from "./pages/CodingAssessment/CodingAssessment";
 
 function App() {
   return (
@@ -95,7 +95,10 @@ function App() {
     path="/assessments"
     element={<AssessmentCenter />}
 />
-
+<Route
+    path="/coding-assessment"
+    element={<CodingAssessment />}
+/>
       {/* =======================
           DASHBOARD PAGES
       ======================= */}

@@ -33,7 +33,7 @@ const careerDevelopmentRoutes =
 const aptitudeRoutes =
     require("../routes/aptitudeRoutes");
 
-
+const codingRoutes = require("../routes/codingRoutes");
 const app = express();
 
 
@@ -138,7 +138,7 @@ app.use(
     aptitudeRoutes
 );
 
-
+app.use("/api/coding", codingRoutes);
 // =====================================================
 // SERVER
 // =====================================================
