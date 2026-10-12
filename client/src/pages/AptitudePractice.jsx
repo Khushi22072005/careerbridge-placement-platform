@@ -8,19 +8,19 @@ const API_URL = "http://localhost:5000/api/aptitude";
 
 const CATEGORY_DETAILS = {
     "Numerical Reasoning": {
-        icon: "🔢",
+        icon: "",
         description: "Practice percentages, ratios, averages, and numerical problems.",
     },
     "Logical Reasoning": {
-        icon: "🧩",
+        icon: "",
         description: "Improve your ability to solve patterns, sequences, and logical problems.",
     },
     "Verbal Reasoning": {
-        icon: "📚",
+        icon: "",
         description: "Practice grammar, vocabulary, sentence completion, and word meanings.",
     },
     "Analytical Reasoning": {
-        icon: "📊",
+        icon: "",
         description: "Develop skills in interpreting information and solving analytical problems.",
     },
 };
@@ -162,7 +162,7 @@ function AptitudePractice() {
                                 key={item.category}
                             >
                                 <div className="aptitude-category-icon">
-                                    {details?.icon || "📝"}
+                                    {details?.icon || ""}
                                 </div>
 
                                 <h2>{item.category}</h2>
