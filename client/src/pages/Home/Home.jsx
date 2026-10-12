@@ -1,270 +1,349 @@
+
 import React from "react";
-import "./Home.css";
 import { Link } from "react-router-dom";
+import "./Home.css";
 import heroImage from "../../assets/images/hero-girl.png";
 import logoImg from "../../assets/images/logo.jpeg";
 
-
 function Home() {
+  
+const features = [
+  {
+    number: "01",
+    title: "Career Assessment",
+    description:
+      "Discover your strengths, interests, and personality to identify career paths that match your goals.",
+    tag: "Discover yourself",
+    path: "/career-assessment",
+  },
+  {
+    number: "02",
+    title: "Career Roadmap",
+    description:
+      "Follow a structured learning journey from fundamental concepts to practical projects and interview preparation.",
+    tag: "Learn step by step",
+    path: "/career-roadmap",
+  },
+  {
+    number: "03",
+    title: "Resume Builder",
+    description:
+      "Create a professional resume using structured sections and customizable templates.",
+    tag: "Build your profile",
+    path: "/resume-builder",
+  },
+  {
+    number: "04",
+    title: "Resume Analyzer",
+    description:
+      "Review your resume for relevant skills, missing information, and opportunities to improve it.",
+    tag: "Improve your resume",
+    path: "/resume-analyzer",
+  },
+  {
+    number: "05",
+    title: "Learning Hub",
+    description:
+      "Explore learning resources, tutorials, and project ideas relevant to your chosen career path.",
+    tag: "Build your skills",
+    path: "/learning-hub",
+  },
+  {
+    number: "06",
+    title: "Mock Interview",
+    description:
+      "Practice technical and HR interview questions and use feedback to improve your answers.",
+    tag: "Practice with confidence",
+    path: "/mock-interview",
+  },
+  {
+    number: "07",
+    title: "Placement Readiness",
+    description:
+      "Monitor your preparation across aptitude, technical skills, interviews, and career development.",
+    tag: "Track your progress",
+    path: "/placement-readiness",
+  },
+];
+
+  const steps = [
+    {
+      number: "01",
+      title: "Create Your Profile",
+      description:
+        "Register and add your academic details, skills, interests, and career goals.",
+    },
+    {
+      number: "02",
+      title: "Discover Your Career",
+      description:
+        "Complete the career assessment and explore suitable career options.",
+    },
+    {
+      number: "03",
+      title: "Follow Your Roadmap",
+      description:
+        "Build relevant skills, study learning resources, and complete practical projects.",
+    },
+    {
+      number: "04",
+      title: "Prepare for Placement",
+      description:
+        "Improve your resume, practice interviews, and monitor your placement readiness.",
+    },
+  ];
+
   return (
-    <div className="home-page">
+    <main className="home-page" id="home">
+      {/* NAVBAR */}
+      <header className="home-navbar">
+        <Link to="/" className="home-logo">
+          <img src={logoImg} alt="CareerBridge logo" />
+          <span>
+            Career<span className="logo-highlight">Bridge</span>
+          </span>
+        </Link>
 
-      {/* ================= NAVBAR ================= */}
-      <nav className="home-navbar">
-    <div className="home-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-  <img 
-    src={logoImg} 
-    alt="CareerBridge Logo" 
-    style={{ width: '40px', height: '40px', objectFit: 'contain' }} 
-  />
-  <span>Career<span>Bridge</span></span>
-</div>
-
-
-        <div className="nav-links">
+        <nav className="home-nav-links" aria-label="Main navigation">
           <a href="#home">Home</a>
           <a href="#features">Features</a>
           <a href="#how-it-works">How It Works</a>
           
           <a href="#contact">Contact</a>
-        </div>
+        </nav>
 
-        <div className="nav-buttons">
-          <Link to="/login" className="nav-login">
+        <div className="home-nav-buttons">
+          <Link to="/login" className="home-login-btn">
             Login
           </Link>
-
-          <Link to="/register" className="nav-get-started">
-            Get Started
+          <Link to="/register" className="home-register-btn">
+            Get Started <span aria-hidden="true">→</span>
           </Link>
         </div>
-      </nav>
+      </header>
 
+      {/* HERO */}
+      <section className="home-hero">
+        <div className="hero-background-shape hero-shape-one" />
+        <div className="hero-background-shape hero-shape-two" />
 
-      {/* ================= HERO ================= */}
-      <section className="hero-section" id="home">
-        <div className="hero-content">
+        <div className="home-hero-container">
+          <div className="home-hero-content">
+            <div className="hero-eyebrow">
+              
+              
+            </div>
 
-          <div className="hero-left">
             <h1>
               From Student
               <br />
-              <span>to Professional</span>
+              to <span>Professional.</span>
             </h1>
 
-            <p>
-              Discover your ideal career path, build an ATS-friendly
-              resume, prepare for interviews, and become placement
-              ready — all in one platform.
+            <p className="home-hero-description">
+              Your career journey starts here. Discover your strengths,
+              build the right skills, create a professional resume, and
+              prepare for placements — all in one platform.
             </p>
 
-            <div className="hero-buttons">
-              <Link to="/register" className="primary-btn">
-                Get Started
+            <div className="home-hero-buttons">
+              <Link to="/register" className="hero-primary-btn">
+                Start Your Journey <span aria-hidden="true">→</span>
               </Link>
 
-              <Link to="/career-assessment" className="secondary-btn">
-                Take Career Test
-              </Link>
+              
             </div>
+
+            
           </div>
 
-          <div className="hero-right">
-            <img
-              src={heroImage}
-              alt="CareerBridge career journey"
-            />
-          </div>
+          <div className="home-hero-visual">
+            <div className="hero-image-glow" />
 
+            <div className="hero-image-frame">
+              <img
+                src={heroImage}
+                alt="Student preparing for her professional career"
+                className="home-hero-image"
+              />
+            </div>
+
+            <div className="hero-floating-card hero-card-top">
+              
+              <div>
+                <strong>Your Career</strong>
+                <small>Starts with a plan</small>
+              </div>
+            </div>
+
+            <div className="hero-floating-card hero-card-bottom">
+              
+              <div>
+                <strong>Keep Growing</strong>
+                <small>Learn. Practice. Improve.</small>
+              </div>
+            </div>
+
+            <div className="hero-orbit orbit-one" />
+            <div className="hero-orbit orbit-two" />
+          </div>
         </div>
+
+        
       </section>
 
+     
 
-      {/* ================= FEATURES ================= */}
-      <section className="features-section" id="features">
-        <h2>Our Features</h2>
-
-        <div className="features-grid">
-
-          <div className="feature-card">
-            <div>
-              <h3>Career Assessment</h3>
-              <p>
-                Analyze your skills, interests, and personality
-                to discover the most suitable career path.
-              </p>
-            </div>
-          </div>
-
-          <div className="feature-card">
-            <div>
-              <h3>Resume Builder</h3>
-              <p>
-                Create a professional ATS-friendly resume with
-                customizable templates in minutes.
-              </p>
-            </div>
-          </div>
-
-          <div className="feature-card">
-            <div>
-              <h3>Resume Analyzer</h3>
-              <p>
-                Upload your resume and receive instant feedback
-                with suggestions to improve your ATS score.
-              </p>
-            </div>
-          </div>
-
-          <div className="feature-card">
-            <div>
-              <h3>Placement Readiness</h3>
-              <p>
-                Track your interview preparation, aptitude,
-                coding progress, and overall placement readiness.
-              </p>
-            </div>
-          </div>
-
-          <div className="feature-card">
-            <div>
-              <h3>Mock Interview</h3>
-              <p>
-                Practice technical and HR interviews with
-                AI-generated questions and personalized feedback.
-              </p>
-            </div>
-          </div>
-
+      {/* FEATURES */}
+      <section className="home-features-section" id="features">
+        <div className="home-section-heading">
+          <span className="section-eyebrow">WHAT CAREERBRIDGE OFFERS</span>
+          
+          
         </div>
+
+        
+<div className="home-features-grid">
+  {features.map((feature) => (
+    <Link
+      to={feature.path}
+      className="home-feature-card"
+      key={feature.number}
+      aria-label={`Explore ${feature.title}`}
+    >
+      <div className="feature-card-top">
+        <span className="feature-icon" aria-hidden="true">
+          {feature.number === "01" ? "" :
+           feature.number === "02" ? "" :
+           feature.number === "03" ? "" :
+           feature.number === "04" ? "" :
+           feature.number === "05" ? "" :
+           feature.number === "06" ? "" : ""}
+        </span>
+
+        <span className="feature-number">{feature.number}</span>
+      </div>
+
+      <h3>{feature.title}</h3>
+      <p>{feature.description}</p>
+
+      <div className="feature-card-bottom">
+        <span>{feature.tag}</span>
+        <span className="feature-card-arrow" aria-hidden="true">
+          ↗
+        </span>
+      </div>
+    </Link>
+  ))}
+</div>
+
+
+        
       </section>
 
-
-
-      {/* ================= HOW IT WORKS ================= */}
-      <section className="how-section" id="how-it-works">
-        <h2>How CareerBridge Works</h2>
-
-        <div className="how-grid">
-
-          <div className="how-card">
-            <span>01</span>
-            <div>
-              <h3>Create Account</h3>
-              <p>
-                Sign up and build your student profile
-                in seconds.
-              </p>
-            </div>
-          </div>
-
-          <div className="how-arrow">→</div>
-
-          <div className="how-card">
-            <span>02</span>
-            <div>
-              <h3>Take Assessment</h3>
-              <p>
-                Answer assessment questions to identify
-                your career path.
-              </p>
-            </div>
-          </div>
-
-          <div className="how-arrow">→</div>
-
-          <div className="how-card">
-            <span>03</span>
-            <div>
-              <h3>Get Roadmap</h3>
-              <p>
-                Receive personalized roadmap with skills,
-                projects & more.
-              </p>
-            </div>
-          </div>
-
-          <div className="how-arrow">→</div>
-
-          <div className="how-card">
-            <span>04</span>
-            <div>
-              <h3>Become Ready</h3>
-              <p>
-                Follow, practice and become 100% placement
-                ready.
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-
-
-
-
-
-
-
-      {/* ================= FOOTER ================= */}
-      <footer className="home-footer" id="contact">
-
-        <div className="footer-brand">
-          <h2>🎓 CareerBridge</h2>
-
-          <p>
-            From Student to Professional —
+      {/* HOW IT WORKS */}
+      <section className="home-how-section" id="how-it-works">
+        <div className="home-section-heading">
+          
+          <h2>
+            Four steps.
             <br />
-            Your Complete Career Journey.
+            <span>One clear direction.</span>
+          </h2>
+          <p>
+            Follow a structured path from understanding yourself to preparing
+            for your professional future.
           </p>
         </div>
 
-        <div className="footer-column">
-          <h3>Quick Links</h3>
+        <div className="home-journey">
+          {steps.map((step, index) => (
+            <React.Fragment key={step.number}>
+              <article className="home-journey-card">
+                <div className="journey-number">{step.number}</div>
 
-          <a href="#home">Home</a>
-          <a href="#features">Features</a>
-          <a href="#how-it-works">How It Works</a>
-          <a href="#about">About Us</a>
-          <a href="#contact">Contact</a>
+                <div className="journey-card-content">
+                  <span className="journey-label">
+                    STEP {step.number}
+                  </span>
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
+                </div>
+              </article>
+
+              {index < steps.length - 1 && (
+                <div className="journey-connector" aria-hidden="true">
+                  <span>→</span>
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      </section>
+
+      
+      {/* FOOTER */}
+      <footer className="home-footer" id="contact">
+        <div className="home-footer-main">
+          <div className="home-footer-brand">
+            <Link to="/" className="home-footer-logo">
+              <img src={logoImg} alt="" />
+              <span>
+                Career<span>Bridge</span>
+              </span>
+            </Link>
+
+            <p>
+              From Student to Professional —
+              <br />
+              Your Complete Career Journey.
+            </p>
+
+            <span className="footer-brand-note">
+              Discover. Develop. Prepare.
+            </span>
+          </div>
+
+          <div className="home-footer-column">
+            <h3>Explore</h3>
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#about">About CareerBridge</a>
+          </div>
+
+          <div className="home-footer-column">
+            <h3>Career Tools</h3>
+            <Link to="/career-assessment">Career Assessment</Link>
+            <Link to="/career-roadmap">Career Roadmap</Link>
+            <Link to="/resume-builder">Resume Builder</Link>
+            <Link to="/nterview">Mock Interview</Link>
+          </div>
+
+          <div className="home-footer-column">
+            <h3>Get Started</h3>
+            <Link to="/register">Create Account</Link>
+            <Link to="/login">Login</Link>
+            <a href="#features">Explore Features</a>
+            <a href="#contact">Contact</a>
+          </div>
+
+          <div className="home-footer-column footer-contact-column">
+            <h3>Contact</h3>
+            <p>CareerBridge Support</p>
+            <p>Mumbai, India</p>
+            <p className="footer-contact-note">
+              Supporting your journey from student to professional.
+            </p>
+          </div>
         </div>
 
-        <div className="footer-column">
-          <h3>Features</h3>
-
-          <a href="#features">Career Assessment</a>
-          <a href="#features">Roadmap</a>
-          <a href="#features">Resume Builder</a>
-          <a href="#features">Mock Interview</a>
-          <a href="#features">Placement Readiness</a>
+        <div className="home-footer-bottom">
+          <p>© 2026 CareerBridge. All Rights Reserved.</p>
+          <a href="#home">Back to top ↑</a>
         </div>
-
-        <div className="footer-column">
-          <h3>Resources</h3>
-
-          <a href="#features">Career Blog</a>
-          <a href="#features">Interview Tips</a>
-          <a href="#features">Resume Tips</a>
-          <a href="#features">Guides & Tutorials</a>
-          <a href="#features">FAQs</a>
-        </div>
-
-        <div className="footer-column">
-          <h3>Contact Us</h3>
-
-          <p>✉ support@careerbridge.com</p>
-          <p>☎ +91 98765 43210</p>
-          <p>📍 Mumbai, India</p>
-        </div>
-
-        <div className="footer-bottom">
-          © 2026 CareerBridge. All Rights Reserved.
-        </div>
-
       </footer>
-
-    </div>
+    </main>
   );
 }
 

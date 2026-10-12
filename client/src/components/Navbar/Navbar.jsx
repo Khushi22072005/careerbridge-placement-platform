@@ -1,37 +1,68 @@
+
 import "./Navbar.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function Navbar() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSectionClick = (sectionId) => {
+    if (location.pathname !== "/") {
+      navigate("/", { state: { scrollTo: sectionId } });
+      return;
+    }
+
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   return (
     <nav className="navbar">
-
-      <div className="logo">
+      <Link to="/" className="logo">
         🎓 CareerBridge
-      </div>
+      </Link>
 
       <ul className="nav-links">
-        <li><Link to="/">Home</Link></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#resources">Resources</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+
+        <li>
+          <button onClick={() => handleSectionClick("features")}>
+            Features
+          </button>
+        </li>
+
+        <li>
+          <button onClick={() => handleSectionClick("how-it-works")}>
+            How It Works
+          </button>
+        </li>
+
+        <li>
+          <button onClick={() => handleSectionClick("about")}>
+            About
+          </button>
+        </li>
+
+        <li>
+          <button onClick={() => handleSectionClick("contact")}>
+            Contact
+          </button>
+        </li>
       </ul>
-<div className="buttons">
 
-<Link to="/login">
-<button className="login">
-Login
-</button>
-</Link>
+      <div className="buttons">
+        <Link to="/login" className="login">
+          Login
+        </Link>
 
-<Link to="/register">
-<button className="started">
-Get Started
-</button>
-</Link>
-
-</div>
-
+        <Link to="/register" className="started">
+          Get Started
+        </Link>
+      </div>
     </nav>
   );
 }

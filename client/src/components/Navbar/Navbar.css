@@ -91,3 +91,40 @@ border-radius:8px;
 color:white;
 
 }
+
+.nav-links button {
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-links button:hover {
+  color: #7c3aed;
+}
+
+.logo {
+  text-decoration: none;
+}
+
+.buttons a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+}
+
+#features,
+#how-it-works,
+#contact,
+#about {
+  scroll-margin-top: 100px;
+}
