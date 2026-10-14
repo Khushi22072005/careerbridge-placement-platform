@@ -1,1333 +1,319 @@
-const pool = require("../src/config/db");
 
-console.log("🔥 NEW RESUME CONTROLLER LOADED");
+
 
 const { PDFParse } = require("pdf-parse");
 const mammoth = require("mammoth");
-const { createWorker } = require("tesseract.js");
-const { createCanvas } = require("@napi-rs/canvas");
 
-// =====================================================
-// PDF.JS LOADER
-// =====================================================
 
-let pdfjsLib = null;
+// Support the function export and default export formats.
+const pdfParse =
+    typeof pdfParseModule === "function"
+        ? pdfParseModule
+        : typeof pdfParseModule.default === "function"
+            ? pdfParseModule.default
+            : null;
 
-async function loadPdfJs() {
-    if (!pdfjsLib) {
-        pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+// Common skills to detect in resumes.
+const SKILLS = [
+    "JavaScript",
+    "React",
+    "Node.js",
+    "Express.js",
+    "HTML",
+    "CSS",
+    "Java",
+    "Python",
+    "C++",
+    "C",
+    "SQL",
+    "MySQL",
+    "PostgreSQL",
+    "MongoDB",
+    "Excel",
+    "Power BI",
+    "Tableau",
+    "Pandas",
+    "NumPy",
+    "Machine Learning",
+    "Data Analysis",
+    "Data Visualization",
+    "Artificial Intelligence",
+    "Git",
+    "GitHub",
+    "REST API",
+    "Android Studio",
+    "Flutter",
+    "Firebase",
+    "AWS",
+    "Communication",
+    "Problem Solving",
+    "Leadership",
+    "Teamwork"
+];
+
+// Standard resume sections.
+const SECTION_PATTERNS = [
+    ["Contact Information", /\b(email|phone|mobile|linkedin|github)\b/i],
+    [
+        "Summary / Objective",
+        /\b(summary|career objective|professional profile|objective)\b/i
+    ],
+    ["Education", /\b(education|academic background|qualification)\b/i],
+    [
+        "Skills",
+        /\b(technical skills|skills|core competencies|key skills)\b/i
+    ],
+    [
+        "Projects",
+        /\b(projects|academic projects|personal projects)\b/i
+    ],
+    [
+        "Experience",
+        /\b(experience|work history|internship|employment)\b/i
+    ],
+    [
+        "Certifications",
+        /\b(certifications|certificates|courses|training)\b/i
+    ],
+    [
+        "Achievements",
+        /\b(achievements|awards|accomplishments|publications)\b/i
+    ]
+];
+
+function unique(items) {
+    return [...new Set(items)];
+}
+
+function analyzeResumeText(text) {
+    const cleanText = text.replace(/\s+/g, " ").trim();
+    const lowerText = cleanText.toLowerCase();
+
+    if (cleanText.length < 40) {
+        const error = new Error(
+            "Very little text could be extracted. This PDF may be scanned or image-based. Please upload a text-based PDF or DOCX file."
+        );
+
+        error.statusCode = 422;
+        throw error;
     }
 
-    return pdfjsLib;
-}
-
-// =====================================================
-// PDF PAGE → PNG BUFFER
-// =====================================================
-
-async function renderPdfPageToPng(pdfPage, scale = 2.0) {
-    const viewport = pdfPage.getViewport({
-        scale,
-    });
-
-    const width = Math.ceil(viewport.width);
-    const height = Math.ceil(viewport.height);
-
-    console.log(
-        `🖼️ Rendering page: ${width} x ${height}`
+    // Detect common skills.
+    const skillsFound = SKILLS.filter((skill) =>
+        lowerText.includes(skill.toLowerCase())
     );
 
-    const canvas = createCanvas(
-        width,
-        height
-    );
+    // Detect resume sections.
+    const sectionsFound = SECTION_PATTERNS
+        .filter(([, pattern]) => pattern.test(cleanText))
+        .map(([name]) => name);
 
-    const context = canvas.getContext("2d");
+    // Contact information.
+    const hasEmail =
+        /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(cleanText);
 
-    await pdfPage.render({
-        canvasContext: context,
-        viewport,
-    }).promise;
+    const hasPhone =
+        /(?:\+?\d[\d\s().-]{7,}\d)/.test(cleanText);
 
-    const pngBuffer =
-        canvas.toBuffer("image/png");
+    const wordCount = cleanText.split(/\s+/).filter(Boolean).length;
 
-    console.log(
-        "🖼️ PNG buffer created:",
-        pngBuffer.length,
-        "bytes"
-    );
+    let score = 0;
 
-    return pngBuffer;
-}
+    // Contact details: 15 points.
+    if (hasEmail) score += 8;
+    if (hasPhone) score += 7;
 
-// =====================================================
-// PDF OCR
-// =====================================================
+    // Resume sections: 30 points.
+    const sectionPoints = {
+        "Summary / Objective": 4,
+        "Education": 6,
+        "Skills": 6,
+        "Projects": 6,
+        "Experience": 4,
+        "Certifications": 2,
+        "Achievements": 2
+    };
 
-async function extractPdfWithOCR(buffer, totalPages) {
-    console.log(
-        "========================================"
-    );
-
-    console.log(
-        "🔎 STARTING PDF OCR"
-    );
-
-    console.log(
-        "========================================"
-    );
-
-    const pdfjs = await loadPdfJs();
-
-    console.log(
-        "📚 PDF.js loaded successfully."
-    );
-
-    // -------------------------------------------------
-    // LOAD PDF
-    // -------------------------------------------------
-
-    const loadingTask =
-        pdfjs.getDocument({
-            data: new Uint8Array(buffer),
-            disableWorker: true,
-        });
-
-    const pdf =
-        await loadingTask.promise;
-
-    console.log(
-        "📄 PDF.js pages:",
-        pdf.numPages
-    );
-
-    const pagesToProcess =
-        Math.min(
-            pdf.numPages,
-            10
-        );
-
-    console.log(
-        "📄 Pages to OCR:",
-        pagesToProcess
-    );
-
-    // -------------------------------------------------
-    // CREATE TESSERACT WORKER
-    // -------------------------------------------------
-
-    let worker = null;
-
-    try {
-        console.log(
-            "🤖 Initializing Tesseract..."
-        );
-
-        worker =
-            await createWorker(
-                "eng"
-            );
-
-        console.log(
-            "🤖 Tesseract OCR worker initialized."
-        );
-
-        let completeText = "";
-
-        // -------------------------------------------------
-        // PROCESS EACH PDF PAGE
-        // -------------------------------------------------
-
-        for (
-            let pageNumber = 1;
-            pageNumber <= pagesToProcess;
-            pageNumber++
-        ) {
-            console.log(
-                "----------------------------------------"
-            );
-
-            console.log(
-                `🔎 OCR processing page ${pageNumber}/${pagesToProcess}...`
-            );
-
-            try {
-                const page =
-                    await pdf.getPage(
-                        pageNumber
-                    );
-
-                // Render PDF page directly to memory
-                const pngBuffer =
-                    await renderPdfPageToPng(
-                        page,
-                        2.0
-                    );
-
-                console.log(
-                    `🤖 Sending page ${pageNumber} to Tesseract...`
-                );
-
-                const result =
-                    await worker.recognize(
-                        pngBuffer
-                    );
-
-                const pageText =
-                    result?.data?.text ||
-                    "";
-
-                console.log(
-                    `📝 Page ${pageNumber} OCR characters:`,
-                    pageText.length
-                );
-
-                console.log(
-                    `📝 Page ${pageNumber} preview:`,
-                    JSON.stringify(
-                        pageText.substring(
-                            0,
-                            300
-                        )
-                    )
-                );
-
-                completeText +=
-                    "\n" +
-                    pageText;
-
-                // Release page resources
-                page.cleanup();
-
-            } catch (pageError) {
-                console.error(
-                    `❌ OCR error on page ${pageNumber}:`,
-                    pageError.message
-                );
-
-                console.error(
-                    pageError.stack
-                );
-            }
-        }
-
-        // -------------------------------------------------
-        // CLEAN OCR TEXT
-        // -------------------------------------------------
-
-        const cleanedText =
-            completeText
-                .replace(
-                    /\u0000/g,
-                    " "
-                )
-                .replace(
-                    /\r/g,
-                    " "
-                )
-                .replace(
-                    /\n+/g,
-                    " "
-                )
-                .replace(
-                    /\s+/g,
-                    " "
-                )
-                .trim();
-
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "🤖 OCR COMPLETE"
-        );
-
-        console.log(
-            "OCR text length:",
-            cleanedText.length
-        );
-
-        console.log(
-            "OCR preview:"
-        );
-
-        console.log(
-            cleanedText.substring(
-                0,
-                2000
-            )
-        );
-
-        console.log(
-            "========================================"
-        );
-
-        return cleanedText;
-
-    } finally {
-        if (worker) {
-            try {
-                await worker.terminate();
-
-                console.log(
-                    "🧹 OCR worker terminated."
-                );
-
-            } catch (workerError) {
-                console.error(
-                    "⚠️ OCR worker cleanup error:",
-                    workerError.message
-                );
-            }
-        }
+    for (const section of sectionsFound) {
+        score += sectionPoints[section] || 0;
     }
-}
 
-// =====================================================
-// MAIN RESUME ANALYZER
-// =====================================================
+    // Skills: maximum 20 points.
+    score += Math.min(20, skillsFound.length * 2);
+
+    // Content length: maximum 15 points.
+    if (wordCount >= 250) score += 5;
+    if (wordCount >= 400) score += 5;
+    if (wordCount >= 600) score += 5;
+
+    // Project and experience details: 10 points.
+    if (
+        /\b(project|developed|created|built|implemented)\b/i.test(cleanText)
+    ) {
+        score += 5;
+    }
+
+    if (
+        /\b(intern|experience|responsibilities|worked|contributed)\b/i.test(
+            cleanText
+        )
+    ) {
+        score += 5;
+    }
+
+    // Measurable achievements: 10 points.
+    const hasMeasurableResults =
+        /\b(\d+%|\d+\+|increased|reduced|improved|achieved|ranked)\b/i.test(
+            cleanText
+        );
+
+    if (hasMeasurableResults) {
+        score += 10;
+    }
+
+    score = Math.min(100, score);
+
+    // Generate strengths and improvement suggestions.
+    const strengths = [];
+    const improvements = [];
+
+    if (hasEmail && hasPhone) {
+        strengths.push("Contact details appear to be present.");
+    } else {
+        improvements.push(
+            "Add a valid email address and phone number."
+        );
+    }
+
+    if (sectionsFound.includes("Education")) {
+        strengths.push("An education section was detected.");
+    } else {
+        improvements.push(
+            "Add a clearly labelled Education section."
+        );
+    }
+
+    if (
+        sectionsFound.includes("Skills") &&
+        skillsFound.length > 0
+    ) {
+        strengths.push(
+            `Detected ${skillsFound.length} common skills in your resume.`
+        );
+    } else {
+        improvements.push(
+            "Add a clearly labelled Skills section with relevant skills."
+        );
+    }
+
+    if (sectionsFound.includes("Projects")) {
+        strengths.push("A projects section was detected.");
+    } else {
+        improvements.push(
+            "Include academic or personal projects and explain your contribution."
+        );
+    }
+
+    if (sectionsFound.includes("Experience")) {
+        strengths.push(
+            "An experience or internship section was detected."
+        );
+    } else {
+        improvements.push(
+            "Add relevant internship, training, volunteering, or practical experience if available."
+        );
+    }
+
+    if (sectionsFound.includes("Certifications")) {
+        strengths.push("A certifications or training section was detected.");
+    } else {
+        improvements.push(
+            "Include relevant certifications or training courses if available."
+        );
+    }
+
+    if (hasMeasurableResults) {
+        strengths.push(
+            "The resume appears to include measurable outcomes or achievements."
+        );
+    } else {
+        improvements.push(
+            "Where possible, describe project results using specific numbers or measurable outcomes."
+        );
+    }
+
+    if (wordCount < 250) {
+        improvements.push(
+            "Check whether important education, skills, and project details are missing."
+        );
+    }
+
+    return {
+        resumeScore: score,
+        skillsFound: unique(skillsFound),
+        sectionsFound: unique(sectionsFound),
+        strengths: unique(strengths),
+        improvements: unique(improvements),
+        wordCount
+    };
+}
 
 exports.analyzeResume = async (req, res) => {
     try {
-        const userId = req.user.id;
-
-        console.log("\n========================================");
-        console.log("📄 RESUME ANALYSIS STARTED");
-        console.log("========================================");
-
-        // =====================================================
-        // 1. CHECK FILE
-        // =====================================================
-
         if (!req.file) {
-            console.log(
-                "❌ No resume file received"
-            );
-
             return res.status(400).json({
-                message:
-                    "Please upload a resume file.",
+                message: "Please upload a PDF or DOCX resume."
             });
         }
 
-        const file = req.file;
-
-        console.log(
-            "📁 File name:",
-            file.originalname
-        );
-
-        console.log(
-            "📦 File type:",
-            file.mimetype
-        );
-
-        console.log(
-            "📏 File size:",
-            (
-                file.size /
-                1024 /
-                1024
-            ).toFixed(2),
-            "MB"
-        );
-
-        console.log(
-            "🔍 Buffer exists:",
-            !!file.buffer
-        );
-
-        console.log(
-            "🔍 Buffer size:",
-            file.buffer
-                ? file.buffer.length
-                : 0
-        );
-
-        let resumeText = "";
-        let extractionMethod = "none";
-
-        // =====================================================
-        // 2. PDF
-        // =====================================================
-
-        if (
-            file.mimetype ===
-            "application/pdf"
-        ) {
-            console.log(
-                "📕 Processing PDF..."
-            );
-
-            let parser = null;
-
-            try {
-                if (
-                    !file.buffer ||
-                    !Buffer.isBuffer(
-                        file.buffer
-                    )
-                ) {
-                    throw new Error(
-                        "Uploaded PDF buffer is missing or invalid."
-                    );
-                }
-
-                console.log(
-                    "🔍 PDF buffer size:",
-                    file.buffer.length,
-                    "bytes"
-                );
-
-                // -------------------------------------------------
-                // FIRST ATTEMPT: NORMAL TEXT EXTRACTION
-                // -------------------------------------------------
-
-                parser =
-                    new PDFParse({
-                        data: file.buffer,
-                    });
-
-                const pdfData =
-                    await parser.getText();
-
-                console.log(
-                    "========================================"
-                );
-
-                console.log(
-                    "PDF TEXT EXTRACTION DEBUG"
-                );
-
-                console.log(
-                    "Pages:",
-                    pdfData.total || 0
-                );
-
-                console.log(
-                    "Text length:",
-                    pdfData.text
-                        ? pdfData.text.length
-                        : 0
-                );
-
-                console.log(
-                    "Text preview:",
-                    JSON.stringify(
-                        pdfData.text
-                            ? pdfData.text.substring(
-                                  0,
-                                  500
-                              )
-                            : ""
-                    )
-                );
-
-                console.log(
-                    "========================================"
-                );
-
-                resumeText =
-                    pdfData.text || "";
-
-                const cleanedPdfText =
-                    resumeText
-                        .replace(
-                            /\u0000/g,
-                            " "
-                        )
-                        .replace(
-                            /\s+/g,
-                            " "
-                        )
-                        .trim();
-
-                // -------------------------------------------------
-                // NORMAL TEXT SUCCESS
-                // -------------------------------------------------
-
-                if (
-                    cleanedPdfText.length >=
-                    50
-                ) {
-                    console.log(
-                        "✅ Normal PDF text extraction successful."
-                    );
-
-                    resumeText =
-                        cleanedPdfText;
-
-                    extractionMethod =
-                        "pdf-text";
-                }
-
-                // -------------------------------------------------
-                // OCR FALLBACK
-                // -------------------------------------------------
-
-                else {
-                    console.log(
-                        "⚠️ Very little PDF text found."
-                    );
-
-                    console.log(
-                        "🔎 Starting PDF.js → Canvas → Tesseract OCR..."
-                    );
-
-                    // Destroy parser before OCR
-                    try {
-                        await parser.destroy();
-                    } catch (error) {
-                        console.log(
-                            "⚠️ Parser cleanup warning:",
-                            error.message
-                        );
-                    }
-
-                    parser = null;
-
-                    resumeText =
-                        await extractPdfWithOCR(
-                            file.buffer,
-                            pdfData.total || 1
-                        );
-
-                    extractionMethod =
-                        "ocr";
-                }
-
-            } catch (pdfError) {
-                console.error(
-                    "========================================"
-                );
-
-                console.error(
-                    "❌ PDF PROCESSING ERROR"
-                );
-
-                console.error(
-                    "========================================"
-                );
-
-                console.error(
-                    pdfError
-                );
-
-                console.error(
-                    "Message:",
-                    pdfError.message
-                );
-
-                console.error(
-                    "Stack:",
-                    pdfError.stack
-                );
-
-                console.error(
-                    "========================================"
-                );
-
-                return res.status(400).json({
-                    message:
-                        "Unable to read the uploaded PDF.",
-                    error:
-                        pdfError.message,
-                });
-
-            } finally {
-                if (parser) {
-                    try {
-                        await parser.destroy();
-                    } catch (
-                        destroyError
-                    ) {
-                        console.error(
-                            "⚠️ PDF parser cleanup error:",
-                            destroyError.message
-                        );
-                    }
-                }
-            }
-        }
-
-        // =====================================================
-        // 3. DOCX
-        // =====================================================
-
-        else if (
-            file.mimetype ===
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        ) {
-            console.log(
-                "📘 Processing DOCX..."
-            );
-
-            try {
-                const result =
-                    await mammoth.extractRawText(
-                        {
-                            buffer:
-                                file.buffer,
-                        }
-                    );
-
-                resumeText =
-                    result.value || "";
-
-                extractionMethod =
-                    "docx";
-
-                console.log(
-                    "📝 DOCX text length:",
-                    resumeText.length
-                );
-
-            } catch (
-                docxError
-            ) {
-                console.error(
-                    "❌ DOCX parsing error:",
-                    docxError
-                );
-
-                return res.status(400).json({
-                    message:
-                        "Unable to read the uploaded DOCX file.",
-                    error:
-                        docxError.message,
-                });
-            }
-        }
-
-        // =====================================================
-        // 4. OLD DOC
-        // =====================================================
-
-        else if (
-            file.mimetype ===
-            "application/msword"
-        ) {
-            return res.status(400).json({
-                message:
-                    "DOC files are not currently supported. Please upload PDF or DOCX.",
-            });
-        }
-
-        // =====================================================
-        // 5. UNSUPPORTED FILE
-        // =====================================================
-
-        else {
-            return res.status(400).json({
-                message:
-                    "Unsupported file type. Please upload PDF or DOCX.",
-            });
-        }
-
-        // =====================================================
-        // 6. FINAL TEXT CLEANING
-        // =====================================================
-
-        const text =
-            resumeText
-                .replace(
-                    /\u0000/g,
-                    " "
-                )
-                .replace(
-                    /\r/g,
-                    " "
-                )
-                .replace(
-                    /\n+/g,
-                    " "
-                )
-                .replace(
-                    /\s+/g,
-                    " "
-                )
-                .trim();
-
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "🧹 FINAL TEXT EXTRACTION"
-        );
-
-        console.log(
-            "Extraction method:",
-            extractionMethod
-        );
-
-        console.log(
-            "Final text length:",
-            text.length
-        );
-
-        console.log(
-            "Final text preview:"
-        );
-
-        console.log(
-            text.substring(
-                0,
-                2000
-            )
-        );
-
-        console.log(
-            "========================================"
-        );
-
-        // =====================================================
-        // 7. CHECK TEXT
-        // =====================================================
-
-        if (
-            !text ||
-            text.length < 50
-        ) {
-            console.log(
-                "❌ Still insufficient text after extraction/OCR."
-            );
-
-            return res.status(400).json({
-                message:
-                    "Could not extract enough text from the resume.",
-                extractedCharacters:
-                    text.length,
-                extractionMethod,
-                suggestion:
-                    "Please upload a clearer PDF or DOCX resume.",
-            });
-        }
-
-        console.log(
-            "✅ Resume text successfully extracted."
-        );
-
-        // =====================================================
-        // 8. LOWERCASE
-        // =====================================================
-
-        const lowerText =
-            text.toLowerCase();
-
-        // =====================================================
-        // 9. WORD COUNT
-        // =====================================================
-
-        const wordCount =
-            text
-                .split(/\s+/)
-                .filter(Boolean)
-                .length;
-
-        console.log(
-            "🔢 Word count:",
-            wordCount
-        );
-
-        // =====================================================
-        // 10. CONTACT SCORE - 10
-        // =====================================================
-
-        let contactScore = 0;
-
-        const hasEmail =
-            /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(
-                text
-            );
-
-        const hasPhone =
-            /(?:\+91[\s-]?)?[6-9]\d{9}\b/.test(
-                text
-            );
-
-        const hasLinkedIn =
-            lowerText.includes(
-                "linkedin"
-            );
-
-        const hasGithub =
-            lowerText.includes(
-                "github"
-            );
-
-        if (hasEmail)
-            contactScore += 3;
-
-        if (hasPhone)
-            contactScore += 3;
-
-        if (hasLinkedIn)
-            contactScore += 2;
-
-        if (hasGithub)
-            contactScore += 2;
-
-        // =====================================================
-        // 11. SECTION SCORE - 20
-        // =====================================================
-
-        const sectionPatterns = {
-            education: [
-                "education",
-                "academic background",
-            ],
-
-            experience: [
-                "experience",
-                "work experience",
-                "professional experience",
-            ],
-
-            skills: [
-                "skills",
-                "technical skills",
-                "core skills",
-            ],
-
-            projects: [
-                "project",
-                "projects",
-                "academic projects",
-                "personal projects",
-            ],
-
-            summary: [
-                "summary",
-                "professional summary",
-                "profile",
-            ],
-
-            certification: [
-                "certification",
-                "certifications",
-            ],
-
-            achievements: [
-                "achievements",
-                "accomplishments",
-            ],
-        };
-
-        const foundSections = [];
-
-        Object.entries(
-            sectionPatterns
-        ).forEach(
-            ([section, patterns]) => {
-                if (
-                    patterns.some(
-                        (pattern) =>
-                            lowerText.includes(
-                                pattern
-                            )
-                    )
-                ) {
-                    foundSections.push(
-                        section
-                    );
-                }
-            }
-        );
-
-        const sectionScore =
-            Math.min(
-                Math.round(
-                    (foundSections.length /
-                        7) *
-                        20
-                ),
-                20
-            );
-
-        // =====================================================
-        // 12. TECHNICAL SKILLS - 20
-        // =====================================================
-
-        const technicalSkills = [
-            "python",
-            "java",
-            "javascript",
-            "typescript",
-            "c++",
-            "c#",
-            "sql",
-            "postgresql",
-            "mysql",
-            "mongodb",
-            "excel",
-            "power bi",
-            "tableau",
-            "pandas",
-            "numpy",
-            "matplotlib",
-            "machine learning",
-            "deep learning",
-            "data analysis",
-            "data visualization",
-            "statistics",
-            "react",
-            "node.js",
-            "express",
-            "html",
-            "css",
-            "git",
-            "github",
-            "docker",
-            "aws",
-            "azure",
-        ];
-
-        const foundSkills =
-            technicalSkills.filter(
-                (skill) =>
-                    lowerText.includes(
-                        skill
-                    )
-            );
-
-        const skillScore =
-            Math.min(
-                Math.round(
-                    (foundSkills.length /
-                        10) *
-                        20
-                ),
-                20
-            );
-
-        // =====================================================
-        // 13. PROJECT SCORE - 15
-        // =====================================================
-
-        let projectScore = 0;
-
-        const hasProjects =
-            lowerText.includes(
-                "project"
-            ) ||
-            lowerText.includes(
-                "projects"
-            );
-
-        const actionWords = [
-            "developed",
-            "built",
-            "created",
-            "implemented",
-            "designed",
-            "engineered",
-            "deployed",
-            "develop",
-            "build",
-            "create",
-        ];
-
-        const actionWordCount =
-            actionWords.filter(
-                (word) =>
-                    lowerText.includes(
-                        word
-                    )
-            ).length;
-
-        if (hasProjects) {
-            projectScore += 7;
-        }
-
-        if (actionWordCount >= 1) {
-            projectScore += 3;
-        }
-
-        if (actionWordCount >= 3) {
-            projectScore += 2;
-        }
-
-        if (
-            lowerText.includes(
-                "github"
-            ) ||
-            lowerText.includes(
-                "deployed"
-            ) ||
-            lowerText.includes(
-                "live"
-            )
-        ) {
-            projectScore += 3;
-        }
-
-        projectScore =
-            Math.min(
-                projectScore,
-                15
-            );
-
-        // =====================================================
-        // 14. EXPERIENCE SCORE - 10
-        // =====================================================
-
-        let experienceScore = 0;
-
-        const experienceKeywords = [
-            "internship",
-            "intern",
-            "work experience",
-            "professional experience",
-            "employment",
-        ];
-
-        const hasExperience =
-            experienceKeywords.some(
-                (keyword) =>
-                    lowerText.includes(
-                        keyword
-                    )
-            );
-
-        if (hasExperience) {
-            experienceScore += 5;
-        }
-
-        if (
-            lowerText.includes(
-                "responsible"
-            ) ||
-            lowerText.includes(
-                "managed"
-            ) ||
-            lowerText.includes(
-                "analyzed"
-            ) ||
-            lowerText.includes(
-                "developed"
-            ) ||
-            lowerText.includes(
-                "led"
-            )
-        ) {
-            experienceScore += 3;
-        }
-
-        if (
-            /\b20\d{2}\b/.test(
-                text
-            )
-        ) {
-            experienceScore += 2;
-        }
-
-        experienceScore =
-            Math.min(
-                experienceScore,
-                10
-            );
-
-        // =====================================================
-        // 15. ACHIEVEMENT SCORE - 10
-        // =====================================================
-
-        let achievementScore = 0;
-
-        const percentageMatches =
-            text.match(
-                /\b\d+(?:\.\d+)?%/g
-            ) || [];
-
-        const numberMatches =
-            text.match(
-                /\b\d+(?:\.\d+)?\+?\b/g
-            ) || [];
-
-        if (
-            percentageMatches.length >=
-            1
-        ) {
-            achievementScore += 4;
-        }
-
-        if (
-            numberMatches.length >= 3
-        ) {
-            achievementScore += 2;
-        }
-
-        if (
-            lowerText.includes(
-                "increased"
-            ) ||
-            lowerText.includes(
-                "reduced"
-            ) ||
-            lowerText.includes(
-                "improved"
-            ) ||
-            lowerText.includes(
-                "achieved"
-            ) ||
-            lowerText.includes(
-                "optimized"
-            )
-        ) {
-            achievementScore += 4;
-        }
-
-        achievementScore =
-            Math.min(
-                achievementScore,
-                10
-            );
-
-        // =====================================================
-        // 16. CONTENT QUALITY SCORE - 10
-        // =====================================================
-
-        let contentScore = 0;
-
-        if (wordCount >= 100)
-            contentScore += 2;
-
-        if (wordCount >= 250)
-            contentScore += 2;
-
-        if (wordCount >= 400)
-            contentScore += 2;
-
-        if (wordCount >= 550)
-            contentScore += 2;
-
-        if (
-            lowerText.includes(
-                "resume"
-            ) ||
-            lowerText.includes(
-                "curriculum vitae"
-            )
-        ) {
-            contentScore += 1;
-        }
-
-        if (
-            lowerText.includes(
-                "skills"
-            ) &&
-            lowerText.includes(
-                "education"
-            )
-        ) {
-            contentScore += 1;
-        }
-
-        contentScore =
-            Math.min(
-                contentScore,
-                10
-            );
-
-        // =====================================================
-        // 17. OVERALL SCORE
-        // =====================================================
-
-        const rawScore =
-            contactScore +
-            sectionScore +
-            skillScore +
-            projectScore +
-            experienceScore +
-            achievementScore +
-            contentScore;
-
-        const resumeScore =
-            Math.min(
-                Math.max(
-                    Math.round(
-                        rawScore
-                    ),
-                    0
-                ),
-                100
-            );
-
-        // =====================================================
-        // 18. ATS SCORE
-        // =====================================================
-
-        let atsScore = 0;
-
-        atsScore +=
-            contactScore * 2;
-
-        atsScore +=
-            sectionScore * 2;
-
-        atsScore +=
-            contentScore * 2;
-
-        if (wordCount >= 200)
-            atsScore += 5;
-
-        if (wordCount >= 400)
-            atsScore += 5;
-
-        atsScore =
-            Math.min(
-                Math.round(
-                    atsScore
-                ),
-                100
-            );
-
-        // =====================================================
-        // 19. KEYWORD SCORE
-        // =====================================================
-
-        const keywordScore =
-            Math.min(
-                Math.round(
-                    (foundSkills.length /
-                        12) *
-                        100
-                ),
-                100
-            );
-
-        // =====================================================
-        // 20. DATABASE UPDATE
-        // =====================================================
-
-        console.log(
-            "💾 Updating profile score..."
-        );
-
-        const updateResult =
-            await pool.query(
-                `
-                UPDATE profiles
-                SET
-                    resume_score = $1,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE user_id = $2
-                `,
-                [
-                    resumeScore,
-                    userId,
-                ]
-            );
-
-        if (
-            updateResult.rowCount ===
-            0
-        ) {
-            console.log(
-                "❌ Profile not found."
-            );
-
-            return res.status(404).json({
-                message:
-                    "Profile not found for this user.",
-            });
-        }
-
-        // =====================================================
-        // 21. SUCCESS
-        // =====================================================
-
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "✅ RESUME ANALYSIS SUCCESSFUL"
-        );
-
-        console.log(
-            "📊 Resume Score:",
-            resumeScore
-        );
-
-        console.log(
-            "🎯 ATS Score:",
-            atsScore
-        );
-
-        console.log(
-            "🔑 Keyword Score:",
-            keywordScore
-        );
-
-        console.log(
-            "🔢 Word Count:",
-            wordCount
-        );
-
-        console.log(
-            "🛠 Skills Found:",
-            foundSkills
-        );
-
-        console.log(
-            "📚 Sections Found:",
-            foundSections
-        );
-
-        console.log(
-            "📖 Extraction Method:",
-            extractionMethod
-        );
-
-        console.log(
-            "========================================\n"
-        );
+        const fileName = req.file.originalname || "";
+        const extension = fileName.split(".").pop().toLowerCase();
+
+        let extractedText = "";
+
+        
+if (extension === "pdf") {
+    const parser = new PDFParse({
+        data: req.file.buffer
+    });
+
+    try {
+        const pdfData = await parser.getText();
+        extractedText = pdfData.text || "";
+    } finally {
+        await parser.destroy();
+    }
+} else if (extension === "docx") {
+    const docxData = await mammoth.extractRawText({
+        buffer: req.file.buffer
+    });
+
+    extractedText = docxData.value || "";
+} else {
+    return res.status(400).json({
+        message: "Unsupported file format. Please upload a PDF or DOCX file."
+    });
+}
+
+
+        const analysis = analyzeResumeText(extractedText);
+
+        // Preserve the existing profile-score update here if your
+        // application stores resume scores in the database.
 
         return res.status(200).json({
-            message:
-                "Resume analyzed successfully",
-
-            resumeScore,
-
-            analysis: {
-                contactScore,
-                sectionScore,
-                skillScore,
-                projectScore,
-                experienceScore,
-                achievementScore,
-                contentScore,
-
-                atsScore,
-                keywordScore,
-
-                wordCount,
-
-                skillsFound:
-                    foundSkills,
-
-                sectionsFound:
-                    foundSections,
-
-                extractionMethod,
-            },
+            message: "Resume analyzed successfully.",
+            analysis
         });
-
     } catch (error) {
-        console.error(
-            "🔥 Resume Analysis Error:",
-            error
-        );
+        console.error("Resume analysis error:", error);
 
-        return res.status(500).json({
+        return res.status(error.statusCode || 500).json({
             message:
-                "Failed to analyze resume",
-
-            error:
-                error.message,
+                error.statusCode === 422
+                    ? error.message
+                    : error.message ||
+                      "Unable to read the uploaded resume. Please try again."
         });
     }
 };
