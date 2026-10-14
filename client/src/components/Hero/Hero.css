@@ -88,3 +88,10 @@
   object-fit: contain;
   display: block;
 }
+.hero-image-container img {
+  display: block !important;
+  width: 100% !important;
+  max-width: 400px;
+  height: auto !important;
+  object-fit: contain;
+}

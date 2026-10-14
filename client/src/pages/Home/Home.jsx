@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Home.css";
-import heroImage from "../../assets/images/hero-girl.png";
+import heroImage from "../../assets/images/career logo.jpeg";
 import logoImg from "../../assets/images/logo.jpeg";
 
 function Home() {
@@ -168,21 +168,10 @@ const features = [
               />
             </div>
 
-            <div className="hero-floating-card hero-card-top">
+            
+            
               
-              <div>
-                <strong>Your Career</strong>
-                <small>Starts with a plan</small>
-              </div>
-            </div>
-
-            <div className="hero-floating-card hero-card-bottom">
-              
-              <div>
-                <strong>Keep Growing</strong>
-                <small>Learn. Practice. Improve.</small>
-              </div>
-            </div>
+           
 
             <div className="hero-orbit orbit-one" />
             <div className="hero-orbit orbit-two" />
