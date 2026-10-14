@@ -1,3 +1,4 @@
+
 const express = require("express");
 const { GoogleGenAI } = require("@google/genai");
 
@@ -15,135 +16,25 @@ const gemini = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY || "",
 });
 
-// Uses the model configured in server/.env.
 const GEMINI_MODEL =
     process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
 
 const MAX_QUESTIONS = 10;
 
 /* =========================================================
-   ROLE INFORMATION
+   HELPERS
 ========================================================= */
 
-const ROLE_NAMES = {
-    "software-developer": "Software Developer",
-    "data-analyst": "Data Analyst",
-    cybersecurity: "Cybersecurity",
-    "cloud-devops": "Cloud / DevOps",
-    "ui-ux": "UI/UX Designer",
-};
+const normalizeInterviewMode = (mode) =>
+    mode === "hr" ? "hr" : "technical";
 
-/* =========================================================
-   ROLE-SPECIFIC TECHNICAL SKILLS
-========================================================= */
+const safeText = (value) =>
+    typeof value === "string" ? value : "";
 
-const SKILLS_BY_ROLE = {
-    "software-developer": [
-        "Java",
-        "Python",
-        "JavaScript",
-        "C++",
-        "C#",
-        "TypeScript",
-    ],
-
-    "data-analyst": [
-        "SQL",
-        "Python",
-        "Excel",
-        "Power BI",
-        "Tableau",
-        "R",
-    ],
-
-    cybersecurity: [
-        "Python",
-        "Linux",
-        "Networking",
-        "SQL",
-        "Bash / Shell Scripting",
-        "PowerShell",
-    ],
-
-    "cloud-devops": [
-        "Linux",
-        "AWS",
-        "Azure",
-        "Docker",
-        "Kubernetes",
-        "Terraform",
-        "Python",
-        "Bash / Shell Scripting",
-    ],
-
-    "ui-ux": [
-        "Figma",
-        "UI Design",
-        "UX Design",
-        "User Research",
-        "Prototyping",
-        "HTML/CSS",
-        "Design Systems",
-    ],
-};
-
-/* =========================================================
-   VALIDATE INTERVIEW MODE
-========================================================= */
-
-const normalizeInterviewMode = (mode) => {
-    return mode === "hr" ? "hr" : "technical";
-};
-
-/* =========================================================
-   GET VALID TECHNICAL SKILL
-========================================================= */
-
-const getTechnicalSkill = (role, skill) => {
-    const roleSkills = SKILLS_BY_ROLE[role];
-
-    if (
-        Array.isArray(roleSkills) &&
-        roleSkills.includes(skill)
-    ) {
-        return skill;
-    }
-
-    if (Array.isArray(roleSkills) && roleSkills.length > 0) {
-        return roleSkills[0];
-    }
-
-    return "General Technical Skills";
-};
-
-/* =========================================================
-   SAFE JSON PARSER
-========================================================= */
-
-const parseAIJson = (text) => {
-    if (!text) {
-        throw new Error("Gemini returned an empty response.");
-    }
-
-    const cleaned = text
-        .replace(/```json/gi, "")
-        .replace(/```/g, "")
-        .trim();
-
-    try {
-        return JSON.parse(cleaned);
-    } catch (error) {
-        console.error("Invalid Gemini JSON:", text);
-
-        throw new Error(
-            "Gemini returned an invalid JSON response."
-        );
-    }
-};
-
-/* =========================================================
-   NORMALIZE SCORE
-========================================================= */
+const safeArray = (value) =>
+    Array.isArray(value)
+        ? value.filter((item) => typeof item === "string")
+        : [];
 
 const normalizeScore = (value) => {
     const number = Number(value);
@@ -155,40 +46,62 @@ const normalizeScore = (value) => {
     return Math.max(0, Math.min(100, Math.round(number)));
 };
 
+const parseAIJson = (text) => {
+    if (!text || !text.trim()) {
+        throw new Error("Gemini returned an empty response.");
+    }
+
+    const cleaned = text
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/\s*```$/i, "")
+        .trim();
+
+    try {
+        return JSON.parse(cleaned);
+    } catch (error) {
+        console.error("Invalid Gemini JSON response:", text);
+        throw new Error("Gemini returned an invalid JSON response.");
+    }
+};
+
+const getErrorStatus = (error) => {
+    const candidate = Number(
+        error?.status || error?.statusCode || error?.code
+    );
+
+    return Number.isFinite(candidate) ? candidate : 0;
+};
+
+const isQuotaError = (error) => {
+    const status = getErrorStatus(error);
+    const message = error?.message || "";
+
+    return (
+        status === 429 ||
+        /resource_exhausted|quota exceeded|rate limit/i.test(message)
+    );
+};
+
 /* =========================================================
-   SAFE TEXT AND ARRAY HELPERS
-========================================================= */
-
-const safeText = (value) =>
-    typeof value === "string" ? value : "";
-
-const safeArray = (value) =>
-    Array.isArray(value)
-        ? value.filter((item) => typeof item === "string")
-        : [];
-
-/* =========================================================
-   GENERATE CONTENT WITH GEMINI
-
-   IMPORTANT:
-   - Uses GEMINI_MODEL from .env.
-   - Does not repeatedly retry quota-exceeded errors.
-   - Retries only selected temporary service/network errors.
+   GEMINI REQUEST
 ========================================================= */
 
 const generateWithGemini = async (prompt) => {
     if (!process.env.GEMINI_API_KEY) {
-        throw new Error(
+        const error = new Error(
             "GEMINI_API_KEY is missing. Check server/.env."
         );
+
+        error.status = 500;
+        throw error;
     }
 
-    const MAX_RETRIES = 3;
+    const maxRetries = 3;
 
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
         try {
             console.log(
-                `Gemini model: ${GEMINI_MODEL} | Attempt: ${attempt}/${MAX_RETRIES}`
+                `Gemini model: ${GEMINI_MODEL} | Attempt: ${attempt}/${maxRetries}`
             );
 
             const response = await gemini.models.generateContent({
@@ -196,20 +109,20 @@ const generateWithGemini = async (prompt) => {
                 contents: prompt,
             });
 
-            const text = response.text;
+            const responseText = response?.text;
 
-            if (!text || !text.trim()) {
-                throw new Error(
-                    "Gemini returned an empty response."
-                );
+            if (
+                typeof responseText !== "string" ||
+                !responseText.trim()
+            ) {
+                throw new Error("Gemini returned an empty response.");
             }
 
-            return text;
+            return responseText;
         } catch (error) {
-            const status =
-                Number(error?.status || error?.code) || 0;
-
-            const message = error?.message || "";
+            const status = getErrorStatus(error);
+            const message =
+                error?.message || "Unknown Gemini error.";
             const lowerMessage = message.toLowerCase();
 
             console.error("Gemini request failed:", {
@@ -219,30 +132,25 @@ const generateWithGemini = async (prompt) => {
                 message,
             });
 
-            // Quota errors should not be retried repeatedly.
-            if (
-                status === 429 ||
-                /resource_exhausted|quota exceeded|rate limit/i.test(
-                    message
-                )
-            ) {
+            if (isQuotaError(error)) {
                 throw error;
             }
 
-            const isTemporaryError =
+            const temporary =
                 [500, 502, 503, 504].includes(status) ||
                 lowerMessage.includes("headers timeout") ||
                 lowerMessage.includes("fetch failed") ||
                 lowerMessage.includes("temporarily unavailable") ||
                 lowerMessage.includes("overloaded") ||
                 lowerMessage.includes("timed out") ||
-                lowerMessage.includes("econnreset");
+                lowerMessage.includes("econnreset") ||
+                lowerMessage.includes("socket hang up");
 
-            if (!isTemporaryError || attempt === MAX_RETRIES) {
+            if (!temporary || attempt === maxRetries) {
                 throw error;
             }
 
-            const delay = 1000 * Math.pow(2, attempt - 1);
+            const delay = 1000 * 2 ** (attempt - 1);
 
             console.log(
                 `Retrying Gemini in ${delay / 1000} second(s)...`
@@ -260,8 +168,8 @@ const generateWithGemini = async (prompt) => {
 };
 
 /* =========================================================
-   FIRST QUESTION BY INTERVIEW MODE
-   The first question does not require an AI API call.
+   FIRST QUESTION
+   No Gemini call is required for the first question.
 ========================================================= */
 
 const getFirstQuestion = (mode) => {
@@ -276,7 +184,7 @@ const getFirstQuestion = (mode) => {
 
     return {
         question:
-            "Tell me about yourself and your technical background.",
+            "Tell me about yourself and the technical skills you have developed.",
         type: "technical-intro",
         focus: "Technical Introduction",
         difficulty: "easy",
@@ -284,16 +192,19 @@ const getFirstQuestion = (mode) => {
 };
 
 /* =========================================================
-   BUILD PREVIOUS ANSWER HISTORY
+   PREVIOUS ANSWER HISTORY
 ========================================================= */
 
 const buildHistory = (previousAnswers, mode) => {
-    if (!Array.isArray(previousAnswers)) {
+    if (
+        !Array.isArray(previousAnswers) ||
+        previousAnswers.length === 0
+    ) {
         return "No previous interview history.";
     }
 
     return previousAnswers
-        .slice(-10)
+        .slice(-MAX_QUESTIONS)
         .map((item, index) => {
             const evaluation = item?.evaluation || {};
 
@@ -308,6 +219,7 @@ Evaluation:
 Overall: ${evaluation.overall ?? "N/A"}
 Communication: ${evaluation.communication ?? "N/A"}
 Relevance: ${evaluation.relevance ?? "N/A"}
+
 ${
     mode === "technical"
         ? `Technical accuracy: ${evaluation.technicalAccuracy ?? "N/A"}`
@@ -317,6 +229,7 @@ ${
               "N/A"
           }`
 }
+
 Feedback: ${safeText(evaluation.feedback)}
 Understanding: ${safeText(evaluation.understanding)}
 `;
@@ -330,8 +243,6 @@ Understanding: ${safeText(evaluation.understanding)}
 
 const buildEvaluationPrompt = ({
     mode,
-    roleName,
-    technicalSkill,
     question,
     questionType,
     answer,
@@ -342,14 +253,8 @@ const buildEvaluationPrompt = ({
 You are an experienced HR interviewer assessing a candidate
 preparing for entry-level placement interviews.
 
-Target role:
-${roleName}
-
-Interview mode:
-HR Interview
-
-Question type:
-${questionType || "behavioral"}
+Interview mode: HR Interview
+Question type: ${questionType || "behavioral"}
 
 Interview question:
 ${question}
@@ -360,45 +265,28 @@ ${answer}
 Previous interview context:
 ${previousContext}
 
-EVALUATION OBJECTIVE
-
 Evaluate only what the candidate actually said.
-Do not invent experiences or assume facts that were not stated.
-Do not evaluate technical knowledge unless the question
-specifically asks for a technical explanation.
+Do not invent experiences or assume facts not stated.
 
 Assess:
-1. Communication: clarity and understandable expression.
-2. Relevance: how directly the answer addresses the question.
-3. Answer structure: organization and logical flow.
-4. Confidence: how clearly and decisively the answer is expressed.
-5. Completeness: whether the response sufficiently answers the question.
+1. Communication
+2. Relevance
+3. Answer structure
+4. Clarity of expression
+5. Completeness
 
-For behavioral questions, consider whether the candidate
-explains the situation, their own actions, and the outcome
-when those details are relevant.
+For behavioral answers, consider the situation, candidate's
+actions, and outcome when relevant. Do not require the candidate
+to name the STAR method.
 
-Do not penalize a candidate merely for not using the STAR
-method by name. Evaluate the actual answer.
-
-Do not infer real-world confidence, personality, honesty,
-or emotional state from text alone. Assess only observable
-communication in the supplied answer.
+Do not infer personality, honesty, or emotional state from text.
+Evaluate only the supplied answer.
 
 Score every criterion from 0 to 100.
-Give an overall score reflecting the quality of the answer.
+Provide concise feedback, specific strengths, improvements,
+and a short explanation of what the answer demonstrates.
 
-Provide:
-- concise, constructive feedback
-- specific strengths
-- specific improvements
-- a short explanation of what the answer demonstrates
-
-OUTPUT RULES
-
-Return only valid JSON, without markdown or code fences.
-
-Use exactly this structure:
+Return only valid JSON without markdown or code fences:
 {
   "overall": 0,
   "communication": 0,
@@ -410,22 +298,15 @@ Use exactly this structure:
   "strengths": [],
   "improvements": [],
   "understanding": ""
-}
-`;
+}`;
     }
 
     return `
-You are an expert technical interviewer conducting a realistic
-technical placement interview.
+You are an expert technical interviewer conducting an adaptive
+technical placement interview for an entry-level candidate.
 
-Target role:
-${roleName}
-
-Selected technical skill:
-${technicalSkill}
-
-Question type:
-${questionType || "technical"}
+Interview mode: Technical Interview
+Question type: ${questionType || "technical"}
 
 Interview question:
 ${question}
@@ -436,12 +317,13 @@ ${answer}
 Previous interview context:
 ${previousContext}
 
-EVALUATION OBJECTIVE
-
 Evaluate only the candidate's actual answer.
 Do not generate the next question.
 Do not automatically award high scores.
-Do not penalize the candidate for omitting unrelated technologies.
+
+There is no selected role or selected skill.
+Determine the relevant technical topic from the question,
+the candidate's answer, and the available interview history.
 
 Assess:
 1. Communication
@@ -450,28 +332,22 @@ Assess:
 4. Completeness
 5. Structure
 
-Evaluate according to the selected role, skill, and question.
-For coding or SQL questions, consider correctness, logic,
+For coding or SQL questions, evaluate correctness, logic,
 approach, and explanation when applicable.
+
 For tool or platform questions, evaluate relevant practical
-understanding rather than unrelated programming knowledge.
+understanding.
+
 For project questions, evaluate the candidate's demonstrated
-understanding instead of expecting a memorized answer.
+understanding instead of expecting memorized answers.
+
+Do not penalize the candidate for omitting unrelated technologies.
 
 Score every criterion from 0 to 100.
-Give an overall score reflecting the actual answer.
+Provide concise feedback, specific strengths, improvements,
+and a short explanation of what the answer demonstrates.
 
-Provide:
-- concise, constructive feedback
-- specific strengths
-- specific improvements
-- a short explanation of what the answer demonstrates
-
-OUTPUT RULES
-
-Return only valid JSON, without markdown or code fences.
-
-Use exactly this structure:
+Return only valid JSON without markdown or code fences:
 {
   "overall": 0,
   "communication": 0,
@@ -483,18 +359,16 @@ Use exactly this structure:
   "strengths": [],
   "improvements": [],
   "understanding": ""
-}
-`;
+}`;
 };
 
 /* =========================================================
    NEXT QUESTION PROMPT
+   Questions adapt to the candidate's previous answers.
 ========================================================= */
 
 const buildNextQuestionPrompt = ({
     mode,
-    roleName,
-    technicalSkill,
     questionNumber,
     currentQuestion,
     currentAnswer,
@@ -505,14 +379,7 @@ const buildNextQuestionPrompt = ({
 You are conducting a realistic HR placement interview
 for a final-year student applying for an entry-level role.
 
-Target role:
-${roleName}
-
-Interview mode:
-HR Interview
-
-Question number to generate:
-${questionNumber}
+Question number to generate: ${questionNumber}
 
 Previous question:
 ${currentQuestion}
@@ -523,82 +390,46 @@ ${currentAnswer}
 Previous interview history:
 ${history}
 
-YOUR TASK
-
 Generate exactly ONE next HR interview question.
 
-The question should follow naturally from the candidate's
-latest answer whenever possible.
-
-Explore appropriate HR and placement topics, including:
-- introduction and career goals
-- motivation for the role
-- strengths and areas for improvement
-- teamwork and collaboration
-- handling disagreements
-- time management and prioritization
-- adapting to change
-- learning from mistakes
-- problem-solving at work or college
-- handling pressure or deadlines
-- leadership and responsibility
-- communication
-- project contributions and personal learning
-- ethical judgment and workplace situations
-- why the candidate wants this role or company
-
-ADAPTIVE FOLLOW-UP
+Follow naturally from the candidate's latest answer whenever
+possible. Explore suitable topics such as career goals,
+motivation, strengths, areas to improve, teamwork, disagreements,
+time management, learning from mistakes, problem-solving,
+pressure, leadership, communication, project contribution,
+ethical judgment, and role motivation.
 
 If the candidate describes an experience, ask a relevant
 follow-up about their actions, reasoning, or outcome.
 
-If an answer is vague, ask a clear follow-up for details.
+If the answer is vague, ask for clarification.
 
-If the answer is thoughtful and specific, explore the
-reasoning, lessons learned, or practical outcome.
-
-Avoid asking the same question or substantially repeating
-a previous question.
-
-Do not invent facts about the candidate.
-Do not assume they have work experience.
+Avoid repeating previous questions. Do not assume work experience.
 College, academic projects, internships, and team activities
 are valid contexts for entry-level candidates.
 
-Keep the questions suitable for a realistic fresher interview.
-Do not turn this into a technical quiz.
-A project-related HR question may ask about teamwork,
-responsibility, challenges, or learning, but not detailed
-technical testing.
+Keep the interview suitable for a fresher and do not turn it
+into a technical quiz.
 
-Possible types:
-hr, behavioral, situational, follow-up, motivation, teamwork,
-communication, project-experience.
+Type may be hr, behavioral, situational, follow-up, motivation,
+teamwork, communication, or project-experience.
 
 Difficulty must be easy, medium, or hard.
 
-Return only valid JSON without markdown or code fences:
+Return only valid JSON without markdown:
 {
   "question": "",
   "type": "",
   "focus": "",
   "difficulty": ""
-}
-`;
+}`;
     }
 
     return `
 You are conducting a realistic adaptive technical placement
 interview for an entry-level candidate.
 
-Target role:
-${roleName}
-
-Selected technical skill:
-${technicalSkill}
-
-Question number to generate:
-${questionNumber}
+Question number to generate: ${questionNumber}
 
 Previous question:
 ${currentQuestion}
@@ -609,51 +440,40 @@ ${currentAnswer}
 Previous interview history:
 ${history}
 
-YOUR TASK
+Generate exactly ONE personalized technical interview question.
 
-Generate exactly ONE personalized technical question.
+There is no selected role or selected skill. Infer the appropriate
+topic from the candidate's answers, mentioned skills, projects,
+and previous questions.
 
-The question must be relevant to both the selected role
-and the selected technical skill.
+The candidate's latest answer must strongly influence the
+next question. Follow up on what the candidate actually says.
 
-Use the candidate's latest answer to determine the next
-topic and appropriate difficulty.
+Examples:
+- If the candidate mentions SQL, ask a relevant SQL question.
+- If the candidate mentions Python, explore Python or its use.
+- If the candidate mentions Java, explore Java.
+- If the candidate mentions Excel or Power BI, follow those topics.
+- If the candidate mentions a project, ask about its implementation,
+  technical choices, challenges, or problem-solving.
+- If the candidate mentions another technology, follow that topic.
 
-Assess concepts, practical application, problem-solving,
-coding, SQL, debugging, design decisions, or project knowledge
-only when relevant to the selected skill.
-
-Examples of relevant directions:
-- SQL: filtering, joins, aggregation, subqueries, CTEs,
-  window functions, and query reasoning.
-- Python: fundamentals, functions, data manipulation,
-  data cleaning, debugging, and problem-solving.
-- Excel: formulas, lookups, PivotTables, cleaning, and analysis.
-- Power BI: data modelling, DAX, measures, KPIs, and dashboards.
-- Software development: language fundamentals, data structures,
-  algorithms, debugging, and implementation.
-- Cybersecurity: networking, Linux, security principles,
-  threat analysis, and incident scenarios.
-- Cloud/DevOps: cloud services, Linux, deployment, containers,
-  automation, and troubleshooting.
-- UI/UX: user research, wireframes, usability, prototypes,
-  design systems, and design decisions.
-
-Use only the areas appropriate for the selected skill.
-Do not introduce unrelated technologies just to increase difficulty.
+These are examples, not assumptions. Use the candidate's actual
+answer and do not introduce unrelated technologies just to
+increase difficulty.
 
 ADAPTIVE DIFFICULTY
 
-Strong answer: gradually explore deeper concepts or practical
+Strong answer: gradually explore a deeper concept or practical
 implementation.
 
-Average answer: maintain a similar level or approach the
-concept from another angle.
+Average answer: maintain a similar level or explore the concept
+from another angle.
 
-Weak answer: ask a simpler clarification or test the foundation.
+Weak answer: ask a simpler clarification or check the foundation.
 
-Use the previous evaluation history as supporting context.
-The candidate's actual answer should remain the main influence.
+Use previous evaluation history as supporting context, but let
+the actual answer remain the main influence.
 
 Avoid repeating previous questions or asking substantially
 the same question again.
@@ -661,25 +481,59 @@ the same question again.
 Keep questions suitable for entry-level placement interviews.
 Generate one natural question, not a list.
 
-Possible types:
-technical, project, follow-up, problem-solving, scenario,
-coding, query, debugging.
+Type may be technical, project, follow-up, problem-solving,
+scenario, coding, query, or debugging.
 
 Difficulty must be easy, medium, or hard.
 
-Return only valid JSON without markdown or code fences:
+Return only valid JSON without markdown:
 {
   "question": "",
   "type": "",
   "focus": "",
   "difficulty": ""
-}
-`;
+}`;
+};
+
+/* =========================================================
+   ERROR RESPONSE HELPER
+========================================================= */
+
+const sendGeminiError = (res, error, operation) => {
+    console.error(`${operation} error:`, {
+        model: GEMINI_MODEL,
+        status: getErrorStatus(error),
+        code: error?.code,
+        message: error?.message,
+    });
+
+    if (isQuotaError(error)) {
+        return res.status(429).json({
+            message:
+                "The interview AI has reached its current usage limit. Please try again later.",
+            error: error?.message || "Quota exceeded.",
+        });
+    }
+
+    const upstreamStatus = getErrorStatus(error);
+
+    const statusCode = [502, 503, 504].includes(upstreamStatus)
+        ? upstreamStatus
+        : 500;
+
+    return res.status(statusCode).json({
+        message:
+            operation === "Interview evaluation"
+                ? "Unable to evaluate the interview answer."
+                : "Unable to generate the next interview question.",
+        error: error?.message || "Unknown Gemini error.",
+        model: GEMINI_MODEL,
+    });
 };
 
 /* =========================================================
    POST /EVALUATE
-   EVALUATE ONE ANSWER
+   Evaluate one interview answer.
 ========================================================= */
 
 router.post("/evaluate", async (req, res) => {
@@ -692,14 +546,12 @@ router.post("/evaluate", async (req, res) => {
         }
 
         const {
-            role,
-            skill,
             interviewMode,
             question,
             questionType,
             answer,
             previousAnswers = [],
-        } = req.body;
+        } = req.body || {};
 
         if (
             typeof question !== "string" ||
@@ -721,14 +573,6 @@ router.post("/evaluate", async (req, res) => {
 
         const mode = normalizeInterviewMode(interviewMode);
 
-        const roleName =
-            ROLE_NAMES[role] ||
-            role ||
-            "Technology Professional";
-
-        const technicalSkill =
-            getTechnicalSkill(role, skill);
-
         const previousContext = buildHistory(
             previousAnswers,
             mode
@@ -736,8 +580,6 @@ router.post("/evaluate", async (req, res) => {
 
         const prompt = buildEvaluationPrompt({
             mode,
-            roleName,
-            technicalSkill,
             question: question.trim(),
             questionType,
             answer: answer.trim(),
@@ -747,14 +589,12 @@ router.post("/evaluate", async (req, res) => {
         const rawText = await generateWithGemini(prompt);
         const result = parseAIJson(rawText);
 
-        const scores = [
+        [
             "overall",
             "communication",
             "relevance",
             "completeness",
-        ];
-
-        scores.forEach((key) => {
+        ].forEach((key) => {
             result[key] = normalizeScore(result[key]);
         });
 
@@ -768,11 +608,9 @@ router.post("/evaluate", async (req, res) => {
                 result.answerStructure ?? result.structure
             );
 
-            result.confidence = normalizeScore(
-                result.confidence
-            );
+            result.confidence = normalizeScore(result.confidence);
 
-            // Preserve compatibility with the frontend.
+            // Compatibility with the existing frontend.
             result.technicalAccuracy = result.answerStructure;
         } else {
             result.technicalAccuracy = normalizeScore(
@@ -790,73 +628,30 @@ router.post("/evaluate", async (req, res) => {
 
         return res.json(result);
     } catch (error) {
-        console.error("Interview evaluation error:", {
-            model: GEMINI_MODEL,
-            status: error?.status,
-            code: error?.code,
-            message: error?.message,
-        });
-
-        const status =
-            Number(error?.status || error?.code) || 500;
-
-        const isQuotaError =
-            status === 429 ||
-            /RESOURCE_EXHAUSTED|quota exceeded|rate limit/i.test(
-                error?.message || ""
-            );
-
-        if (isQuotaError) {
-            return res.status(429).json({
-                message:
-                    "The interview AI has reached its current usage limit. Please try again later.",
-            });
-        }
-
-        const statusCode =
-            [502, 503, 504].includes(status) ? status : 500;
-
-        return res.status(statusCode).json({
-            message: "Unable to evaluate the interview answer.",
-            error: error.message || "Unknown Gemini error.",
-        });
+        return sendGeminiError(
+            res,
+            error,
+            "Interview evaluation"
+        );
     }
 });
 
 /* =========================================================
    POST /NEXT-QUESTION
-   GENERATE FIRST OR NEXT QUESTION
+   Return the first question or generate the next question.
 ========================================================= */
 
 router.post("/next-question", async (req, res) => {
     try {
-        if (!process.env.GEMINI_API_KEY) {
-            return res.status(500).json({
-                message:
-                    "Gemini API key is missing. Check server/.env.",
-            });
-        }
-
         const {
-            role,
-            skill,
             interviewMode,
             previousAnswers = [],
             currentQuestion = null,
             currentAnswer = null,
             questionNumber = 1,
-        } = req.body;
+        } = req.body || {};
 
         const mode = normalizeInterviewMode(interviewMode);
-
-        const roleName =
-            ROLE_NAMES[role] ||
-            role ||
-            "Technology Professional";
-
-        const technicalSkill =
-            getTechnicalSkill(role, skill);
-
         const number = Number(questionNumber);
 
         if (
@@ -865,12 +660,11 @@ router.post("/next-question", async (req, res) => {
             number > MAX_QUESTIONS
         ) {
             return res.status(400).json({
-                message:
-                    `Question number must be between 1 and ${MAX_QUESTIONS}.`,
+                message: `Question number must be between 1 and ${MAX_QUESTIONS}.`,
             });
         }
 
-        // The first question is predefined and uses no AI request.
+        // First question is predefined and does not call Gemini.
         if (!currentQuestion || !currentAnswer) {
             return res.json({
                 ...getFirstQuestion(mode),
@@ -890,6 +684,13 @@ router.post("/next-question", async (req, res) => {
             });
         }
 
+        if (!process.env.GEMINI_API_KEY) {
+            return res.status(500).json({
+                message:
+                    "Gemini API key is missing. Check server/.env.",
+            });
+        }
+
         const history = buildHistory(
             previousAnswers,
             mode
@@ -899,11 +700,9 @@ router.post("/next-question", async (req, res) => {
 
         const prompt = buildNextQuestionPrompt({
             mode,
-            roleName,
-            technicalSkill,
             questionNumber: nextQuestionNumber,
-            currentQuestion,
-            currentAnswer,
+            currentQuestion: safeText(currentQuestion),
+            currentAnswer: safeText(currentAnswer),
             history,
         });
 
@@ -953,42 +752,13 @@ router.post("/next-question", async (req, res) => {
 
         return res.json(response);
     } catch (error) {
-        console.error("Next-question generation error:", {
-            model: GEMINI_MODEL,
-            status: error?.status,
-            code: error?.code,
-            message: error?.message,
-        });
-
-        const status =
-            Number(error?.status || error?.code) || 500;
-
-        const isQuotaError =
-            status === 429 ||
-            /RESOURCE_EXHAUSTED|quota exceeded|rate limit/i.test(
-                error?.message || ""
-            );
-
-        if (isQuotaError) {
-            return res.status(429).json({
-                message:
-                    "The interview AI has reached its current usage limit. Please try again later.",
-            });
-        }
-
-        const statusCode =
-            [502, 503, 504].includes(status) ? status : 500;
-
-        return res.status(statusCode).json({
-            message:
-                "Unable to generate the next interview question.",
-            error: error.message || "Unknown Gemini error.",
-        });
+        return sendGeminiError(
+            res,
+            error,
+            "Next-question generation"
+        );
     }
 });
 
-/* =========================================================
-   EXPORT
-========================================================= */
-
 module.exports = router;
+

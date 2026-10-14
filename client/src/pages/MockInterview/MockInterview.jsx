@@ -22,62 +22,22 @@ const MAX_QUESTIONS = 10;
 ========================================================= */
 
 const FIRST_QUESTIONS = {
-    technical: [
-        {
-            question:
-                "Tell me about yourself and the technical skills you have developed.",
-            category: "Introduction",
-        },
-        {
-            question:
-                "Explain a technical project you have worked on and the problem it solves.",
-            category: "Projects",
-        },
-    ],
+    technical: {
+        question:
+            "Tell me about yourself and the technical skills you have developed.",
+        category: "Introduction",
+        type: "technical-intro",
+        focus: "Technical Introduction",
+        difficulty: "easy",
+    },
 
-    hr: [
-        {
-            question: "Tell me about yourself.",
-            category: "Introduction",
-        },
-        {
-            question: "What are your strengths and weaknesses?",
-            category: "Self-awareness",
-        },
-        {
-            question: "Why should we hire you?",
-            category: "Motivation",
-        },
-        {
-            question: "Why do you want to join our company?",
-            category: "Career goals",
-        },
-        {
-            question:
-                "Tell me about a challenge you faced and how you handled it.",
-            category: "Problem-solving",
-        },
-        {
-            question: "How do you handle pressure and tight deadlines?",
-            category: "Work habits",
-        },
-        {
-            question: "Describe a situation where you worked in a team.",
-            category: "Teamwork",
-        },
-        {
-            question: "Where do you see yourself in five years?",
-            category: "Career goals",
-        },
-        {
-            question: "How do you respond to feedback or criticism?",
-            category: "Adaptability",
-        },
-        {
-            question: "Do you have any questions for the interviewer?",
-            category: "Closing",
-        },
-    ],
+    hr: {
+        question: "Tell me about yourself.",
+        category: "Introduction",
+        type: "hr",
+        focus: "Introduction",
+        difficulty: "easy",
+    },
 };
 
 const HR_FALLBACK_QUESTIONS = [
@@ -94,98 +54,6 @@ const HR_FALLBACK_QUESTIONS = [
 ];
 
 /* =========================================================
-   TECHNICAL ROLES
-========================================================= */
-
-const TECHNICAL_ROLES = [
-    {
-        id: "software-developer",
-        label: "Software Developer",
-        description:
-            "Programming, OOP, DSA, databases and software concepts",
-        icon: "",
-    },
-    {
-        id: "data-analyst",
-        label: "Data Analyst",
-        description:
-            "SQL, Excel, data analysis, dashboards and business insights",
-        icon: "",
-    },
-    {
-        id: "web-developer",
-        label: "Web Developer",
-        description: "HTML, CSS, JavaScript, React and APIs",
-        icon: "",
-    },
-    {
-        id: "ui-ux",
-        label: "UI/UX Designer",
-        description:
-            "Design principles, user research, wireframes and usability",
-        icon: "",
-    },
-    {
-        id: "cloud-devops",
-        label: "Cloud / DevOps Engineer",
-        description:
-            "Linux, networking, cloud, deployment and automation",
-        icon: "",
-    },
-];
-
-/* =========================================================
-   TECHNICAL SKILLS
-========================================================= */
-
-const TECHNICAL_SKILLS = {
-    "software-developer": [
-        "Programming Fundamentals",
-        "Object-Oriented Programming",
-        "Data Structures and Algorithms",
-        "DBMS and SQL",
-        "Operating Systems",
-        "Computer Networks",
-        "Software Engineering",
-    ],
-
-    "data-analyst": [
-        "Excel",
-        "SQL",
-        "Power BI",
-        "Data Cleaning",
-        "Data Visualization",
-        "Business Analysis",
-    ],
-
-    "web-developer": [
-        "HTML and CSS",
-        "JavaScript",
-        "React",
-        "Backend and APIs",
-        "Database Integration",
-        "Web Development Fundamentals",
-    ],
-
-    "ui-ux": [
-        "UI Design Fundamentals",
-        "UX Research",
-        "Wireframing and Prototyping",
-        "Figma",
-        "Usability and Accessibility",
-    ],
-
-    "cloud-devops": [
-        "Linux and Networking",
-        "Cloud Fundamentals",
-        "Git and GitHub",
-        "CI/CD",
-        "Containers and Deployment",
-        "Monitoring and Troubleshooting",
-    ],
-};
-
-/* =========================================================
    HELPER FUNCTIONS
 ========================================================= */
 
@@ -194,6 +62,7 @@ function normalizeQuestion(questionData) {
         return {
             question: questionData,
             category: "Interview",
+            type: "technical",
         };
     }
 
@@ -205,29 +74,18 @@ function normalizeQuestion(questionData) {
                 questionData.text ||
                 questionData.nextQuestion ||
                 "",
-            category: questionData.category || "Interview",
+            category:
+                questionData.category ||
+                questionData.focus ||
+                "Interview",
         };
     }
 
     return {
         question: "",
         category: "Interview",
+        type: "technical",
     };
-}
-
-function calculateFallbackScore(answer) {
-    const text = String(answer || "").trim();
-
-    if (!text) return 0;
-
-    const words = text.split(/\s+/).filter(Boolean).length;
-
-    if (words < 5) return 25;
-    if (words < 15) return 45;
-    if (words < 30) return 60;
-    if (words < 60) return 75;
-
-    return 85;
 }
 
 function averageScore(values) {
@@ -269,8 +127,6 @@ export default function MockInterview() {
     /* ---------- Interview setup ---------- */
 
     const [interviewMode, setInterviewMode] = useState("");
-    const [selectedRole, setSelectedRole] = useState("");
-    const [selectedSkill, setSelectedSkill] = useState("");
 
     /* ---------- Interview state ---------- */
 
@@ -301,11 +157,33 @@ export default function MockInterview() {
     const requestRef = useRef(false);
     const speakingRef = useRef(false);
 
-    const availableSkills = selectedRole
-        ? TECHNICAL_SKILLS[selectedRole] || []
-        : [];
-
     const isHR = interviewMode === "hr";
+
+    /* =====================================================
+       BUILD PREVIOUS ANSWER HISTORY
+       Matches the backend's expected object structure.
+    ===================================================== */
+
+    const getPreviousAnswersPayload = useCallback(() => {
+        return answersRef.current.map((item) => ({
+            question: item.question,
+            answer: item.answer,
+            evaluation: {
+                overall: item.score,
+                communication: item.communicationScore,
+                relevance: item.relevanceScore,
+                technicalAccuracy: item.technicalScore,
+                answerStructure: item.answerStructure,
+                confidence: item.confidence,
+                completeness: item.completeness,
+                structure: item.answerStructure,
+                feedback: item.feedback,
+                strengths: item.strengths,
+                improvements: item.improvements,
+                understanding: item.understanding,
+            },
+        }));
+    }, []);
 
     /* =====================================================
        SPEECH SYNTHESIS
@@ -501,69 +379,39 @@ export default function MockInterview() {
     }, [stopListening, stopSpeaking]);
 
     /* =====================================================
-       SELECT INTERVIEW MODE
-    ===================================================== */
-
-    const handleInterviewTypeSelect = (mode) => {
-        resetInterview();
-
-        setInterviewMode(mode);
-
-        if (mode !== "technical") {
-            setSelectedRole("");
-            setSelectedSkill("");
-        }
-    };
-
-    /* =====================================================
        START INTERVIEW
     ===================================================== */
 
-    const startInterview = async () => {
-        if (!interviewMode) {
-            setError("Please select an interview type first.");
-            return;
-        }
+    const startInterview = (mode) => {
+        if (loading) return;
 
-        if (
-            interviewMode === "technical" &&
-            (!selectedRole || !selectedSkill)
-        ) {
-            setError(
-                "Please select your technical role and skill before starting."
-            );
+        if (mode !== "technical" && mode !== "hr") {
+            setError("Please select a valid interview type.");
             return;
         }
 
         resetInterview();
-        setLoading(true);
+        setInterviewMode(mode);
         setError("");
 
-        try {
-            const firstQuestion =
-                interviewMode === "hr"
-                    ? FIRST_QUESTIONS.hr[0]
-                    : FIRST_QUESTIONS.technical[0];
+        const firstQuestion =
+            mode === "hr"
+                ? FIRST_QUESTIONS.hr
+                : FIRST_QUESTIONS.technical;
 
-            setCurrentQuestion(firstQuestion);
-            setCurrentQuestionNumber(1);
-            setInterviewStarted(true);
+        setCurrentQuestion(firstQuestion);
+        setCurrentQuestionNumber(1);
+        setInterviewStarted(true);
 
-            answerRef.current = "";
-            answersRef.current = [];
+        answerRef.current = "";
+        answersRef.current = [];
 
-            speakQuestion(firstQuestion.question);
-        } catch {
-            setError(
-                "Unable to start the interview. Please try again."
-            );
-        } finally {
-            setLoading(false);
-        }
+        speakQuestion(firstQuestion.question);
     };
 
     /* =====================================================
        EVALUATE ANSWER
+       Reads the backend's actual response field names.
     ===================================================== */
 
     const evaluateAnswer = async () => {
@@ -584,17 +432,6 @@ export default function MockInterview() {
         setEvaluating(true);
         setError("");
 
-        const answerRecord = {
-            questionNumber: currentQuestionNumber,
-            question: currentQuestion?.question || "",
-            category: currentQuestion?.category || "Interview",
-            answer: submittedAnswer,
-            score: 0,
-            feedback: "",
-            strengths: [],
-            improvements: [],
-        };
-
         try {
             const response = await fetch(
                 `${API_BASE}/api/mock-interview/evaluate`,
@@ -605,75 +442,109 @@ export default function MockInterview() {
                     },
                     body: JSON.stringify({
                         interviewMode,
-                        role: selectedRole,
-                        skill: selectedSkill,
-                        question: currentQuestion?.question || "",
+                        question:
+                            currentQuestion?.question || "",
+                        questionType:
+                            currentQuestion?.type ||
+                            currentQuestion?.category ||
+                            "technical",
                         answer: submittedAnswer,
-                        questionNumber: currentQuestionNumber,
-                        maxQuestions: MAX_QUESTIONS,
+                        previousAnswers:
+                            getPreviousAnswersPayload(),
                     }),
                 }
             );
 
-            if (!response.ok) {
-                throw new Error("Evaluation service unavailable.");
-            }
-
             const data = await response.json();
 
-            answerRecord.score =
-                Number(data.score ?? data.rating ?? 0) ||
-                calculateFallbackScore(submittedAnswer);
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                        data.message ||
+                        "Unable to evaluate your answer."
+                );
+            }
 
-            answerRecord.feedback =
-                data.feedback ||
-                data.explanation ||
-                "Your answer has been recorded.";
+            /*
+             * The backend returns:
+             * overall, communication, relevance,
+             * technicalAccuracy, answerStructure,
+             * feedback, strengths, improvements.
+             */
+            const answerRecord = {
+                questionNumber: currentQuestionNumber,
+                question: currentQuestion?.question || "",
+                category:
+                    currentQuestion?.category || "Interview",
+                answer: submittedAnswer,
 
-            answerRecord.strengths = Array.isArray(data.strengths)
-                ? data.strengths
-                : [];
+                score: Number(
+                    data.overall ?? data.score ?? 0
+                ),
 
-            answerRecord.improvements = Array.isArray(
-                data.improvements
-            )
-                ? data.improvements
-                : Array.isArray(data.suggestions)
-                ? data.suggestions
-                : [];
+                feedback:
+                    data.feedback ||
+                    "Your answer has been evaluated.",
 
-            answerRecord.modelAnswer =
-                data.modelAnswer || data.sampleAnswer || "";
+                strengths: Array.isArray(data.strengths)
+                    ? data.strengths
+                    : [],
 
-            answerRecord.communicationScore =
-                data.communicationScore ?? null;
+                improvements: Array.isArray(data.improvements)
+                    ? data.improvements
+                    : [],
 
-            answerRecord.relevanceScore =
-                data.relevanceScore ?? null;
+                modelAnswer:
+                    data.modelAnswer ||
+                    data.sampleAnswer ||
+                    "",
 
-            answerRecord.technicalScore =
-                data.technicalScore ?? null;
-        } catch {
-            answerRecord.score =
-                calculateFallbackScore(submittedAnswer);
+                communicationScore:
+                    data.communication ?? null,
 
-            answerRecord.feedback =
-                "Your answer was saved, but detailed AI feedback could not be retrieved. Review your answer for relevance, clarity, examples, and completeness.";
+                relevanceScore:
+                    data.relevance ?? null,
+
+                technicalScore:
+                    interviewMode === "hr"
+                        ? null
+                        : data.technicalAccuracy ?? null,
+
+                answerStructure:
+                    data.answerStructure ??
+                    data.structure ??
+                    null,
+
+                confidence: data.confidence ?? null,
+                completeness: data.completeness ?? null,
+                understanding: data.understanding || "",
+            };
+
+            const updatedAnswers = [
+                ...answersRef.current,
+                answerRecord,
+            ];
+
+            answersRef.current = updatedAnswers;
+
+            setAnswers(updatedAnswers);
+            setEvaluation(answerRecord);
+            setAnswer("");
+            answerRef.current = "";
+        } catch (error) {
+            console.error("Answer evaluation failed:", error);
+
+            /*
+             * Do not fabricate an AI score when the request fails.
+             * Preserve the typed answer so the user can retry.
+             */
+            setError(
+                error.message ||
+                    "Unable to evaluate your answer. Please try again."
+            );
+        } finally {
+            setEvaluating(false);
         }
-
-        const updatedAnswers = [
-            ...answersRef.current,
-            answerRecord,
-        ];
-
-        answersRef.current = updatedAnswers;
-
-        setAnswers(updatedAnswers);
-        setEvaluation(answerRecord);
-        setAnswer("");
-        answerRef.current = "";
-
-        setEvaluating(false);
     };
 
     /* =====================================================
@@ -710,8 +581,6 @@ export default function MockInterview() {
 
             const completedReport = {
                 interviewMode,
-                role: selectedRole,
-                skill: selectedSkill,
                 totalQuestions: safeAnswers.length,
                 maxQuestions: MAX_QUESTIONS,
                 averageScore: average,
@@ -732,11 +601,12 @@ export default function MockInterview() {
             setInterviewStarted(false);
             setEvaluation(null);
         },
-        [interviewMode, selectedRole, selectedSkill]
+        [interviewMode]
     );
 
     /* =====================================================
        NEXT QUESTION
+       Sends complete answer history to the backend.
     ===================================================== */
 
     const nextQuestion = async () => {
@@ -763,6 +633,9 @@ export default function MockInterview() {
         try {
             let nextQuestionData = null;
 
+            /*
+             * Keep the existing predefined HR questions.
+             */
             if (interviewMode === "hr") {
                 const fallbackIndex = nextNumber - 1;
 
@@ -774,11 +647,21 @@ export default function MockInterview() {
                         question:
                             HR_FALLBACK_QUESTIONS[fallbackIndex],
                         category: "HR Interview",
+                        type: "hr",
                     };
                 }
             }
 
+            /*
+             * Technical questions are generated adaptively.
+             * HR uses the API after its predefined questions.
+             */
             if (!nextQuestionData) {
+                const latestAnswer =
+                    answersRef.current[
+                        answersRef.current.length - 1
+                    ];
+
                 const response = await fetch(
                     `${API_BASE}/api/mock-interview/next-question`,
                     {
@@ -788,39 +671,42 @@ export default function MockInterview() {
                         },
                         body: JSON.stringify({
                             interviewMode,
-                            role: selectedRole,
-                            skill: selectedSkill,
+
                             currentQuestion:
-                                currentQuestion?.question || "",
+                                latestAnswer?.question ||
+                                currentQuestion?.question ||
+                                "",
+
                             currentAnswer:
-                                answersRef.current[
-                                    answersRef.current.length - 1
-                                ]?.answer || "",
-                            questionNumber: nextNumber,
+                                latestAnswer?.answer || "",
+
+                            /*
+                             * The backend uses this as the
+                             * question that was just answered.
+                             */
+                            questionNumber: currentQuestionNumber,
                             maxQuestions: MAX_QUESTIONS,
-                            previousQuestions:
-                                answersRef.current.map(
-                                    (item) => item.question
-                                ),
+
+                            /*
+                             * Send objects, not arrays of strings.
+                             */
                             previousAnswers:
-                                answersRef.current.map(
-                                    (item) => item.answer
-                                ),
+                                getPreviousAnswersPayload(),
                         }),
                     }
                 );
 
+                const data = await response.json();
+
                 if (!response.ok) {
                     throw new Error(
-                        "Could not retrieve the next question."
+                        data.error ||
+                            data.message ||
+                            "Could not retrieve the next question."
                     );
                 }
 
-                const data = await response.json();
-
-                nextQuestionData = normalizeQuestion(
-                    data.question ? data.question : data
-                );
+                nextQuestionData = normalizeQuestion(data);
             }
 
             if (
@@ -839,33 +725,13 @@ export default function MockInterview() {
             answerRef.current = "";
 
             speakQuestion(nextQuestionData.question);
-        } catch {
-            if (interviewMode === "hr") {
-                const fallbackIndex = nextNumber - 1;
-                const fallbackText =
-                    HR_FALLBACK_QUESTIONS[fallbackIndex];
+        } catch (error) {
+            console.error("Next question failed:", error);
 
-                if (fallbackText) {
-                    const fallbackQuestion = {
-                        question: fallbackText,
-                        category: "HR Interview",
-                    };
-
-                    setCurrentQuestion(fallbackQuestion);
-                    setCurrentQuestionNumber(nextNumber);
-                    setEvaluation(null);
-                    setAnswer("");
-                    answerRef.current = "";
-
-                    speakQuestion(fallbackQuestion.question);
-                } else {
-                    buildReport(answersRef.current);
-                }
-            } else {
-                setError(
-                    "Unable to load the next technical question. Please try again."
-                );
-            }
+            setError(
+                error.message ||
+                    "Unable to load the next question. Please try again."
+            );
         } finally {
             setLoading(false);
             requestRef.current = false;
@@ -898,14 +764,6 @@ export default function MockInterview() {
                     ? "HR Interview"
                     : "Technical Mock Interview"
             }`,
-            report.role
-                ? `Role: ${
-                      TECHNICAL_ROLES.find(
-                          (role) => role.id === report.role
-                      )?.label || report.role
-                  }`
-                : "",
-            report.skill ? `Skill: ${report.skill}` : "",
             `Questions answered: ${report.totalQuestions}/${MAX_QUESTIONS}`,
             `Average score: ${report.averageScore}/100`,
             "",
@@ -971,7 +829,7 @@ export default function MockInterview() {
     }, []);
 
     /* =====================================================
-       COMPACT REPORT SCREEN
+       REPORT SCREEN
     ===================================================== */
 
     if (showReport && report) {
@@ -982,11 +840,15 @@ export default function MockInterview() {
         );
 
         const relevance = averageScore(
-            report.answers.map((item) => item.relevanceScore)
+            report.answers.map(
+                (item) => item.relevanceScore
+            )
         );
 
         const technical = averageScore(
-            report.answers.map((item) => item.technicalScore)
+            report.answers.map(
+                (item) => item.technicalScore
+            )
         );
 
         const metrics = [
@@ -1067,15 +929,13 @@ export default function MockInterview() {
 
                     {report.strengths.length > 0 && (
                         <section className="report-detail-card">
-                            <h2> Your Strengths</h2>
+                            <h2>Your Strengths</h2>
 
                             <ul>
                                 {report.strengths
                                     .slice(0, 4)
                                     .map((strength, index) => (
-                                        <li
-                                            key={`${strength}-${index}`}
-                                        >
+                                        <li key={`${strength}-${index}`}>
                                             {strength}
                                         </li>
                                     ))}
@@ -1085,15 +945,13 @@ export default function MockInterview() {
 
                     {report.improvements.length > 0 && (
                         <section className="report-detail-card">
-                            <h2> Areas to Improve</h2>
+                            <h2>Areas to Improve</h2>
 
                             <ul>
                                 {report.improvements
                                     .slice(0, 4)
                                     .map((improvement, index) => (
-                                        <li
-                                            key={`${improvement}-${index}`}
-                                        >
+                                        <li key={`${improvement}-${index}`}>
                                             {improvement}
                                         </li>
                                     ))}
@@ -1102,7 +960,7 @@ export default function MockInterview() {
                     )}
 
                     <section className="report-detail-card report-summary-card">
-                        <h2> AI Interview Summary</h2>
+                        <h2>AI Interview Summary</h2>
                         <p>{report.summary}</p>
                     </section>
 
@@ -1187,8 +1045,6 @@ export default function MockInterview() {
                             onClick={() => {
                                 resetInterview();
                                 setInterviewMode("");
-                                setSelectedRole("");
-                                setSelectedSkill("");
                             }}
                         >
                             Practise Again
@@ -1241,14 +1097,9 @@ export default function MockInterview() {
                     <div className="interview-mode-grid">
                         <button
                             type="button"
-                            className={`interview-mode-card ${
-                                interviewMode === "technical"
-                                    ? "selected"
-                                    : ""
-                            }`}
-                            onClick={() =>
-                                handleInterviewTypeSelect("technical")
-                            }
+                            className="interview-mode-card"
+                            disabled={loading}
+                            onClick={() => startInterview("technical")}
                         >
                             <span className="mode-card-icon"></span>
 
@@ -1258,7 +1109,7 @@ export default function MockInterview() {
                                 </strong>
 
                                 <span className="mode-card-meta">
-                                    Role + skill selection
+                                    Technical concepts, programming and projects
                                 </span>
                             </span>
 
@@ -1267,14 +1118,9 @@ export default function MockInterview() {
 
                         <button
                             type="button"
-                            className={`interview-mode-card ${
-                                interviewMode === "hr"
-                                    ? "selected"
-                                    : ""
-                            }`}
-                            onClick={() =>
-                                handleInterviewTypeSelect("hr")
-                            }
+                            className="interview-mode-card"
+                            disabled={loading}
+                            onClick={() => startInterview("hr")}
                         >
                             <span className="mode-card-icon"></span>
 
@@ -1290,134 +1136,10 @@ export default function MockInterview() {
                         </button>
                     </div>
 
-                    {interviewMode === "technical" && (
-                        <section className="technical-setup-section">
-                            <div className="setup-heading">
-                                <span className="setup-step">
-                                    STEP 02
-                                </span>
-
-                                <h2>Choose your technical role</h2>
-                            </div>
-
-                            <div className="role-selector">
-                                {TECHNICAL_ROLES.map((role) => (
-                                    <button
-                                        type="button"
-                                        key={role.id}
-                                        className={`role-card ${
-                                            selectedRole === role.id
-                                                ? "selected"
-                                                : ""
-                                        }`}
-                                        onClick={() => {
-                                            setSelectedRole(role.id);
-                                            setSelectedSkill("");
-                                            setError("");
-                                        }}
-                                    >
-                                        <span className="role-card-icon">
-                                            {role.icon}
-                                        </span>
-
-                                        <strong>{role.label}</strong>
-                                        <span>{role.description}</span>
-                                    </button>
-                                ))}
-                            </div>
-
-                            {selectedRole && (
-                                <>
-                                    <div className="setup-heading skill-heading">
-                                        <span className="setup-step">
-                                            STEP 03
-                                        </span>
-
-                                        <h2>Choose your focus area</h2>
-                                    </div>
-
-                                    <div className="skill-selector">
-                                        {availableSkills.map((skill) => (
-                                            <button
-                                                type="button"
-                                                key={skill}
-                                                className={`skill-option ${
-                                                    selectedSkill === skill
-                                                        ? "selected"
-                                                        : ""
-                                                }`}
-                                                onClick={() => {
-                                                    setSelectedSkill(skill);
-                                                    setError("");
-                                                }}
-                                            >
-                                                <span>
-                                                    {selectedSkill === skill
-                                                        ? "✓"
-                                                        : "+"}
-                                                </span>
-
-                                                {skill}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-
-                            {error && (
-                                <div className="interview-error">
-                                    {error}
-                                </div>
-                            )}
-
-                            <button
-                                type="button"
-                                className="primary-button start-interview-button"
-                                disabled={
-                                    loading ||
-                                    !selectedRole ||
-                                    !selectedSkill
-                                }
-                                onClick={startInterview}
-                            >
-                                {loading
-                                    ? "Starting..."
-                                    : "Start Technical Interview →"}
-                            </button>
-                        </section>
-                    )}
-
-                    {interviewMode === "hr" && (
-                        <section className="hr-start-section">
-                            <div className="hr-start-info">
-                                <span className="hr-start-icon"></span>
-
-                                <div>
-                                    <h3>Ready for your HR round?</h3>
-                                    <p>
-                                        Practise common HR questions and
-                                        receive feedback on your answers.
-                                    </p>
-                                </div>
-                            </div>
-
-                            {error && (
-                                <div className="interview-error">
-                                    {error}
-                                </div>
-                            )}
-
-                            <button
-                                type="button"
-                                className="primary-button start-interview-button"
-                                disabled={loading}
-                                onClick={startInterview}
-                            >
-                                {loading
-                                    ? "Starting..."
-                                    : "Start HR Interview →"}
-                            </button>
-                        </section>
+                    {error && (
+                        <div className="interview-error">
+                            {error}
+                        </div>
                     )}
                 </section>
             </main>
@@ -1466,12 +1188,7 @@ export default function MockInterview() {
                         <p>
                             {isHR
                                 ? "Practise your communication and behavioural answers."
-                                : `${
-                                      TECHNICAL_ROLES.find(
-                                          (role) =>
-                                              role.id === selectedRole
-                                      )?.label || "Technical"
-                                  } · ${selectedSkill}`}
+                                : "Practise technical concepts, problem-solving and project-related questions."}
                         </p>
                     </div>
 
@@ -1545,7 +1262,7 @@ export default function MockInterview() {
                                     }
                                     title="Read the question aloud"
                                 >
-                                     Repeat
+                                    Repeat
                                 </button>
                             </div>
 
@@ -1567,9 +1284,7 @@ export default function MockInterview() {
 
                                 <span className="answer-word-count">
                                     {answer.trim()
-                                        ? answer
-                                              .trim()
-                                              .split(/\s+/).length
+                                        ? answer.trim().split(/\s+/).length
                                         : 0}{" "}
                                     words
                                 </span>
@@ -1781,5 +1496,8 @@ export default function MockInterview() {
         </main>
     );
 }
+
+
+
 
 
