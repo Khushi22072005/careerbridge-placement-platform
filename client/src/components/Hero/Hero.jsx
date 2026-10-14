@@ -1,19 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Hero.css";
-import heroGirl from "../../assets/images/hero-girl.png";
+import careerLogo from "../../assets/images/career logo.jpeg";
 
 function Hero() {
   return (
     <section className="hero-section">
       <div className="hero-container">
-
         <div className="hero-content">
-          <h1>
-            From Student
-            <br />
-            <span>to Professional</span>
-          </h1>
+         <h1 style={{ color: "red" }}>
+  TESTING NEW HERO
+</h1>
 
           <p>
             Discover your ideal career path, build an ATS-friendly resume,
@@ -37,12 +34,11 @@ function Hero() {
 
         <div className="hero-image-container">
           <img
-            src={heroGirl}
-            alt="Student building her career"
+            src={careerLogo}
+            alt="CareerBridge Logo"
             className="hero-girl"
           />
         </div>
-
       </div>
     </section>
   );
