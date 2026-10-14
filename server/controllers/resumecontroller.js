@@ -1,19 +1,7 @@
-
-
-
 const { PDFParse } = require("pdf-parse");
 const mammoth = require("mammoth");
 
-
-// Support the function export and default export formats.
-const pdfParse =
-    typeof pdfParseModule === "function"
-        ? pdfParseModule
-        : typeof pdfParseModule.default === "function"
-            ? pdfParseModule.default
-            : null;
-
-// Common skills to detect in resumes.
+// Common skills to look for in a resume.
 const SKILLS = [
     "JavaScript",
     "React",
@@ -51,7 +39,7 @@ const SKILLS = [
     "Teamwork"
 ];
 
-// Standard resume sections.
+// Common resume sections.
 const SECTION_PATTERNS = [
     ["Contact Information", /\b(email|phone|mobile|linkedin|github)\b/i],
     [
@@ -99,31 +87,28 @@ function analyzeResumeText(text) {
     }
 
     // Detect common skills.
-    const skillsFound = SKILLS.filter((skill) =>
+    const skillsFound = SKILLS.filter(skill =>
         lowerText.includes(skill.toLowerCase())
     );
 
-    // Detect resume sections.
+    // Detect standard resume sections.
     const sectionsFound = SECTION_PATTERNS
         .filter(([, pattern]) => pattern.test(cleanText))
         .map(([name]) => name);
 
-    // Contact information.
+    let score = 0;
+
+    // Contact details: 15 points.
     const hasEmail =
         /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(cleanText);
 
     const hasPhone =
-        /(?:\+?\d[\d\s().-]{7,}\d)/.test(cleanText);
+        /(?:\+\s*)?\d[\d\s().-]{7,}\d/.test(cleanText);
 
-    const wordCount = cleanText.split(/\s+/).filter(Boolean).length;
-
-    let score = 0;
-
-    // Contact details: 15 points.
     if (hasEmail) score += 8;
     if (hasPhone) score += 7;
 
-    // Resume sections: 30 points.
+    // Standard resume sections: 30 points.
     const sectionPoints = {
         "Summary / Objective": 4,
         "Education": 6,
@@ -141,15 +126,17 @@ function analyzeResumeText(text) {
     // Skills: maximum 20 points.
     score += Math.min(20, skillsFound.length * 2);
 
-    // Content length: maximum 15 points.
+    // Resume content length: maximum 15 points.
+    const wordCount = cleanText
+        .split(/\s+/)
+        .filter(Boolean).length;
+
     if (wordCount >= 250) score += 5;
     if (wordCount >= 400) score += 5;
     if (wordCount >= 600) score += 5;
 
-    // Project and experience details: 10 points.
-    if (
-        /\b(project|developed|created|built|implemented)\b/i.test(cleanText)
-    ) {
+    // Projects and experience details: 10 points.
+    if (/\b(project|developed|created|built|implemented)\b/i.test(cleanText)) {
         score += 5;
     }
 
@@ -161,42 +148,45 @@ function analyzeResumeText(text) {
         score += 5;
     }
 
-    // Measurable achievements: 10 points.
+    // Measurable results and achievements: 10 points.
     const hasMeasurableResults =
-        /\b(\d+%|\d+\+|increased|reduced|improved|achieved|ranked)\b/i.test(
-            cleanText
-        );
+        /\b(\d+(?:\.\d+)?%|\d+\+|increased|reduced|improved|achieved|ranked)\b/i
+            .test(cleanText);
 
     if (hasMeasurableResults) {
         score += 10;
     }
 
+    // Ensure the score remains within 0–100.
     score = Math.min(100, score);
 
-    // Generate strengths and improvement suggestions.
     const strengths = [];
     const improvements = [];
 
+    // Contact information.
     if (hasEmail && hasPhone) {
-        strengths.push("Contact details appear to be present.");
+        strengths.push(
+            "Contact details appear to be present."
+        );
     } else {
         improvements.push(
             "Add a valid email address and phone number."
         );
     }
 
+    // Education.
     if (sectionsFound.includes("Education")) {
-        strengths.push("An education section was detected.");
+        strengths.push(
+            "An education section was detected."
+        );
     } else {
         improvements.push(
             "Add a clearly labelled Education section."
         );
     }
 
-    if (
-        sectionsFound.includes("Skills") &&
-        skillsFound.length > 0
-    ) {
+    // Skills.
+    if (sectionsFound.includes("Skills") && skillsFound.length > 0) {
         strengths.push(
             `Detected ${skillsFound.length} common skills in your resume.`
         );
@@ -206,14 +196,18 @@ function analyzeResumeText(text) {
         );
     }
 
+    // Projects.
     if (sectionsFound.includes("Projects")) {
-        strengths.push("A projects section was detected.");
+        strengths.push(
+            "A projects section was detected."
+        );
     } else {
         improvements.push(
             "Include academic or personal projects and explain your contribution."
         );
     }
 
+    // Experience.
     if (sectionsFound.includes("Experience")) {
         strengths.push(
             "An experience or internship section was detected."
@@ -224,14 +218,7 @@ function analyzeResumeText(text) {
         );
     }
 
-    if (sectionsFound.includes("Certifications")) {
-        strengths.push("A certifications or training section was detected.");
-    } else {
-        improvements.push(
-            "Include relevant certifications or training courses if available."
-        );
-    }
-
+    // Measurable achievements.
     if (hasMeasurableResults) {
         strengths.push(
             "The resume appears to include measurable outcomes or achievements."
@@ -242,6 +229,7 @@ function analyzeResumeText(text) {
         );
     }
 
+    // Content length.
     if (wordCount < 250) {
         improvements.push(
             "Check whether important education, skills, and project details are missing."
@@ -259,6 +247,8 @@ function analyzeResumeText(text) {
 }
 
 exports.analyzeResume = async (req, res) => {
+    let parser;
+
     try {
         if (!req.file) {
             return res.status(400).json({
@@ -271,35 +261,45 @@ exports.analyzeResume = async (req, res) => {
 
         let extractedText = "";
 
-        
-if (extension === "pdf") {
-    const parser = new PDFParse({
-        data: req.file.buffer
-    });
+        // Extract text from PDF using pdf-parse v2.
+        if (extension === "pdf") {
+            if (typeof PDFParse !== "function") {
+                throw new Error(
+                    "PDFParse is unavailable. Check the installed pdf-parse package."
+                );
+            }
 
-    try {
-        const pdfData = await parser.getText();
-        extractedText = pdfData.text || "";
-    } finally {
-        await parser.destroy();
-    }
-} else if (extension === "docx") {
-    const docxData = await mammoth.extractRawText({
-        buffer: req.file.buffer
-    });
+            parser = new PDFParse({
+                data: req.file.buffer
+            });
 
-    extractedText = docxData.value || "";
-} else {
-    return res.status(400).json({
-        message: "Unsupported file format. Please upload a PDF or DOCX file."
-    });
-}
+            try {
+                const pdfData = await parser.getText();
+                extractedText = pdfData.text || "";
+            } finally {
+                await parser.destroy();
+                parser = undefined;
+            }
+        }
 
+        // Extract text from DOCX.
+        else if (extension === "docx") {
+            const docxData = await mammoth.extractRawText({
+                buffer: req.file.buffer
+            });
 
+            extractedText = docxData.value || "";
+        }
+
+        // Reject unsupported formats.
+        else {
+            return res.status(400).json({
+                message: "Unsupported file format. Please upload PDF or DOCX."
+            });
+        }
+
+        // Analyze the extracted resume text.
         const analysis = analyzeResumeText(extractedText);
-
-        // Preserve the existing profile-score update here if your
-        // application stores resume scores in the database.
 
         return res.status(200).json({
             message: "Resume analyzed successfully.",
@@ -309,11 +309,21 @@ if (extension === "pdf") {
         console.error("Resume analysis error:", error);
 
         return res.status(error.statusCode || 500).json({
-            message:
-                error.statusCode === 422
-                    ? error.message
-                    : error.message ||
-                      "Unable to read the uploaded resume. Please try again."
+            message: error.statusCode
+                ? error.message
+                : "Unable to analyze the uploaded resume. Please check the file and try again."
         });
+    } finally {
+        // Clean up the parser if extraction failed before normal cleanup.
+        if (parser) {
+            try {
+                await parser.destroy();
+            } catch (cleanupError) {
+                console.error(
+                    "PDF parser cleanup error:",
+                    cleanupError.message
+                );
+            }
+        }
     }
 };
